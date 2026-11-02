@@ -33,7 +33,22 @@ if (SB_URL && SB_KEY) {
     async save(key, save) {
       const { error } = await sb.from('players').update({ save, updated_at: new Date().toISOString() }).eq('key', key);
       if (error) throw error;
-    }
+    },
+    // 4단계: 교환소 게시판 · 받은 소식
+    async posts() {
+      const { data, error } = await sb.from('trade_posts').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    async addPost(p) { const { error } = await sb.from('trade_posts').insert(p); if (error) throw error; },
+    async delPost(id) { const { error } = await sb.from('trade_posts').delete().eq('id', id); if (error) throw error; },
+    async mails() {
+      const since = new Date(Date.now() - 14 * 864e5).toISOString();
+      const { data, error } = await sb.from('trade_mail').select('to_key,text,created_at').gte('created_at', since).order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    async addMail(m) { const { error } = await sb.from('trade_mail').insert(m); if (error) throw error; }
   };
   console.log('Supabase 연결 설정됨');
 } else {
@@ -41,7 +56,9 @@ if (SB_URL && SB_KEY) {
   db = {
     async get(key) { return mem.get(key) || null; },
     async create(key, name, codeHash) { mem.set(key, { name, code_hash: codeHash, save: null }); },
-    async save(key, save) { const r = mem.get(key); if (r) r.save = save; }
+    async save(key, save) { const r = mem.get(key); if (r) r.save = save; },
+    async posts() { return []; }, async addPost() {}, async delPost() {},
+    async mails() { return []; }, async addMail() {}
   };
   console.warn('⚠ SUPABASE_URL / SUPABASE_SECRET_KEY가 없어 메모리에만 저장합니다 (서버가 꺼지면 사라져요).');
 }
@@ -72,6 +89,110 @@ let nextId = 1;
 const send = (ws, o) => { if (ws.readyState === 1) ws.send(JSON.stringify(o)); };
 const broadcast = (o, except) => { const s = JSON.stringify(o); for (const ws of players.keys()) if (ws !== except && ws.readyState === 1) ws.send(s); };
 const colorOf = name => { let h = 0; for (const c of name) h = (h * 31 + c.codePointAt(0)) >>> 0; return h % 6; };
+
+/* ---------- 3·4단계: 외형 · 가방 검증 · 교환 ---------- */
+const FISH_N = 200;                                   // 게임의 본 도감 물고기 수
+const SEASON_FISH = [[1, 1], [0, 2], [2, 3], [3, 5], [0, 2], [1, 3], [2, 4], [3, 5]]; // 계절 한정 [희귀도, 낚시터] — 게임의 SEASONS 순서
+const FISH_MAX = FISH_N + SEASON_FISH.length;
+const ZONE_PRICE = [8, 30, 90, 280, 950], RAR_MULT = [1, 2.2, 5, 14, 45];
+const rarOf = i => i < 8 ? 0 : i < 14 ? 1 : i < 18 ? 2 : i < 19 ? 3 : 4;
+function fishPrice(id) {
+  let z, r;
+  if (id < 100) { z = Math.floor(id / 20); r = rarOf(id % 20); }
+  else if (id < FISH_N) { z = Math.floor((id - 100) / 20); r = rarOf((id - 100) % 20); }
+  else { const s = SEASON_FISH[id - FISH_N]; if (!s) return 0; r = s[0]; z = s[1] - 1; }
+  return Math.max(1, Math.round(ZONE_PRICE[z] * RAR_MULT[r]));
+}
+const validFish = id => Number.isInteger(id) && id >= 0 && id < FISH_MAX;
+const invOf = s => (s && s.inv) || {};
+const has = (s, id, n) => (invOf(s)[id] | 0) >= n;
+const cleanText = (t, max) => String(t || '').replace(/[\u0000-\u001f\u007f<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
+
+// 친구에게 보여 줄 외형: 목록에 있고, 무료이거나 가진 것만
+const LOOK_IDS = {
+  hat: ['straw', 'nohat', 'cap', 'bucket', 'beanie', 'ribbon', 'flower', 'catear', 'frog', 'crown', 'lily', 'fishhat', 'shell', 'captain', 'moonband', 'maple', 'snowcap'],
+  o: ['tee', 'stripe', 'apron', 'overall', 'raincoat', 'hoodie', 'star', 'suit', 'vest', 'sailor', 'wave'],
+  rod: ['bamboo', 'mintrod', 'sakura', 'rainbowrod', 'goldrod', 'lotusrod', 'coral', 'galaxy'],
+  bob: ['basicbob', 'heartbob', 'mushbob', 'catbob', 'goldbob', 'duck', 'leafbob', 'starfish', 'starbob'],
+  ti: ['', 't_new', 't_villager', 't_nap', 't_cat', 't_big', 't_luck', 't_rich', 't_pond', 't_stream', 't_beach', 't_sea', 't_moon', 't_master']
+};
+const FREE = new Set(['straw', 'nohat', 'tee', 'bamboo', 'basicbob', '']);
+function cleanLook(l, save, color) {
+  l = l && typeof l === 'object' ? l : {};
+  const own = new Set((save && save.cos && Array.isArray(save.cos.own)) ? save.cos.own : []);
+  const n = (v, max, d) => Number.isInteger(v) && v >= 0 && v < max ? v : d;
+  const o = { h: n(l.h, 8, 0), k: n(l.k, 5, 0), s: n(l.s, 10, color | 0) };
+  for (const k in LOOK_IDS) { const v = l[k]; o[k] = LOOK_IDS[k].includes(v) && (FREE.has(v) || own.has(v)) ? v : LOOK_IDS[k][0]; }
+  return o;
+}
+
+/* 가방 검증: 받은 저장을 서버가 가진 기록과 비교해요
+   1) rev가 서버보다 옛것 → 무시 (교환 전 가방으로 되돌려 물고기를 복사하는 것을 막음)
+   2) 물고기는 '잡은 만큼'만 늘 수 있음 (늘어난 마릿수 ≤ 도감 마릿수가 늘어난 만큼)
+   3) 도감 마릿수는 줄지 않고, 실제 낚시가 가능한 빠르기까지만 늘어남
+   4) 골드는 판(줄어든) 물고기 값만큼만 늘어남 */
+function checkSave(old, neu, elapsedMs) {
+  if (!neu || typeof neu !== 'object') return '저장 형식이 이상해요';
+  old = old || { inv: {}, dex: {}, gold: 60, rev: 0 };
+  if ((neu.rev | 0) < (old.rev | 0)) return 'stale';
+  if ((neu.rev | 0) > (old.rev | 0)) return '교환 기록 번호가 서버와 달라요';
+  const oi = invOf(old), ni = invOf(neu), od = old.dex || {}, nd = neu.dex || {};
+  if (typeof ni !== 'object' || typeof nd !== 'object') return '저장 형식이 이상해요';
+  for (const k in ni) { const n = ni[k]; if (!validFish(+k) || !Number.isInteger(n) || n < 0 || n > 99999) return '가방에 이상한 물고기가 있어요'; }
+  for (const k in nd) { if (!validFish(+k) || !nd[k] || !Number.isInteger(nd[k].n) || nd[k].n < 0) return '도감 기록이 이상해요'; }
+  let caught = 0, soldValue = 0;
+  const ids = new Set([...Object.keys(oi), ...Object.keys(ni), ...Object.keys(od), ...Object.keys(nd)]);
+  for (const k of ids) {
+    const a = oi[k] | 0, b = ni[k] | 0, da = od[k] ? od[k].n | 0 : 0, dn = nd[k] ? nd[k].n | 0 : 0;
+    if (dn < da) return '도감 기록이 줄었어요';
+    caught += dn - da;
+    if (b - a > dn - da) return '잡지 않은 물고기가 가방에 늘었어요';
+    if (b < a) soldValue += (a - b) * fishPrice(+k);
+  }
+  if (caught > 3 + elapsedMs / 2500) return '너무 빨리 많이 잡혔어요';
+  const g0 = Number(old.gold) || 0, g1 = neu.gold;
+  if (!Number.isFinite(g1) || g1 < 0) return '골드가 이상해요';
+  if (g1 - g0 > soldValue * 1.3 + 50) return '판 것보다 골드가 많이 늘었어요';
+  return null;
+}
+/* 서버가 가방을 바꾸는 유일한 방법 (교환). rev를 1 올려요 */
+function applyInv(save, delta) {
+  save.inv = save.inv || {}; save.dex = save.dex || {};
+  for (const k in delta) {
+    const n = delta[k] | 0; if (!n) continue;
+    save.inv[k] = Math.max(0, (save.inv[k] | 0) + n);
+    if (n > 0) { const e = save.dex[k] || (save.dex[k] = { n: 0, best: 0 }); e.n += n; }
+  }
+  save.rev = (save.rev | 0) + 1;
+  return save.rev;
+}
+/* 같은 사람의 가방을 동시에 고치지 않도록 줄 세우기 */
+const locks = new Map();
+function withLock(key, fn) {
+  const prev = locks.get(key) || Promise.resolve();
+  const run = prev.then(fn, fn);
+  const tail = run.catch(() => { });
+  locks.set(key, tail);
+  tail.then(() => { if (locks.get(key) === tail) locks.delete(key); });
+  return run;
+}
+function withLocks(keys, fn) { keys = [...new Set(keys)].sort(); return keys.reduceRight((inner, k) => () => withLock(k, inner), fn)(); }
+const liveByKey = key => { for (const [ws, p] of players) if (p.key === key) return [ws, p]; return null; };
+const liveById = id => { for (const [ws, p] of players) if (p.id === id) return [ws, p]; return null; };
+const lastSaveAt = new Map(); // key -> 마지막으로 받아들인 저장 시각
+async function loadSave(key) {
+  const l = liveByKey(key); if (l && l[1].save) return l[1].save;
+  if (pending.has(key)) return pending.get(key).save;
+  const row = await db.get(key); return row ? row.save : null;
+}
+/* 교환 결과를 가방에 반영하고 바로 DB에 써요. 접속 중이면 화면에도 알려 줌 (잠금 안에서 부르기) */
+async function changeBag(key, delta, why) {
+  const save = await loadSave(key); if (!save) throw new Error('저장이 없어요');
+  const rev = applyInv(save, delta);
+  const l = liveByKey(key); if (l) { l[1].save = save; send(l[0], { t: 'delta', d: delta, rev, why: why || null }); } // why가 없으면 조용히 반영
+  queueSave(key, save); await flushSave(key);
+  return rev;
+}
 
 const pending = new Map();   // key -> {save, timer}
 function queueSave(key, save) {
@@ -108,14 +229,20 @@ wss.on('connection', (ws) => {
         if (!row) { await db.create(key, name, hashCode(code)); row = { name, save: null }; isNew = true; }
         else if (!checkCode(code, row.code_hash)) { ws.fails++; await new Promise(r => setTimeout(r, 500)); return send(ws, { t: 'login_fail', msg: '코드가 맞지 않아요.' }); }
         // 같은 닉네임이 이미 접속 중이면 예전 접속을 끊음
-        for (const [ows, op] of players) if (op.key === key) { send(ows, { t: 'kicked' }); ows.close(); }
+        for (const [ows, op] of [...players]) if (op.key === key) {
+          endTrade(op, op.name + ' 님이 다른 기기로 옮겨 갔어요');
+          players.delete(ows); broadcast({ t: 'leave', id: op.id });   // 바로 빼야 예전 가방을 건드리지 않아요
+          send(ows, { t: 'kicked' }); ows.close();
+        }
         if (pending.has(key)) { const p = pending.get(key); row.save = p.save; }
-        const p = { id: nextId++, key, name: row.name, color: colorOf(key), x: 0, y: 0, d: 'down', m: 0, here: false };
+        const color = colorOf(key);
+        const p = { id: nextId++, key, name: row.name, color, x: 0, y: 0, d: 'down', m: 0, b: 0, here: false,
+          save: row.save, look: cleanLook(row.save && row.save.cos && row.save.cos.look, row.save, color), tr: null, sayT: 0, emoT: 0 };
         players.set(ws, p);
         send(ws, { t: 'login_ok', id: p.id, name: p.name, color: p.color, save: row.save, isNew });
-        // 지금 있는 친구들 알려 주기 / 내가 왔다고 알리기
-        for (const [ows, op] of players) if (ows !== ws) send(ws, { t: 'join', id: op.id, name: op.name, color: op.color, x: op.x, y: op.y, d: op.d, here: op.here });
-        broadcast({ t: 'join', id: p.id, name: p.name, color: p.color }, ws);
+        // 지금 있는 친구들 알려 주기 / 내가 왔다고 알리기 (외형 포함)
+        for (const [ows, op] of players) if (ows !== ws) send(ws, { t: 'join', id: op.id, name: op.name, color: op.color, x: op.x, y: op.y, d: op.d, here: op.here, look: op.look });
+        broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
         console.log('접속', p.name, '현재', players.size, '명');
       } catch (e) {
         console.error('로그인 오류', e.message);
@@ -130,12 +257,24 @@ wss.on('connection', (ws) => {
       me.x = Math.round(x); me.y = Math.round(y);
       me.d = ['up', 'down', 'left', 'right'].includes(m.d) ? m.d : 'down';
       me.m = m.m ? 1 : 0; me.here = true; me.dirty = true;
+      me.b = Number.isInteger(m.b) && m.b >= 0 && m.b < 100000 ? m.b : 0; // 낚시 중인 찌 위치 (친구 화면에 낚싯대 · 찌 스킨)
     } else if (m.t === 'save' && m.data && typeof m.data === 'object') {
-      queueSave(me.key, m.data);
-    }
+      withLock(me.key, () => {
+        const now = Date.now(), err = checkSave(me.save, m.data, now - (lastSaveAt.get(me.key) || 0));
+        if (err === 'stale') return;                    // 교환 전 옛 가방: 무시 (곧 새 가방이 다시 와요)
+        if (err) {
+          console.warn('저장 거절', me.name, err);
+          if (me.save) return send(ws, { t: 'sync', save: me.save, msg: '가방을 서버 기록에 맞췄어요 (' + err + ')' });
+          return;
+        }
+        me.save = m.data; lastSaveAt.set(me.key, now);
+        queueSave(me.key, m.data);
+      });
+    } else onMsg(ws, me, m);
   });
   ws.on('close', () => {
     const p = players.get(ws); if (!p) return;
+    endTrade(p, p.name + ' 님이 마을을 떠났어요');
     players.delete(ws);
     flushSave(p.key);
     broadcast({ t: 'leave', id: p.id });
@@ -143,10 +282,159 @@ wss.on('connection', (ws) => {
   });
 });
 
+/* ---------- 3·4단계 메시지: 외형 · 말 · 감정표현 · 교환소 ---------- */
+const EMOTES = ['heart', 'laugh', 'sweat', 'sleepy', 'sparkle', 'clap'];
+const POST_DAYS = 3, POST_MAX_EACH = 3, POST_MAX_ALL = 80;
+let posts = [];                 // 게시판 (DB와 같은 내용을 메모리에도)
+const mail = new Map();         // key -> [{at,text}]
+const postView = key => posts.map(p => ({ id: p.id, kind: p.kind, by: p.by_name, at: Date.parse(p.created_at), give: p.give, want: p.want, note: p.note, mine: p.by_key === key }));
+const boardTo = (ws, key) => send(ws, { t: 'bd_list', posts: postView(key), mail: (mail.get(key) || []).slice(0, 10) });
+function addMail(key, text) {
+  const list = mail.get(key) || []; list.unshift({ at: Date.now(), text }); mail.set(key, list.slice(0, 20));
+  db.addMail({ to_key: key, text }).catch(e => console.error('소식 저장 실패', e.message));
+  const l = liveByKey(key); if (l) send(l[0], { t: 'mail', text });
+}
+const okPair = a => a === null || a === undefined || (Array.isArray(a) && a.length === 2 && validFish(a[0]) && Number.isInteger(a[1]) && a[1] >= 1 && a[1] <= 99);
+const fishSpec = a => a ? [a[0], a[1]] : null;
+
+function onMsg(ws, me, m) {
+  switch (m.t) {
+    case 'look':
+      me.look = cleanLook(m.look, me.save, me.color);
+      broadcast({ t: 'look', id: me.id, look: me.look }, ws); break;
+    case 'say': {
+      const now = Date.now(), text = cleanText(m.text, 30);
+      if (!text || now - me.sayT < 600) return; me.sayT = now;
+      broadcast({ t: 'say', id: me.id, text }, ws); break;
+    }
+    case 'emo': {
+      const now = Date.now(); if (!EMOTES.includes(m.k) || now - me.emoT < 350) return; me.emoT = now;
+      broadcast({ t: 'emo', id: me.id, k: m.k }, ws); break;
+    }
+    /* ----- 게시판 (접속 시간이 달라도 됨: 줄 물고기는 교환소가 맡아 둠) ----- */
+    case 'bd_list': boardTo(ws, me.key); break;
+    case 'bd_post': withLock(me.key, async () => {
+      const kind = m.kind === 'want' ? 'want' : 'give', give = m.give || null, want = m.want || null;
+      if (!okPair(give) || !okPair(want) || (kind === 'give' && !give) || (kind === 'want' && !want)) return send(ws, { t: 'bd_err', msg: '글 내용이 이상해요' });
+      if (posts.filter(p => p.by_key === me.key).length >= POST_MAX_EACH) return send(ws, { t: 'bd_err', msg: '글은 한 사람에 ' + POST_MAX_EACH + '개까지예요' });
+      if (posts.length >= POST_MAX_ALL) return send(ws, { t: 'bd_err', msg: '게시판이 꽉 찼어요. 조금 뒤에 올려 주세요' });
+      if (give && !has(me.save, give[0], give[1])) return send(ws, { t: 'bd_err', msg: '가방에 그 물고기가 부족해요' });
+      const p = { id: crypto.randomUUID(), by_key: me.key, by_name: me.name, kind, give: fishSpec(give), want: fishSpec(want), note: cleanText(m.note, 20), created_at: new Date().toISOString() };
+      try { await db.addPost(p); } catch (e) { console.error('글 저장 실패', e.message); return send(ws, { t: 'bd_err', msg: '게시판에 저장하지 못했어요' }); }
+      posts.unshift(p);
+      if (give) await changeBag(me.key, { [give[0]]: -give[1] }, '교환소에 물고기를 맡겼어요');
+      boardTo(ws, me.key);
+    }).catch(e => { console.error('bd_post', e.message); send(ws, { t: 'bd_err', msg: '처리하지 못했어요' }); }); break;
+    case 'bd_del': withLock(me.key, async () => {
+      const i = posts.findIndex(p => p.id === m.id && p.by_key === me.key);
+      if (i < 0) return send(ws, { t: 'bd_err', msg: '이미 없어진 글이에요' });
+      const p = posts.splice(i, 1)[0];
+      await db.delPost(p.id);
+      if (p.give) await changeBag(me.key, { [p.give[0]]: p.give[1] }, '글을 내리고 맡긴 물고기를 돌려받았어요');
+      boardTo(ws, me.key);
+    }).catch(e => { console.error('bd_del', e.message); send(ws, { t: 'bd_err', msg: '처리하지 못했어요' }); }); break;
+    case 'bd_take': {
+      const p0 = posts.find(p => p.id === m.id);
+      if (!p0) { send(ws, { t: 'bd_err', msg: '이미 누가 가져갔어요' }); break; }
+      if (p0.by_key === me.key) { send(ws, { t: 'bd_err', msg: '내가 쓴 글이에요' }); break; }
+      withLocks([me.key, p0.by_key], async () => {
+        const i = posts.findIndex(p => p.id === m.id);
+        if (i < 0) return send(ws, { t: 'bd_err', msg: '이미 누가 가져갔어요' });
+        const p = posts[i];
+        if (p.want && !has(me.save, p.want[0], p.want[1])) return send(ws, { t: 'bd_err', msg: '가방에 그 물고기가 부족해요' });
+        posts.splice(i, 1); await db.delPost(p.id);
+        const d = {};
+        if (p.want) d[p.want[0]] = (d[p.want[0]] | 0) - p.want[1];
+        if (p.give) d[p.give[0]] = (d[p.give[0]] | 0) + p.give[1];
+        await changeBag(me.key, d, '교환소 거래 완료!');
+        if (p.want) await changeBag(p.by_key, { [p.want[0]]: p.want[1] }, false);
+        addMail(p.by_key, me.name + ' 님이 「' + (p.kind === 'give' ? '드려요' : '구해요') + '」 글에 응했어요!' + (p.want ? ' 물고기가 가방에 들어왔어요.' : ''));
+        boardTo(ws, me.key);
+      }).catch(e => { console.error('bd_take', e.message); send(ws, { t: 'bd_err', msg: '처리하지 못했어요' }); });
+      break;
+    }
+    /* ----- 직접 교환 (같이 있을 때) ----- */
+    case 'tr_req': {
+      const o = liveById(m.to);
+      if (!o || o[1] === me || o[1].tr || me.tr) return send(ws, { t: 'tr_no', msg: '지금은 교환할 수 없어요' });
+      send(o[0], { t: 'tr_req', from: me.id, name: me.name }); break;
+    }
+    case 'tr_ans': {
+      const o = liveById(m.from); if (!o) break;
+      const [ows, op] = o;
+      if (!m.ok || op.tr || me.tr) { send(ows, { t: 'tr_no', msg: me.name + ' 님이 ' + (m.busy ? '지금 바빠요' : '교환을 거절했어요') }); break; }
+      const T = { a: [ows, op], b: [ws, me], offer: new Map([[op.id, {}], [me.id, {}]]), ok: new Set() };
+      op.tr = me.tr = T;
+      send(ows, { t: 'tr_open', with: me.id, name: me.name }); send(ws, { t: 'tr_open', with: op.id, name: op.name }); break;
+    }
+    case 'tr_offer': withLock(me.key, () => {
+      const T = me.tr; if (!T) return;
+      const it = {}, src = m.items && typeof m.items === 'object' ? m.items : {};
+      for (const k in src) { const id = +k, n = Math.min(99, src[k] | 0); if (validFish(id) && n > 0) it[id] = Math.min(n, invOf(me.save)[id] | 0); if (!it[id]) delete it[id]; }
+      if (Object.keys(it).length > 6) return;
+      T.offer.set(me.id, it); T.ok.clear(); trState(T);
+    }); break;
+    case 'tr_ok': {
+      const T = me.tr; if (!T) break;
+      if (m.ok) T.ok.add(me.id); else T.ok.delete(me.id);
+      if (T.ok.size < 2) { trState(T); break; }
+      const [aws, A] = T.a, [bws, B] = T.b;
+      withLocks([A.key, B.key], async () => {
+        if (A.tr !== T || B.tr !== T) return;
+        const oa = T.offer.get(A.id), ob = T.offer.get(B.id);
+        const fine = Object.keys(oa).every(k => has(A.save, +k, oa[k])) && Object.keys(ob).every(k => has(B.save, +k, ob[k]));
+        if (!fine) { T.ok.clear(); trState(T); for (const w of [aws, bws]) send(w, { t: 'bd_err', msg: '가방이 바뀌어서 다시 확인해 주세요' }); return; }
+        const da = {}, dbb = {};
+        for (const k in oa) { da[k] = (da[k] | 0) - oa[k]; dbb[k] = (dbb[k] | 0) + oa[k]; }
+        for (const k in ob) { dbb[k] = (dbb[k] | 0) - ob[k]; da[k] = (da[k] | 0) + ob[k]; }
+        A.tr = B.tr = null;
+        const ra = applyInv(A.save, da), rb = applyInv(B.save, dbb);
+        queueSave(A.key, A.save); queueSave(B.key, B.save);
+        await Promise.all([flushSave(A.key), flushSave(B.key)]);
+        send(aws, { t: 'tr_done', d: da, rev: ra }); send(bws, { t: 'tr_done', d: dbb, rev: rb });
+        console.log('교환', A.name, JSON.stringify(oa), '↔', B.name, JSON.stringify(ob));
+      }).catch(e => console.error('tr_ok', e.message));
+      break;
+    }
+    case 'tr_cancel': endTrade(me, me.name + ' 님이 교환을 그만뒀어요'); break;
+  }
+}
+function trState(T) {
+  for (const [[w, p], [, o]] of [[T.a, T.b], [T.b, T.a]])
+    send(w, { t: 'tr_state', mine: T.offer.get(p.id), theirs: T.offer.get(o.id), okMe: T.ok.has(p.id), okThem: T.ok.has(o.id) });
+}
+function endTrade(me, msg) {
+  const T = me.tr; if (!T) return;
+  const other = T.a[1] === me ? T.b : T.a;
+  T.a[1].tr = T.b[1].tr = null;
+  send(other[0], { t: 'tr_close', msg });
+}
+/* 3일 지난 글은 내리고, 맡긴 물고기는 주인에게 돌려줘요 */
+async function expirePosts() {
+  const old = posts.filter(p => Date.now() - Date.parse(p.created_at) > POST_DAYS * 864e5);
+  for (const p of old) {
+    await withLock(p.by_key, async () => {
+      if (!posts.includes(p)) return;
+      posts = posts.filter(x => x !== p); await db.delPost(p.id);
+      if (p.give) await changeBag(p.by_key, { [p.give[0]]: p.give[1] }, '게시판 글 기한이 지나 맡긴 물고기가 돌아왔어요');
+      addMail(p.by_key, '게시판 글이 ' + POST_DAYS + '일이 지나 내려갔어요.');
+    }).catch(e => console.error('글 정리 실패', e.message));
+  }
+}
+(async () => {
+  try {
+    posts = await db.posts();
+    for (const r of await db.mails()) { const l = mail.get(r.to_key) || []; if (l.length < 20) l.push({ at: Date.parse(r.created_at), text: r.text }); mail.set(r.to_key, l); }
+    console.log('교환소 글', posts.length, '개 불러옴');
+    expirePosts();
+  } catch (e) { console.error('⚠ 교환소 표를 읽지 못했어요. supabase.sql의 교환소 부분을 Run 했는지 확인하세요:', e.message); }
+})();
+setInterval(expirePosts, 60 * 60 * 1000);
+
 // 친구 위치 묶어서 보내기
 setInterval(() => {
   const list = [];
-  for (const p of players.values()) if (p.here && p.dirty) { list.push([p.id, p.x, p.y, p.d, p.m]); p.dirty = false; }
+  for (const p of players.values()) if (p.here && p.dirty) { list.push([p.id, p.x, p.y, p.d, p.m, p.b]); p.dirty = false; }
   if (list.length) broadcast({ t: 's', p: list });
 }, SNAP_MS);
 

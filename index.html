@@ -116,6 +116,57 @@ input[type=range]{width:100%;accent-color:var(--lav);height:32px}
 @keyframes blink{to{opacity:.25}}
 #tags{position:fixed;inset:0;pointer-events:none;z-index:4;overflow:hidden}
 .ntag{position:absolute;left:0;top:0;background:rgba(255,250,242,.9);border:2px solid var(--line);border-radius:999px;padding:1px 8px;font-size:12px;white-space:nowrap;color:var(--ink);will-change:transform}
+/* 3단계: 말풍선 · 감정표현 · 꾸미기 */
+.ntag .ti{display:block;font-size:10px;line-height:12px;color:#a070c8;text-align:center}
+.bub{position:absolute;left:0;top:0;background:#fff;border:2px solid var(--line);border-radius:12px;padding:3px 10px;font-size:13px;line-height:1.35;max-width:170px;width:max-content;color:var(--ink);box-shadow:0 2px 0 rgba(120,100,170,.18);will-change:transform;overflow-wrap:anywhere;word-break:keep-all;animation:bubin .18s ease-out}
+.bub:after{content:'';position:absolute;left:50%;bottom:-7px;margin-left:-5px;border:5px solid transparent;border-top-color:#fff;border-bottom:0}
+@keyframes bubin{from{opacity:0;margin-top:6px}}
+#bTalk{position:fixed;right:calc(max(20px,env(safe-area-inset-right,0px)) + 24px);bottom:calc(146px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:var(--lav);color:#fff;border:3px solid #fff;box-shadow:0 4px 0 #8d7ac9;font-size:15px;z-index:5;padding:0}
+#bTalk:active{transform:translateY(2px);box-shadow:0 2px 0 #8d7ac9}
+#talk{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(212px + env(safe-area-inset-bottom,0px));width:min(330px,calc(100vw - 24px));box-sizing:border-box;background:var(--paper);border:3px solid #fff;box-shadow:0 0 0 2px var(--line),0 6px 0 rgba(120,100,170,.18);border-radius:20px;padding:10px;z-index:9;animation:pop .2s ease-out}
+.emos{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:8px}
+.emos button{background:var(--paper-2);border:2px solid var(--line);border-radius:12px;min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:10px;color:var(--ink-soft);padding:2px 0}
+.emos img{height:24px;image-rendering:pixelated}
+.phr{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.phr button{background:#fff;border:2px solid var(--line);border-radius:999px;padding:5px 10px;font-size:13px;min-height:34px}
+#talkf{display:flex;gap:6px}
+input.tin{font:15px var(--font);color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:12px;padding:8px 10px;min-height:40px;box-sizing:border-box;flex:1;min-width:0;user-select:text;-webkit-user-select:text;touch-action:manipulation}
+input.tin:focus{outline:3px solid var(--lav);outline-offset:1px}
+.sws{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.sw{width:36px;height:36px;border-radius:12px;border:3px solid #fff;box-shadow:0 0 0 2px var(--line);padding:0}
+.sw.on{box-shadow:0 0 0 3px var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.chip{display:flex;align-items:center;gap:5px;background:var(--paper-2);border:2px solid var(--line);border-radius:12px;padding:3px 9px 3px 5px;font-size:13px;min-height:40px}
+.chip.on{border-color:var(--lav);background:#fff;box-shadow:0 0 0 1px var(--lav)}
+.chip img,.row img.ci{height:28px;width:auto;max-width:44px;object-fit:contain;image-rendering:pixelated}
+.prev{display:flex;align-items:flex-end;justify-content:center;gap:14px;background:linear-gradient(#e9f6ee,#d8eedf);border-radius:16px;padding:10px 0 8px;margin-bottom:10px}
+.prev img{image-rendering:pixelated;width:64px;height:84px}
+.sec{font-size:13px;color:var(--ink-soft);margin-top:4px}
+.ttl{display:inline-block;background:#f4ecff;border:2px solid #e2d0fa;color:#8a5cc0;border-radius:999px;padding:2px 10px;font-size:13px}
+/* 4단계: 교환소 */
+.badge{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;color:#fff;vertical-align:1px}
+.badge.give{background:#62b09c}.badge.want{background:#e58aa6}
+.post{background:var(--paper-2);border-radius:16px;padding:10px 12px;margin-bottom:8px}
+.post .ex{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0}
+.fishchip{display:inline-flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--line);border-radius:10px;padding:1px 8px 1px 3px;font-size:13px}
+.fishchip img{width:34px;height:22px;object-fit:contain;image-rendering:pixelated}
+.slot{display:flex;align-items:center;gap:8px;background:#fff;border:2px dashed var(--line);border-radius:14px;padding:8px 10px;min-height:48px;width:100%;text-align:left;font-size:14px}
+.step{display:inline-flex;align-items:center;gap:6px}
+.step button{width:34px;height:34px;border-radius:10px;background:#efe7f7;font-size:16px;padding:0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.box{background:var(--paper-2);border-radius:16px;padding:10px;min-height:120px}
+.box.ok{background:#e6f6ef;box-shadow:inset 0 0 0 2px var(--mint)}
+.box h4{margin:0 0 6px;font-weight:400;font-size:14px}
+.trow{display:flex;align-items:center;gap:4px;margin-bottom:4px;font-size:13px;min-width:0}
+.trow img{width:34px;height:22px;object-fit:contain;image-rendering:pixelated;flex:none}
+.trow .nm{flex:1;min-width:0;overflow-wrap:anywhere}
+.trow button{width:28px;height:28px;border-radius:8px;background:#fff;padding:0;flex:none}
+#ask{position:fixed;inset:0;z-index:35;display:grid;place-items:center;background:rgba(74,61,107,.28);padding:20px}
+#ask>div{background:var(--paper);border:3px solid #fff;box-shadow:0 0 0 2px var(--line),0 8px 0 rgba(120,100,170,.2);border-radius:22px;padding:18px;width:min(300px,100%);text-align:center;animation:pop .3s cubic-bezier(.2,1.5,.4,1)}
+.wx{font-size:12px;color:var(--ink-soft)}
+.zj{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.zj button{background:#efe7f7;border-radius:999px;padding:4px 10px;font-size:12px;min-height:30px}
+.zj button.on{background:var(--lav);color:#fff}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -137,6 +188,13 @@ input[type=range]{width:100%;accent-color:var(--lav);height:32px}
 
 <div id="stick"><div id="knob"></div></div>
 <button id="act" class="off">—</button>
+<button id="bTalk" aria-label="말하기와 감정표현" aria-expanded="false">말</button>
+<div id="talk" hidden>
+  <div class="emos" id="emos"></div>
+  <div class="phr" id="phr"></div>
+  <form id="talkf" autocomplete="off"><input class="tin" id="talkin" maxlength="30" placeholder="하고 싶은 말 (30자까지)" enterkeyhint="send" aria-label="하고 싶은 말"><button class="btn sm" type="submit">보내기</button></form>
+</div>
+<div id="ask" hidden><div><div id="askt" style="font-size:16px;line-height:1.5"></div><div class="muted" id="asks" style="margin:6px 0 14px"></div><div style="display:flex;gap:8px;justify-content:center"><button class="btn ghost" id="askNo">거절</button><button class="btn mint" id="askYes">수락</button></div></div></div>
 
 <div id="reel" hidden>
   <div id="rtrack"><div id="rbar"></div><img id="rfish" alt=""></div>
@@ -166,7 +224,7 @@ input[type=range]{width:100%;accent-color:var(--lav);height:32px}
 <div id="title">
   <div id="tfish"></div>
   <h1><small>잔잔하고 느긋한</small>물결마을<br>낚시터</h1>
-  <div class="muted" style="max-width:280px;line-height:1.6">연못에서 시작해 달빛 호수까지.<br>도감 100종을 채워 보세요.</div>
+  <div class="muted" style="max-width:280px;line-height:1.6">연못에서 시작해 달빛 호수까지.<br>도감 200종을 채워 보세요.</div>
   <div id="tLogin" hidden style="display:flex;flex-direction:column;gap:8px;width:min(260px,100%)">
     <input id="tName" maxlength="10" placeholder="닉네임 (2~10글자)" autocomplete="username" aria-label="닉네임">
     <input id="tCode" type="password" inputmode="numeric" maxlength="8" placeholder="코드 (숫자 4~8자리)" autocomplete="current-password" aria-label="코드">
@@ -338,11 +396,276 @@ whale:[
 "...fffbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb...",
 "..ffff....bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb....",
 ".fff..........bbbbbbbbbbbbbbbbffbbbbbbb.......",
-".ff.............bbbbbbbbbbbbbbbbbbbb.........."]
+".ff.............bbbbbbbbbbbbbbbbbbbb.........."],
+/* 5단계 새 틀: 해마 · 돛새치 · 쏠배감펭 · 바늘 · 상자 · 나비 · 철갑상어 */
+seahorse:[
+"....bbb.....",
+"...bbbbbb...",
+"..fbbbbebbdd",
+"...bbbbbb...",
+"....bbbb....",
+"...fbbbb....",
+"..ffbbbbb...",
+"...fbbbbb...",
+"....bbbbb...",
+"....bbbbb...",
+".....bbbb...",
+"......bbb...",
+"..b....bb...",
+"..bb..bbb...",
+"...bbbbb....",
+"....bbb....."],
+sail:[
+"..........ffffffffff..............",
+"........fffffffffffff.............",
+".......ffffffffffffff.............",
+"......ffffffffffffff..............",
+".ff..bbbbbbbbbbbbbbbbbb...........",
+".fffbbbbbbbbbbbbbbbbbbbbbbebb.....",
+"..fbbbbbbbbbbbbbbbbbbbbbbbbbbdddddd",
+".fffbbbbbbbbbbbbbbbbbbbbbbbbb.....",
+".ff...bbbbbbbbbbbbbbbbbbbbb.......",
+"..........ff......ff.............."],
+lion:[
+"......f.f.f.f.....",
+".....ff.f.f.ff....",
+"....fffffffffff...",
+"..f..bbbbbbbbb....",
+".fff.bbbbbbbbbbb..",
+".ffbbbbbbbbbbbbebd",
+".fffbbbbbbbbbbbbbd",
+"..f.bbbbbbbbbbbbb.",
+"....ffbbbbbbbbb...",
+"...ff.ff.ff.f.....",
+"..f..f..f..f......"],
+needle:[
+"..f...............................",
+".ff..bbbbbbbbbbbbbbbbbbbbb........",
+"fffbbbbbbbbbbbbbbbbbbbbbbbbebdddddd",
+".ffbbbbbbbbbbbbbbbbbbbbbbbbb......",
+"..f.....f....bbbbbbbbbf..........."],
+box:[
+"....bbbbbbbbbb..",
+"...bbbbbbbbbbbb.",
+".f.bbbbbbbbbbebb",
+"ffbbbbbbbbbbbbbb",
+"ffbbbbbbbbbbbbdb",
+".f.bbbbbbbbbbbbb",
+"...bbbbbbbbbbbb.",
+"....bfbb..bfb..."],
+angel:[
+".........f......",
+"........ffb.....",
+".......fbbbb....",
+"......bbbbbbb...",
+".ff..bbbbbbbbb..",
+".fffbbbbbbbbbebb",
+".fffbbbbbbbbbbbd",
+".ff..bbbbbbbbb..",
+"......bbbbbbb...",
+".......fbbbb....",
+"........ffb.....",
+".........f......"],
+sturgeon:[
+"...............d....d....d.........",
+".ff..........bbbbbbbbbbbbbbb.......",
+".fff.....bbbbbbbbbbbbbbbbbbbbbb....",
+"..fffbbbbbbbbbbbbbbbbbbbbbbbbebbb..",
+"...ffbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+"..fff...bbbbbbbbbbbbbbbbbbbbbbbd...",
+".ff.........bbbffbbbbbbbffbb..d.d.."]
 };
+
+/* 전설종 손도트: 숫자 = 팔레트 색 (1 가장 어두움 → 5 가장 밝음, 6·7 지느러미, 8·9 포인트), e 눈, k 짙은 점 */
+const LEGEND_ART={
+/* 황금잉어: 황금빛 비늘, 붉은 수염, 물결치는 꼬리 */
+'황금잉어':{pal:{1:'#c4802a',2:'#e8a838',3:'#ffcf54',4:'#ffeb96',5:'#fff6d0',6:'#f0b058',7:'#ffdf8c',8:'#e2684a',e:'#342a46',w:'#ffffff'},rows:[
+"..............6.......................",
+".............667......................",
+"............66777.....2222............",
+"66.........6677776.223333322..........",
+"7766......667777762333344433322.......",
+"77766...6677776622333444443333322.....",
+".777766.66766222333334444433333332....",
+"..7777662222333233323332333233333e32..",
+"..77776223333333333333333333333333332.",
+"..777762333433343334333433343333333w38",
+"..77776225555555555555555555553333322.",
+".777766.2255555555555555555555555522.8",
+"77766....22555556665555555555552228...",
+"7766.......2225567765555222222.....8..",
+"66............267776...........8......",
+"...............6677...................",
+]},
+/* 구름송어: 하얀 구름 비늘, 하늘색 그늘, 솜 지느러미 */
+'구름송어':{pal:{1:'#8ea6dc',2:'#bccaf4',3:'#e4ebff',4:'#ffffff',5:'#f6f8ff',6:'#c8d4ff',7:'#eef2ff',8:'#ffb8cc',e:'#342a46',9:'#a8bcf0'},rows:[
+"...................77..................",
+".................777677................",
+"...............7777666..22222..........",
+"6.............777766622333332222.......",
+"76..........1222223333344443333332.....",
+"776....12222333344444444444433333322...",
+"7776.122333344447744447744444333333e2..",
+"77766223334477744447774444777444433332.",
+"77766223334444444444444444444444433889.",
+"7776.12233334444444444444444444333332..",
+"776....122233355555555555555533332.....",
+"76.........1122225556655555222.........",
+"6..............122267766221............",
+"...................6776................",
+]},
+/* 노을돔: 붉은 노을 그라데이션, 금빛 점, 부채 지느러미 */
+'노을돔':{pal:{1:'#c2546a',2:'#ea7a7a',3:'#ff9e86',4:'#ffc89a',5:'#ffe2b0',6:'#ff9a9a',7:'#ffd2b8',8:'#fff2a8',e:'#342a46',w:'#ffffff'},rows:[
+"...............6.6.6..............",
+"..............6767676.............",
+".............677777776............",
+"66..........12222222222...........",
+"776.......122233333332222.........",
+"7776.....12233383333338332........",
+"77776...1223333344443333332.......",
+"777776.12233334444444443383e2.....",
+"7777761223338344444844443333w32...",
+"777776.12333344444444444443333322.",
+"77776...1233345555555555443333221.",
+"7776.....12234555555555554433221..",
+"776.......12223555555554433221....",
+"66.........1122233333333322.......",
+"..............12276762221.........",
+"................6.6.6.............",
+]},
+/* 실러캔스: 푸른 몸에 하얀 반점, 다리 같은 지느러미, 세 갈래 꼬리 */
+'실러캔스':{pal:{1:'#3a4a7c',2:'#4e60a0',3:'#6c80c0',4:'#90a4dc',5:'#b0bce4',6:'#5a6aa8',7:'#8c9cd0',8:'#e8eeff',e:'#f0f4ff',k:'#1e2440'},rows:[
+"..................66...................",
+".................6776..................",
+"7...............67776..................",
+"77........1222222222222222.............",
+"776....1122333333333383333222..........",
+"7776.11223338333333333333333322........",
+"77766223333333333833333338333333222....",
+"7777622338333333333333333333333kek32...",
+"777662333333383333333383333333333333...",
+"7776.2233333333333333333333333333331...",
+"776...12233334444444444444444433331....",
+"7........122224455555555554442221......",
+"...........6676...2222222....6676......",
+"..........6776.............67776.......",
+"..........76..................76.......",
+]},
+/* 은하룡어: 남보라 몸에 은하수 반짝임, 금빛 갈기 */
+'은하룡어':{pal:{1:'#3a2e7c',2:'#5446a8',3:'#6c60c8',4:'#8e84e0',5:'#b4a8f0',6:'#ffe0a8',7:'#fff4d0',8:'#fff8c0',9:'#ffc8f0',e:'#fff8e0',k:'#1c1640'},rows:[
+"........................6.6.6..............",
+".......................676767.6.6..........",
+"6...........66.6.6....67777767676..........",
+"76.........677676767..1222222277776........",
+"776......112222222221112334333222226.......",
+"7776...1122333433343322233343833333322.....",
+"77776.12233833333333833333333333333ke32....",
+".7777123333333398333333339833333833333336..",
+"..777223343338333333333333333333333333336..",
+".7777.1222333333334444333333444433332226...",
+"77776...11222224455555222244555522221......",
+"7776.......112222222111...1222222.....6....",
+"776.........................................",
+]},
+/* 연못주인 메기왕: 이끼 낀 거대한 메기, 머리에 수련, 긴 수염 */
+'연못주인 메기왕':{pal:{1:'#4e5640',2:'#6a7456',3:'#86906c',4:'#a6ae88',5:'#d8d6b8',6:'#5c6a4c',7:'#88986c',8:'#f8b4cc',9:'#fff0f6',a:'#8cc89c',e:'#f4f0c8',k:'#1c1a14'},rows:[
+"..............................989.......",
+".............................88988......",
+"...........................aa898aa......",
+"7.................11112222aaaaaaa.......",
+"76..........1112222233333333332222......",
+"776.....11122333333343333433333332222...",
+"7766..1122333433333333333333333333k2e22.",
+"77766122333333334333334333333333333331..",
+"7776612233343333333333333333333333331111",
+"7766.1123333333444444444444444333331..1.",
+".76....1122334555555555555555553331...1.",
+".6........11222245555555555422221..11...",
+"..............1266762222221.......1.....",
+"...............677766.............1.....",
+]},
+/* 폭포잉어왕: 물보라를 두른 청록 잉어, 용 같은 지느러미 */
+'폭포잉어왕':{pal:{1:'#2e6a78',2:'#3e8e98',3:'#5cb4b4',4:'#8ad8cc',5:'#d4f4ec',6:'#68c0e0',7:'#c0ecff',8:'#ffffff',9:'#ffd870',e:'#1e2a3a',k:'#ff8a70'},rows:[
+"................6.6.6.6...............",
+"..8............67676767...............",
+"..............6777777776..............",
+"66.........1122222222222222...........",
+"776.....1122333333333333333322........",
+"7776..1122334334334334334333333322.....",
+"777761223333333333333333333333333e32..",
+"77776223343343343343343343343333333399",
+"777761223333333333333333333333333333k.",
+"7776..112233444444444444444443333322.9",
+"776.....112245555555555555554433221...",
+"66.........11222255566555522211.......",
+"..................67776...............",
+"..8................676................",
+"......................................",
+]},
+/* 용궁해마: 진주빛 갈기와 산호 왕관을 쓴 커다란 해마 */
+'용궁해마':{pal:{1:'#c25a6a',2:'#e8808a',3:'#ffa8a8',4:'#ffd0c0',5:'#fff0e4',6:'#ffd870',7:'#fff4b8',8:'#a8e8ff',e:'#342a46',w:'#ffffff'},rows:[
+"......6.6.6.......",
+".....6767676......",
+"......12222.......",
+".....1233332......",
+"....12334433222...",
+"...1233343e333322.",
+"...12333333332222.",
+"..8.123333332.....",
+".88.1233443.......",
+"888612334443......",
+".88612334453......",
+"..8612334553......",
+"...612334553......",
+"...61233455.......",
+"....1233453.......",
+"....123345........",
+".....12334........",
+"......1233...22...",
+".......1233.2.....",
+"........12332.....",
+".........122......",
+]},
+/* 푸른바다용: 폭풍우의 바다를 닮은 청새치형 용, 번개 무늬 */
+'푸른바다용':{pal:{1:'#1e3a6c',2:'#2c5494',3:'#3e74bc',4:'#6ca0dc',5:'#cce4f8',6:'#4890d0',7:'#a0d4f8',8:'#fff07a',9:'#ffffff',e:'#fff07a',k:'#0e1a34'},rows:[
+"...........6.....6.....6.................",
+"..........676...676...676................",
+"66.......67776.67776.67776...............",
+"776.....6777777777777777776..............",
+"7776..1122222222222222222222222..........",
+"77776122333333833333333833333332222......",
+"777761233338383333333338383333333ke22....",
+"777762233333383333333333833333333333399999",
+"77776223344444444444444444444443333222...",
+"7776..112344555555555555555544433221.....",
+"776......11222222255666552222222.........",
+"66................677776.................",
+]},
+/* 달빛선녀어: 하늘하늘 긴 지느러미를 끄는 선녀 같은 물고기 */
+'달빛선녀어':{pal:{1:'#8a7cc8',2:'#a89ce4',3:'#ccc4f8',4:'#ece8ff',5:'#ffffff',6:'#f4c8f0',7:'#fff0fc',8:'#fff4b8',e:'#342a46',9:'#c8f0ff'},rows:[
+"....................6.....................",
+"...................676....................",
+"..................67766...................",
+"66...............677766..12222...........",
+"7766............67776612233332...........",
+"777666.........6776.12334443332..........",
+".7777666......776..123344444333e2........",
+"..777776666...66..1233444884444332.......",
+"...7777777766666612334448844443322.......",
+"..77777766666...6612334444444433322......",
+".7777666.......676..12334555544332.......",
+"7766..........67776...1223355533221......",
+"66...........677776.....11222222.........",
+"............6777776......................",
+"...........677777.6......................",
+"..........6777..6........................",
+]},
+};
+
 
 /* spec: {tpl,c,pat,pc,belly,fin}  pat 0없음 1줄무늬 2점 3띠 4등 5얼룩 6머리 7가는줄 */
 function buildFish(spec,seed){
+  if(spec.art)return buildArt(spec.art);
   const rows=FISH_TPL[spec.tpl]||FISH_TPL.round;
   const w0=Math.max.apply(null,rows.map(r=>r.length)),h0=rows.length,P=2,W=w0+P*2,H=h0+P*2;
   const g=[];for(let y=0;y<H;y++)g.push(new Array(W).fill('.'));
@@ -380,15 +703,78 @@ function buildFish(spec,seed){
   return out;
 }
 
+function buildArt(a){
+  const rows=a.rows,w0=Math.max.apply(null,rows.map(r=>r.length)),h0=rows.length,P=2,b=Buf(w0+P*2,h0+P*2);
+  rows.forEach((r,y)=>{for(let x=0;x<r.length;x++){const c=a.pal[r[x]];if(c)px(b,x+P,y+P,hex(c))}});
+  outlineBuf(b,mixc(darken(hex(a.pal[1]),.5),OUT,.5));
+  return b;
+}
+
 /* ---------- 캐릭터 ---------- */
-function buildPlayer(sh){
-  const skin=[255,226,204],hair=[140,100,92],straw=[246,224,162],strawD=[222,196,132],band=[255,172,192];
-  const shirt=sh?sh[0]:[150,208,198],shirtD=sh?sh[1]:[116,176,170],pants=[142,166,216],boot=[158,116,96],eye=[62,48,74],cheek=[255,176,180];
+/* 3단계 꾸미기: 머리색 · 피부색 · 옷 색은 무료, 모자 · 옷은 상점이나 도감 보상으로 */
+const HAIRS=[[140,100,92],[70,58,72],[112,74,60],[236,198,120],[244,160,184],[140,188,232],[170,140,214],[214,214,228]];
+const SKINS=[[255,226,204],[248,208,178],[228,180,146],[192,140,108],[148,104,82]];
+const SHIRTS=[[[150,208,198],[116,176,170]],[[255,186,204],[230,150,176]],[[196,180,240],[160,142,214]],[[255,220,150],[230,188,110]],[[168,210,244],[128,176,224]],[[255,200,170],[232,164,134]],
+  [[250,250,250],[214,214,228]],[[124,130,160],[98,102,132]],[[190,226,160],[150,196,120]],[[255,150,140],[226,112,108]]];
+function drawHat(b,dir,id,hair){
+  const side=dir==='side',up=dir==='up';
+  const hairTop=()=>{if(side){fillR(b,5,3,6,3,hair);fillR(b,6,2,4,1,hair)}else{fillR(b,4,3,8,3,hair);fillR(b,5,2,6,1,hair)}};
+  const beanie=(c,d,pom)=>{fillR(b,4,2,8,4,c);fillR(b,5,1,6,1,c);for(let x=5;x<12;x+=2)px(b,x,3,d);fillR(b,4,5,8,1,d);fillR(b,6,0,4,1,pom)};
+  switch(id){
+    case'nohat':hairTop();break;
+    case'cap':{const c=[120,200,178],d=[86,160,140];fillR(b,4,2,8,4,c);fillR(b,5,1,6,1,c);px(b,7,0,d);px(b,8,0,d);px(b,6,2,lighten(c,.45));
+      if(side)fillR(b,10,5,4,1,d);else if(!up)fillR(b,3,5,10,1,d);else fillR(b,4,5,8,1,d);break}
+    case'bucket':{const c=[220,200,162],d=[190,168,128];fillR(b,5,1,6,3,c);fillR(b,3,4,10,2,c);fillR(b,3,5,10,1,d);fillR(b,5,3,6,1,d);break}
+    case'beanie':beanie([240,128,144],[214,98,118],[255,250,250]);break;
+    case'snowcap':beanie([250,250,255],[208,216,236],[236,96,112]);px(b,5,3,[236,96,112]);px(b,9,3,[236,96,112]);break;
+    case'ribbon':{hairTop();const c=[255,136,170],d=[226,96,136];if(side){fillR(b,3,1,3,3,c);fillR(b,7,1,3,3,c);fillR(b,6,2,1,2,d)}else{fillR(b,4,0,3,3,c);fillR(b,9,0,3,3,c);fillR(b,7,1,2,2,d)}break}
+    case'flower':{hairTop();const cs=[[255,170,196],[255,232,140],[255,255,255],[196,180,255]];const xs=side?[5,7,9]:[4,6,8,10];
+      xs.forEach((x,i)=>{fillR(b,x,3,2,2,cs[i%4]);px(b,x+1,2,[150,206,140])});break}
+    case'catear':{hairTop();const c=hair,pk=[255,180,196];[[4,1],[4,2],[5,2],[4,3],[5,3],[6,3]].forEach(p=>px(b,side?p[0]+1:p[0],p[1],c));
+      if(!side)[[11,1],[11,2],[10,2],[11,3],[10,3],[9,3]].forEach(p=>px(b,p[0],p[1],c));px(b,side?6:5,3,pk);if(!side)px(b,10,3,pk);break}
+    case'frog':{const g=[150,214,120],gd=[112,178,92];fillR(b,4,2,8,4,g);fillR(b,4,5,8,1,gd);fillR(b,4,0,3,3,g);if(!side)fillR(b,9,0,3,3,g);
+      if(!up){px(b,5,1,[255,255,255]);px(b,5,1,[255,255,255]);px(b,6,1,[52,42,70]);if(!side){px(b,10,1,[255,255,255]);px(b,9,1,[52,42,70])}}break}
+    case'crown':{hairTop();const g=[255,206,84],gd=[226,164,52];fillR(b,5,2,6,2,g);fillR(b,5,3,6,1,gd);px(b,5,1,g);px(b,7,1,g);px(b,8,1,g);px(b,10,1,g);px(b,7,0,g);px(b,8,0,g);if(!up){px(b,6,2,[236,90,110]);px(b,9,2,[110,170,240])}break}
+    case'captain':{const w=[252,252,255],n=[64,74,120],g=[255,206,84];fillR(b,4,1,8,3,w);fillR(b,4,4,8,1,n);if(side)fillR(b,10,5,4,1,n);else if(!up)fillR(b,4,5,8,1,n);if(!up&&!side){px(b,7,2,g);px(b,8,2,g)}if(side)px(b,9,2,g);break}
+    case'lily':{const g=[138,200,150],gd=[106,168,118];fillR(b,2,3,12,2,g);fillR(b,4,2,8,1,g);fillR(b,2,4,12,1,gd);px(b,7,3,gd);px(b,8,4,[255,255,255]);
+      fillR(b,10,0,2,2,[255,186,206]);px(b,10,2,[150,206,140]);break}
+    case'fishhat':{const o=[255,170,110],od=[232,130,84];fillR(b,4,1,8,4,o);fillR(b,4,4,8,1,od);fillR(b,1,1,3,1,o);fillR(b,2,2,2,2,o);fillR(b,1,4,3,1,o);
+      if(!up){px(b,10,2,[52,42,70]);px(b,11,3,od)}for(let x=5;x<10;x+=2)px(b,x,2,lighten(o,.35));break}
+    case'shell':{const c=[255,224,200],d=[230,170,150];fillR(b,5,2,6,3,c);fillR(b,6,1,4,1,c);px(b,8,0,c);fillR(b,4,4,8,1,d);px(b,6,2,d);px(b,8,1,d);px(b,9,3,d);px(b,7,3,d);break}
+    case'moonband':{hairTop();const y=[255,232,130],l=[200,184,240];fillR(b,4,5,8,1,l);if(side)fillR(b,5,5,6,1,l);
+      px(b,10,0,y);px(b,11,1,y);px(b,11,2,y);px(b,10,3,y);px(b,9,0,y);px(b,9,3,y);break}
+    case'maple':{hairTop();const r=[236,96,64],o=[250,160,80];px(b,10,1,r);fillR(b,9,2,3,1,r);px(b,8,2,o);px(b,12,2,o);fillR(b,9,3,3,1,o);px(b,10,4,[160,96,64]);break}
+    default:{const straw=[246,224,162],strawD=[222,196,132],band=[255,172,192];fillR(b,4,1,8,3,straw);fillR(b,4,3,8,1,band);fillR(b,1,4,14,2,straw);fillR(b,1,5,14,1,strawD)}
+  }
+}
+function drawOutfit(b,dir,id,sh,shD,pants){
+  const side=dir==='side',back=dir==='up',tx=side?5:4,tw=side?6:8;
+  const arms=c=>{if(!side){fillR(b,3,12,1,4,c);fillR(b,12,12,1,4,c)}};
+  switch(id){
+    case'stripe':{const l=lighten(sh,.62);for(let x=tx;x<tx+tw;x++){px(b,x,12,l);px(b,x,14,l)}if(!side){px(b,3,13,l);px(b,12,13,l)}break}
+    case'overall':fillR(b,tx+1,13,tw-2,3,pants);px(b,tx+1,11,pants);px(b,tx+1,12,pants);if(!side){px(b,tx+tw-2,11,pants);px(b,tx+tw-2,12,pants)}
+      if(!back&&!side){px(b,6,13,[255,236,160]);px(b,9,13,[255,236,160])}break;
+    case'raincoat':{const y=[255,214,90],yd=[226,178,60];fillR(b,tx,11,tw,7,y);fillR(b,tx,17,tw,1,yd);arms(y);if(side)fillR(b,7,12,3,3,yd);if(!back&&!side){px(b,7,13,yd);px(b,7,15,yd)}if(back)fillR(b,5,10,6,1,y);break}
+    case'apron':if(!back){const w=[255,250,240];fillR(b,tx+1,12,tw-2,6,w);fillR(b,tx+1,12,tw-2,1,[244,206,186]);if(!side)px(b,8,15,[244,170,186])}else{px(b,tx+1,13,[255,250,240]);px(b,tx+tw-2,13,[255,250,240])}break;
+    case'hoodie':if(back){fillR(b,5,10,6,2,shD);fillR(b,6,11,4,1,sh)}else if(side){fillR(b,5,10,2,2,shD)}else{px(b,6,12,[255,255,255]);px(b,9,12,[255,255,255]);px(b,6,13,[255,255,255]);px(b,9,13,[255,255,255]);fillR(b,5,14,6,1,shD)}break;
+    case'star':{if(back)break;const st=[255,236,120],c=side?8:7;px(b,c,12,st);px(b,c+(side?0:1),12,st);fillR(b,c-1,13,side?3:4,1,st);px(b,c-1,14,st);px(b,c+(side?1:2),14,st);break}
+    case'suit':{const n=[78,84,130],nd=[60,64,104],rd=[226,90,100];fillR(b,tx,11,tw,5,n);fillR(b,tx,15,tw,1,nd);arms(n);if(side)fillR(b,7,12,3,3,nd);
+      if(!back&&!side){fillR(b,7,11,2,3,[255,255,255]);px(b,7,12,rd);px(b,8,12,rd);px(b,7,13,rd);px(b,8,13,rd)}if(side){px(b,10,11,[255,255,255]);px(b,10,12,rd)}break}
+    case'vest':{const o=[150,160,104],od=[120,128,80];if(back)fillR(b,tx,11,tw,5,o);else if(side){fillR(b,5,11,3,5,o);px(b,6,13,od)}else{fillR(b,4,11,2,5,o);fillR(b,10,11,2,5,o);px(b,4,13,od);px(b,11,13,od);px(b,5,14,od);px(b,10,14,od)}break}
+    case'sailor':{const w=[255,255,255],nv=[70,84,140];fillR(b,tx,11,tw,5,w);fillR(b,tx,15,tw,1,[220,224,236]);arms(w);fillR(b,tx,11,tw,1,nv);
+      if(!back&&!side){px(b,7,12,nv);px(b,8,12,nv);px(b,7,13,[230,90,100]);px(b,8,13,[230,90,100])}if(back)fillR(b,tx+1,12,tw-2,2,nv);if(side)px(b,10,12,nv);break}
+    case'wave':{const l=lighten(sh,.6);for(let x=tx;x<tx+tw;x++)px(b,x,13+((x>>1)%2),l);break}
+  }
+}
+function buildPlayer(look){
+  look=look||{};
+  const skin=SKINS[look.k|0]||SKINS[0],hair=HAIRS[look.h|0]||HAIRS[0],sh=SHIRTS[look.s|0]||SHIRTS[0];
+  const shirt=sh[0],shirtD=sh[1],pants=[142,166,216],boot=[158,116,96],eye=[62,48,74],cheek=mixc(skin,[255,128,150],.32);
   const frames={};
   function base(dir,f){
     const b=Buf(16,21);
-    // 모자
-    fillR(b,4,1,8,3,straw);fillR(b,4,3,8,1,band);fillR(b,1,4,14,2,straw);fillR(b,1,5,14,1,strawD);
+    // 모자 (꾸미기)
+    drawHat(b,dir,look.hat||'straw',hair);
     if(dir==='down'||dir==='up'){
       const lift=f===1?1:0,lift2=f===2?1:0;
       fillR(b,4,6,8,1,hair);
@@ -410,8 +796,11 @@ function buildPlayer(sh){
       fillR(b,7+bk,18,2,2,pants);fillR(b,7+fw,18,2,2,pants);
       fillR(b,7+bk,20,2,1,boot);fillR(b,7+fw,20,3,1,boot);
     }
-    outlineBuf(b,OUT);
-    return b;
+    drawOutfit(b,dir,look.o||'tee',shirt,shirtD,pants);
+    // 모자 꼭대기에도 테두리가 생기도록 한 줄 내려서 16×22로
+    const b2=Buf(16,22);b2.d.set(b.d,16*4);
+    outlineBuf(b2,OUT);
+    return b2;
   }
   ['down','up','side'].forEach(d=>{frames[d]=[0,1,2].map(f=>base(d,f))});
   frames.left=frames.side.map(flipX);
@@ -474,6 +863,38 @@ function benchSprite(){const b=Buf(18,12);fillR(b,1,2,16,3,[232,196,160]);fillR(
 function barrelSprite(){const b=Buf(12,14);ell(b,6,7,5,6,[214,176,140]);fillR(b,1,4,10,1,[170,134,108]);fillR(b,1,9,10,1,[170,134,108]);px(b,4,3,[240,214,184]);outlineBuf(b,OUT);return b}
 function signSprite(txtCol){const b=Buf(14,18);fillR(b,6,8,2,10,[170,134,108]);fillR(b,1,1,12,8,[238,210,170]);fillR(b,2,2,10,6,[250,232,200]);fillR(b,3,4,8,1,txtCol);fillR(b,3,6,5,1,txtCol);outlineBuf(b,OUT);return b}
 function lanternBobber(){const b=Buf(5,6);fillR(b,1,2,3,3,[255,120,140]);fillR(b,1,0,3,2,[252,252,252]);px(b,2,5,[255,120,140]);px(b,1,2,[255,170,184]);outlineBuf(b,OUT);return b}
+/* 3단계: 찌 스킨 (낚싯줄 끝이 맨 위 가운데에 오도록) */
+function bobSprite(id){
+  const map=(rows,pal)=>{const b=Buf(rows[0].length,rows.length);rows.forEach((r,y)=>{for(let x=0;x<r.length;x++){const c=pal[r[x]];if(c)px(b,x,y,c)}});outlineBuf(b,OUT);return b};
+  switch(id){
+    case'heartbob':return map(["rr.rr","rwrrr","rrrrr",".rrr.","..r.."],{r:[255,120,152],w:[255,220,230]});
+    case'mushbob':return map([".rrr.","rwrwr","rrrrr","..w..","..w.."],{r:[236,88,96],w:[255,250,240]});
+    case'catbob':return map(["w...w","ww.ww","wwwww","wkwkw","wwpww",".www."],{w:[255,250,244],k:[52,42,70],p:[255,160,180]});
+    case'goldbob':return map([".www.",".www.","yyyyy","yhyyy","yyyyy","..y.."],{w:[255,252,240],y:[255,200,70],h:[255,240,170]});
+    case'duck':return map(["..yy...","..yky..","..yyyoo","yyyyyy.","yyyyyy.",".yyyy.."],{y:[255,222,90],k:[52,42,70],o:[255,150,70]});
+    case'leafbob':return map(["..r..","r.r.r","rrrrr",".rrr.","..b.."],{r:[236,110,70],b:[160,100,70]});
+    case'starfish':return map(["..o..",".ooo.","ooooo",".o.o.","o...o"],{o:[255,150,110]});
+    case'starbob':return map(["..y..",".yyy.","yywyy",".yyy.","y...y"],{y:[255,226,110],w:[255,255,220]});
+  }
+  return lanternBobber();
+}
+/* 3단계: 감정표현 6종 — 프레임 2장씩 */
+const EMOTES=[{k:'heart',name:'하트'},{k:'laugh',name:'웃음'},{k:'sweat',name:'땀방울'},{k:'sleepy',name:'졸림'},{k:'sparkle',name:'반짝임'},{k:'clap',name:'박수'}];
+function emoteSprite(k,f){
+  const pal={r:[255,110,140],p:[255,176,196],w:[255,255,255],y:[255,226,110],o:[236,176,70],k:[74,60,100],b:[130,190,250],z:[150,140,230],s:[255,226,204],m:[236,96,110]};
+  const M={
+    heart:[["..rr.rr..",".rwprppr.",".rpppppr.","..rpppr..","...rpr...","....r...."],[".........","..rr.rr..","..rwrpr..","..rpppr..","...rpr...","....r...."]],
+    laugh:[["..ooooo..",".oyyyyyo.","oykyyykyo","okykykyko","oyyyyyyyo","oyymmmyyo",".oyymyyo.","..ooooo.."],["..ooooo..",".oyyyyyo.","oykyyykyo","okykykyko","oyyyyyyyo","oymmmmmyo",".oymmmyo.","..ooooo.."]],
+    sweat:[["...b.","..bb.",".bwbb",".bbbb","..bb."],[".....","...b.","..bb.",".bwbb",".bbbb","..bb."]],
+    sleepy:[["....zzzzz",".......z.","......z..","zzz.zzzzz","..z......",".z.......","zzz......"],["zzzz.....","..z......",".z.......","zzzz.zzz.",".......z.","......z..",".....zzz."]],
+    sparkle:[["...y.....","..ywy....","...y...y.","......ywy","..y....y.",".ywy.....","..y......"],["....y....","...ywy...","....y....","y.......y",".........","..y...y..","........."]],
+    clap:[["k.......k",".ss...ss.","sss...sss","sss...sss",".ss...ss."],["..k...k..","...sss...","..sssss..","..sssss..","...sss..."]]
+  };
+  const rows=(M[k]||M.heart)[f?1:0],w=Math.max.apply(null,rows.map(r=>r.length)),b=Buf(w,rows.length);
+  rows.forEach((r,y)=>{for(let x=0;x<r.length;x++){const c=pal[r[x]];if(c)px(b,x,y,c)}});
+  if(k!=='sleepy'&&k!=='sparkle')outlineBuf(b,OUT);
+  return b;
+}
 function bangSprite(){const b=Buf(9,13);fillR(b,1,1,7,9,[255,246,200]);fillR(b,3,3,3,4,[255,110,130]);fillR(b,3,8,3,1,[255,110,130]);px(b,3,11,[255,246,200]);px(b,4,11,[255,246,200]);px(b,4,12,[255,246,200]);outlineBuf(b,OUT);return b}
 function heartSprite(){const b=Buf(7,6);const m=["0110110","1111111","1111111","0111110","0011100","0001000"];m.forEach((r,y)=>{for(let x=0;x<7;x++)if(r[x]==='1')px(b,x,y,[255,150,176])});outlineBuf(b,OUT);return b}
 function butterflySprite(c,f){const b=Buf(7,5);const w=f?[[1,0],[1,1],[5,0],[5,1]]:[[0,1],[1,2],[6,1],[5,2]];w.forEach(p=>px(b,p[0],p[1],c));px(b,3,2,[90,76,110]);px(b,3,1,[90,76,110]);px(b,3,3,[90,76,110]);return b}
@@ -499,6 +920,14 @@ function buildHouse(o){/* o:{wall,roof,roofD,door,kind} → 48x50 */
   if(o.kind==='shop'){
     for(let i=0;i<10;i++)fillR(b,4+i*4,16,4,5,i%2?[255,255,255]:[255,186,200]);
     fillR(b,17,9,14,8,[255,246,214]);ell(b,24,13,3,3,[255,214,110]);px(b,24,13,[255,240,170]);px(b,23,12,[255,240,170]);
+  }else if(o.kind==='boutique'){ // 치장 상점: 보라 줄무늬 차양 + 리본 간판
+    for(let i=0;i<10;i++)fillR(b,4+i*4,16,4,5,i%2?[255,255,255]:[214,190,250]);
+    fillR(b,16,8,16,9,[255,246,252]);fillR(b,18,10,5,5,[255,140,172]);fillR(b,25,10,5,5,[255,140,172]);fillR(b,23,11,2,3,[226,96,140]);px(b,19,11,[255,200,216]);px(b,26,11,[255,200,216]);
+  }else if(o.kind==='trade'){ // 교환소: 하늘 줄무늬 차양 + 물고기 두 마리가 오가는 게시판 간판
+    for(let i=0;i<10;i++)fillR(b,4+i*4,16,4,5,i%2?[255,248,226]:[150,206,236]);
+    fillR(b,15,8,18,9,[214,176,136]);fillR(b,16,9,16,7,[252,240,214]);
+    fillR(b,18,10,7,2,[255,170,110]);px(b,17,10,[255,170,110]);px(b,17,11,[255,170,110]);px(b,24,10,[52,42,70]);
+    fillR(b,23,13,7,2,[130,180,236]);px(b,30,13,[130,180,236]);px(b,30,14,[130,180,236]);px(b,23,13,[52,42,70]);
   }else{
     fillR(b,15,9,18,8,[248,240,255]);fillR(b,19,11,4,5,[170,150,220]);fillR(b,25,11,4,5,[220,170,200]);px(b,24,11,[110,90,150]);
     fillR(b,4,16,40,1,o.roofD);
@@ -633,16 +1062,152 @@ const RAW=[
 ['달빛고래','whale','#c8d4ff',2,500,'호수에 달이 뜨면 노래를 부른다.',{pc:'#fff8d8',belly:'#f4f0ff'}],
 ['은하룡어','eel','#6c60c8',2,300,'별이 흐르는 호수의 가장 깊은 곳에 산다는 전설.',{pc:'#ffe8a8',belly:'#b4a8f0',fin:'#ffe0f8'}]
 ]];
+/* 5단계: 새 100종 (id 100~199) — 각 낚시터 20종 더, 순서가 희귀도 (8·6·4·1·1)
+   ex 안의 출현 조건: t 시간대(dawn 새벽·day 낮·dusk 노을·night 밤) · w 날씨(rain 비·fog 안개·rainbow 무지개·clear 맑음) · s 장소 */
+const RAW2=[
+[ /* 1 연못 */
+['각시붕어','round','#ecc4b4',3,6,'분홍빛 혼인색이 고운 작은 붕어.',{pc:'#e88a9a'}],
+['왜몰개','tiny','#d4dcc0',7,6,'연못가 수초 사이를 떼 지어 다닌다.'],
+['밀어','cat','#c0b090',2,8,'바닥 돌에 배를 붙이고 쉰다.'],
+['줄납자루','round','#d0d8e8',7,8,'몸 옆으로 가는 줄이 흐른다.'],
+['큰납지리','round','#d8d0e0',3,12,'납자루 무리의 맏형.'],
+['참중고기','tiny','#d0c8b0',2,10,'점점이 무늬가 수줍게 박혀 있다.'],
+['버들붕어','round','#b8c8a0',1,7,'수컷은 지느러미를 활짝 펴고 뽐낸다.'],
+['대륙송사리','tiny','#e8e0c0',0,4,'송사리보다 조금 더 통통하다.'],
+['초어','long','#a8b890',0,80,'물풀을 우적우적 먹는 큰 물고기.'],
+['백련어','long','#c8ccd0',2,70,'입을 벌리고 물을 걸러 먹는다.'],
+['가시고기','tiny','#b8c49c',4,6,'아빠가 둥지를 지키는 다정한 물고기.'],
+['얼룩동사리','cat','#a89070',5,20,'얼룩무늬로 진흙 속에 녹아든다.',{pc:'#6e5a44'}],
+['개구리밥붕어','round','#b8dca0',2,15,'머리에 개구리밥을 이고 다닌다.',{s:'lily'}],
+['저녁미꾸리','eel','#c8a888',2,18,'노을이 지면 진흙 밖으로 나온다.',{t:'dusk'}],
+['반짝가물치','long','#90a080',5,70,'비 오는 날 수면 위로 고개를 든다.',{pc:'#5c6a4c',w:'rain'}],
+['수련잉어','long','#f8e8f0',5,65,'수련 꽃잎을 닮은 무늬를 지녔다.',{pc:'#f4a8c8',s:'lily'}],
+['달맞이붕어','round','#fff4c0',2,28,'밤에 달을 올려다보며 떠오른다.',{pc:'#ffffff',t:'night'}],
+['물안개송사리','tiny','#e4e8f4',0,5,'안개 낀 날에만 모습을 보인다.',{w:'fog'}],
+['무지개비단잉어','long','#fff8f0',5,75,'무지개 뜬 날 연못을 수놓는다.',{pc:'#a8c8ff',w:'rainbow'}],
+['연못주인 메기왕','cat','#86906c',2,180,'연못 밑바닥에서 백 년을 살았다는 연못의 주인.',{t:'night'}]
+],[ /* 2 시냇가 */
+['금강모치','tiny','#d8d0b0',3,9,'맑은 계곡 상류의 귀한 손님.',{pc:'#e8a050'}],
+['감돌고기','round','#c0c8d0',7,10,'검은 띠를 세 줄 두르고 있다.',{pc:'#505868'}],
+['종개','eel','#c8b898',2,12,'돌 틈을 미끄러지듯 지난다.'],
+['새코미꾸리','eel','#e0b880',5,14,'주황빛 몸에 점이 흩뿌려져 있다.'],
+['퉁가리','cat','#c09868',0,10,'건드리면 가시로 콕 찌른다.'],
+['동사리','cat','#a89878',5,15,'둥그런 머리로 바닥을 지킨다.'],
+['긴몰개','tiny','#d0d8d8',7,10,'가늘고 긴 몸으로 여울을 탄다.'],
+['돌마자','round','#c4c0b0',2,9,'돌에 붙은 먹이를 핥아 먹는다.'],
+['끄리','long','#c0c8d0',1,30,'물 위로 뛰어올라 벌레를 낚아챈다.'],
+['누치','long','#d0c8b8',0,40,'큰 비늘이 은은하게 빛난다.'],
+['칠성장어','eel','#8c8c90',2,45,'몸 옆에 일곱 개의 구멍이 있다.',{t:'night'}],
+['꺽저기','round','#b0a888',5,15,'꺽지의 사촌인데 훨씬 수줍다.'],
+['빗방울치','tiny','#c8dcf0',2,8,'빗방울 소리를 따라 모여든다.',{w:'rain'}],
+['이끼퉁이','cat','#98a880',5,18,'이끼를 닮아 숨바꼭질 선수다.',{pc:'#6c7c58',s:'up'}],
+['홍송어','long','#e8b0a8',7,50,'붉은 줄이 흐르는 시냇가의 미인.',{pc:'#d86868'}],
+['새벽은어','tiny','#e8f0f0',0,22,'첫 햇살에 은빛으로 반짝인다.',{t:'dawn'}],
+['물안개황어','long','#d8c8c8',7,40,'안개 속 여울에서 붉은 띠가 아른거린다.',{pc:'#e89090',w:'fog'}],
+['반딧불쏘가리','long','#e0c878',5,45,'밤 시냇물에서 무늬가 은은히 빛난다.',{pc:'#a08a40',t:'night'}],
+['계곡철갑상어','sturgeon','#a0a8b0',4,120,'갑옷 같은 비늘판을 두른 옛 물고기.',{s:'up'}],
+['폭포잉어왕','long','#5cb4b4',2,130,'폭포를 거슬러 올라 용이 된다는 전설의 잉어.',{w:'rain'}]
+],[ /* 3 바닷가 */
+['보리멸','tiny','#e8dcc0',0,20,'모래사장 가까이에서 무리를 짓는다.'],
+['까나리','tiny','#c8d8e0',7,15,'모래 속에 쏙 숨는다.'],
+['베도라치','eel','#a8a080',5,20,'바위틈 웅덩이에 숨어 사는 주민.'],
+['자리돔','round','#8898b0',2,12,'제자리를 잘 지키는 작은 돔.'],
+['쏨뱅이','round','#d08870',5,25,'가시에 독이 있어 조심해야 한다.',{pc:'#a05848'}],
+['전갱이','long','#a8c0d0',7,30,'꼬리 쪽에 단단한 비늘이 줄지어 있다.'],
+['양태','flat','#b8a888',2,40,'납작한 머리로 모래에 숨는다.'],
+['문절망둑','cat','#c0b098',2,18,'갯벌에서 고개를 갸웃거린다.'],
+['해마','seahorse','#f0c060',0,12,'꼬리로 부두 기둥을 꼭 붙잡고 쉰다.',{s:'dock'}],
+['쏠배감펭','lion','#f0b8a0',1,30,'줄무늬 지느러미를 부채처럼 펼친다.',{pc:'#c86058'}],
+['거북복','box','#f0d860',2,20,'네모난 몸으로 뒤뚱뒤뚱 헤엄친다.',{pc:'#5878a8'}],
+['노을학꽁치','needle','#f0c8a8',0,35,'노을빛에 물드는 가느다란 주둥이.',{t:'dusk'}],
+['꼼치','eel','#d8c8c8',2,40,'말랑말랑한 몸, 비 오는 날 잘 문다.',{w:'rain'}],
+['줄돔','round','#d8d8d0',1,30,'일곱 줄무늬가 선명한 바위의 돔.',{pc:'#404858'}],
+['참복','puff','#d8c8a0',5,40,'복어 중의 으뜸이라 불린다.',{pc:'#5c5848'}],
+['나비고기','angel','#fff0a0',3,15,'나비처럼 팔랑이는 산호의 무희.',{pc:'#303050',t:'day'}],
+['부두놀래기','round','#a8d8b8',7,25,'부두 기둥에 사는 알록달록 놀래기.',{pc:'#f4a0c0',s:'dock'}],
+['달밤숭어','long','#c8d0e8',2,55,'보름달 밤에 은빛으로 뛰어오른다.',{pc:'#ffffff',t:'night'}],
+['무지개놀래기','angel','#a8e0f0',7,30,'무지개 뜬 날 바위 사이를 수놓는다.',{pc:'#f8a0c8',w:'rainbow'}],
+['용궁해마','seahorse','#ffa8a8',2,60,'용궁의 문을 지킨다는 커다란 해마.',{t:'dusk'}]
+],[ /* 4 먼바다 */
+['날치','needle','#88b0d8',7,30,'날개 같은 가슴지느러미로 파도 위를 난다.',{pc:'#c8e0f8'}],
+['가다랑어','long','#6888b0',7,70,'배 쪽으로 검은 줄이 내려간다.',{pc:'#404c70'}],
+['눈볼대','round','#f0a090',0,30,'커다란 눈으로 깊은 곳을 살핀다.'],
+['빨간횟대','cat','#e09080',5,25,'바위에 착 붙어 꼼짝하지 않는다.'],
+['말쥐치','flat','#a8b0b8',2,40,'말처럼 길쭉한 얼굴의 쥐치.'],
+['도치','puff','#a8b098',2,25,'배의 빨판으로 바위에 달라붙는다.'],
+['은대구','long','#808898',0,70,'깊은 바다의 기름진 물고기.'],
+['양미리','needle','#c8d4dc',0,20,'가늘고 길어 바늘 같다.'],
+['황다랑어','long','#5878b0',4,150,'노란 지느러미로 대양을 누빈다.',{pc:'#f0d050',fin:'#f8e070'}],
+['부시리','long','#88a8c0',3,100,'방어와 쌍둥이처럼 닮았다.',{pc:'#e8d070'}],
+['청소놀래기','tiny','#80b0f0',3,10,'큰 물고기를 깨끗이 청소해 준다.',{pc:'#203060'}],
+['망치고등어','long','#7898b8',5,40,'등에 망치로 두드린 듯한 무늬가 있다.',{pc:'#3c5878'}],
+['안개대구','long','#c0c4cc',2,85,'짙은 안개 속에서만 입질한다.',{w:'fog'}],
+['샛비늘치','tiny','#a0b0e0',2,8,'밤바다에서 몸의 점이 빛난다.',{pc:'#f0f8a0',t:'night'}],
+['돛새치','sail','#5888c0',1,220,'등의 돛을 펼치고 파도를 가른다.',{pc:'#3c5c98',fin:'#7ca8e8'}],
+['쥐가오리','ray','#606878',0,400,'커다란 날개로 바다를 난다.',{belly:'#e8ecf4',t:'day'}],
+['고래상어','shark','#6878a0',2,900,'세상에서 가장 큰 물고기지만 순하다.',{pc:'#e0e8f8',s:'end'}],
+['빗속아귀','angler','#506078',2,80,'빗소리를 들으면 얕은 곳으로 올라온다.',{w:'rain'}],
+['산갈치','eel','#e0e8f8',7,500,'은빛 리본 같은 몸에 붉은 볏을 달았다.',{pc:'#f07080',belly:'#ffffff',t:'night'}],
+['푸른바다용','long','#3e74bc',2,350,'폭풍우 치는 날 먼바다 끝에서 모습을 드러낸다.',{w:'rain'}]
+],[ /* 5 달빛호수 */
+['별사탕송사리','tiny','#fff0f8',2,4,'별사탕처럼 오돌토돌 귀엽다.',{pc:'#ffc0e0'}],
+['비눗방울어','puff','#e8f4ff',0,6,'톡 건드리면 터질 것처럼 투명하다.'],
+['꿈붕어','round','#e0d8ff',7,12,'잠든 사람의 꿈속을 헤엄친다고 한다.',{pc:'#c8b8f8'}],
+['달토끼어','round','#f8f4f0',2,14,'귀처럼 생긴 지느러미가 쫑긋하다.',{pc:'#ffd0e0'}],
+['은방울메기','cat','#d8dcf0',2,20,'수염 끝에 은방울이 달렸다.'],
+['자장가피라미','tiny','#d0e0f8',1,9,'헤엄칠 때 작은 노랫소리가 난다.'],
+['솜사탕붕어','round','#ffd8ec',5,15,'구름 같은 무늬가 폭신폭신하다.',{pc:'#d8e8ff'}],
+['이슬해마','seahorse','#d8f0ff',0,8,'이슬방울을 꼬리에 매달고 다닌다.'],
+['별무리가오리','ray','#a8b0e8',2,70,'등에 작은 별무리를 지고 다닌다.',{pc:'#fff8c0'}],
+['유리나비고기','angel','#e8f4ff',7,16,'지느러미가 유리처럼 맑다.',{pc:'#c8d8ff'}],
+['초승달치','needle','#fff4c8',0,25,'초승달처럼 휘어진 은빛 몸.',{t:'night'}],
+['연잎복어','puff','#c8ecc8',2,18,'연잎 위에 올라가 낮잠을 잔다.',{pc:'#ffffff',s:'lily'}],
+['안개나비','angel','#e0e0f0',0,14,'안개 낀 호수 위를 팔랑인다.',{w:'fog'}],
+['새벽별돔','round','#f8d8c8',2,30,'새벽녘 마지막 별을 닮았다.',{pc:'#fffad8',t:'dawn'}],
+['별자리쏠배감펭','lion','#c8b8f0',2,30,'지느러미에 별자리가 그려져 있다.',{pc:'#fff0a0'}],
+['무지개해마','seahorse','#ffc8e8',7,15,'무지개 뜬 날 호수에 놀러 온다.',{pc:'#a8e8f8',w:'rainbow'}],
+['은하돛새치','sail','#7880d8',2,200,'돛에 은하수가 흐른다.',{pc:'#fff8d8'}],
+['꿈꾸는 거북복','box','#f0e0ff',2,25,'잠든 채 빙글빙글 떠다닌다.',{pc:'#c8b0f8'}],
+['오로라철갑상어','sturgeon','#a8d8e8',7,200,'등의 비늘판마다 오로라가 일렁인다.',{pc:'#d8b0f8',t:'night'}],
+['달빛선녀어','fancy','#ccc4f8',2,90,'보름달 밤, 호수 한가운데서 춤춘다는 전설.',{t:'night'}]
+]];
+/* 4단계: 원래 물고기 중 설명에 맞는 몇 종에 출현 조건 */
+const OLD_WHEN={'뱀장어':{t:'night'},'반딧불이어':{t:'night'},'연꽃붕어':{s:'lily'},'볼락':{t:'dusk|night'},'이슬잉어':{t:'dawn'}};
+
+/* 계절 한정 물고기 (id 200~): 해마다 같은 날짜(한국 시간)에 열리는 축제 동안만 나와요.
+   [이름, 낚시터, 희귀도, 틀, 몸색, 무늬, 길이, 설명, {조건·색}] — 새 축제는 이 배열에 덧붙이면 돼요 (id는 뒤에 이어짐) */
+const SEASONS=[
+ {id:'autumn',name:'단풍 축제',from:'10-20',to:'11-20',reward:'maple',fish:[
+  ['단풍붕어',1,1,'round','#f09060',5,20,'단풍잎이 물에 비쳐 생겨난 붕어.',{pc:'#f8d070'}],
+  ['은행잎송사리',2,0,'tiny','#f8e070',0,6,'은행잎처럼 노랗게 물들었다.'],
+  ['보름달전어',3,2,'round','#d8d0c0',2,28,'가을 보름달 아래서만 살이 오른다.',{pc:'#fff4c0',t:'night'}],
+  ['국화비단잉어',5,3,'long','#fff0d8',5,65,'국화 향을 품은 가을 호수의 손님.',{pc:'#f8c040'}]]},
+ {id:'winter',name:'눈꽃 축제',from:'12-15',to:'01-31',reward:'snowcap',fish:[
+  ['눈송이빙어',2,0,'tiny','#e8f4ff',2,12,'눈송이처럼 하얀 점이 박혀 있다.',{pc:'#ffffff'}],
+  ['털모자복어',3,1,'puff','#f8f0f0',4,20,'털모자를 쓴 듯 머리가 빨갛다.',{pc:'#e86070'}],
+  ['고드름갈치',4,2,'eel','#d8ecff',0,110,'고드름처럼 투명하게 빛난다.',{belly:'#ffffff'}],
+  ['오로라눈꽃어',5,3,'fancy','#e8f0ff',7,25,'눈꽃 축제 밤하늘의 오로라를 닮았다.',{pc:'#c8f0e0',t:'night'}]]}
+];
+
 const RAR_OF=i=>i<8?0:i<14?1:i<18?2:i<19?3:4;
 const FISH=[];
-RAW.forEach((z,zi)=>z.forEach((r,i)=>{
-  const rar=RAR_OF(i),ex=r[6]||{};
-  FISH.push({id:FISH.length,zone:zi+1,idx:i,rar:rar,name:r[0],
-    spec:{tpl:r[1],c:r[2],pat:r[3],pc:ex.pc,belly:ex.belly,fin:ex.fin},
-    len:r[4],desc:r[5],
+function addFish(zi,rar,idx,r,when){
+  const ex=r[6]||{},w=when||(ex.t||ex.w||ex.s?{t:ex.t,w:ex.w,s:ex.s}:null);
+  const f={id:FISH.length,zone:zi+1,idx:idx,rar:rar,name:r[0],
+    spec:{tpl:r[1],c:r[2],pat:r[3],pc:ex.pc,belly:ex.belly,fin:ex.fin,art:LEGEND_ART[r[0]]},
+    len:r[4],desc:r[5],when:w,
     price:Math.max(1,Math.round(ZONE_PRICE[zi]*RARITY[rar].mult)),
-    diff:Math.min(1,.12+.1*zi+.12*rar)});
-}));
+    diff:Math.min(1,.12+.1*zi+.12*rar)};
+  FISH.push(f);return f;
+}
+RAW.forEach((z,zi)=>z.forEach((r,i)=>addFish(zi,RAR_OF(i),i,r,OLD_WHEN[r[0]])));
+RAW2.forEach((z,zi)=>z.forEach((r,i)=>addFish(zi,RAR_OF(i),20+i,r)));
+const MAIN_N=FISH.length; // 200
+SEASONS.forEach(s=>{s.ids=s.fish.map(r=>{const f=addFish(r[1]-1,r[2],-1,[r[0],r[3],r[4],r[5],r[6],r[7],r[8]]);f.season=s.id;return f.id})});
+/* 축제 기간 (한국 시간 월-일, 해를 넘겨도 됨) */
+const kstMD=()=>{const d=new Date(Date.now()+9*3600e3);return String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')};
+const seasonOn=s=>{const t=kstMD();return s.from<=s.to?(t>=s.from&&t<=s.to):(t>=s.from||t<=s.to)};
+const seasonById=id=>SEASONS.find(s=>s.id===id);
 const fishByName=n=>FISH.find(f=>f.name===n);
 const fid=n=>{const f=fishByName(n);if(!f)throw new Error('물고기 없음: '+n);return f.id};
 
@@ -673,8 +1238,60 @@ const PASSIVES=[
  {k:'bite',name:'입질 속도',v:.02},{k:'sell',name:'판매 가격',v:.02},{k:'bar',name:'조절 바 크기',v:.02},
  {k:'luck',name:'행운',v:.02},{k:'reel',name:'당기는 힘',v:.02}
 ];
-const PAGE_SIZE=10,PAGES=FISH.length/PAGE_SIZE;
-const PAGE_TITLES=['연못 I','연못 II','시냇가 I','시냇가 II','바닷가 I','바닷가 II','먼바다 I','먼바다 II','달빛호수 I','달빛호수 II'];
+/* 도감 쪽: 낚시터마다 I·II(원래 20종) III·IV(새 20종), 그 뒤에 축제 쪽. 원래 쪽의 보너스 종류는 그대로 */
+const PAGE_SIZE=10,ZONE_SHORT=['연못','시냇가','바닷가','먼바다','달빛호수'],ROMAN=['I','II','III','IV'];
+const PAGE_IDS=[],PAGE_TITLES=[],PASSIVE_OF=[],PAGE_SEASON=[];
+for(let z=0;z<5;z++)for(let q=0;q<4;q++){
+  const base=q<2?z*20+q*10:100+z*20+(q-2)*10;
+  PAGE_IDS.push(Array.from({length:PAGE_SIZE},(_,i)=>base+i));PAGE_TITLES.push(ZONE_SHORT[z]+' '+ROMAN[q]);
+  PASSIVE_OF.push(PASSIVES[q<2?z*2+q:(z*2+q+3)%10]);PAGE_SEASON.push(null);
+}
+const MAIN_PAGES=PAGE_IDS.length;
+SEASONS.forEach(s=>{PAGE_IDS.push(s.ids);PAGE_TITLES.push(s.name);PASSIVE_OF.push(null);PAGE_SEASON.push(s)});
+const PAGES=PAGE_IDS.length;
+PAGE_IDS.forEach((ids,p)=>ids.forEach(id=>FISH[id].page=p));
+
+/* ---------- 3단계: 치장 아이템 (능력치 없음) ----------
+   price: 치장 상점에서 골드로 · reward: 그 도감 쪽을 다 채우면 선물 · season: 그 축제 쪽 보상 · 'all': 본 도감 전부 */
+const COS=[
+ {id:'straw',k:'hat',name:'밀짚모자',price:0},{id:'nohat',k:'hat',name:'모자 안 쓰기',price:0},
+ {id:'cap',k:'hat',name:'민트 야구모자',price:800},{id:'bucket',k:'hat',name:'벙거지',price:900},{id:'beanie',k:'hat',name:'딸기 털모자',price:1200},
+ {id:'ribbon',k:'hat',name:'큰 리본',price:1500},{id:'flower',k:'hat',name:'꽃 화관',price:2500},{id:'catear',k:'hat',name:'고양이 귀',price:3000},
+ {id:'frog',k:'hat',name:'개구리 모자',price:5000},{id:'crown',k:'hat',name:'반짝 왕관',price:60000},
+ {id:'lily',k:'hat',name:'연잎 모자',reward:1},{id:'fishhat',k:'hat',name:'물고기 모자',reward:5},{id:'shell',k:'hat',name:'소라 모자',reward:9},
+ {id:'captain',k:'hat',name:'선장 모자',reward:13},{id:'moonband',k:'hat',name:'초승달 머리띠',reward:17},
+ {id:'maple',k:'hat',name:'단풍 머리핀',season:'autumn'},{id:'snowcap',k:'hat',name:'눈꽃 방울모자',season:'winter'},
+ {id:'tee',k:'outfit',name:'기본 티셔츠',price:0},{id:'stripe',k:'outfit',name:'줄무늬 티',price:600},{id:'apron',k:'outfit',name:'카페 앞치마',price:1200},
+ {id:'overall',k:'outfit',name:'멜빵바지',price:1500},{id:'raincoat',k:'outfit',name:'노란 우비',price:2500},{id:'hoodie',k:'outfit',name:'후드 티',price:3000},
+ {id:'star',k:'outfit',name:'별무늬 티',price:6000},{id:'suit',k:'outfit',name:'멋쟁이 정장',price:20000},
+ {id:'vest',k:'outfit',name:'낚시 조끼',reward:7},{id:'sailor',k:'outfit',name:'세일러복',reward:11},{id:'wave',k:'outfit',name:'파도 무늬 티',reward:15},
+ {id:'bamboo',k:'rod',name:'대나무 낚싯대',price:0,col:['#b98a62']},{id:'mintrod',k:'rod',name:'민트 낚싯대',price:1000,col:['#7cc8b0','#c8f0e4']},
+ {id:'sakura',k:'rod',name:'벚꽃 낚싯대',price:2000,col:['#f4a8c0','#ffe4ee']},{id:'rainbowrod',k:'rod',name:'무지개 낚싯대',price:15000,col:['#ff9a9a','#ffd27a','#a8e08a','#8ac8f0','#c0a0f0']},
+ {id:'goldrod',k:'rod',name:'황금 낚싯대',price:30000,col:['#d89c30','#ffe27a','#fff6c8']},
+ {id:'lotusrod',k:'rod',name:'연꽃 낚싯대',reward:3,col:['#78b888','#f8b4cc']},{id:'coral',k:'rod',name:'산호 낚싯대',reward:14,col:['#ff8a80','#ffc8b0']},
+ {id:'galaxy',k:'rod',name:'은하 낚싯대',reward:19,col:['#5446a8','#8e84e0','#fff8c0']},
+ {id:'basicbob',k:'bob',name:'빨간 찌',price:0},{id:'heartbob',k:'bob',name:'하트 찌',price:1500},{id:'mushbob',k:'bob',name:'버섯 찌',price:2500},
+ {id:'catbob',k:'bob',name:'고양이 찌',price:4000},{id:'goldbob',k:'bob',name:'금빛 찌',price:20000},
+ {id:'duck',k:'bob',name:'오리 찌',reward:2},{id:'leafbob',k:'bob',name:'단풍잎 찌',reward:6},{id:'starfish',k:'bob',name:'불가사리 찌',reward:10},{id:'starbob',k:'bob',name:'별 찌',reward:18},
+ {id:'t_new',k:'title',name:'새내기 낚시꾼',price:300},{id:'t_villager',k:'title',name:'물결마을 주민',price:500},{id:'t_nap',k:'title',name:'낮잠 전문가',price:1500},
+ {id:'t_cat',k:'title',name:'고양이 친구',price:2000},{id:'t_big',k:'title',name:'월척 사냥꾼',price:5000},{id:'t_luck',k:'title',name:'행운의 손',price:8000},
+ {id:'t_rich',k:'title',name:'부자 어부',price:100000},
+ {id:'t_pond',k:'title',name:'연못 지킴이',reward:0},{id:'t_stream',k:'title',name:'시냇가 산책자',reward:4},{id:'t_beach',k:'title',name:'노을 낚시꾼',reward:8},
+ {id:'t_sea',k:'title',name:'먼바다 항해사',reward:12},{id:'t_moon',k:'title',name:'달빛 몽상가',reward:16},{id:'t_master',k:'title',name:'물결마을 도감 박사',reward:'all'}
+];
+const COS_BY={};COS.forEach(c=>COS_BY[c.id]=c);
+const COS_KINDS={hat:'모자',outfit:'옷',rod:'낚싯대',bob:'찌',title:'칭호'};
+const LOOK_KEY={hat:'hat',outfit:'o',rod:'rod',bob:'bob',title:'ti'};
+function rewardOf(p){if(PAGE_SEASON[p])return PAGE_SEASON[p].reward;const c=COS.find(c=>c.reward===p);return c?c.id:null}
+function rewardText(c){if(c.price!==undefined)return'';if(c.reward==='all')return'도감 '+MAIN_N+'종을 모두 채우면';if(c.season)return'「'+seasonById(c.season).name+'」 도감을 채우면';return'도감 「'+PAGE_TITLES[c.reward]+'」을 채우면'}
+/* 친구에게서 받은 외형은 목록에 있는 값만 받아들여요 */
+function cleanLook(l,color){
+  l=l&&typeof l==='object'?l:{};
+  const ok=(v,k)=>COS_BY[v]&&COS_BY[v].k===k;
+  const n=(v,max,d)=>Number.isInteger(v)&&v>=0&&v<max?v:d;
+  return{h:n(l.h,HAIRS.length,0),k:n(l.k,SKINS.length,0),s:n(l.s,SHIRTS.length,(color|0)%SHIRTS.length),
+    hat:ok(l.hat,'hat')?l.hat:'straw',o:ok(l.o,'outfit')?l.o:'tee',rod:ok(l.rod,'rod')?l.rod:'bamboo',bob:ok(l.bob,'bob')?l.bob:'basicbob',ti:ok(l.ti,'title')?l.ti:''};
+}
 
 
 /* ---------- 오디오: 코드로 만든 BGM + 효과음 (WebAudio) ---------- */
@@ -874,7 +1491,7 @@ function genWorld(){
   for(let y=16;y<31;y++){const xl=31-(Math.sin(y*.7)>.4?1:0);for(let x=xl;x<MW;x++){T[y][x]='w';Z[y][x]=2}}
   /* 길 */
   const path=(x0,y0,x1,y1)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(inb(x,y)&&T[y][x]!=='w'&&T[y][x]!=='k')T[y][x]='p'};
-  path(17,10,17,35);path(12,22,28,22);path(28,22,30,22);path(16,21,18,23);path(22,20,22,22);path(12,20,12,22);path(15,36,18,38);
+  path(17,10,17,35);path(12,22,28,22);path(28,22,30,22);path(16,21,18,23);path(22,20,22,22);path(12,20,12,22);path(15,36,18,38);path(13,29,16,29);path(18,29,21,29);
   /* 울타리와 문 */
   const fences=[],gates=[];
   for(let x=0;x<MW;x++){fences.push({x:x,y:15,k:'h'});fences.push({x:x,y:31,k:'h'})}
@@ -887,7 +1504,9 @@ function genWorld(){
   /* 건물 */
   const buildings=[
     {id:'shop',x:21,y:19,w:3,h:3,door:[22,20],opts:{wall:[252,240,222],roof:[160,214,196],roofD:[124,184,168],door:[214,166,150],kind:'shop'}},
-    {id:'lib',x:11,y:19,w:3,h:3,door:[12,20],opts:{wall:[246,238,252],roof:[196,176,236],roofD:[158,140,206],door:[190,160,200],kind:'lib'}}
+    {id:'lib',x:11,y:19,w:3,h:3,door:[12,20],opts:{wall:[246,238,252],roof:[196,176,236],roofD:[158,140,206],door:[190,160,200],kind:'lib'}},
+    {id:'boutique',x:20,y:28,w:3,h:3,door:[21,29],opts:{wall:[255,246,250],roof:[244,186,214],roofD:[220,150,186],door:[200,160,210],kind:'boutique'}},
+    {id:'trade',x:12,y:28,w:3,h:3,door:[13,29],opts:{wall:[252,246,232],roof:[246,196,140],roofD:[220,164,110],door:[176,140,110],kind:'trade'}}
   ];
   buildings.forEach(b=>{for(let y=b.y-b.h+1;y<=b.y;y++)for(let x=b.x;x<b.x+b.w;x++)SOL[y][x]=true});
   /* 소품 */
@@ -942,48 +1561,100 @@ const $=id=>document.getElementById(id);
 const SAVE_KEY='mulgyeol-fishing-v1';
 const DAY_LEN=480;
 function defaultState(){return{v:1,gold:60,inv:{},dex:{},gear:{rod:1,bob:1,lure:1,reel:1},zones:[1],t:DAY_LEN*.16,
-  stats:{casts:0,catches:0,sold:0,earned:0},set:{bgm:.6,sfx:.8,mute:false},px:null,py:null,hinted:false}}
-function fromSave(o){const d=defaultState();return Object.assign(d,o,{v:1,set:Object.assign(d.set,o.set||{}),gear:Object.assign(d.gear,o.gear||{}),stats:Object.assign(d.stats,o.stats||{})})}
+  stats:{casts:0,catches:0,sold:0,earned:0},set:{bgm:.6,sfx:.8,mute:false},px:null,py:null,hinted:false,
+  rev:0, // 4단계: 서버가 교환으로 가방을 바꿀 때마다 1씩 올라가는 번호
+  cos:{own:[],look:cleanLook({})}}}
+function fromSave(o){const d=defaultState();const c=o.cos||{};
+  return Object.assign(d,o,{v:1,set:Object.assign(d.set,o.set||{}),gear:Object.assign(d.gear,o.gear||{}),stats:Object.assign(d.stats,o.stats||{}),
+    rev:o.rev|0,cos:{own:Array.isArray(c.own)?c.own.filter(id=>COS_BY[id]):[],look:cleanLook(c.look)}})}
 function loadState(){try{const r=localStorage.getItem(SAVE_KEY);if(r){const o=JSON.parse(r);if(o&&o.v===1)return fromSave(o)}}catch(e){}return defaultState()}
 let S=loadState();
 function saveState(now){if(P){S.px=Math.round(P.x);S.py=Math.round(P.y)}if(ONLINE){Net.save(now===true);return}try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
 function hasSave(){try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
 const hasZone=z=>S.zones.indexOf(z)>=0;
+const owns=id=>{const c=COS_BY[id];return!!c&&(c.price===0||S.cos.own.indexOf(id)>=0)};
+/* 도감 쪽을 채우면 치장 아이템 선물. 이미 채운 쪽은 불러올 때 한꺼번에 */
+function grantRewards(){
+  const got=[];
+  for(let p=0;p<PAGES;p++){const r=rewardOf(p);if(r&&!owns(r)&&pageDone(p)){S.cos.own.push(r);got.push(COS_BY[r].name)}}
+  if(!owns('t_master')){let all=true;for(let p=0;p<MAIN_PAGES;p++)if(!pageDone(p)){all=false;break}if(all){S.cos.own.push('t_master');got.push(COS_BY.t_master.name)}}
+  return got;
+}
 const fmt=n=>Math.round(n).toLocaleString('ko-KR');
 
 /* ----- 도감 · 패시브 · 능력치 ----- */
-const pageDone=p=>{for(let i=0;i<PAGE_SIZE;i++)if(!S.dex[p*PAGE_SIZE+i])return false;return true};
-const pageCount=p=>{let n=0;for(let i=0;i<PAGE_SIZE;i++)if(S.dex[p*PAGE_SIZE+i])n++;return n};
-const dexTotal=()=>Object.keys(S.dex).length;
+const pageDone=p=>PAGE_IDS[p].every(id=>!!S.dex[id]);
+const pageCount=p=>PAGE_IDS[p].filter(id=>!!S.dex[id]).length;
+const dexTotal=()=>Object.keys(S.dex).filter(k=>+k<MAIN_N).length;
 /* 종 보너스: 희귀도별로 정해진 마릿수를 잡으면 그 페이지 능력치가 조금 오름. 페이지 10종을 다 발견하면 아주 약한 보너스 */
 const NEED=[10,7,5,3,2],SP_BONUS=.005,PAGE_BONUS=.01;
 const needOf=id=>NEED[FISH[id].rar];
 const dexN=id=>S.dex[id]?S.dex[id].n:0;
 const mastered=id=>dexN(id)>=needOf(id);
-const pageMastered=p=>{let n=0;for(let i=0;i<PAGE_SIZE;i++)if(mastered(p*PAGE_SIZE+i))n++;return n};
-const masterTotal=()=>{let n=0;for(let i=0;i<FISH.length;i++)if(mastered(i))n++;return n};
+const pageMastered=p=>PAGE_IDS[p].filter(mastered).length;
+const masterTotal=()=>{let n=0;for(let i=0;i<MAIN_N;i++)if(mastered(i))n++;return n};
 const pct=v=>(Math.round(v*1000)/10)+'%';
 let ST={};
 function recalc(){
   const b={bite:0,sell:0,bar:0,luck:0,reel:0};
-  for(let p=0;p<PAGES;p++){const k=PASSIVES[p].k;b[k]+=pageMastered(p)*SP_BONUS;if(pageDone(p))b[k]+=PAGE_BONUS}
+  for(let p=0;p<MAIN_PAGES;p++){const k=PASSIVE_OF[p].k;b[k]+=pageMastered(p)*SP_BONUS;if(pageDone(p))b[k]+=PAGE_BONUS}
   ST={b:b,bar:gearEff.rod(S.gear.rod)*(1+b.bar),wait:gearEff.bob(S.gear.bob)*(1-b.bite),luck:gearEff.lure(S.gear.lure)*(1+b.luck),
       reel:gearEff.reel(S.gear.reel)*(1+b.reel),sell:1+b.sell};
 }
-const POOL={};FISH.forEach(f=>{const k=f.zone+'-'+f.rar;(POOL[k]=POOL[k]||[]).push(f)});
-function rollFish(zone){
+const POOL={};FISH.forEach(f=>{if(f.id>=MAIN_N)return;const k=f.zone+'-'+f.rar;(POOL[k]=POOL[k]||[]).push(f)});
+
+/* ----- 4단계: 출현 조건 (시간대 · 날씨 · 장소) ----- */
+const TIME_NAME={dawn:'새벽',day:'낮',dusk:'노을',night:'밤'};
+const WX_NAME={clear:'맑음',rain:'비',fog:'안개',rainbow:'무지개'};
+const WX_COND={clear:'맑은 날',rain:'비 오는 날',fog:'안개 낀 날',rainbow:'무지개 뜬 날'};
+const SPOT_NAME={lily:'연잎 근처',up:'시냇물 상류',dock:'부두 옆',end:'부두 끝'};
+function timeSlot(ph){if(ph===undefined)ph=(S.t%DAY_LEN)/DAY_LEN;return ph>=.95||ph<.1?'dawn':ph<.62?'day':ph<.74?'dusk':'night'}
+/* 날씨는 실제 시계로 10분마다 바뀌고, 모든 친구에게 똑같아요. 비가 그친 직후엔 무지개가 뜨기도 해요 */
+const WX_SLOT=600000;
+const wxBase=s=>{const r=H2(s,71,9);return r<.56?'clear':r<.8?'rain':'fog'};
+function weatherAt(ms){const s=Math.floor(ms/WX_SLOT),w=wxBase(s);return w==='clear'&&wxBase(s-1)==='rain'&&H2(s,13,5)<.55?'rainbow':w}
+const weatherNow=()=>weatherAt(Date.now());
+function spotOf(t){
+  if(!t)return'';const z=W.Z[t.y][t.x];
+  if(z===1||z===5)return W.lilyNear.has(t.x+','+t.y)?'lily':'';
+  if(z===2)return t.y<=19?'up':'';
+  if(z===3){for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const x=t.x+dx,y=t.y+dy;if(W.inb(x,y)&&W.T[y][x]==='k')return'dock'}return''}
+  if(z===4)return t.y>=55?'end':'';
+  return'';
+}
+const condNow=t=>({t:timeSlot(),w:weatherNow(),s:spotOf(t)});
+function condOk(f,c){const w=f.when;if(!w)return true;if(w.t&&w.t.split('|').indexOf(c.t)<0)return false;if(w.w&&w.w!==c.w)return false;if(w.s&&w.s!==c.s)return false;return true}
+function condText(f){const w=f.when;if(!w)return'';const a=[];if(w.t)a.push(w.t.split('|').map(k=>TIME_NAME[k]).join('·'));if(w.w)a.push(WX_COND[w.w]);if(w.s)a.push(SPOT_NAME[w.s]);return a.join(' · ')}
+function rollFish(zone,c){
+  c=c||condNow(null);
+  const ev=[];SEASONS.forEach(s=>{if(seasonOn(s))s.ids.forEach(id=>{const f=FISH[id];if(f.zone===zone&&condOk(f,c))ev.push(f)})});
+  if(ev.length&&Math.random()<.1)return ev[(Math.random()*ev.length)|0];
   const ws=RARITY.map((r,i)=>r.base*(1+(ST.luck-1)*i*.5));
   let r=Math.random()*ws.reduce((a,b)=>a+b,0),ri=0;
   for(let i=0;i<ws.length;i++){r-=ws[i];if(r<=0){ri=i;break}}
-  const pool=POOL[zone+'-'+ri]||POOL[zone+'-0'];
+  let pool=[];for(let k=ri;k>=0&&!pool.length;k--)pool=(POOL[zone+'-'+k]||[]).filter(f=>condOk(f,c));
+  if(!pool.length)pool=POOL[zone+'-0'];
   return pool[(Math.random()*pool.length)|0];
 }
 const sellPrice=f=>Math.max(1,Math.round(f.price*ST.sell));
 function reservedMats(){const r={};GEAR_KEYS.forEach(k=>{const u=GEAR[k].up[S.gear[k]];if(u)u.m.forEach(m=>{r[m[0]]=(r[m[0]]||0)+m[1]})});return r}
 
 /* ----- 스프라이트 캐시 ----- */
-const SHIRTS=[[[150,208,198],[116,176,170]],[[255,186,204],[230,150,176]],[[196,180,240],[160,142,214]],[[255,220,150],[230,188,110]],[[168,210,244],[128,176,224]],[[255,200,170],[232,164,134]]];
 const SP={};
+const lookKey=l=>[l.h|0,l.k|0,l.s|0,l.hat,l.o].join(',');
+function lookSprites(l){const k=lookKey(l);if(SP.looks[k])return SP.looks[k];const pl=buildPlayer(l),o={};['down','up','left','right'].forEach(d=>o[d]=pl[d].map(toCan));return SP.looks[k]=o}
+function refreshMe(){SP.pl=lookSprites(S.cos.look);setTag(ME,ONLINE&&Net.me?Net.me.name:'',S.cos.look.ti)}
+const bobCache={};const bobCan=id=>bobCache[id]||(bobCache[id]=toCan(bobSprite(id)));
+const lookURL={};
+function cosIcon(id){
+  if(lookURL[id])return lookURL[id];const c=COS_BY[id];let cv;
+  if(c.k==='hat'){const l=Object.assign({},S.cos.look,{hat:id}),f=lookSprites(l).down[0];cv=document.createElement('canvas');cv.width=16;cv.height=13;cv.getContext('2d').drawImage(f,0,0)}
+  else if(c.k==='outfit')cv=lookSprites(Object.assign({},S.cos.look,{o:id})).down[0];
+  else if(c.k==='bob')cv=bobCan(id);
+  else if(c.k==='rod'){cv=document.createElement('canvas');cv.width=14;cv.height=14;const x=cv.getContext('2d');const n=13;for(let i=0;i<=n;i++){x.fillStyle=c.col[Math.min(c.col.length-1,(i/n*c.col.length)|0)];x.fillRect(1+i,13-i,1,1);x.fillRect(1+i,12-i,1,1)}x.fillStyle='#8c7aa8';x.fillRect(2,9,3,3)}
+  else return'';
+  return lookURL[id]=cv.toDataURL();
+}
 function toCan(buf){const c=document.createElement('canvas');c.width=buf.w;c.height=buf.h;const x=c.getContext('2d'),id=x.createImageData(buf.w,buf.h);id.data.set(buf.d);x.putImageData(id,0,0);return c}
 function buildSprites(){
   SP.grass=[0,1,2].map(v=>toCan(grassTile(v)));SP.path=[0,1].map(v=>toCan(pathTile(v)));SP.sand=[0,1].map(v=>toCan(sandTile(v)));
@@ -994,8 +1665,9 @@ function buildSprites(){
   SP.lamp=toCan(lampSprite());SP.bench=toCan(benchSprite());SP.barrel=toCan(barrelSprite());SP.rock=toCan(rockSprite());
   SP.sign=toCan(signSprite([150,120,170]));SP.bob=toCan(lanternBobber());SP.bang=toCan(bangSprite());SP.heart=toCan(heartSprite());
   SP.cat=[0,1].map(f=>toCan(catSprite(f)));
-  // 친구마다 옷 색이 달라요 (0번이 원래 색)
-  SP.plc=SHIRTS.map(sh=>{const pl=buildPlayer(sh),o={};['down','up','left','right'].forEach(d=>o[d]=pl[d].map(toCan));return o});SP.pl=SP.plc[0];
+  // 내 모습 · 친구 모습은 외형마다 한 번만 만들어 둠
+  SP.looks={};SP.pl=lookSprites(S.cos.look);
+  SP.emo={};EMOTES.forEach(e=>SP.emo[e.k]=[0,1].map(f=>toCan(emoteSprite(e.k,f))));
   const fc=[[[255,176,200],[255,232,150],[206,196,255]],[[255,206,160],[255,255,255],[190,226,255]]];
   SP.flower=[0,1].map(c=>[0,1,2,3,4,5].map(v=>toCan(flowerSprite(31+v*7+c,fc[c]))));
   SP.reed=[0,1,2,3].map(v=>toCan(reedSprite(60+v)));SP.lily=[0,1,2,3,4].map(v=>toCan(lilySprite(80+v)));
@@ -1016,6 +1688,7 @@ function kbVec(){let x=0,y=0;if(keys.arrowleft||keys.a)x-=1;if(keys.arrowright||
 
 /* ----- 플레이어 · 월드 ----- */
 let W=genWorld(),P=null;
+W.lilyNear=new Set();W.deco.forEach(d=>{if(d.k==='lily')for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)W.lilyNear.add((d.x+dx)+','+(d.y+dy))});
 const gateAt={};W.gates.forEach(g=>gateAt[g.x+','+g.y]=g);
 const isSolid=(tx,ty)=>{if(!W.inb(tx,ty))return true;if(W.SOL[ty][tx])return true;const g=gateAt[tx+','+ty];return!!(g&&!hasZone(g.zone))};
 function blockedAt(x,y){const hw=4;return isSolid(Math.floor((x-hw)/TS),Math.floor(y/TS))||isSolid(Math.floor((x+hw)/TS),Math.floor(y/TS))||isSolid(Math.floor((x-hw)/TS),Math.floor((y-4)/TS))||isSolid(Math.floor((x+hw)/TS),Math.floor((y-4)/TS))}
@@ -1037,8 +1710,9 @@ function findCast(){
 function nearAction(){
   const tx=Math.floor(P.x/TS),ty=Math.floor((P.y-2)/TS);
   for(const g of W.gates){if(!hasZone(g.zone)&&Math.abs(g.x-tx)+Math.abs(g.y-ty)<=1)return{type:'gate',zone:g.zone,label:'문 열기'}}
-  for(const id in W.doors){const d=W.doors[id];if(tx>=d.x0&&tx<=d.x1&&ty===d.y)return{type:id,label:id==='shop'?'상점':'도감관'}}
+  for(const id in W.doors){const d=W.doors[id];if(tx>=d.x0&&tx<=d.x1&&ty===d.y)return{type:id,label:{shop:'상점',lib:'도감관',boutique:'치장<br>상점',trade:'교환소'}[id]}}
   const c=findCast();if(c)return{type:'fish',label:'낚시',cast:c};
+  if(ONLINE&&Net.me){let best=null,bd=22;others.forEach(o=>{if(!o.seen)return;const d=Math.hypot(o.x-P.x,o.y-P.y);if(d<bd){bd=d;best=o}});if(best)return{type:'player',id:best.id,label:'교환<br>신청'}}
   return null;
 }
 function regionName(){
@@ -1056,6 +1730,9 @@ function pressAct(){
     else if(a.type==='gate'){Snd.sfx('ui');openGate(a.zone)}
     else if(a.type==='shop'){Snd.sfx('ui');openShop()}
     else if(a.type==='lib'){Snd.sfx('ui');openDex()}
+    else if(a.type==='boutique'){Snd.sfx('ui');openBoutique()}
+    else if(a.type==='trade'){Snd.sfx('ui');openTrade()}
+    else if(a.type==='player'){Snd.sfx('ui');askTrade(a.id)}
   }else if(F.mode==='wait'){F.mode='idle';Snd.sfx('back');toast('너무 일찍 당겼어요');Snd.setIntense(false)}
   else if(F.mode==='bite')hook();
   else if(F.mode==='reel')inp.hold=true;
@@ -1099,6 +1776,7 @@ function finishCatch(){
   const e=S.dex[id]||(S.dex[id]={n:0,best:0});e.n++;e.best=Math.max(e.best,F.len);
   S.stats.catches++;F.isNew=!had;F.pageUp=-1;F.masterUp=!wasM&&mastered(id);
   for(let p=0;p<PAGES;p++)if(!wasDone[p]&&pageDone(p))F.pageUp=p;
+  F.gift=grantRewards().join(', ');
   recalc();F.mode='result';F.t=0;
   Snd.sfx('catch',f.rar);if(F.pageUp>=0||F.masterUp)setTimeout(()=>Snd.sfx('page'),900);
   if(f.rar>=3&&navigator.vibrate)try{navigator.vibrate([40,40,80])}catch(e){}
@@ -1110,7 +1788,7 @@ function updateFishing(dt){
   switch(F.mode){
     case'cast':if(F.t>=.5){F.mode='wait';F.t=0;F.wait=(3+Math.random()*5.5)*ST.wait;F.ripT=0;const b=bobberPos();ripple(b[0],b[1]);splashFx(b[0],b[1])}break;
     case'wait':F.wait-=dt;F.ripT-=dt;if(F.ripT<=0){F.ripT=1.5;const b=bobberPos();ripple(b[0],b[1])}
-      if(F.wait<=0){F.fish=rollFish(F.zone);F.mode='bite';F.t=0;Snd.sfx('bite');if(navigator.vibrate)try{navigator.vibrate(50)}catch(e){}}break;
+      if(F.wait<=0){F.fish=rollFish(F.zone,condNow(F.target));F.mode='bite';F.t=0;Snd.sfx('bite');if(navigator.vibrate)try{navigator.vibrate(50)}catch(e){}}break;
     case'bite':if(F.t>1.15-F.fish.diff*.3){F.mode='idle';Snd.sfx('miss');toast('물고기가 눈치채고 떠났어요');Snd.setIntense(false)}break;
     case'reel':stepReel(dt);break;
     case'pull':if(F.t>=.55)finishCatch();break;
@@ -1179,14 +1857,13 @@ function drawPlayer(){
   const spr=SP.pl[d][fr];
   const fishing=F.mode!=='idle';
   cx.fillStyle='rgba(60,50,100,.16)';cx.beginPath();cx.ellipse(Math.round(P.x),Math.round(P.y)-1,6,2.5,0,0,6.28);cx.fill();
-  cx.drawImage(spr,Math.round(P.x-8),Math.round(P.y-20+bob));
+  cx.drawImage(spr,Math.round(P.x-8),Math.round(P.y-21+bob));
   if(fishing){
-    const tip=castTip(),bp=bobberPos();
-    // 낚싯대
-    const sx=P.x+({right:4,left:-4,up:3,down:3}[d]),sy=P.y-12;
-    cx.strokeStyle='#b98a62';cx.lineWidth=1;cx.beginPath();cx.moveTo(sx,sy);cx.lineTo(tip[0],tip[1]);cx.stroke();
+    const tip=castTip(),bp=bobberPos(),L=S.cos.look,bc=bobCan(L.bob);
+    // 낚싯대 (스킨 색)
+    drawRod(P.x+({right:4,left:-4,up:3,down:3}[d]),P.y-12,tip[0],tip[1],L.rod);
     if(F.mode==='cast'){const k=Math.min(1,F.t/.5),x=tip[0]+(bp[0]-tip[0])*k,y=tip[1]+(bp[1]-tip[1])*k-Math.sin(k*Math.PI)*22;
-      lineBetween(tip,[x,y],2);cx.drawImage(SP.bob,Math.round(x-2),Math.round(y-3))}
+      lineBetween(tip,[x,y],2);drawBob(bc,x,y)}
     else if(F.mode==='pull'){const k=Math.min(1,F.t/.55),fr_=F.from;const x=fr_[0]+(P.x-fr_[0])*k,y=fr_[1]+(P.y-14-fr_[1])*k-Math.sin(k*Math.PI)*26;
       lineBetween(tip,[x,y],1);
       cx.drawImage(fishCan(F.fish.id),Math.round(x-fishCan(F.fish.id).width/2),Math.round(y))}
@@ -1195,10 +1872,21 @@ function drawPlayer(){
       if(F.mode==='bite'){dy=Math.sin(F.t*40)*1.6+2;dx=Math.sin(F.t*33)}
       if(F.mode==='reel'){dx=Math.sin(wt*9)*1.5;dy=Math.sin(wt*13)}
       lineBetween(tip,[bp[0]+dx,bp[1]+dy],F.mode==='reel'?0:5);
-      cx.drawImage(SP.bob,Math.round(bp[0]-2+dx),Math.round(bp[1]-3+dy));
+      drawBob(bc,bp[0]+dx,bp[1]+dy);
       if(F.mode==='bite')cx.drawImage(SP.bang,Math.round(P.x-4),Math.round(P.y-36+Math.sin(F.t*18)*1.5));
     }
   }
+}
+function drawRod(x0,y0,x1,y1,id){
+  const c=(COS_BY[id]||COS_BY.bamboo).col,n=Math.max(1,Math.round(Math.max(Math.abs(x1-x0),Math.abs(y1-y0))));
+  for(let i=0;i<=n;i++){const t=i/n;cx.fillStyle=c[Math.min(c.length-1,(t*c.length)|0)];cx.fillRect(Math.round(x0+(x1-x0)*t),Math.round(y0+(y1-y0)*t),1,1)}
+}
+const drawBob=(b,x,y)=>cx.drawImage(b,Math.round(x-(b.width>>1)),Math.round(y-(b.height>>1)));
+/* 감정표현: 머리 위에서 2.6초 동안 통통 */
+function drawEmote(x,y,e,now){
+  if(!e)return;const t=(now-e.at)/1000;if(t>2.6)return;
+  const s=SP.emo[e.k][((t*4)|0)%2],a=t<.15?t/.15:t>2.25?(2.6-t)/.35:1;
+  cx.globalAlpha=Math.max(0,a);cx.drawImage(s,Math.round(x-s.width/2),Math.round(y-36-s.height-Math.abs(Math.sin(t*5))*2));cx.globalAlpha=1;
 }
 function drawCat(dt){
   cat.ft+=dt;const f=((cat.ft*2)|0)%2;
@@ -1241,11 +1929,12 @@ function render(dt){
   drawOthers(dt,drawables);
   drawables.push({y:cat.y,fn:()=>drawCat(dt)});
   drawables.sort((a,b)=>a.y-b.y).forEach(d=>d.fn());
+  {const now=performance.now();drawEmote(P.x,P.y,ME.emo,now);others.forEach(o=>{if(o.seen)drawEmote(o.x,o.y,o.emo,now)})}
   // 나비 · 반딧불이
   const dtn=dayTint(),night=isNight(dtn.ph);
   bflies.forEach(b=>{b.a+=(Math.random()-.5)*dt*5;b.x+=Math.cos(b.a)*14*dt;b.y+=Math.sin(b.a)*8*dt;b.ph+=dt*9;
     if(Math.abs(b.x-P.x)>150||Math.abs(b.y-P.y)>150){b.x=P.x+(Math.random()-.5)*220;b.y=P.y+(Math.random()-.5)*220}
-    if(!night&&b.y<31*TS&&b.y>14*TS)cx.drawImage(SP.bf[b.c][((b.ph|0))%2],Math.round(b.x),Math.round(b.y+Math.sin(b.ph*.4)*2))});
+    if(!night&&weatherNow()!=='rain'&&b.y<31*TS&&b.y>14*TS)cx.drawImage(SP.bf[b.c][((b.ph|0))%2],Math.round(b.x),Math.round(b.y+Math.sin(b.ph*.4)*2))});
   if(night)flies.forEach(f=>{f.a+=(Math.random()-.5)*dt*4;f.x+=Math.cos(f.a)*8*dt;f.y+=Math.sin(f.a)*6*dt;f.ph+=dt*2;
     if(f.x<cX-8||f.x>cX+VW+8||f.y<cY-8||f.y>cY+VH+8)return;const a=.4+.6*Math.abs(Math.sin(f.ph));
     cx.fillStyle='rgba(255,246,170,'+a*.35+')';cx.fillRect(Math.round(f.x)-1,Math.round(f.y)-1,3,3);cx.fillStyle='rgba(255,252,210,'+a+')';cx.fillRect(Math.round(f.x),Math.round(f.y),1,1)});
@@ -1257,6 +1946,7 @@ function render(dt){
   petals.forEach(p=>{p.ph+=dt;p.y+=p.s*dt;p.x+=Math.sin(p.ph*1.3)*10*dt+4*dt;if(p.y>14.6*TS){p.y=Math.random()*3*TS;p.x=Math.random()*MW*TS}
     if(p.x<cX-4||p.x>cX+VW+4||p.y<cY-4||p.y>cY+VH+4)return;cx.fillStyle='rgba(255,196,214,.9)';cx.fillRect(Math.round(p.x),Math.round(p.y),2,1)});
   cx.restore();
+  drawWeather(dt);
   placeTags(cX,cY);
   // 하루 색조
   const c=dtn.c;if(c[0]<255||c[1]<255||c[2]<255){cx.globalCompositeOperation='multiply';cx.fillStyle='rgb('+c[0]+','+c[1]+','+c[2]+')';cx.fillRect(0,0,VW,VH);cx.globalCompositeOperation='source-over'}
@@ -1267,6 +1957,27 @@ function render(dt){
     cx.globalCompositeOperation='source-over'}
   // 비네팅
   const vg=cx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.45,VW/2,VH/2,Math.max(VW,VH)*.75);vg.addColorStop(0,'rgba(80,60,130,0)');vg.addColorStop(1,'rgba(80,60,130,.22)');cx.fillStyle=vg;cx.fillRect(0,0,VW,VH);
+}
+
+/* ----- 4단계: 날씨 그리기 (화면 좌표) ----- */
+const rain=[];let wxNow='',wxFade=0;
+function drawWeather(dt){
+  const w=weatherNow();
+  if(w!==wxNow){if(wxNow&&P&&$('title').hidden)toast({rain:'비가 내리기 시작했어요. 비 오는 날에만 나오는 물고기가 있대요',fog:'안개가 짙어졌어요',rainbow:'무지개가 떴어요! 지금만 만날 수 있는 물고기가 있어요',clear:'하늘이 맑아졌어요'}[w]);wxNow=w;wxFade=0}
+  wxFade=Math.min(1,wxFade+dt*.5);
+  if(w==='rain'){
+    while(rain.length<70)rain.push({x:Math.random()*VW,y:Math.random()*VH,s:150+Math.random()*80});
+    cx.fillStyle='rgba(120,130,170,'+(.12*wxFade)+')';cx.fillRect(0,0,VW,VH);
+    cx.fillStyle='rgba(230,240,255,'+(.75*wxFade)+')';
+    rain.forEach(r=>{r.y+=r.s*dt;r.x-=r.s*.18*dt;if(r.y>VH){r.y=-4;r.x=Math.random()*(VW+40)}if(r.x<-4)r.x+=VW+8;cx.fillRect(Math.round(r.x),Math.round(r.y),1,4)});
+  }else if(w==='fog'){
+    for(let i=0;i<3;i++){const y=((wt*6+i*VH/3)%(VH+60))-30,g=cx.createLinearGradient(0,y-40,0,y+40);
+      g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.5,'rgba(255,255,255,'+(.22*wxFade)+')');g.addColorStop(1,'rgba(255,255,255,0)');cx.fillStyle=g;cx.fillRect(0,y-40,VW,80)}
+    cx.fillStyle='rgba(250,248,255,'+(.18*wxFade)+')';cx.fillRect(0,0,VW,VH);
+  }else if(w==='rainbow'){
+    const cols=['255,140,150','255,196,120','255,240,140','160,226,150','140,196,250','190,160,240'],R=VW*.75;
+    cx.lineWidth=2;cols.forEach((c,i)=>{cx.strokeStyle='rgba('+c+','+(.32*wxFade)+')';cx.beginPath();cx.arc(VW*.5,VH*.42,R-i*2,Math.PI*1.08,Math.PI*1.92);cx.stroke()});
+  }
 }
 
 /* ----- 메인 업데이트 ----- */
@@ -1311,7 +2022,8 @@ let lastGold=-1,lastClock='';
 function updateHud(){
   if(S.gold!==lastGold){lastGold=S.gold;$('gold').textContent=fmt(S.gold)}
   const ph=(S.t%DAY_LEN)/DAY_LEN,h=(5+ph*24)%24,c=String(Math.floor(h)).padStart(2,'0')+':'+(Math.floor(h%1*6)*10===0?'00':String(Math.floor(h%1*6)*10));
-  if(c!==lastClock){lastClock=c;$('clock').textContent=(h>=5&&h<19?'낮 ':'밤 ')+c}
+  const k=TIME_NAME[timeSlot(ph)]+' '+c+' · '+WX_NAME[weatherNow()];
+  if(k!==lastClock){lastClock=k;$('clock').textContent=k}
 }
 let regT=0;
 function showRegion(n){const el=$('region');el.textContent=n;el.classList.add('on');clearTimeout(regT);regT=setTimeout(()=>el.classList.remove('on'),2200)}
@@ -1345,13 +2057,14 @@ function showResult(){
   $('rimg').innerHTML='<img src="'+fishURL(f.id)+'" alt="" style="height:'+Math.min(92,fishCan(f.id).height*3)+'px">';
   $('rname').textContent=f.name;
   const t=$('rrar');t.textContent=RARITY[f.rar].name;t.style.background=RARITY[f.rar].color;
-  $('rdesc').textContent=f.desc;
+  $('rdesc').textContent=f.desc+(f.when?' ('+condText(f)+')':'')+(f.season?' · '+seasonById(f.season).name+' 한정':'');
   $('rinfo').innerHTML=F.len+' cm · 판매가 <b>'+fmt(sellPrice(f))+'</b> 골드<div class="muted" style="margin-top:4px">도감 '+Math.min(dexN(f.id),needOf(f.id))+' / '+needOf(f.id)+'마리'+(mastered(f.id)?' · 보너스 받는 중':'')+'</div>';
   $('rnew').hidden=!F.isNew;
   const pg=$('rpage');
   const msg=[];
-  if(F.masterUp)msg.push(esc(f.name)+' '+needOf(f.id)+'마리 달성! '+PASSIVES[Math.floor(f.id/PAGE_SIZE)].name+' +'+pct(SP_BONUS));
-  if(F.pageUp>=0)msg.push('도감 「'+PAGE_TITLES[F.pageUp]+'」 완성! '+PASSIVES[F.pageUp].name+' +'+pct(PAGE_BONUS));
+  if(F.masterUp&&PASSIVE_OF[f.page])msg.push(esc(f.name)+' '+needOf(f.id)+'마리 달성! '+PASSIVE_OF[f.page].name+' +'+pct(SP_BONUS));
+  if(F.pageUp>=0)msg.push('도감 「'+PAGE_TITLES[F.pageUp]+'」 완성!'+(PASSIVE_OF[F.pageUp]?' '+PASSIVE_OF[F.pageUp].name+' +'+pct(PAGE_BONUS):''));
+  if(F.gift)msg.push('선물 받음: '+esc(F.gift));
   pg.hidden=!msg.length;pg.innerHTML=msg.join('<br>');
   $('result').hidden=false;
   const c=cv.getBoundingClientRect();
@@ -1379,7 +2092,58 @@ function invHtml(sellable){
     return'<div class="row"><img src="'+fishURL(id)+'" alt=""><div class="nm"><div>'+esc(f.name)+' ×'+n+' '+rarTag(f.rar)+'</div><div class="muted">'+sellPrice(f)+' 골드'+(rs?' · 장비 재료로 '+rs+'마리 필요':'')+'</div></div>'+
       (sellable?'<div class="go"><button class="btn sm mint" data-sell="'+id+'">1마리</button></div>':'')+'</div>'}).join('');
 }
-function openBag(){Snd.sfx('ui');openSheet('가방','<div id="bagl">'+invHtml(false)+'</div>')}
+let bagTab='fish';
+function openBag(){Snd.sfx('ui');openSheet('가방','');renderBag()}
+function renderBag(){
+  let h='<div class="tabs"><button class="tab'+(bagTab==='fish'?' on':'')+'" data-bt="fish">물고기</button><button class="tab'+(bagTab==='look'?' on':'')+'" data-bt="look">꾸미기</button></div>';
+  h+=bagTab==='fish'?'<div id="bagl">'+invHtml(false)+'</div>':lookHtml();
+  body().innerHTML=h;
+}
+/* 3단계: 꾸미기 — 무료 색 고르기 + 가진 치장 입기 */
+function lookHtml(){
+  const L=S.cos.look,pl=SP.pl,ti=COS_BY[L.ti];
+  let h='<div class="prev"><img src="'+pl.down[0].toDataURL()+'" alt="앞모습"><img src="'+pl.right[0].toDataURL()+'" alt="옆모습"><img src="'+pl.up[0].toDataURL()+'" alt="뒷모습"></div>';
+  h+='<div style="text-align:center;margin:-4px 0 8px">'+(ti?'<span class="ttl">「'+esc(ti.name)+'」</span>':'<span class="muted">칭호 없음</span>')+'</div>';
+  const sw=(key,arr,cur)=>'<div class="sws">'+arr.map((c,i)=>{const col=Array.isArray(c[0])?c[0]:c;return'<button class="sw'+(cur===i?' on':'')+'" data-look="'+key+':'+i+'" style="background:rgb('+col.join(',')+')" aria-label="'+(i+1)+'번 색"></button>'}).join('')+'</div>';
+  h+='<div class="sec">머리색</div>'+sw('h',HAIRS,L.h)+'<div class="sec">피부색</div>'+sw('k',SKINS,L.k)+'<div class="sec">옷 색</div>'+sw('s',SHIRTS,L.s);
+  ['hat','outfit','rod','bob','title'].forEach(k=>{
+    const mine=COS.filter(c=>c.k===k&&owns(c.id)),cur=L[LOOK_KEY[k]];
+    h+='<div class="sec">'+COS_KINDS[k]+' <span style="font-size:12px">('+mine.length+' / '+COS.filter(c=>c.k===k).length+')</span></div><div class="chips">';
+    if(k==='title')h+='<button class="chip'+(!cur?' on':'')+'" data-eq="title:">없음</button>';
+    h+=mine.map(c=>{const ic=cosIcon(c.id);return'<button class="chip'+(cur===c.id?' on':'')+'" data-eq="'+k+':'+c.id+'">'+(ic?'<img src="'+ic+'" alt="">':'')+esc(c.name)+'</button>'}).join('')+'</div>';
+  });
+  h+='<div class="muted" style="font-size:12px;text-align:center">모자 · 옷 · 낚싯대 · 찌 · 칭호는 치장 상점이나 도감 보상으로 모아요.</div>';
+  return h;
+}
+function setLook(k,v){
+  S.cos.look[k]=v;refreshMe();Object.keys(lookURL).forEach(id=>{if(COS_BY[id].k==='hat'||COS_BY[id].k==='outfit')delete lookURL[id]});
+  saveState(true);if(ONLINE)Net.send({t:'look',look:S.cos.look});Snd.sfx('tap'); // 저장 먼저: 서버가 '가진 치장인지' 확인해요
+}
+
+/* ----- 3단계: 치장 상점 (골드만 쓰고 능력치는 그대로) ----- */
+let btqTab='hat';
+function openBoutique(){openSheet('치장 상점','');renderBoutique()}
+function renderBoutique(){
+  const tabs=[['hat','모자'],['outfit','옷'],['rodbob','낚싯대·찌'],['title','칭호']];
+  let h='<div class="tabs">'+tabs.map(t=>'<button class="tab'+(btqTab===t[0]?' on':'')+'" data-btq="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+  h+='<div class="muted" style="margin-bottom:8px">겉모습만 바뀌어요. 친구들에게도 보여요.</div>';
+  const kinds=btqTab==='rodbob'?['rod','bob']:[btqTab],L=S.cos.look;
+  COS.filter(c=>kinds.indexOf(c.k)>=0&&c.price!==0).sort((a,b)=>(a.price===undefined)-(b.price===undefined)||(a.price||0)-(b.price||0)).forEach(c=>{
+    const have=owns(c.id),on=L[LOOK_KEY[c.k]]===c.id,ic=cosIcon(c.id);
+    let btn;
+    if(have)btn='<button class="btn sm '+(on?'ghost':'mint')+'" data-eq="'+c.k+':'+(on&&c.k==='title'?'':c.id)+'">'+(on?(c.k==='title'?'떼기':'입는 중'):'입기')+'</button>';
+    else if(c.price!==undefined)btn='<button class="btn sm pink" data-buy="'+c.id+'"'+(S.gold>=c.price?'':' disabled')+'><span class="coin"></span> '+fmt(c.price)+'</button>';
+    else btn='<span class="muted" style="font-size:12px">보상</span>';
+    h+='<div class="row">'+(ic?'<img class="ci" src="'+ic+'" alt="">':'<span class="ttl">「」</span>')+'<div class="nm"><div>'+(c.k==='title'?'「'+esc(c.name)+'」':esc(c.name))+'</div><div class="muted" style="font-size:12px">'+(have?'가지고 있어요':c.price!==undefined?COS_KINDS[c.k]:rewardText(c)+' 받아요')+'</div></div><div class="go">'+btn+'</div></div>';
+  });
+  body().innerHTML=h;
+}
+function buyCos(id){
+  const c=COS_BY[id];if(!c||owns(id)||c.price===undefined)return;
+  if(S.gold<c.price){Snd.sfx('no');toast('골드가 부족해요');return}
+  S.gold-=c.price;S.cos.own.push(id);Snd.sfx('buy');toast(c.name+'을(를) 샀어요!');
+  setLook(LOOK_KEY[c.k],id);renderBoutique();
+}
 
 /* ----- 상점 ----- */
 let shopTab='sell';
@@ -1418,7 +2182,7 @@ function upgrade(k){
 function openGate(zone){
   const z=ZONES[zone-1];
   openSheet(z.name,'<div style="text-align:center;padding:8px 0 4px"><div class="muted">새로운 낚시터의 문이에요.</div><div style="margin:12px 0;font-size:20px"><span class="coin"></span> <b>'+fmt(z.gate)+'</b> 골드</div>'+
-    '<div class="muted" style="margin-bottom:14px">이곳의 물고기 20종이 도감에 더해져요.</div>'+
+    '<div class="muted" style="margin-bottom:14px">이곳의 물고기 40종이 도감에 더해져요.</div>'+
     '<button class="btn pink" id="gOpen"'+(S.gold>=z.gate?'':' disabled')+' style="min-width:160px">'+(S.gold>=z.gate?'문 열기':'골드가 부족해요')+'</button></div>');
   $('gOpen').onclick=()=>{
     if(S.gold<z.gate){Snd.sfx('no');return}
@@ -1430,19 +2194,28 @@ function openGate(zone){
 /* ----- 도감 ----- */
 let dexPage=0,dexSel=-1;
 function openDex(){Snd.sfx('ui');dexSel=-1;openSheet('도감','');renderDex()}
+const mdText=md=>(+md.slice(0,2))+'월 '+(+md.slice(3))+'일';
 function renderDex(){
-  const p=dexPage,got=pageCount(p),done=pageDone(p),ps=PASSIVES[p];
-  let h='<div class="muted" style="margin-bottom:4px">발견 '+dexTotal()+' / '+FISH.length+'종 · 보너스 '+masterTotal()+' / '+FISH.length+'종</div><div class="bar"><i style="width:'+(dexTotal()/FISH.length*100)+'%"></i></div>';
-  h+='<div class="pager" style="margin-top:12px"><button class="btn ghost sm" data-pg="-1"'+(p===0?' disabled':'')+'>◀</button><div class="t"><div style="font-size:17px">'+PAGE_TITLES[p]+'</div><div class="muted">발견 '+got+' / 10 · 보너스 '+pageMastered(p)+' / 10</div><div class="muted" style="font-size:12px">종마다 '+ps.name+' +'+pct(SP_BONUS)+' · 다 발견하면 +'+pct(PAGE_BONUS)+(done?' ✓':'')+'</div></div><button class="btn ghost sm" data-pg="1"'+(p===PAGES-1?' disabled':'')+'>▶</button></div>';
+  const p=dexPage,ids=PAGE_IDS[p],got=pageCount(p),done=pageDone(p),ps=PASSIVE_OF[p],sea=PAGE_SEASON[p],rw=rewardOf(p);
+  let h='<div class="muted" style="margin-bottom:4px">발견 '+dexTotal()+' / '+MAIN_N+'종 · 보너스 '+masterTotal()+' / '+MAIN_N+'종</div><div class="bar"><i style="width:'+(dexTotal()/MAIN_N*100)+'%"></i></div>';
+  const zs=ZONE_SHORT.map((n,z)=>[n,z*4]).concat(SEASONS.length?[['축제',MAIN_PAGES]]:[]);
+  h+='<div class="zj">'+zs.map((a,i)=>{const on=p>=a[1]&&(i===zs.length-1||p<zs[i+1][1]);return'<button data-pz="'+a[1]+'"'+(on?' class="on"':'')+'>'+a[0]+'</button>'}).join('')+'</div>';
+  const info=sea?mdText(sea.from)+' ~ '+mdText(sea.to)+(seasonOn(sea)?' · 지금 축제 중!':' · 축제 기간에만 나와요')
+    :'종마다 '+ps.name+' +'+pct(SP_BONUS)+' · 다 발견하면 +'+pct(PAGE_BONUS)+(done?' ✓':'');
+  const rc=rw&&COS_BY[rw];
+  h+='<div class="pager" style="margin-top:10px"><button class="btn ghost sm" data-pg="-1"'+(p===0?' disabled':'')+'>◀</button><div class="t"><div style="font-size:17px">'+PAGE_TITLES[p]+'</div><div class="muted">발견 '+got+' / '+ids.length+(sea?'':' · 보너스 '+pageMastered(p)+' / 10')+'</div><div class="muted" style="font-size:12px">'+info+'</div>'+
+    (rc?'<div style="font-size:12px;margin-top:2px;color:'+(owns(rw)?'#2f7a63':'var(--ink-soft)')+'">완성 보상: '+(rc.k==='title'?'칭호 「'+esc(rc.name)+'」':esc(rc.name))+(owns(rw)?' ✓ 받음':'')+'</div>':'')+
+    '</div><button class="btn ghost sm" data-pg="1"'+(p===PAGES-1?' disabled':'')+'>▶</button></div>';
   h+='<div class="dexgrid">';
-  for(let i=0;i<PAGE_SIZE;i++){const id=p*PAGE_SIZE+i,f=FISH[id],k=!!S.dex[id],m=mastered(id),cn=Math.min(dexN(id),needOf(id))+'/'+needOf(id);
+  for(const id of ids){const f=FISH[id],k=!!S.dex[id],m=mastered(id),cn=Math.min(dexN(id),needOf(id))+'/'+needOf(id);
     h+='<button class="cell'+(k?' has':' unk')+(m?' done':'')+(dexSel===id?' sel':'')+'" data-d="'+id+'" aria-label="'+(k?esc(f.name)+' '+cn:'미발견')+'"><img src="'+fishURL(id)+'" alt="">'+(k?'<span class="dot" style="background:'+RARITY[f.rar].color+'"></span><span class="cnt">'+cn+'</span>':'')+'</button>'}
   h+='</div>';
-  if(dexSel>=0&&Math.floor(dexSel/PAGE_SIZE)===p){
-    const f=FISH[dexSel],e=S.dex[dexSel];
-    h+=e?'<div class="detail"><img src="'+fishURL(dexSel)+'" alt="" style="height:'+Math.min(66,fishCan(dexSel).height*3)+'px"><div style="font-size:17px;margin-top:4px">'+esc(f.name)+' '+rarTag(f.rar)+'</div><div class="muted" style="margin:4px 0">'+esc(f.desc)+'</div><div class="muted">'+ZONES[f.zone-1].name+' · 최대 '+e.best+'cm · 지금까지 '+e.n+'마리 · '+f.price+'골드</div>'+
-      '<div style="margin-top:8px;font-size:14px">도감 '+Math.min(e.n,needOf(dexSel))+' / '+needOf(dexSel)+'마리 · '+PASSIVES[p].name+' +'+pct(SP_BONUS)+(mastered(dexSel)?' 받는 중':'')+'</div><div class="bar" style="margin:6px 20px 0"><i style="width:'+Math.min(100,e.n/needOf(dexSel)*100)+'%"></i></div></div>'
-      :'<div class="detail"><div style="font-size:30px;margin:8px 0;color:#c9bedd">?</div><div class="muted">'+ZONES[f.zone-1].name+'에서 만날 수 있어요.'+(hasZone(f.zone)?'':'<br>아직 열리지 않은 낚시터예요.')+'</div></div>';
+  if(dexSel>=0&&FISH[dexSel].page===p){
+    const f=FISH[dexSel],e=S.dex[dexSel],cond=condText(f);
+    const chips='<div class="pas" style="justify-content:center">'+(cond?'<span>'+esc(cond)+'</span>':'<span>언제든</span>')+(f.season?'<span>'+esc(seasonById(f.season).name)+' 한정</span>':'')+'</div>';
+    h+=e?'<div class="detail"><img src="'+fishURL(dexSel)+'" alt="" style="height:'+Math.min(66,fishCan(dexSel).height*3)+'px"><div style="font-size:17px;margin-top:4px">'+esc(f.name)+' '+rarTag(f.rar)+'</div><div class="muted" style="margin:4px 0">'+esc(f.desc)+'</div><div class="muted">'+ZONES[f.zone-1].name+' · 최대 '+e.best+'cm · 지금까지 '+e.n+'마리 · '+f.price+'골드</div>'+chips+
+      '<div style="margin-top:4px;font-size:14px">도감 '+Math.min(e.n,needOf(dexSel))+' / '+needOf(dexSel)+'마리'+(ps?' · '+ps.name+' +'+pct(SP_BONUS)+(mastered(dexSel)?' 받는 중':''):'')+'</div><div class="bar" style="margin:6px 20px 0"><i style="width:'+Math.min(100,e.n/needOf(dexSel)*100)+'%"></i></div></div>'
+      :'<div class="detail"><div style="font-size:30px;margin:8px 0;color:#c9bedd">?</div><div class="muted">'+ZONES[f.zone-1].name+'에서 만날 수 있어요.'+(hasZone(f.zone)?'':'<br>아직 열리지 않은 낚시터예요.')+'</div>'+chips+'<div class="muted" style="font-size:12px">친구에게 교환을 부탁해도 도감에 올라요.</div></div>';
   }else h+='<div class="detail"><div class="muted" style="padding-top:36px">물고기를 눌러 보세요.</div></div>';
   h+='<div style="margin-top:14px" class="muted">지금 받는 보너스</div><div class="pas">';
   const ac=[];[['bite','입질 속도'],['sell','판매 가격'],['bar','조절 바 크기'],['luck','행운'],['reel','당기는 힘']].forEach(a=>{if(ST.b[a[0]]>0)ac.push('<span class="on">'+a[1]+' +'+pct(ST.b[a[0]])+'</span>')});
@@ -1478,6 +2251,13 @@ $('sheetbody').addEventListener('click',e=>{
   if(t.dataset.sell!==undefined){const p=sell(+t.dataset.sell,1);if(p){Snd.sfx('coin');saveState();renderShop()}return}
   if(t.dataset.sellall){const res=reservedMats();let p=0;Object.keys(S.inv).forEach(k=>{p+=sell(+k,(S.inv[k]||0)-(res[k]||0))});if(p){Snd.sfx('buy');toast('+'+fmt(p)+' 골드');saveState();renderShop()}return}
   if(t.dataset.up){upgrade(t.dataset.up);return}
+  if(t.dataset.bt){bagTab=t.dataset.bt;Snd.sfx('tap');renderBag();return}
+  if(t.dataset.look){const a=t.dataset.look.split(':');setLook(a[0],+a[1]);renderBag();return}
+  if(t.dataset.eq!==undefined){const a=t.dataset.eq.split(':'),k=a[0],id=a[1];if(id&&!owns(id))return;setLook(LOOK_KEY[k],id);if(bagTab==='look'&&$('sheettitle').textContent==='가방')renderBag();else renderBoutique();return}
+  if(t.dataset.btq){btqTab=t.dataset.btq;Snd.sfx('tap');renderBoutique();return}
+  if(t.dataset.buy){buyCos(t.dataset.buy);return}
+  if(t.dataset.pz!==undefined){dexPage=+t.dataset.pz;dexSel=-1;Snd.sfx('tap');renderDex();return}
+  if(t.dataset.tr&&onTradeClick(t))return;
   if(t.dataset.pg){dexPage=Math.max(0,Math.min(PAGES-1,dexPage+ +t.dataset.pg));dexSel=-1;Snd.sfx('tap');renderDex();return}
   if(t.dataset.d!==undefined){dexSel=+t.dataset.d;Snd.sfx('tap');renderDex();return}
 });
@@ -1507,7 +2287,159 @@ $('bSet').onclick=()=>{if(F.mode==='idle'&&!uiOpen)openSettings()};
 // Render에서 열면 온라인, 그 밖(미리보기 등)에서는 지금처럼 이 기기에만 저장
 const ONLINE=/\.onrender\.com$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
 const LOGIN_KEY='mulgyeol-login';
-const others=new Map(); // id → {name,color,x,y,tx,ty,d,m,anim,seen,tag}
+const others=new Map(); // id → {name,color,look,x,y,tx,ty,d,m,b,anim,seen,tag,bub,say,emo}
+/* 내 이름표 · 말풍선 · 감정표현 */
+const ME={tag:null,tagOn:false,bub:null,say:null,emo:null};
+function setTag(a,name,ti){
+  if(!a.tag)return;const t=COS_BY[ti];
+  a.tag.innerHTML=(t?'<span class="ti">「'+esc(t.name)+'」</span>':'')+esc(name||'');a.tagOn=!!(name||t);a.tagH=0;
+}
+function showSay(a,text){
+  if(a.bub)a.bub.remove();const el=document.createElement('div');el.className='bub';el.textContent=text;$('tags').appendChild(el);
+  a.bub=el;a.say={until:performance.now()+3800+text.length*90};
+}
+const cleanText=t=>String(t||'').replace(/[\u0000-\u001f\u007f<>]/g,' ').replace(/\s+/g,' ').trim().slice(0,30);
+let lastTalk=0,lastEmo=0;
+function say(text){
+  text=cleanText(text);if(!text)return;const now=performance.now();if(now-lastTalk<700)return;lastTalk=now;
+  showSay(ME,text);if(ONLINE)Net.send({t:'say',text:text});Snd.sfx('tap');
+}
+function emote(k){const now=performance.now();if(now-lastEmo<400)return;lastEmo=now;ME.emo={k:k,at:now};if(ONLINE)Net.send({t:'emo',k:k});Snd.sfx('ui')}
+
+/* ----- 4단계: 교환소 (게시판 · 직접 교환) ----- */
+const TR={tab:'board',view:'list',posts:null,mail:[],err:'',wait:0,draft:null,pick:null,ses:null,asking:0};
+const fishName=id=>FISH[id]?FISH[id].name:'?';
+const fchip=(id,n)=>'<span class="fishchip"><img src="'+fishURL(id)+'" alt=""'+(S.dex[id]?'':' style="filter:brightness(0) opacity(.25)"')+'>'+esc(fishName(id))+' ×'+n+'</span>';
+const ago=t=>{const m=Math.max(0,Math.round((Date.now()-t)/60000));return m<1?'방금':m<60?m+'분 전':m<1440?Math.round(m/60)+'시간 전':Math.round(m/1440)+'일 전'};
+function openTrade(tab){
+  if(tab)TR.tab=tab;TR.view='list';TR.pick=null;
+  openSheet('교환소','',()=>{if(TR.ses){Net.send({t:'tr_cancel'});TR.ses=null}});
+  if(!ONLINE||!Net.me){body().innerHTML='<div style="text-align:center;padding:18px 6px;line-height:1.7"><div style="font-size:17px">교환소는 친구들과 함께 열려요</div><div class="muted" style="margin-top:6px">Render 주소로 접속해 로그인하면<br>게시판에 글을 남기고 친구와 물고기를 바꿀 수 있어요.</div></div>';return}
+  if(TR.tab==='board')loadBoard();renderTrade();
+}
+function loadBoard(){TR.err='';TR.wait=performance.now();Net.flushSave(true);Net.send({t:'bd_list'});
+  setTimeout(()=>{if(TR.wait&&performance.now()-TR.wait>5500){TR.wait=0;TR.err='서버가 대답하지 않아요. 서버(server.js)가 4단계로 업데이트됐는지 확인해 주세요.';if(tradeOpen())renderTrade()}},6000)}
+const tradeOpen=()=>!$('sheetwrap').hidden&&$('sheettitle').textContent==='교환소';
+function renderTrade(){
+  if(!tradeOpen())return;
+  let h='<div class="tabs"><button class="tab'+(TR.tab==='board'?' on':'')+'" data-tr="tab" data-v="board">게시판</button><button class="tab'+(TR.tab==='direct'?' on':'')+'" data-tr="tab" data-v="direct">직접 교환</button></div>';
+  if(TR.pick)h+=pickHtml();
+  else if(TR.tab==='board')h+=TR.view==='write'?writeHtml():boardHtml();
+  else h+=directHtml();
+  body().innerHTML=h;
+  const ni=$('trNote');if(ni)ni.oninput=e=>{TR.draft.note=e.target.value};
+}
+function boardHtml(){
+  let h='<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><div class="muted" style="flex:1;font-size:13px">접속 시간이 달라도 괜찮아요. 줄 물고기는 교환소가 맡아 두었다가 상대가 오면 바꿔 줘요.</div><button class="btn pink sm" data-tr="write">글 쓰기</button></div>';
+  if(TR.mail.length)h+='<div class="post" style="background:#effaf6"><div class="muted" style="font-size:12px;margin-bottom:4px">받은 소식</div>'+TR.mail.slice(0,5).map(m=>'<div style="font-size:13px;margin:2px 0">'+esc(m.text)+' <span class="muted" style="font-size:11px">'+ago(m.at)+'</span></div>').join('')+'</div>';
+  if(TR.err)return h+'<div class="muted" style="text-align:center;padding:16px">'+esc(TR.err)+'</div>';
+  if(!TR.posts)return h+'<div class="muted" style="text-align:center;padding:16px">게시판을 불러오는 중…</div>';
+  if(!TR.posts.length)return h+'<div class="muted" style="text-align:center;padding:16px">아직 글이 없어요. 첫 글을 남겨 보세요!</div>';
+  TR.posts.forEach(p=>{
+    const g=p.give,w=p.want;
+    h+='<div class="post"><div><span class="badge '+p.kind+'">'+(p.kind==='give'?'드려요':'구해요')+'</span> <span style="font-size:14px">'+esc(p.by)+'</span> <span class="muted" style="font-size:12px">· '+ago(p.at)+'</span></div>';
+    h+='<div class="ex">'+(g?'<span class="muted" style="font-size:12px">줄게요</span>'+fchip(g[0],g[1]):'')+(g&&w?'<span>↔</span>':'')+(w?'<span class="muted" style="font-size:12px">원해요</span>'+fchip(w[0],w[1]):'')+(!w&&g?'<span class="muted" style="font-size:12px">· 선물이에요</span>':'')+(!g&&w?'<span class="muted" style="font-size:12px">· 답례 없음</span>':'')+'</div>';
+    if(p.note)h+='<div style="font-size:13px;margin-bottom:6px">“'+esc(p.note)+'”</div>';
+    if(p.mine)h+='<button class="btn ghost sm" data-tr="del" data-v="'+p.id+'">글 내리기'+(g?' (맡긴 물고기 돌려받기)':'')+'</button>';
+    else{const can=!w||(S.inv[w[0]]||0)>=w[1];
+      h+='<button class="btn mint sm" data-tr="take" data-v="'+p.id+'"'+(can?'':' disabled')+'>'+(w&&g?'교환하기':w?'드리기':'받기')+'</button>'+(can?'':' <span class="muted" style="font-size:12px">'+esc(fishName(w[0]))+'이(가) '+w[1]+'마리 필요해요</span>')}
+    h+='</div>';
+  });
+  return h;
+}
+function writeHtml(){
+  const d=TR.draft,isGive=d.kind==='give';
+  const slot=(key,id,n,label,need)=>'<div class="sec">'+label+'</div><div style="display:flex;gap:8px;align-items:center;margin:4px 0 10px"><button class="slot" data-tr="pick" data-v="'+key+'">'+(id>=0?fchip(id,n):'<span class="muted">'+(need?'눌러서 고르기':'없음 (눌러서 고르기)')+'</span>')+'</button>'+
+    (id>=0?'<span class="step"><button data-tr="cnt" data-v="'+key+':-1" aria-label="한 마리 빼기">−</button><button data-tr="cnt" data-v="'+key+':1" aria-label="한 마리 더하기">+</button>'+(need?'':'<button data-tr="clr" data-v="'+key+'" aria-label="비우기">×</button>')+'</span>':'')+'</div>';
+  let h='<div class="tabs" style="margin-top:-2px"><button class="tab'+(isGive?' on':'')+'" data-tr="kind" data-v="give">드려요</button><button class="tab'+(!isGive?' on':'')+'" data-tr="kind" data-v="want">구해요</button></div>';
+  h+=slot('give',d.give,d.gn,isGive?'줄 물고기 (교환소에 맡겨 둬요)':'답례로 줄 물고기 (교환소에 맡겨 둬요)',isGive);
+  h+=slot('want',d.want,d.wn,isGive?'받고 싶은 물고기 (비우면 그냥 선물)':'구하는 물고기',!isGive);
+  h+='<div class="sec">한마디 (20자)</div><input class="tin" id="trNote" maxlength="20" value="'+esc(d.note||'')+'" placeholder="예: 밤에만 나오는 애예요" style="width:100%;margin:4px 0 12px">';
+  const ok=isGive?d.give>=0:d.want>=0;
+  h+='<div style="display:flex;gap:8px"><button class="btn ghost" data-tr="back" style="flex:1">취소</button><button class="btn pink" data-tr="post" style="flex:2"'+(ok?'':' disabled')+'>게시판에 올리기</button></div>';
+  h+='<div class="muted" style="font-size:12px;margin-top:8px">글은 3일 뒤 내려가고, 맡긴 물고기는 그때 돌아와요. 한 사람에 글 3개까지.</div>';
+  return h;
+}
+function pickHtml(){
+  const pk=TR.pick,fromBag=pk.from==='bag';
+  let ids=fromBag?Object.keys(S.inv).map(Number).filter(i=>(S.inv[i]||0)-(pk.minus?pk.minus(i):0)>0):FISH.map(f=>f.id);
+  if(fromBag)ids.sort((a,b)=>FISH[b].rar-FISH[a].rar||a-b);
+  let h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="btn ghost sm" data-tr="unpick">◀ 돌아가기</button><div class="muted" style="font-size:13px">'+(fromBag?'가방에서 고르기':'모든 물고기 (못 본 물고기는 그림자로)')+'</div></div>';
+  if(!ids.length)return h+'<div class="muted" style="text-align:center;padding:16px">가방에 물고기가 없어요.</div>';
+  h+='<div class="dexgrid">'+ids.map(id=>{const k=!!S.dex[id];return'<button class="cell'+(k?' has':' unk')+'" data-tr="pk" data-v="'+id+'" aria-label="'+esc(fishName(id))+'"><img src="'+fishURL(id)+'" alt="">'+(fromBag?'<span class="cnt">×'+S.inv[id]+'</span>':k?'<span class="dot" style="background:'+RARITY[FISH[id].rar].color+'"></span>':'')+'</button>'}).join('')+'</div>';
+  return h;
+}
+function directHtml(){
+  const s=TR.ses;
+  if(!s){
+    let h='<div class="muted" style="font-size:13px;margin-bottom:10px">같은 마을에 있는 친구와 서로 물고기를 올리고, 둘 다 확인을 누르면 바뀌어요. 친구 옆에서 오른쪽 버튼을 눌러도 돼요.</div>';
+    const list=[...others.values()];
+    if(!list.length)return h+'<div class="muted" style="text-align:center;padding:16px">지금 마을에 다른 친구가 없어요.</div>';
+    return h+list.map(o=>'<div class="row"><div class="nm"><div>'+esc(o.name)+'</div>'+(COS_BY[o.look&&o.look.ti]?'<div class="muted" style="font-size:12px">「'+esc(COS_BY[o.look.ti].name)+'」</div>':'')+'</div><div class="go"><button class="btn mint sm" data-tr="req" data-v="'+o.id+'"'+(TR.asking?' disabled':'')+'>'+(TR.asking===o.id?'기다리는 중…':'교환 신청')+'</button></div></div>').join('');
+  }
+  const rows=(m,mine)=>{const ks=Object.keys(m);if(!ks.length)return'<div class="muted" style="font-size:12px">아직 없어요</div>';
+    return ks.map(k=>'<div class="trow"><img src="'+fishURL(+k)+'" alt=""><span class="nm">'+esc(fishName(+k))+' ×'+m[k]+'</span>'+(mine?'<button data-tr="dcnt" data-v="'+k+':-1" aria-label="빼기">−</button><button data-tr="dcnt" data-v="'+k+':1" aria-label="더하기">+</button>':'')+'</div>').join('')};
+  let h='<div style="text-align:center;margin-bottom:8px">'+esc(s.name)+' 님과 교환 중</div><div class="cols">';
+  h+='<div class="box'+(s.okMe?' ok':'')+'"><h4>내가 줄 것'+(s.okMe?' ✓':'')+'</h4>'+rows(s.mine,true)+(Object.keys(s.mine).length<6?'<button class="btn ghost sm" style="width:100%;margin-top:6px" data-tr="dadd">+ 물고기 올리기</button>':'')+'</div>';
+  h+='<div class="box'+(s.okThem?' ok':'')+'"><h4>'+esc(s.name)+' 님이 줄 것'+(s.okThem?' ✓':'')+'</h4>'+rows(s.theirs,false)+'</div></div>';
+  const empty=!Object.keys(s.mine).length&&!Object.keys(s.theirs).length;
+  h+='<div class="muted" style="font-size:12px;text-align:center;margin:8px 0">'+(s.okMe&&!s.okThem?'상대가 확인하기를 기다리는 중…':s.okThem&&!s.okMe?'상대가 확인했어요. 괜찮으면 확인을 눌러요.':'올린 물고기를 바꾸면 확인이 풀려요.')+'</div>';
+  h+='<div style="display:flex;gap:8px"><button class="btn ghost" data-tr="dquit" style="flex:1">그만두기</button><button class="btn '+(s.okMe?'ghost':'mint')+'" data-tr="dok" style="flex:2"'+(empty?' disabled':'')+'>'+(s.okMe?'확인 취소':'확인')+'</button></div>';
+  return h;
+}
+function sendOffer(){const s=TR.ses;if(!s)return;s.okMe=false;Net.flushSave(true);Net.send({t:'tr_offer',items:s.mine});renderTrade()}
+function onTradeClick(t){
+  const a=t.dataset.tr,v=t.dataset.v,d=TR.draft;Snd.sfx('tap');
+  if(a==='tab'){TR.tab=v;TR.view='list';TR.pick=null;if(v==='board')loadBoard();renderTrade();return true}
+  if(a==='write'){TR.draft={kind:'give',give:-1,gn:1,want:-1,wn:1,note:''};TR.view='write';renderTrade();return true}
+  if(a==='back'){TR.view='list';renderTrade();return true}
+  if(a==='kind'){d.kind=v;renderTrade();return true}
+  if(a==='pick'){TR.pick={from:v==='give'?'bag':'all',key:v};renderTrade();return true}
+  if(a==='unpick'){TR.pick=null;renderTrade();return true}
+  if(a==='pk'){const pk=TR.pick,id=+v;TR.pick=null;
+    if(pk.key==='dadd'){const s=TR.ses;if(s){s.mine[id]=Math.min(S.inv[id]||0,(s.mine[id]||0)+1);sendOffer()}return true}
+    if(pk.key==='give'){d.give=id;d.gn=1}else{d.want=id;d.wn=1}renderTrade();return true}
+  if(a==='cnt'){const p=v.split(':'),k=p[0],dn=+p[1];if(k==='give')d.gn=Math.max(1,Math.min(S.inv[d.give]||1,99,d.gn+dn));else d.wn=Math.max(1,Math.min(99,d.wn+dn));renderTrade();return true}
+  if(a==='clr'){if(v==='give')d.give=-1;else d.want=-1;renderTrade();return true}
+  if(a==='post'){
+    if(d.give>=0&&(S.inv[d.give]||0)<d.gn){toast('가방에 그만큼 없어요');return true}
+    t.disabled=true;Net.flushSave(true);
+    Net.send({t:'bd_post',kind:d.kind,give:d.give>=0?[d.give,d.gn]:null,want:d.want>=0?[d.want,d.wn]:null,note:cleanText(d.note).slice(0,20)});
+    TR.view='list';TR.posts=null;renderTrade();return true}
+  if(a==='take'){t.disabled=true;Net.flushSave(true);Net.send({t:'bd_take',id:v});return true}
+  if(a==='del'){t.disabled=true;Net.send({t:'bd_del',id:v});return true}
+  if(a==='req'){askTrade(v);return true}
+  if(a==='dadd'){TR.pick={from:'bag',key:'dadd',minus:i=>TR.ses?TR.ses.mine[i]||0:0};renderTrade();return true}
+  if(a==='dcnt'){const s=TR.ses;if(!s)return true;const p=v.split(':'),id=+p[0],n=(s.mine[id]||0)+(+p[1]);if(n<=0)delete s.mine[id];else s.mine[id]=Math.min(n,S.inv[id]||0);sendOffer();return true}
+  if(a==='dok'){const s=TR.ses;if(!s)return true;Net.flushSave(true);Net.send({t:'tr_ok',ok:!s.okMe});return true}
+  if(a==='dquit'){closeSheet();return true}
+  return false;
+}
+/* 직접 교환 신청 · 받기 */
+function askTrade(id){
+  const o=[...others.values()].find(o=>String(o.id)===String(id));if(!o)return;id=o.id;
+  if(TR.asking){toast('이미 신청하고 기다리는 중이에요');return}
+  TR.asking=id;Net.send({t:'tr_req',to:id});toast(o.name+' 님에게 교환을 신청했어요');
+  setTimeout(()=>{if(TR.asking===id){TR.asking=0;if(tradeOpen())renderTrade()}},25000);
+  if(tradeOpen())renderTrade();
+}
+let askFrom=null,askT=0;
+function showAsk(from,name){
+  askFrom=from;$('askt').textContent=name+' 님이 물고기 교환을 신청했어요';$('asks').textContent='수락하면 교환 창이 열려요.';$('ask').hidden=false;Snd.sfx('page');
+  clearTimeout(askT);askT=setTimeout(()=>answerAsk(false),20000);
+}
+function answerAsk(ok){if(!askFrom)return;Net.send({t:'tr_ans',from:askFrom,ok:ok});askFrom=null;$('ask').hidden=true;clearTimeout(askT);Snd.sfx(ok?'ui':'back')}
+$('askYes').onclick=()=>answerAsk(true);$('askNo').onclick=()=>answerAsk(false);
+/* 서버가 보낸 가방 변화(교환 결과)를 그대로 반영. 받은 물고기는 도감에도 올라요 */
+function applyDelta(d,rev,why){
+  const got=[];
+  Object.keys(d||{}).forEach(k=>{const id=+k,n=d[k]|0;if(!FISH[id]||!n)return;S.inv[id]=Math.max(0,(S.inv[id]||0)+n);
+    if(n>0){const e=S.dex[id]||(S.dex[id]={n:0,best:FISH[id].len});e.n+=n;got.push(FISH[id].name+' ×'+n)}});
+  if(Number.isInteger(rev))S.rev=rev;
+  const g=grantRewards();recalc();saveState(true);
+  if(why)toast(why+(got.length?' · 받은 물고기: '+got.join(', '):''));
+  if(g.length)setTimeout(()=>toast('도감 보상: '+g.join(', ')),2400);
+}
 const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:false,lastPos:'',posT:0,hbT:0,saveT:0,saveQ:false,onLogin:null,
   connect(){
     if(this.kicked)return;
@@ -1519,27 +2451,49 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
       if(this.creds)this.send({t:'login',name:this.creds.name,code:this.creds.code})};
     ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(_){return}this.onMsg(m)};
     ws.onclose=()=>{clearTimeout(wakeT);if(this.ws!==ws)return;this.ws=null;
-      others.forEach(o=>o.tag.remove());others.clear();
+      others.forEach(o=>{o.tag.remove();if(o.bub)o.bub.remove()});others.clear();
+      if(TR.ses){TR.ses=null;if(tradeOpen()){openSheet.onClose=null;closeSheet()}}TR.asking=0;
       if(this.kicked){this.state='off';netBanner()}else this.later()};
   },
   later(){this.state='retry';netBanner();const d=Math.min(10000,1000*Math.pow(2,this.retry++));setTimeout(()=>this.connect(),d)},
   send(o){if(this.ws&&this.ws.readyState===1)this.ws.send(JSON.stringify(o))},
   login(name,code){this.creds={name:name,code:code};if(this.state==='open')this.send({t:'login',name:name,code:code})},
+  posKey:'',
   onMsg(m){
     if(m.t==='login_ok'){const first=!this.me;this.me={id:m.id,name:m.name,color:m.color};
       try{localStorage.setItem(LOGIN_KEY,JSON.stringify(this.creds))}catch(e){}
-      this.lastPos='';netBanner();if(first&&this.onLogin)this.onLogin(m);else this.flushSave(true)}
+      this.lastPos='';netBanner();if(first&&this.onLogin)this.onLogin(m);else this.flushSave(true);
+      this.send({t:'look',look:S.cos.look});refreshMe()}
     else if(m.t==='login_fail'){if(!this.me){this.creds=null;loginMsg(m.msg,true)}else toast(m.msg)}
     else if(m.t==='kicked'){this.kicked=true;netBanner()}
     else if(m.t==='join')addOther(m);
-    else if(m.t==='leave'){const o=others.get(m.id);if(o){o.tag.remove();others.delete(m.id)}}
-    else if(m.t==='s')m.p.forEach(a=>{const o=others.get(a[0]);if(!o)return;o.tx=a[1];o.ty=a[2];o.d=a[3];o.m=a[4];if(!o.seen){o.x=o.tx;o.y=o.ty;o.seen=true}});
+    else if(m.t==='leave'){const o=others.get(m.id);if(o){o.tag.remove();if(o.bub)o.bub.remove();others.delete(m.id)}if(TR.asking===m.id)TR.asking=0;if(tradeOpen())renderTrade()}
+    else if(m.t==='s')m.p.forEach(a=>{const o=others.get(a[0]);if(!o)return;o.tx=a[1];o.ty=a[2];o.d=a[3];o.m=a[4];o.b=a[5]|0;if(!o.seen){o.x=o.tx;o.y=o.ty;o.seen=true}});
+    /* 3단계: 친구의 외형 · 말 · 감정표현 */
+    else if(m.t==='look'){const o=others.get(m.id);if(o){o.look=cleanLook(m.look,o.color);setTag(o,o.name,o.look.ti)}}
+    else if(m.t==='say'){const o=others.get(m.id);if(o)showSay(o,cleanText(m.text))}
+    else if(m.t==='emo'){const o=others.get(m.id);if(o&&SP.emo[m.k])o.emo={k:m.k,at:performance.now()}}
+    /* 4단계: 교환 · 가방 동기화 */
+    else if(m.t==='delta')applyDelta(m.d,m.rev,m.why);
+    else if(m.t==='sync'){const keep={px:S.px,py:S.py,set:S.set,hinted:S.hinted};S=fromSave(m.save||{});Object.assign(S,keep);grantRewards();recalc();refreshMe();lastGold=-1;toast(m.msg||'가방을 서버 기록에 맞췄어요');if(!$('sheetwrap').hidden)closeSheet()}
+    else if(m.t==='bd_list'){TR.wait=0;TR.err='';TR.posts=m.posts||[];TR.mail=m.mail||TR.mail;renderTrade()}
+    else if(m.t==='bd_err'){TR.wait=0;toast(m.msg||'교환소에서 처리하지 못했어요');Net.send({t:'bd_list'})}
+    else if(m.t==='mail'){TR.mail.unshift({at:Date.now(),text:m.text});toast(m.text);if(tradeOpen()&&TR.tab==='board')renderTrade()}
+    else if(m.t==='tr_req'){if(TR.ses||askFrom||F.mode!=='idle')Net.send({t:'tr_ans',from:m.from,ok:false,busy:true});else showAsk(m.from,m.name)}
+    else if(m.t==='tr_no'){TR.asking=0;toast(m.msg||'교환이 성사되지 않았어요');if(tradeOpen())renderTrade()}
+    else if(m.t==='tr_open'){TR.asking=0;TR.ses={id:m.with,name:m.name,mine:{},theirs:{},okMe:false,okThem:false};TR.tab='direct';TR.pick=null;
+      if(!$('sheetwrap').hidden&&!tradeOpen()){openSheet.onClose=null;closeSheet()}
+      if(!tradeOpen()){const s=TR.ses;openTrade('direct');TR.ses=s}renderTrade()}
+    else if(m.t==='tr_state'){const s=TR.ses;if(!s)return;s.mine=m.mine||{};s.theirs=m.theirs||{};s.okMe=!!m.okMe;s.okThem=!!m.okThem;renderTrade()}
+    else if(m.t==='tr_done'){TR.ses=null;applyDelta(m.d,m.rev,'교환 완료!');Snd.sfx('buy');if(tradeOpen())closeSheet()}
+    else if(m.t==='tr_close'){if(!TR.ses)return;TR.ses=null;toast(m.msg||'교환이 끝났어요');if(tradeOpen()){openSheet.onClose=null;closeSheet()}}
   },
   tick(dt){
     if(!this.me||this.state!=='open')return;
     this.posT-=dt;this.hbT-=dt;
-    if(P&&this.posT<=0){this.posT=.1;const x=Math.round(P.x),y=Math.round(P.y),mv=P.moving?1:0,k=x+','+y+','+P.dir+','+mv;
-      if(k!==this.lastPos||this.hbT<=0){this.lastPos=k;this.hbT=20;this.send({t:'pos',x:x,y:y,d:P.dir,m:mv})}}
+    if(P&&this.posT<=0){this.posT=.1;const x=Math.round(P.x),y=Math.round(P.y),mv=P.moving?1:0,
+      b=(F.mode==='wait'||F.mode==='bite'||F.mode==='reel')&&F.target?F.target.y*MW+F.target.x+1:0,k=x+','+y+','+P.dir+','+mv+','+b;
+      if(k!==this.lastPos||this.hbT<=0){this.lastPos=k;this.hbT=20;this.send({t:'pos',x:x,y:y,d:P.dir,m:mv,b:b})}}
     if(this.saveQ&&performance.now()-this.saveT>3000)this.flushSave();
   },
   save(now){this.saveQ=true;if(now||performance.now()-this.saveT>3000)this.flushSave()},
@@ -1555,8 +2509,9 @@ function netBanner(){
 function addOther(m){
   if(Net.me&&m.id===Net.me.id)return;
   const old=others.get(m.id);if(old)old.tag.remove();
-  const tag=document.createElement('div');tag.className='ntag';tag.textContent=m.name;tag.hidden=true;$('tags').appendChild(tag);
-  others.set(m.id,{id:m.id,name:m.name,color:m.color|0,x:m.x||0,y:m.y||0,tx:m.x||0,ty:m.y||0,d:m.d||'down',m:0,anim:0,seen:!!m.here,tag:tag});
+  const tag=document.createElement('div');tag.className='ntag';tag.hidden=true;$('tags').appendChild(tag);
+  const o={id:m.id,name:m.name,color:m.color|0,look:cleanLook(m.look,m.color),x:m.x||0,y:m.y||0,tx:m.x||0,ty:m.y||0,d:m.d||'down',m:0,b:0,anim:0,seen:!!m.here,tag:tag,bub:null,say:null,emo:null};
+  setTag(o,o.name,o.look.ti);others.set(m.id,o);if(tradeOpen())renderTrade();
 }
 function drawOthers(dt,list){
   const k=1-Math.exp(-dt*12);
@@ -1565,20 +2520,26 @@ function drawOthers(dt,list){
     const gap=Math.hypot(o.tx-o.x,o.ty-o.y);
     if(gap>64){o.x=o.tx;o.y=o.ty}else{o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k}
     const mv=o.m||gap>.6;if(mv)o.anim+=dt;
-    const spr=(SP.plc[o.color]||SP.plc[0])[o.d][mv?[0,1,0,2][((o.anim*8)|0)%4]:0];
+    const spr=lookSprites(o.look)[o.d][mv?[0,1,0,2][((o.anim*8)|0)%4]:0];
     list.push({y:o.y,fn:()=>{cx.fillStyle='rgba(60,50,100,.16)';cx.beginPath();cx.ellipse(Math.round(o.x),Math.round(o.y)-1,6,2.5,0,0,6.28);cx.fill();
-      cx.drawImage(spr,Math.round(o.x-8),Math.round(o.y-20))}});
+      cx.drawImage(spr,Math.round(o.x-8),Math.round(o.y-21));
+      // 친구가 낚시 중이면 그 친구의 낚싯대 · 찌 스킨으로
+      if(o.b>0&&!mv){const bx=((o.b-1)%MW)*TS+8,by=Math.floor((o.b-1)/MW)*TS+8,off={right:[13,-21],left:[-13,-21],up:[6,-25],down:[9,-11]}[o.d]||[9,-11],tip=[o.x+off[0],o.y+off[1]];
+        drawRod(o.x+({right:4,left:-4,up:3,down:3}[o.d]||3),o.y-12,tip[0],tip[1],o.look.rod);const dy=Math.sin(wt*3+String(o.id).length)*.8;lineBetween(tip,[bx,by+dy],5);drawBob(bobCan(o.look.bob),bx,by+dy)}}});
   });
 }
 function placeTags(cX,cY){
-  if(!others.size)return;
-  const ox=(innerWidth-VW*SC)/2,oy=(innerHeight-VH*SC)/2;
-  others.forEach(o=>{
-    if(!o.seen){o.tag.hidden=true;return}
-    const sx=ox+(Math.round(o.x)-cX)*SC,sy=oy+(Math.round(o.y)-22-cY)*SC;
-    const vis=sx>-80&&sx<innerWidth+80&&sy>-40&&sy<innerHeight+40;
-    o.tag.hidden=!vis;if(vis)o.tag.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,-100%)';
-  });
+  const ox=(innerWidth-VW*SC)/2,oy=(innerHeight-VH*SC)/2,now=performance.now();
+  const put=(a,x,y)=>{
+    const sx=ox+(Math.round(x)-cX)*SC,sy=oy+(Math.round(y)-23-cY)*SC,vis=sx>-90&&sx<innerWidth+90&&sy>-60&&sy<innerHeight+60;
+    let top=sy;
+    if(a.tag){const on=vis&&a.tagOn;if(a.tag.hidden===on)a.tag.hidden=!on;
+      if(on){a.tag.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,-100%)';if(!a.tagH)a.tagH=a.tag.offsetHeight;top=sy-a.tagH-2}}
+    if(a.say&&now>a.say.until){a.say=null;if(a.bub){a.bub.remove();a.bub=null}}
+    if(a.bub){a.bub.hidden=!vis;if(vis)a.bub.style.transform='translate('+Math.round(sx)+'px,'+Math.round(top-8)+'px) translate(-50%,-100%)'}
+  };
+  if(P)put(ME,P.x,P.y);
+  others.forEach(o=>{if(!o.seen){o.tag.hidden=true;if(o.bub)o.bub.hidden=true;return}put(o,o.x,o.y)});
 }
 function loginMsg(t,bad){const el=$('tMsg');el.textContent=t;el.style.color=bad?'#d9607e':'';if(bad)$('tStart').disabled=false}
 function doLogin(){
@@ -1592,7 +2553,8 @@ function doLogin(){
 }
 function onLoggedIn(m){
   S=m.save?fromSave(m.save):defaultState();
-  SP.pl=SP.plc[m.color]||SP.plc[0];
+  if(!m.save||!m.save.cos)S.cos.look.s=(m.color|0)%SHIRTS.length; // 처음엔 서버가 정해 준 옷 색
+  grantRewards();refreshMe();
   recalc();newPlayer();lastGold=-1;
   $('tStart').disabled=false;startGame();
   toast(m.isNew?m.name+' 님, 물결마을에 온 걸 환영해요!':m.name+' 님, 어서 와요!');
@@ -1604,9 +2566,25 @@ function startGame(){
   Snd.init();Snd.resume();Snd.setVol('bgm',S.set.bgm);Snd.setVol('sfx',S.set.sfx);Snd.setMute(S.set.mute);
   $('title').hidden=true;Snd.sfx('ui');
   $('hint').hidden=!!S.hinted;
+  refreshMe();
+}
+/* ----- 3단계: 말하기 창 (정해진 문구 · 자유 입력 · 감정표현) ----- */
+const PHRASES=['안녕!','반가워요','고마워요!','같이 낚시해요','대박!','잠깐만요','교환할래요?','또 봐요!'];
+function setupTalk(){
+  $('emos').innerHTML=EMOTES.map(e=>'<button data-emo="'+e.k+'" aria-label="'+e.name+'"><img src="'+SP.emo[e.k][0].toDataURL()+'" alt="">'+e.name+'</button>').join('');
+  $('phr').innerHTML=PHRASES.map(p=>'<button data-say="'+esc(p)+'">'+esc(p)+'</button>').join('');
+  const open=v=>{$('talk').hidden=!v;$('bTalk').setAttribute('aria-expanded',v?'true':'false')};
+  $('bTalk').addEventListener('pointerdown',e=>{e.stopPropagation()});
+  $('bTalk').onclick=()=>{if(!$('title').hidden)return;open($('talk').hidden);Snd.sfx('tap')};
+  $('talk').addEventListener('pointerdown',e=>e.stopPropagation());
+  document.addEventListener('pointerdown',()=>{if(!$('talk').hidden&&document.activeElement!==$('talkin'))open(false)});
+  $('talk').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.emo){emote(b.dataset.emo);open(false)}else if(b.dataset.say){say(b.dataset.say);open(false)}});
+  $('talkf').onsubmit=e=>{e.preventDefault();const v=$('talkin').value;if(cleanText(v)){say(v);$('talkin').value='';$('talkin').blur();open(false)}};
+  ME.tag=document.createElement('div');ME.tag.className='ntag';ME.tag.hidden=true;$('tags').appendChild(ME.tag);
 }
 (function boot(){
-  recalc();buildSprites();resize();newPlayer();initAmbient();
+  grantRewards();recalc();buildSprites();resize();newPlayer();initAmbient();setupTalk();
   const ids=[0,8,19];$('tfish').innerHTML=ids.map(i=>'<img src="'+fishURL(i+0)+'" alt="">').join('');
   const has=hasSave()&&(S.stats.casts>0||S.gold!==60);
   if(ONLINE){
