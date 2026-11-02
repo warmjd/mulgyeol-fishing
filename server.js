@@ -143,6 +143,9 @@ function cleanLook(l, save, color) {
    2) 물고기는 '잡은 만큼'만 늘 수 있음 (늘어난 마릿수 ≤ 도감 마릿수가 늘어난 만큼)
    3) 도감 마릿수는 줄지 않고, 실제 낚시가 가능한 빠르기까지만 늘어남
    4) 골드는 판(줄어든) 물고기 값만큼만 늘어남 */
+/* 낚시터 문: 연 사람만 들어가요. 새로 연 문은 그 값만큼 골드가 줄어야 해요 (index.html ZONES의 gate와 같아야 해요) */
+const GATE_PRICE = { 2: 3000, 3: 15000, 4: 60000, 5: 200000 };
+function zonesOf(s) { return Array.isArray(s && s.zones) ? s.zones : [1]; }
 function checkSave(old, neu, elapsedMs) {
   if (!neu || typeof neu !== 'object') return '저장 형식이 이상해요';
   old = old || { inv: {}, dex: {}, gold: 60, rev: 0 };
@@ -162,9 +165,13 @@ function checkSave(old, neu, elapsedMs) {
     if (b < a) soldValue += (a - b) * fishPrice(+k);
   }
   if (caught > 32 + elapsedMs / 1000) return '너무 빨리 많이 잡혔어요'; // 빠른 낚시 · 두 마리 · 통발(한 번에 최대 30마리) 기준
+  const oz = zonesOf(old), nz = zonesOf(neu);
+  if (nz.length > 5 || nz.some(z => !Number.isInteger(z) || z < 1 || z > 5) || new Set(nz).size !== nz.length) return '낚시터 기록이 이상해요';
+  if (oz.some(z => nz.indexOf(z) < 0)) return '열었던 낚시터가 사라졌어요';
+  let gateCost = 0; for (const z of nz) if (oz.indexOf(z) < 0) gateCost += GATE_PRICE[z] || 0;
   const g0 = Number(old.gold) || 0, g1 = neu.gold;
   if (!Number.isFinite(g1) || g1 < 0) return '골드가 이상해요';
-  if (g1 - g0 > soldValue * 1.3 + 50) return '판 것보다 골드가 많이 늘었어요';
+  if (g1 - g0 + gateCost > soldValue * 1.3 + 50) return gateCost ? '문 값을 내지 않고 낚시터가 열렸어요' : '판 것보다 골드가 많이 늘었어요';
   return null;
 }
 /* ---------- 낚싯대 강화 룰렛 (게임의 ENH와 똑같은 규칙 — 결과는 서버가 정해요) ---------- */
