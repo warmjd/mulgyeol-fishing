@@ -1059,7 +1059,7 @@ const PET_MAPS={
 const PETS=[
  {id:'ruby',name:'루비',kind:'dog',desc:'올블랙 슈나우저',speed:16,sleepy:.1,follow:true,
   pal:{h:'#2c2a34',b:'#2c2a34',u:'#34313e',f:'#2c2a34',l:'#2c2a34',t:'#2c2a34',a:'#3c3946',e:'#121016',w:'#ffffff',n:'#141218',c:'#ec5a6e',g:'#5c5868',k:'#121016'}},
- {id:'dot',name:'아기 점박이',kind:'kitten',desc:'하얀 바탕에 검은 점, 아기 고양이',speed:20,sleepy:.15,spots:'#2e2a36',
+ {id:'dot',name:'쫑이',kind:'kitten',desc:'하얀 바탕에 검은 점, 아기 고양이',speed:20,sleepy:.15,spots:'#2e2a36',
   pal:{h:'#fcfcfa',b:'#fcfcfa',u:'#ffffff',f:'#ffffff',l:'#fcfcfa',t:'#2e2a36',e:'#2e2a36',y:'#2e2a36',n:'#ffa4b4',k:'#2e2a36'}},
  {id:'nurung',name:'누릉이',kind:'cat',desc:'열세 살 치즈냥이',speed:7,sleepy:.55,stripes:'#d8873e',
   pal:{h:'#f2ac5c',b:'#f2ac5c',u:'#ffe6c4',f:'#ffe6c4',l:'#f2ac5c',t:'#f2ac5c',e:'#5a3e2a',n:'#e88a8a',k:'#8a5a3a'}},
@@ -2156,7 +2156,7 @@ function petPet(a){
   if(a.state==='sleep'){a.state='sit';a.t=6}
   if(now-st.t<10*60000){toast(a.p.name+': 골골골… (조금 뒤에 또 쓰다듬어 줘요)');return}
   st.t=now;st.a=Math.min(100,st.a+4);lifeEvent('pet',a.p.id);
-  const lines={ruby:['멍! 꼬리를 붕붕 흔들어요','루비가 손을 핥아요'],dot:['아기 점박이가 손가락을 깨물깨물','냥! 하고 굴러요'],nurung:['누릉이가 느긋하게 눈을 감아요','열세 살 누릉이의 골골송'],kkam:['깜콩이가 동그란 눈으로 빤히 봐요','깜콩이가 머리를 쿵 박아요'],churi:['츄리가 발라당 누워요','츄리가 꾹꾹이를 해요']}[a.p.id];
+  const lines={ruby:['멍! 꼬리를 붕붕 흔들어요','루비가 손을 핥아요'],dot:['쫑이가 손가락을 깨물깨물','냥! 하고 굴러요'],nurung:['누릉이가 느긋하게 눈을 감아요','열세 살 누릉이의 골골송'],kkam:['깜콩이가 동그란 눈으로 빤히 봐요','깜콩이가 머리를 쿵 박아요'],churi:['츄리가 발라당 누워요','츄리가 꾹꾹이를 해요']}[a.p.id];
   toast(lines[(Math.random()*lines.length)|0]+' · 친밀도 '+st.a);
   if(st.a>=60){const t=COS.find(c=>c.pet===a.p.id);if(t&&!owns(t.id)){S.cos.own.push(t.id);setTimeout(()=>toast('칭호 「'+t.name+'」을(를) 받았어요!'),1600)}}
   saveState();
