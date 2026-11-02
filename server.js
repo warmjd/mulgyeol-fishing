@@ -149,7 +149,7 @@ function checkSave(old, neu, elapsedMs) {
     if (b - a > dn - da) return '잡지 않은 물고기가 가방에 늘었어요';
     if (b < a) soldValue += (a - b) * fishPrice(+k);
   }
-  if (caught > 3 + elapsedMs / 2500) return '너무 빨리 많이 잡혔어요';
+  if (caught > 32 + elapsedMs / 1000) return '너무 빨리 많이 잡혔어요'; // 빠른 낚시 · 두 마리 · 통발(한 번에 최대 30마리) 기준
   const g0 = Number(old.gold) || 0, g1 = neu.gold;
   if (!Number.isFinite(g1) || g1 < 0) return '골드가 이상해요';
   if (g1 - g0 > soldValue * 1.3 + 50) return '판 것보다 골드가 많이 늘었어요';
