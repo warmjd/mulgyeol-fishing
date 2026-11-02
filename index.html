@@ -949,10 +949,10 @@ function buildHouse(o){/* o:{wall,roof,roofD,door,kind} → 48x50 */
 /* ---------- 게임 데이터: 낚시터 · 물고기 · 장비 · 패시브 ---------- */
 const ZONES=[
  {id:1,name:'잔잔한 연못',gate:0},
- {id:2,name:'속삭이는 시냇가',gate:500},   /* 퇴근 후 10분 플레이 기준으로 문 값을 크게 낮춤 */
- {id:3,name:'노을 바닷가',gate:2500},
- {id:4,name:'푸른 먼바다',gate:10000},
- {id:5,name:'달빛 호수',gate:35000}
+ {id:2,name:'속삭이는 시냇가',gate:1000},   /* 밸런스: 처음(1,500~180,000)과 '가볍게' 사이 */
+ {id:3,name:'노을 바닷가',gate:5000},
+ {id:4,name:'푸른 먼바다',gate:20000},
+ {id:5,name:'달빛 호수',gate:75000}
 ];
 const RARITY=[
  {name:'흔함',color:'#9aa7b4',base:58,mult:1},
@@ -1234,13 +1234,13 @@ const GEAR={
  trap:{name:'통발',eff:'쉬는 동안 모이는 물고기',names:['대나무 통발','그물 통발','튼튼한 통발','큰 통발','달빛 통발'],
   up:[null,{g:800,m:[['붕어',4],['송사리',4]]},{g:4000,m:[['은어',3],['쉬리',3]]},{g:18000,m:[['전어',4],['우럭',2]]},{g:80000,m:[['대구',3],['꽁치',4]]}]}
 };
-/* 가볍게: 강화 골드는 절반, 재료 마릿수도 절반(최소 1) */
-Object.keys(GEAR).forEach(k=>GEAR[k].up.forEach(u=>{if(u){u.g=Math.round(u.g/2);u.m=u.m.map(p=>[fid(p[0]),Math.max(1,Math.ceil(p[1]/2))])}}));
+/* 밸런스: 강화 골드 · 재료는 처음의 4분의 3 */
+Object.keys(GEAR).forEach(k=>GEAR[k].up.forEach(u=>{if(u){u.g=Math.round(u.g*.75/50)*50;u.m=u.m.map(p=>[fid(p[0]),Math.max(1,Math.ceil(p[1]*.75))])}}));
 const GEAR_KEYS=['rod','bob','lure','reel','trap'];
 const gearEff={
  rod:l=>26+6*(l-1),
  bob:l=>1-.14*(l-1),
- bob2:l=>[0,.06,.12,.18,.25][l-1],        // 흔함 · 보통을 한 번에 두 마리 낚을 확률
+ bob2:l=>[0,.04,.08,.12,.15][l-1],        // 흔함 · 보통을 한 번에 두 마리 낚을 확률
  lure:l=>1+.35*(l-1),
  reel:l=>1+.12*(l-1),
  trapCap:l=>[10,14,18,24,30][l-1],
@@ -1587,7 +1587,7 @@ const $=id=>document.getElementById(id);
 const SAVE_KEY='mulgyeol-fishing-v1';
 const DAY_LEN=480;
 function defaultState(){return{v:1,gold:60,inv:{},dex:{},gear:{rod:1,bob:1,lure:1,reel:1,trap:1},zones:[1],t:DAY_LEN*.16,
-  stats:{casts:0,catches:0,sold:0,earned:0},set:{bgm:.6,sfx:.8,mute:false},px:null,py:null,hinted:false,
+  stats:{casts:0,catches:0,sold:0,earned:0},set:{bgm:.6,sfx:.8,mute:false,mode:'hard'},px:null,py:null,hinted:false,
   rev:0, // 4단계: 서버가 교환으로 가방을 바꿀 때마다 1씩 올라가는 번호
   cos:{own:[],look:cleanLook({})}}}
 function fromSave(o){const d=defaultState();const c=o.cos||{};
@@ -1613,7 +1613,7 @@ const pageDone=p=>PAGE_IDS[p].every(id=>!!S.dex[id]);
 const pageCount=p=>PAGE_IDS[p].filter(id=>!!S.dex[id]).length;
 const dexTotal=()=>Object.keys(S.dex).filter(k=>+k<MAIN_N).length;
 /* 종 보너스: 희귀도별로 정해진 마릿수를 잡으면 그 페이지 능력치가 조금 오름. 페이지 10종을 다 발견하면 아주 약한 보너스 */
-const NEED=[5,4,3,2,1],SP_BONUS=.005,PAGE_BONUS=.01; // 종 보너스에 필요한 마릿수를 절반으로
+const NEED=[7,5,4,3,2],SP_BONUS=.005,PAGE_BONUS=.01; // 종 보너스(익숙해지기)에 필요한 마릿수
 const needOf=id=>NEED[FISH[id].rar];
 const dexN=id=>S.dex[id]?S.dex[id].n:0;
 const mastered=id=>dexN(id)>=needOf(id);
@@ -1655,7 +1655,7 @@ function rollFish(zone,c){
   c=c||condNow(null);
   const ev=[];SEASONS.forEach(s=>{if(seasonOn(s))s.ids.forEach(id=>{const f=FISH[id];if(f.zone===zone&&condOk(f,c))ev.push(f)})});
   if(ev.length&&Math.random()<.1)return ev[(Math.random()*ev.length)|0];
-  const ws=RARITY.map((r,i)=>r.base*(1+(ST.luck-1)*i*.5));
+  const ws=RARITY.map((r,i)=>r.base*(1+(ST.luck-1)*i*.5)*(i>=2&&easyMode()?.8:1)); // 느긋하게: 희귀 이상 20% 덜
   let r=Math.random()*ws.reduce((a,b)=>a+b,0),ri=0;
   for(let i=0;i<ws.length;i++){r-=ws[i];if(r<=0){ri=i;break}}
   let pool=[];for(let k=ri;k>=0&&!pool.length;k--)pool=(POOL[zone+'-'+k]||[]).filter(f=>condOk(f,c));
@@ -1771,12 +1771,22 @@ function startCast(c){
 }
 function castTip(){const d=P.dir,o={right:[13,-21],left:[-13,-21],up:[6,-25],down:[9,-11]}[d];return[P.x+o[0],P.y+o[1]]}
 function bobberPos(){return[F.target.x*TS+8,F.target.y*TS+8]}
+/* 낚시 방식
+   손맛(기본): 모든 물고기가 줄다리기. 단, 도감 보너스까지 잡아 '익숙해진' 흔함 · 보통은 바로 올라와요 (성장)
+   느긋하게(설정): 흔함 · 보통은 늘 바로, 줄다리기도 쉽게. 대신 희귀 이상이 덜 나와요 */
+const easyMode=()=>S.set.mode==='easy';
+const REEL={
+  hard:[{p:50,s:1.1,d:.8,g:1.1,l:.9},{p:42,s:1,d:.9,g:.95,l:1},{p:34,s:1,d:1,g:.8,l:1.2},{p:28,s:.92,d:1.05,g:.68,l:1.45},{p:26,s:.88,d:1.05,g:.62,l:1.6}],
+  easy:[null,null,{p:45,s:1.15,d:.85,g:1,l:1},{p:34,s:1,d:1,g:.78,l:1.3},{p:28,s:.92,d:1.05,g:.66,l:1.55}]
+};
 function hook(){
   const f=F.fish;
+  if(!easyMode()&&f.rar<=1&&mastered(f.id)){F.mode='pull';F.t=0;F.from=bobberPos();F.familiar=true;Snd.sfx('hook');Snd.sfx('splash');return}
+  F.familiar=false;
   // 흔함 · 보통은 줄다리기 없이 바로 낚아요. 희귀 이상만 짧은 줄다리기
-  if(f.rar<=1){F.mode='pull';F.t=0;F.from=bobberPos();Snd.sfx('hook');Snd.sfx('splash');return}
+  if(easyMode()&&f.rar<=1){F.mode='pull';F.t=0;F.from=bobberPos();Snd.sfx('hook');Snd.sfx('splash');return}
   F.mode='reel';F.t=0;Snd.sfx('hook');Snd.setIntense(true);
-  const R=[null,null,{p:45,s:1.15,d:.85,g:1,l:1},{p:32,s:1,d:1,g:.75,l:1.4},{p:28,s:.9,d:1.05,g:.65,l:1.6}][f.rar];
+  const R=REEL[easyMode()?'easy':'hard'][f.rar];
   F.reel={bp:0,bv:0,fp:50,ft:50,ftT:0,prog:R.p,size:ST.bar*R.s,d:Math.min(1,f.diff*R.d),g:R.g,l:R.l,tick:0,time:0};
   showReel(true);
 }
@@ -1822,7 +1832,7 @@ function quickCatch(f){
   sparkFx(P.x,P.y-24,6,['#ffffff','#cfe8ff']);
   const n=dexN(f.id),need=needOf(f.id);
   if(F.double)floats.push({x:P.x+10,y:P.y-22,t:-.12,img:fishCan(f.id)});
-  toast((F.double?'두 마리! ':'')+f.name+' '+F.len+'cm · '+fmt(sellPrice(f)*(F.double?2:1))+'골드'+(n<=need?' · 도감 '+Math.min(n,need)+'/'+need:''));
+  toast((F.double?'두 마리! ':F.familiar?'익숙한 손맛! ':'')+f.name+' '+F.len+'cm · '+fmt(sellPrice(f)*(F.double?2:1))+'골드'+(n<=need?' · 도감 '+Math.min(n,need)+'/'+need:''));
 }
 const floats=[];
 function drawFloats(dt){
@@ -1833,10 +1843,10 @@ function closeResult(){if(F.mode!=='result'||F.t<.5)return;F.mode='idle';$('resu
 function updateFishing(dt){
   F.t+=dt;
   switch(F.mode){
-    case'cast':if(F.t>=.5){F.mode='wait';F.t=0;F.wait=(1.2+Math.random()*2.6)*ST.wait;F.ripT=0;const b=bobberPos();ripple(b[0],b[1]);splashFx(b[0],b[1])}break;
+    case'cast':if(F.t>=.5){F.mode='wait';F.t=0;F.wait=(easyMode()?1.5+Math.random()*3:2+Math.random()*4)*ST.wait;F.ripT=0;const b=bobberPos();ripple(b[0],b[1]);splashFx(b[0],b[1])}break;
     case'wait':F.wait-=dt;F.ripT-=dt;if(F.ripT<=0){F.ripT=1.5;const b=bobberPos();ripple(b[0],b[1])}
       if(F.wait<=0){F.fish=rollFish(F.zone,condNow(F.target));F.mode='bite';F.t=0;Snd.sfx('bite');if(navigator.vibrate)try{navigator.vibrate(50)}catch(e){}}break;
-    case'bite':if(F.t>1.6-F.fish.diff*.3){F.mode='idle';Snd.sfx('miss');toast('물고기가 눈치채고 떠났어요');Snd.setIntense(false)}break;
+    case'bite':if(F.t>(easyMode()?1.5:1.25)-F.fish.diff*.35){F.mode='idle';Snd.sfx('miss');toast('물고기가 눈치채고 떠났어요');Snd.setIntense(false)}break;
     case'reel':stepReel(dt);break;
     case'pull':if(F.t>=.38)finishCatch();break;
   }
@@ -2036,7 +2046,7 @@ function update(dt){
     let mx=inp.x,my=inp.y;const k=kbVec();if(k[0]||k[1]){mx=k[0];my=k[1]}
     const m=Math.hypot(mx,my);P.moving=false;
     if(m>.12){
-      const sp=72*Math.min(1,m);
+      const sp=62*Math.min(1,m);
       if(Math.abs(mx)>Math.abs(my))P.dir=mx>0?'right':'left';else P.dir=my>0?'down':'up';
       const nx=P.x+mx/m*sp*dt,ny=P.y+my/m*sp*dt;
       if(!blockedAt(nx,P.y)){P.x=nx;P.moving=true}if(!blockedAt(P.x,ny)){P.y=ny;P.moving=true}
@@ -2279,6 +2289,8 @@ function openSettings(){
   Snd.sfx('ui');
   openSheet('설정','<div style="margin-bottom:10px"><div class="muted">배경음악</div><input type="range" id="sBgm" min="0" max="100" value="'+Math.round(S.set.bgm*100)+'"></div>'+
     '<div style="margin-bottom:10px"><div class="muted">효과음</div><input type="range" id="sSfx" min="0" max="100" value="'+Math.round(S.set.sfx*100)+'"></div>'+
+    '<div class="muted">낚시 방식</div><div class="tabs" style="margin:6px 0 4px"><button class="tab'+(easyMode()?'':' on')+'" data-mode="hard">손맛 있게</button><button class="tab'+(easyMode()?' on':'')+'" data-mode="easy">느긋하게</button></div>'+
+    '<div class="muted" style="font-size:12px;margin-bottom:14px">'+(easyMode()?'흔한 물고기는 바로 올라오고 줄다리기가 쉬워요. 대신 희귀 이상이 조금 덜 나와요.':'모든 물고기와 줄다리기해요. 도감 보너스까지 잡은 흔한 물고기는 익숙해져서 바로 올라와요.')+'</div>'+
     '<label style="display:flex;gap:10px;align-items:center;margin-bottom:16px;min-height:44px"><input type="checkbox" id="sMute"'+(S.set.mute?' checked':'')+' style="width:22px;height:22px;accent-color:#b9a6ee"> 모든 소리 끄기</label>'+
     '<div class="muted" style="margin-bottom:6px">플레이 기록: 낚시 '+S.stats.casts+'회 · 잡은 물고기 '+S.stats.catches+'마리 · 번 골드 '+fmt(S.stats.earned)+'</div>'+
     (ONLINE&&Net.me?'<div class="muted" style="margin-bottom:6px">'+esc(Net.me.name)+' 님으로 접속 중 · 지금 마을에 '+(others.size+1)+'명</div>':'')+
@@ -2287,6 +2299,7 @@ function openSettings(){
   $('sSfx').oninput=e=>{S.set.sfx=e.target.value/100;Snd.setVol('sfx',S.set.sfx)};
   $('sSfx').onchange=()=>Snd.sfx('tap');
   $('sMute').onchange=e=>{S.set.mute=e.target.checked;Snd.setMute(S.set.mute)};
+  body().querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{S.set.mode=b.dataset.mode;Snd.sfx('tap');saveState();$('sheetwrap').hidden=true;uiOpen=false;openSettings()});
   $('sReset').onclick=function(){
     if(ONLINE){Net.flushSave(true);try{localStorage.removeItem(LOGIN_KEY)}catch(e){}setTimeout(()=>location.reload(),400);return}
     if(!this.dataset.s){this.dataset.s=1;this.textContent='정말 지울까요? 한 번 더 누르면 지워져요';return}
