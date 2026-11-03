@@ -14,7 +14,9 @@ const SB_URL = process.env.SUPABASE_URL;
 const SB_KEY = process.env.SUPABASE_SECRET_KEY;
 const MAX_PLAYERS = 16;          // 동시 접속 최대 (5명 기준이라 넉넉하게)
 const SNAP_MS = 100;             // 친구 위치를 보내는 간격 (초당 10번)
-const SAVE_MS = 5000;            // 같은 사람의 저장은 최소 5초 간격으로 DB에 씀
+const SAVE_MS = 5000;
+// 운영자: 이 닉네임으로 (그 계정 코드로) 로그인하면 운영자 도구를 쓸 수 있어요. Render 환경변수 ADMINS=이름1,이름2 로 바꿀 수 있어요
+const ADMINS = new Set((process.env.ADMINS || '조돌맹').split(',').map(x => x.trim().toLowerCase()).filter(Boolean));            // 같은 사람의 저장은 최소 5초 간격으로 DB에 씀
 
 /* ---------- 저장소: Supabase (없으면 메모리 — 테스트용) ---------- */
 let db;
@@ -125,7 +127,7 @@ function fishPrice(id) {
 }
 const validFish = id => Number.isInteger(id) && id >= 0 && id < FISH_MAX;
 const invOf = s => (s && s.inv) || {};
-const ITEM_IDS = ['flesh', 'scale', 'note', 'shell', 'weed', 'pearl', 'feather', 'thread', 'sail', 'toy', 'map', 'b_dough', 'b_shine', 'b_legend', 'soup', 'grill', 'snack', 'charm'];   // index.html ITEMS와 같아야 해요
+const ITEM_IDS = ['flesh', 'scale', 'note', 'shell', 'weed', 'pearl', 'feather', 'thread', 'sail', 'toy', 'map', 'b_dough', 'b_shine', 'b_legend_n', 'b_legend', 'soup', 'grill', 'snack', 'charm'];   // index.html ITEMS와 같아야 해요
 const itemsOf = s => (s && s.items && typeof s.items === 'object') ? s.items : {};
 /* 교환 열쇠: 물고기 번호 · 'i:아이템' · 'g'(골드) */
 const keyKind = k => k === 'g' ? 'g' : (typeof k === 'string' && k.startsWith('i:') && ITEM_IDS.includes(k.slice(2))) ? 'i' : validFish(+k) && String(+k) === String(k) ? 'f' : null;
@@ -142,12 +144,13 @@ const cleanText = (t, max) => String(t || '').replace(/[\u0000-\u001f\u007f<>]/g
 // 친구에게 보여 줄 외형: 목록에 있고, 무료이거나 가진 것만
 const LOOK_IDS = {
   hat: ['straw', 'nohat', 'cap', 'bucket', 'beanie', 'ribbon', 'flower', 'catear', 'frog', 'crown', 'lily', 'fishhat', 'shell', 'captain', 'moonband', 'maple', 'snowcap', 'lotus', 'leaf', 'whalehat', 'jelly', 'mooncrown', 'pirate'],
-  o: ['tee', 'stripe', 'apron', 'overall', 'raincoat', 'hoodie', 'star', 'suit', 'vest', 'sailor', 'wave', 'pondrobe', 'streamsuit', 'sunset', 'deepsea', 'starcloak', 'lifejacket', 'fogcoat', 'masterjacket'],
+  o: ['tee', 'stripe', 'apron', 'overall', 'raincoat', 'hoodie', 'star', 'suit', 'vest', 'sailor', 'wave', 'pondrobe', 'streamsuit', 'sunset', 'deepsea', 'starcloak', 'lifejacket', 'fogcoat', 'masterjacket', 'mastercape'],
   rod: ['bamboo', 'mintrod', 'sakura', 'rainbowrod', 'goldrod', 'lotusrod', 'coral', 'galaxy', 's_rod1', 's_rod2', 's_rod3', 's_rod4', 's_rod5'],
   bob: ['basicbob', 'heartbob', 'mushbob', 'catbob', 'goldbob', 'duck', 'leafbob', 'starfish', 'starbob'],
   ti: ['', 't_new', 't_villager', 't_nap', 't_cat', 't_big', 't_luck', 't_rich', 't_pond', 't_stream', 't_beach', 't_sea', 't_moon', 't_master',
     't_enh10', 't_enh15', 't_enh20', 't_pet_ruby', 't_pet_dot', 't_pet_nurung', 't_pet_kkam', 't_pet_churi',
-    't_s1', 't_s2', 't_s3', 't_s4', 't_s5', 't_s6', 't_smaster']
+    't_s1', 't_s2', 't_s3', 't_s4', 't_s5', 't_s6', 't_smaster',
+    ...['fish', 'sch', 'cra', 'tam', 'mer'].flatMap(j => [1, 2, 3].map(r => 't_j' + j + r))]
 };
 const ENH_TITLE_NEED = { t_enh10: 10, t_enh15: 15, t_enh20: 20 };   // 강화 칭호는 서버 기록으로 확인
 const FREE = new Set(['straw', 'nohat', 'tee', 'bamboo', 'basicbob', '']);
@@ -160,6 +163,7 @@ function cleanLook(l, save, color) {
   const enh = save && save.enh;
   if (ENH_TITLE_NEED[o.ti] && !(enh && enh.max >= ENH_TITLE_NEED[o.ti])) o.ti = '';
   o.e = enh ? enh.lv | 0 : 0;   // 이름표 옆 +강화 수치: 서버 기록 그대로
+  o.j = typeof l.j === 'string' && /^(fish|sch|cra|tam|mer)[1-3]$/.test(l.j) ? l.j : '';   // 직업 배지 (아이콘 + 등급 별)
   return o;
 }
 
@@ -287,7 +291,7 @@ function tradeRule(a, b) {
   return null;
 }
 /* 골드는 아이템 값만큼만: 골드를 주는 쪽 상대가 아이템을 내야 하고, 골드 ≤ 그 아이템 잡화점 값 × 1.5 (선물로 골드 퍼주기 막기) */
-const ITEM_NPC = { flesh: 80, scale: 2500, note: 3000, shell: 300, weed: 300, pearl: 4000, feather: 3000, thread: 6000, sail: 30000, toy: 4000, map: 40000, b_dough: 150, b_shine: 1500, b_legend: 150000, soup: 900, grill: 900, snack: 600, charm: 5000 };   // index.html ITEMS의 npc와 같아야 해요
+const ITEM_NPC = { flesh: 80, scale: 2500, note: 3000, shell: 300, weed: 300, pearl: 4000, feather: 3000, thread: 6000, sail: 30000, toy: 4000, map: 40000, b_dough: 150, b_shine: 1500, b_legend_n: 150000, b_legend: 150000, soup: 900, grill: 900, snack: 600, charm: 5000 };   // index.html ITEMS의 npc와 같아야 해요
 const tradeGoldCap = o => { let v = 0; for (const k in o) if (keyKind(k) === 'i' && o[k] > 0) v += (ITEM_NPC[k.slice(2)] || 0) * o[k]; return Math.floor(v * 1.5); };
 function goldRule(a, b) {   // a가 골드를 낼 때 b가 내는 것
   const g = a.g | 0; if (g <= 0) return null;
@@ -298,6 +302,53 @@ function goldRule(a, b) {   // a가 골드를 낼 때 b가 내는 것
   return null;
 }
 const postOk = p => !!(p.give && p.want && placeOf(p.give[0]) === placeOf(p.want[0]));
+/* ---------- 직업 2.0: 의뢰판 · 이름 붙은 생산물 · 오늘의 일 · 명장 축복 ---------- */
+const MAKER = { flesh: 'cra', b_dough: 'cra', soup: 'cra', grill: 'cra', b_shine: 'cra', snack: 'cra', charm: 'cra', b_legend: 'cra', note: 'sch', map: 'sch', shell: 'tam', weed: 'tam', pearl: 'tam', feather: 'tam', scale: 'fish', thread: 'mer', sail: 'mer', toy: 'mer' };   // index.html MAKER와 같아야 해요
+const ITEM_NAME = { flesh: '생선살', b_dough: '반죽 미끼', soup: '생선 수프', grill: '소금구이', b_shine: '반짝 미끼', snack: '펫 간식', charm: '행운 부적', b_legend: '전설 미끼', note: '연구 노트', map: '항로 지도', shell: '조개껍데기', weed: '해초', pearl: '진주', feather: '반짝 깃털', scale: '대물 비늘', thread: '반짝 실', sail: '수입 돛', toy: '펫 장난감' };
+const JOB_NAME = { fish: '물결 낚시꾼', sch: '도감 박사', cra: '공방 장인', tam: '동물 친구', mer: '떠돌이 상인' };
+const jobOf = s => (s && s.job && MAKER_JOBS.includes(s.job.id)) ? s.job.id : '';
+const MAKER_JOBS = ['fish', 'sch', 'cra', 'tam', 'mer'];
+const REQ_DAYS = 3, REQ_MAX = 3, JR_MASTER = 4000;
+const reqsOf = s => Array.isArray(s.req) ? s.req : (s.req = []);
+/* 마을(NPC) 의뢰: 날짜로 정해져요. 직업마다 2개, 사람마다 하루 한 번씩 해결 */
+const NPC_POOL = { cra: [['b_dough', 3], ['soup', 2], ['grill', 2], ['b_shine', 2], ['snack', 2]], sch: [['note', 1], ['note', 2]], tam: [['shell', 3], ['weed', 3], ['pearl', 1], ['feather', 1]], mer: [['thread', 1], ['toy', 1]], fish: [['scale', 1], ['f', 2]] };
+const NPC_WHO = ['잡화점 할머니', '도감관 사서', '조선소 할아버지', '시장 아주머니', '등대지기', '꼬마 낚시꾼'];
+function npcReqs() {
+  const d = kstDay(), seed = +d.replace(/-/g, ''), rnd = i => { const x = Math.sin(seed * 9301 + i * 49297) * 233280; return x - Math.floor(x); }, out = [];
+  MAKER_JOBS.forEach((job, ji) => { const pool = NPC_POOL[job], first = Math.floor(rnd(ji * 10) * pool.length); for (let i = 0; i < 2; i++) {
+    const p = pool[i === 0 || pool.length < 2 ? first : (first + 1 + Math.floor(rnd(ji * 10 + 1) * (pool.length - 1))) % pool.length]; let item = p[0];   // 같은 직업 두 의뢰는 서로 달라요
+    if (item === 'f') { const ids = []; for (let z = 0; z < 3; z++) for (let k = 0; k < 20; k++) if (rarOf(k) === 2) ids.push(z * 20 + k); item = 'f:' + ids[Math.floor(rnd(ji * 10 + i + 5) * ids.length)]; }
+    out.push({ id: 'n' + d + job + i, job, item, n: p[1], who: NPC_WHO[Math.floor(rnd(ji * 10 + i + 7) * NPC_WHO.length)] });
+  } });
+  return out;
+}
+const hasReqItem = (s, item, n) => item.startsWith('f:') ? has(s, +item.slice(2), n) : (itemsOf(s)[item] | 0) >= n;
+const reqDelta = (item, n) => item.startsWith('f:') ? { [+item.slice(2)]: n } : { ['i:' + item]: n };
+/* 내가 만든 물건이 친구에게 가면 이름표를 붙여 둬요 (그걸로 대박이 나면 고맙다는 소식이 와요) */
+function tagMaker(key, item, by, n) {
+  return loadSave(key).then(s => { if (!s) return; const mk = s.mk && typeof s.mk === 'object' ? s.mk : (s.mk = {}); const q = Array.isArray(mk[item]) ? mk[item] : (mk[item] = []);
+    for (let i = 0; i < Math.min(n, 20); i++) q.push(by); if (q.length > 40) q.splice(0, q.length - 40); queueSave(key, s);
+    const l = liveByKey(key); if (l) send(l[0], { t: 'mk', item, by, n }); });
+}
+/* 숙련도: 접속 중이면 화면이 더하고, 아니면 저장에 바로 더해요 */
+async function giveJxp(key, job, n, why) {
+  const l = liveByKey(key); if (l) return send(l[0], { t: 'jxp', job, n, why: why || null });
+  const s = await loadSave(key); if (!s) return; if (!s.job || typeof s.job !== 'object') return; const x = s.job.xp && typeof s.job.xp === 'object' ? s.job.xp : (s.job.xp = {});
+  x[job] = (x[job] | 0) + n; queueSave(key, s); if (why) addMail(key, why);
+}
+const thanksCnt = new Map();   // key -> {d, n}
+async function reqList(me) {
+  const list = [], now = Date.now();
+  for (const key of rosterCache.keys()) {
+    const sv = await loadSave(key); if (!sv || !Array.isArray(sv.req) || !sv.req.length) continue;
+    const old = sv.req.filter(q => now - q.at > REQ_DAYS * 864e5);
+    for (const q of old) await withLock(key, async () => { const s2 = await loadSave(key), r = reqsOf(s2), i = r.findIndex(x => x.id === q.id); if (i < 0) return; r.splice(i, 1); if (q.pay) await changeBag(key, { g: q.pay }, '의뢰가 ' + REQ_DAYS + '일 지나 내려가고 의뢰비가 돌아왔어요'); else queueSave(key, s2); });
+    for (const q of sv.req) if (now - q.at <= REQ_DAYS * 864e5) list.push({ id: q.id, by: (rosterCache.get(key) || {}).name || key, item: q.item, n: q.n, pay: q.pay, at: q.at, mine: key === me.key });
+  }
+  const nr = me.save && me.save.nrq && me.save.nrq.d === kstDay() ? me.save.nrq.done : [];
+  return { t: 'rq_list', list: list.sort((a, b) => b.at - a.at), npc: npcReqs(), ndone: nr };
+}
+async function findReq(id) { for (const key of rosterCache.keys()) { const sv = await loadSave(key); if (sv && Array.isArray(sv.req) && sv.req.some(q => q.id === id)) return key; } return null; }
 /* 손맛 도감: 내가 직접 낚은 물고기만 (교환 · 선물로 받은 건 안 올라가요). 저장에서 늘어난 도감 마릿수만큼만 늘 수 있어요 */
 const SZRW_TK = [3, 4, 5, 6, 8, 6];   // index.html SZRW와 같아야 해요
 const SZ_COS = { 1: ['t_s1', 's_rod1'], 2: ['t_s2', 's_rod2'], 3: ['t_s3', 's_rod3'], 4: ['t_s4', 's_rod4'], 5: ['t_s5', 's_rod5'], 6: ['t_s6', 'fogcoat'] };
@@ -441,10 +492,10 @@ wss.on('connection', (ws) => {
         }
         if (pending.has(key)) { const p = pending.get(key); row.save = p.save; }
         const color = colorOf(key);
-        const p = { id: nextId++, key, name: row.name, color, x: 0, y: 0, d: 'down', m: 0, b: 0, here: false,
+        const p = { id: nextId++, key, name: row.name, color, admin: ADMINS.has(key), x: 0, y: 0, d: 'down', m: 0, b: 0, here: false,
           save: row.save, look: cleanLook(row.save && row.save.cos && row.save.cos.look, row.save, color), tr: null, sayT: 0, emoT: 0 };
         players.set(ws, p);
-        send(ws, { t: 'login_ok', id: p.id, name: p.name, color: p.color, save: row.save, isNew });
+        send(ws, { t: 'login_ok', id: p.id, name: p.name, color: p.color, save: row.save, isNew, admin: p.admin });
         // 지금 있는 친구들 알려 주기 / 내가 왔다고 알리기 (외형 포함)
         for (const [ows, op] of players) if (ows !== ws) send(ws, { t: 'join', id: op.id, name: op.name, color: op.color, x: op.x, y: op.y, d: op.d, here: op.here, look: op.look });
         broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
@@ -490,6 +541,10 @@ wss.on('connection', (ws) => {
         m.data.ptd = me.save && me.save.ptd ? me.save.ptd : null;   // 오늘 배낚시 나간 횟수
         m.data.gift = me.save && me.save.gift ? me.save.gift : null;   // 오늘 장소별 첫 낚시 선물 받은 기록
         m.data.szrw = me.save && Array.isArray(me.save.szrw) ? me.save.szrw : [];   // 손맛 정복 보상 받은 기록
+        m.data.req = me.save && Array.isArray(me.save.req) ? me.save.req : [];   // 내가 올린 의뢰 (의뢰비는 서버가 맡아 둬요)
+        m.data.nrq = me.save && me.save.nrq ? me.save.nrq : null;   // 오늘 해결한 마을 의뢰
+        m.data.jtd = me.save && me.save.jtd ? me.save.jtd : '';   // 오늘의 일 강화권 받은 날
+        m.data.blessd = me.save && me.save.blessd ? me.save.blessd : '';   // 명장 축복 한 날
         const sFixed = checkSdex(me.save, m.data, oldDex, newDex);   // 손맛 도감은 실제로 낚은 만큼만
         m.data.cosg = me.save && Array.isArray(me.save.cosg) ? me.save.cosg : [];   // 서버가 준 옷: 화면 저장에서 빠져도 다시 넣어요
         if (m.data.cosg.length) { const c = m.data.cos && typeof m.data.cos === 'object' ? m.data.cos : (m.data.cos = {}); c.own = Array.isArray(c.own) ? c.own : []; for (const id of m.data.cosg) if (!c.own.includes(id)) c.own.push(id); }
@@ -645,6 +700,7 @@ function onMsg(ws, me, m) {
         queueSave(A.key, A.save); queueSave(B.key, B.save);
         await Promise.all([flushSave(A.key), flushSave(B.key)]);
         send(aws, { t: 'tr_done', d: da, rev: ra }); send(bws, { t: 'tr_done', d: dbb, rev: rb });
+        for (const [from, to, o] of [[A, B, oa], [B, A, ob]]) for (const k in o) { const it = keyKind(k) === 'i' ? k.slice(2) : ''; if (it && MAKER[it] && jobOf(from.save) === MAKER[it]) await tagMaker(to.key, it, from.name, o[k]); }
         console.log('교환', A.name, JSON.stringify(oa), '↔', B.name, JSON.stringify(ob));
       }).catch(e => console.error('tr_ok', e.message));
       break;
@@ -664,6 +720,105 @@ function onMsg(ws, me, m) {
       if (r.k === 'break' && r.from >= 8) broadcast({ t: 'news', text: '💥 ' + me.name + ' 님의 +' + r.from + ' 낚싯대가 산산조각 났어요…' }, ws);
     }).catch(e => console.error('enh_try', e.message)); break;
     case 'enh_rank': send(ws, { t: 'enh_rank', list: rankTop() }); break;
+    /* ----- 마을 의뢰판 ----- */
+    case 'rq_list': reqList(me).then(r => send(ws, r)).catch(e => console.error('rq_list', e.message)); break;
+    case 'rq_post': withLock(me.key, async () => {
+      const s = me.save, item = String(m.item || ''), n = Math.max(1, Math.min(10, m.n | 0)), pay = Math.max(0, m.pay | 0);
+      if (!s || !MAKER[item]) return send(ws, { t: 'rq_err', msg: '의뢰할 수 없는 물건이에요' });
+      const cap = Math.floor((ITEM_NPC[item] || 0) * n * 1.5); if (pay > cap) return send(ws, { t: 'rq_err', msg: '의뢰비는 ' + cap + '골드까지예요' });
+      if ((Number(s.gold) || 0) < pay) return send(ws, { t: 'rq_err', msg: '골드가 모자라요' });
+      if (reqsOf(s).length >= REQ_MAX) return send(ws, { t: 'rq_err', msg: '의뢰는 ' + REQ_MAX + '개까지 올릴 수 있어요' });
+      if (pay) await changeBag(me.key, { g: -pay }, null);
+      reqsOf(me.save).push({ id: crypto.randomUUID(), item, n, pay, at: Date.now() }); queueSave(me.key, me.save);
+      send(ws, { t: 'rq_ok', text: '📜 의뢰를 올렸어요' + (pay ? ' · 의뢰비 ' + pay + '골드는 교환소가 맡아 둬요' : '') });
+      broadcast({ t: 'news', text: '📜 ' + me.name + ' 님이 ' + ITEM_NAME[item] + ' ×' + n + '을(를) 구해요 (' + JOB_NAME[MAKER[item]] + ' 의뢰)' }, ws);
+    }).catch(e => console.error('rq_post', e.message)); break;
+    case 'rq_del': withLock(me.key, async () => {
+      const r = reqsOf(me.save || {}), i = r.findIndex(q => q.id === m.id); if (i < 0) return send(ws, { t: 'rq_err', msg: '이미 없는 의뢰예요' });
+      const q = r.splice(i, 1)[0]; if (q.pay) await changeBag(me.key, { g: q.pay }, '의뢰를 내리고 의뢰비를 돌려받았어요'); else queueSave(me.key, me.save);
+      send(ws, { t: 'rq_ok', text: '의뢰를 내렸어요' });
+    }).catch(e => console.error('rq_del', e.message)); break;
+    case 'rq_take': (async () => {
+      const owner = await findReq(m.id); if (!owner) return send(ws, { t: 'rq_err', msg: '이미 누가 해결했어요' });
+      if (owner === me.key) return send(ws, { t: 'rq_err', msg: '내 의뢰예요' });
+      await withLocks([me.key, owner], async () => {
+        const os = await loadSave(owner), r = reqsOf(os), i = r.findIndex(q => q.id === m.id); if (i < 0) return send(ws, { t: 'rq_err', msg: '이미 누가 해결했어요' });
+        const q = r[i]; if (jobOf(me.save) !== MAKER[q.item]) return send(ws, { t: 'rq_err', msg: JOB_NAME[MAKER[q.item]] + '만 해결할 수 있어요' });
+        if (!hasReqItem(me.save, q.item, q.n)) return send(ws, { t: 'rq_err', msg: '가진 게 모자라요' });
+        r.splice(i, 1); queueSave(owner, os);
+        await changeBag(me.key, Object.assign(reqDelta(q.item, -q.n), q.pay ? { g: q.pay } : {}), '📜 의뢰 해결!' + (q.pay ? ' 의뢰비 +' + q.pay + '골드' : ''));
+        await changeBag(owner, reqDelta(q.item, q.n), '📜 ' + me.name + ' 님이 의뢰한 ' + ITEM_NAME[q.item] + ' ×' + q.n + '을(를) 보내 줬어요!');
+        if (!liveByKey(owner)) addMail(owner, me.name + ' 님이 의뢰한 ' + ITEM_NAME[q.item] + ' ×' + q.n + '을(를) 보내 줬어요!');
+        await tagMaker(owner, q.item, me.name, q.n);
+        send(ws, { t: 'rq_ok', solved: true, text: '📜 ' + ((rosterCache.get(owner) || {}).name || '') + ' 님의 의뢰를 해결했어요! 숙련도 +40' });
+        send(ws, { t: 'jxp', job: MAKER[q.item], n: 40 });
+      });
+    })().catch(e => { console.error('rq_take', e.message); send(ws, { t: 'rq_err', msg: '처리하지 못했어요' }); }); break;
+    case 'rq_npc': withLock(me.key, async () => {
+      const q = npcReqs().find(x => x.id === m.id), s = me.save; if (!q || !s) return send(ws, { t: 'rq_err', msg: '오늘 의뢰가 아니에요' });
+      if (jobOf(s) !== q.job) return send(ws, { t: 'rq_err', msg: JOB_NAME[q.job] + '만 해결할 수 있어요' });
+      const nr = s.nrq && s.nrq.d === kstDay() ? s.nrq : (s.nrq = { d: kstDay(), done: [] }); if (nr.done.includes(q.id)) return send(ws, { t: 'rq_err', msg: '이미 해결했어요' });
+      if (!hasReqItem(s, q.item, q.n)) return send(ws, { t: 'rq_err', msg: '가진 게 모자라요' });
+      nr.done.push(q.id); await changeBag(me.key, reqDelta(q.item, -q.n), null);
+      const e = enhOf(me.save), out = []; enhDaily(e, out); e.pc += 3; out.push('마을 의뢰 해결! 반짝 조각 +3');
+      while (e.pc >= ENH.PIECE_PER) { e.pc -= ENH.PIECE_PER; e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.push('조각으로 강화권 +1'); }
+      queueSave(me.key, me.save); sendEnh(ws, me, { note: out });
+      send(ws, { t: 'rq_ok', solved: true, text: '🏘️ ' + q.who + '의 의뢰를 해결했어요! 숙련도 +30' }); send(ws, { t: 'jxp', job: q.job, n: 30 });
+    }).catch(e => console.error('rq_npc', e.message)); break;
+    /* ----- 이름 붙은 생산물: 친구가 만든 미끼로 대박이 나면 만든 사람에게 숙련도 + 소식 ----- */
+    case 'thanks': {
+      const to = String(m.to || '').trim().toLowerCase(), item = String(m.item || ''); if (!to || to === me.key || !MAKER[item] || !rosterCache.has(to)) return;
+      const d = kstDay(), c = thanksCnt.get(me.key); if (c && c.d === d && c.n >= 10) return; thanksCnt.set(me.key, { d, n: c && c.d === d ? c.n + 1 : 1 });
+      const what = validFish(m.fish) && fishRar(m.fish) >= 4 ? '전설을' : '귀한 물고기를', toName = rosterCache.get(to).name;
+      giveJxp(to, MAKER[item], 30, '🌟 ' + me.name + ' 님이 내가 만든 ' + ITEM_NAME[item] + '(으)로 ' + what + ' 낚았어요! 숙련도 +30').catch(e => console.error('thanks', e.message));
+      broadcast({ t: 'news', text: '🌟 ' + me.name + ' 님이 ' + toName + '표 ' + ITEM_NAME[item] + '(으)로 ' + what + ' 낚았어요!' }, ws);
+      break;
+    }
+    /* ----- 오늘의 일 세 가지 다 하면 강화권 1장 (하루 한 번) ----- */
+    case 'jtask_all': withLock(me.key, () => {
+      const s = me.save; if (!s || !jobOf(s) || s.jtd === kstDay()) return; s.jtd = kstDay();
+      const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.push('오늘의 일 세 가지 완료! 강화권 +1'); queueSave(me.key, s); sendEnh(ws, me, { note: out });
+    }); break;
+    /* ----- 명장 축복: 하루 한 번, 마을 모두에게 20분 행운 ----- */
+    case 'bless': withLock(me.key, () => {
+      const s = me.save, job = jobOf(s); if (!job) return; const x = (s.job.xp && s.job.xp[job]) | 0;
+      if (x < JR_MASTER) return send(ws, { t: 'news', text: '명장 등급부터 할 수 있어요' });
+      if (s.blessd === kstDay()) return send(ws, { t: 'news', text: '오늘 축복은 이미 했어요' });
+      s.blessd = kstDay(); queueSave(me.key, s);
+      for (const [w, p] of players) send(w, { t: 'bless', by: me.name, job, mine: p === me });
+    }); break;
+    /* ----- 운영자 도구: 공지 · 선물(골드 · 강화권 · 아이템 · 물고기) · 직업 대기 풀기. 운영자 계정만 ----- */
+    case 'adm': {
+      if (!me.admin) return;
+      const ok = text => send(ws, { t: 'adm_ok', text });
+      if (m.op === 'notice') { const text = cleanText(m.text, 80); if (text) { broadcast({ t: 'news', text: '📢 운영자: ' + text }); ok('공지를 보냈어요'); } return; }
+      const key = String(m.to || '').trim().toLowerCase(); if (!key) return;
+      const nm = (rosterCache.get(key) || {}).name || (liveByKey(key) || [0, {}])[1].name; if (!nm) return ok('그런 친구가 없어요');
+      withLock(key, async () => {
+        const s = await loadSave(key); if (!s) return ok(nm + ' 님 저장이 아직 없어요');
+        const l = liveByKey(key);
+        if (m.op === 'unjob') {   // 직업 바꾸기 대기 14일 · 끝 노드 잠금 풀기
+          if (s.job && typeof s.job === 'object') { s.job.t = 0; s.job.ch = 0; }
+          queueSave(key, s); await flushSave(key); rosterSet(key, nm, s);
+          if (l) send(l[0], { t: 'job_free' }); else addMail(key, '운영자가 직업 바꾸기 대기를 풀어 줬어요. 지금 바로 바꿀 수 있어요');
+          return ok(nm + ' 님 직업 대기를 풀었어요');
+        }
+        if (m.op === 'give') {
+          const k = String(m.k || ''), n = Math.max(-1e7, Math.min(1e7, m.n | 0)); if (!n) return;
+          if (k === 'tk') {
+            const e = enhOf(s); e.tk = Math.max(0, Math.min(ENH.TK_MAX, e.tk + n)); queueSave(key, s); await flushSave(key);
+            if (l) sendEnh(l[0], l[1], { note: ['운영자 선물: 강화권 ' + (n > 0 ? '+' : '') + n] }); else addMail(key, '운영자 선물: 강화권 ' + (n > 0 ? '+' : '') + n);
+          } else {
+            if (!keyKind(k)) return ok('그런 물건은 없어요');
+            await changeBag(key, { [k]: n }, '🎁 운영자 선물');
+            if (!l) addMail(key, '운영자 선물이 가방에 들어왔어요');
+          }
+          console.log('운영자', me.name, '→', nm, k, n);
+          return ok(nm + ' 님에게 ' + (k === 'g' ? '골드' : k === 'tk' ? '강화권' : k) + ' ' + n + ' 보냈어요');
+        }
+      }).catch(e => { console.error('adm', e.message); ok('처리하지 못했어요'); });
+      break;
+    }
     /* ----- 친구 물고기 보기: 친구 가방에 있는 물고기 · 친구 도감에 없는 내 물고기 ----- */
     case 'fr_list': (async () => {
       const mine = invOf(me.save), live = new Set([...players.values()].map(p => p.key)), list = [];
@@ -793,6 +948,7 @@ function onMsg(ws, me, m) {
         }
         if (!cnt) return send(ws, { t: 'news', text: '위탁함이 비어 있어요' });
         me.save.gold = (Number(me.save.gold) || 0) + mine; me.save.rev = (me.save.rev | 0) + 1;
+        send(ws, { t: 'jxp', job: 'mer', n: Math.min(120, 20 + cnt * 2) });
         queueSave(me.key, me.save); sendEnh(ws, me, { dgold: mine, rev: me.save.rev, note: ['위탁 ' + cnt + '마리를 팔았어요 · 내 몫 골드 +' + mine] });
       }).then(() => csList(ws, me)).catch(e => console.error('cs_sell', e.message));
       break;

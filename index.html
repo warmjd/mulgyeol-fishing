@@ -120,6 +120,7 @@ input[type=range]{width:100%;accent-color:var(--lav);height:32px}
 #bAfk{position:fixed;right:calc(max(20px,env(safe-area-inset-right,0px)) + 116px);bottom:calc(40px + env(safe-area-inset-bottom,0px));min-width:70px;height:44px;border-radius:999px;background:var(--mint);color:#1f4a3f;border:3px solid #fff;box-shadow:0 3px 0 #62b09c;font-size:13px;z-index:5;padding:0 10px}
 .ptag{position:absolute;left:0;top:0;font-size:11px;color:#fff;background:rgba(74,61,107,.72);border-radius:999px;padding:0 7px;white-space:nowrap;will-change:transform}
 .ntag .en{color:#e07a2c;font-weight:700;margin-left:3px}
+.ntag .jb{font-size:10px;margin-right:3px}
 .ntag{pointer-events:auto;cursor:pointer}
 .ntag.stag{pointer-events:none;background:linear-gradient(#fff8dc,#ffe9a8);border-color:#f0c35a;color:#7a5410}
 /* 절전 모드: 까만 화면 + 흐린 시계. 게임은 뒤에서 계속 (걸어두기 · 켜 둔 보상) */
@@ -868,6 +869,8 @@ function drawOutfit(b,dir,id,sh,shD,pants){
       if(!back&&!side){fillR(b,7,13,2,2,[150,220,240]);px(b,7,13,[230,250,255])}if(side)px(b,8,13,[150,220,240]);if(back)fillR(b,6,12,4,3,[120,130,150]);break}
     case'starcloak':{const c=[90,70,150],cd=[64,48,118],st=[255,236,140];fillR(b,tx,11,tw,6,c);arms(c);if(back||side){fillR(b,side?4:3,11,side?8:10,7,c);fillR(b,side?4:3,17,side?8:10,1,cd)}else{fillR(b,3,12,1,6,cd);fillR(b,12,12,1,6,cd)}
       [[tx+1,12],[tx+tw-2,14],[tx+2,15],[side?5:4,16]].forEach(q=>px(b,q[0],q[1],st));if(!back&&!side)px(b,8,11,[255,206,84]);break}
+    case'mastercape':{const c=[150,60,80],cd=[110,40,60],g=[255,206,84];fillR(b,tx,11,tw,6,c);arms(c);if(back||side){fillR(b,side?4:3,11,side?8:10,7,c);fillR(b,side?4:3,17,side?8:10,1,cd);for(let x=side?4:3;x<(side?12:13);x+=2)px(b,x,17,g)}else{fillR(b,3,12,1,6,cd);fillR(b,12,12,1,6,cd)}
+      if(!back&&!side){fillR(b,7,11,2,1,g);px(b,7,12,g);px(b,8,12,g)}break}
     case'fogcoat':{const c=[196,206,220],cd=[150,162,182],r=[230,96,90],y=[255,228,140];fillR(b,tx,11,tw,7,c);fillR(b,tx,17,tw,1,cd);arms(c);fillR(b,tx,15,tw,1,r);
       if(!back&&!side){px(b,7,12,y);px(b,8,12,y);px(b,7,13,cd);px(b,8,13,cd)}if(side)px(b,8,12,y);if(back)fillR(b,tx+1,12,tw-2,1,cd);break}
     case'masterjacket':{const g=[90,150,120],gd=[66,118,94],o=[255,206,84],w=[255,250,240];if(back)fillR(b,tx,11,tw,5,g);else if(side){fillR(b,5,11,4,5,g);px(b,6,13,o)}else{fillR(b,4,11,3,5,g);fillR(b,9,11,3,5,g);px(b,5,13,o);px(b,10,13,o);px(b,4,15,gd);px(b,11,15,gd);px(b,8,12,w)}break}
@@ -1675,14 +1678,14 @@ const COS_BY={};COS.forEach(c=>COS_BY[c.id]=c);
 const COS_KINDS={hat:'모자',outfit:'옷',rod:'낚싯대',bob:'찌',title:'칭호'};
 const LOOK_KEY={hat:'hat',outfit:'o',rod:'rod',bob:'bob',title:'ti'};
 function rewardOf(p){if(PAGE_SEASON[p])return PAGE_SEASON[p].reward;const c=COS.find(c=>c.reward===p);return c?c.id:null}
-function rewardText(c){if(c.price!==undefined)return'';if(c.sz)return c.sz==='all'?'손맛 도감 여섯 낚시터를 모두 채우면':'「'+ZONES[c.sz-1].name+'」 손맛 도감을 직접 낚은 물고기로 채우면';if(c.enh)return'낚싯대를 +'+c.enh+'까지 강화하면';if(c.pet)return PETS.find(p=>p.id===c.pet).name+' Lv10이 되면';if(c.zone)return'「'+ZONES[c.zone-1].name+'」 '+(c.zone===6?20:40)+'종을 모두 채우면 (걸으면 반짝!)'.replace(' (걸으면 반짝!)',c.fx?' · 걸으면 효과':'');if(c.boatd)return'배낚시 만선 상자에서 '+(c.boatd===2?'아주 낮은':'낮은')+' 확률로';if(c.reward==='all')return'도감 '+MAIN_N+'종을 모두 채우면';if(c.season)return'「'+seasonById(c.season).name+'」 도감을 채우면';return'도감 「'+PAGE_TITLES[c.reward]+'」을 채우면'}
+function rewardText(c){if(c.price!==undefined)return'';if(c.jr)return c.jr[0]==='any'?'어느 직업이든 명장 등급이 되면':JR[c.jr[1]].n+' '+JOBS[c.jr[0]].name+' 등급이 되면';if(c.sz)return c.sz==='all'?'손맛 도감 여섯 낚시터를 모두 채우면':'「'+ZONES[c.sz-1].name+'」 손맛 도감을 직접 낚은 물고기로 채우면';if(c.enh)return'낚싯대를 +'+c.enh+'까지 강화하면';if(c.pet)return PETS.find(p=>p.id===c.pet).name+' Lv10이 되면';if(c.zone)return'「'+ZONES[c.zone-1].name+'」 '+(c.zone===6?20:40)+'종을 모두 채우면 (걸으면 반짝!)'.replace(' (걸으면 반짝!)',c.fx?' · 걸으면 효과':'');if(c.boatd)return'배낚시 만선 상자에서 '+(c.boatd===2?'아주 낮은':'낮은')+' 확률로';if(c.reward==='all')return'도감 '+MAIN_N+'종을 모두 채우면';if(c.season)return'「'+seasonById(c.season).name+'」 도감을 채우면';return'도감 「'+PAGE_TITLES[c.reward]+'」을 채우면'}
 /* 친구에게서 받은 외형은 목록에 있는 값만 받아들여요 */
 function cleanLook(l,color){
   l=l&&typeof l==='object'?l:{};
   const ok=(v,k)=>COS_BY[v]&&COS_BY[v].k===k;
   const n=(v,max,d)=>Number.isInteger(v)&&v>=0&&v<max?v:d;
   return{h:n(l.h,HAIRS.length,0),k:n(l.k,SKINS.length,0),s:n(l.s,SHIRTS.length,(color|0)%SHIRTS.length),
-    hat:ok(l.hat,'hat')?l.hat:'straw',o:ok(l.o,'outfit')?l.o:'tee',rod:ok(l.rod,'rod')?l.rod:'bamboo',bob:ok(l.bob,'bob')?l.bob:'basicbob',ti:ok(l.ti,'title')?l.ti:'',e:n(l.e,21,0)};
+    hat:ok(l.hat,'hat')?l.hat:'straw',o:ok(l.o,'outfit')?l.o:'tee',rod:ok(l.rod,'rod')?l.rod:'bamboo',bob:ok(l.bob,'bob')?l.bob:'basicbob',ti:ok(l.ti,'title')?l.ti:'',e:n(l.e,21,0),j:typeof l.j==='string'&&/^(fish|sch|cra|tam|mer)[1-3]$/.test(l.j)?l.j:''};
 }
 
 
@@ -2021,7 +2024,7 @@ function recalc(){
   const en=enhFx(S.enh?S.enh.lv:0); // 낚싯대 강화: 바 · 힘 +3% · 행운 +1.5% · 입질 -1% (단계마다)
   ST={b:b,bar:gearEff.rod(S.gear.rod)*(1+b.bar)*en.bar,wait:gearEff.bob(S.gear.bob)*(1-b.bite)*en.wait,luck:gearEff.lure(S.gear.lure)*(1+b.luck)*en.luck,
       reel:gearEff.reel(S.gear.reel)*(1+b.reel)*en.reel,sell:1+b.sell};
-  jobMods();
+  jobMods();jobBadge();
 }
 const POOL={};FISH.forEach(f=>{if(f.id>=MAIN_N&&!f.isl&&!f.pty&&!f.mk)return;const k=f.zone+'-'+f.rar;(POOL[k]=POOL[k]||[]).push(f)});
 
@@ -2259,7 +2262,7 @@ function finishCatch(){
   Snd.sfx('catch',f.rar);if(F.pageUp>=0||F.masterUp)setTimeout(()=>Snd.sfx('page'),900);
   if(f.rar>=3&&navigator.vibrate)try{navigator.vibrate([40,40,80])}catch(e){}
   // 직접 낚은 물고기는 언제나 카드로 보여 줘요 (이미 아는 물고기도). 버튼 한 번이면 닫고 바로 다시 던져요
-  F.double=false;if(f.mk)mkS().n++;ptCatch(f);
+  F.double=false;if(f.mk)mkS().n++;ptCatch(f);jobCatch(f);
   vxp(([3,5,12,30,80][f.rar]+(f.isl?6:0))*(pathed(f.zone)?1.3:1)+(F.isNew?20+25*rk('sch','dexrw'):0)+(had&&F.len>oldBest?15*rk('sch','size'):0));if(F.isNew&&rk('sch','dexrw'))addXp(partnerId(),20*rk('sch','dexrw'));
   if(!F.isNew&&f.rar<=(rk('fish','dbl')?2:1)&&Math.random()<gearEff.bob2(S.gear.bob)+.05*rk('fish','dbl')){S.inv[id]++;e.n++;sdAdd(id,1);S.stats.catches++;F.double=true;enhOnCatch(id,1);recalc()}
   F.mode='result';showResult();giftLocal(f);
@@ -2394,7 +2397,7 @@ function petPet(a){
   parts.push({x:a.x-3,y:a.y-14,vx:0,vy:-14,life:1,t:0,heart:true,g:0});Snd.sfx('tap');
   if(a.state==='sleep'){a.state='sit';a.t=6}
   if(now-st.t<petCdMs()){toast(a.p.name+': 골골골… (조금 뒤에 또 쓰다듬어 줘요)');return}
-  st.t=now;const add=gainHeart(a.p.id,4);lifeEvent('pet',a.p.id,a.x,a.y);
+  st.t=now;const add=gainHeart(a.p.id,4);lifeEvent('pet',a.p.id,a.x,a.y);jcount('pet');if(jobId()==='tam')jxpAdd(3);
   const lines={ruby:['멍! 꼬리를 붕붕 흔들어요','루비가 손을 핥아요'],dot:['쫑이가 손가락을 깨물깨물','냥! 하고 굴러요'],nurung:['누릉이가 느긋하게 눈을 감아요','열세 살 누릉이의 골골송'],kkam:['깜콩이가 동그란 눈으로 빤히 봐요','깜콩이가 머리를 쿵 박아요'],churi:['츄리가 발라당 누워요','츄리가 꾹꾹이를 해요']}[a.p.id];
   toast(lines[(Math.random()*lines.length)|0]+' · 오늘 ♥'+heartOf(a.p.id)+'/100'+(add?'':' (오늘은 가득!)'));
   saveState();
@@ -2539,7 +2542,7 @@ const wishReady=()=>{const w=wishToday();return!w.done&&(hasDex(w.id)||!!wishSub
 function doWish(full){
   const w=wishToday();if(w.done){toast('오늘 냄새 소원은 이미 들어줬어요');return}
   const f=FISH[w.id],sub=full?null:wishSub(w);if(full&&!hasDex(w.id)){toast(f.name+'이(가) 아직 도감에 없어요');return}if(!full&&!sub){toast('같은 낚시터 물고기도 아직 없어요');return}
-  const rw=WISH_RW[f.rar],k=full?1:.5,a=actorOf('ruby');w.done=true;
+  const rw=WISH_RW[f.rar],k=full?1:.5,a=actorOf('ruby');w.done=true;if(jobId()==='tam')jxpAdd(20);
   const got=petReward('wish',{id:w.id,full:!!full});vxp(30);gainHeart('ruby',20);addXp('ruby',Math.round(rw.xp*k));
   floats.push({x:a?a.x:P.x,y:(a?a.y:P.y)-20,t:0,img:fishCan(full?w.id:sub.id)});
   if(a){a.state='sit';a.t=4;for(let i=0;i<5;i++)parts.push({x:a.x-6+Math.random()*12,y:a.y-14,vx:(Math.random()-.5)*14,vy:-16-Math.random()*8,life:1.3,t:0,heart:true,g:0})}
@@ -2642,7 +2645,7 @@ function walkPress(t){
 function walkFinish(){
   if(!WK||WK.end)return;
   if(WK.extra){const h=gainHeart('ruby',15);addXp('ruby',60);stopWalk('한 바퀴 더! 루비가 세상에서 제일 행복한 얼굴이에요 · '+(h?'♥+'+h+' · ':'')+'경험치 +60');saveState(true);return}
-  WK.end=true;const m=pm();m.wk=kstDay();vxp(50);
+  WK.end=true;const m=pm();m.wk=kstDay();vxp(50);jcount('walk');if(jobId()==='tam')jxpAdd(25);
   petReward('walk');const tk=1;const h=gainHeart('ruby',30);addXp('ruby',100);saveState(true);
   const a=actorOf('ruby');if(a){a.state='sit';for(let i=0;i<6;i++)parts.push({x:a.x-6+Math.random()*12,y:a.y-14,vx:(Math.random()-.5)*16,vy:-16-Math.random()*10,life:1.4,t:0,heart:true,g:0})}
   Snd.sfx('buy');walkBar();
@@ -2751,8 +2754,8 @@ function vxp(n){if(!(n>0))return;n*=1+.05*rk('com','xp');const v=vS(),b=vlOf(v.x
   if(L>b){setTimeout(()=>toast('마을 레벨 '+L+'! 테크 포인트 +'+(L-b)+(b<5&&L>=5?' · 이제 직업을 고를 수 있어요 (메뉴 → 직업 · 테크트리)':'')),1300);Snd.sfx('page');rosterSoon()}}
 function jS(){let j=S.job;if(!j||typeof j!=='object')j=S.job={};if(!JOBS[j.id])j.id='';j.t=+j.t||0;if(!j.pts||typeof j.pts!=='object')j.pts={};if(!j.com||typeof j.com!=='object')j.com={};return j}
 const jobId=()=>jS().id;
-const capLocked=()=>{const j=jS();return!!j.ch&&Date.now()-j.ch<JOB_CHANGE_DAYS*864e5}; // 직업을 바꾸면 2주 동안 끝 노드가 꺼져요
-function rk(job,node){const j=jS();if(job==='com')return j.com[node]|0;if(j.id!==job)return 0;if(node==='cap'&&capLocked())return 0;return(j.pts[job]&&j.pts[job][node])|0}
+const capLocked=()=>{if(admOn())return false;const j=jS();return!!j.ch&&Date.now()-j.ch<JOB_CHANGE_DAYS*864e5}; // 직업을 바꾸면 2주 동안 끝 노드가 꺼져요
+function rk(job,node){const j=jS();if(job==='com')return j.com[node]|0;if(j.id!==job)return 0;if(node==='cap'&&capLocked())return 0;const v=(j.pts[job]&&j.pts[job][node])|0;return v&&node!=='cap'&&jRank(job)>=2?v+1:v}   // 장인 등급부터 찍은 노드가 한 단계 더
 const spentOf=o=>Object.values(o||{}).reduce((a,b)=>a+(b|0),0);
 const ptsTotal=()=>vLv()-1;
 const ptsLeft=()=>{const j=jS();return ptsTotal()-spentOf(j.com)-(j.id?spentOf(j.pts[j.id]):0)};
@@ -2784,7 +2787,7 @@ const COMMON=[{id:'speed',n:'가벼운 발걸음',max:3,d:r=>'걷는 속도 +'+r
 const nodeOf=(job,id)=>job==='com'?COMMON.find(n=>n.id===id):JOBS[job].t.flat().find(n=>n.id===id);
 const tierOf_=(job,id)=>JOBS[job].t.findIndex(t=>t.some(n=>n.id===id));
 function canUp(job,id){
-  const j=jS(),nd=nodeOf(job,id);if(!nd)return'';const cur=rk(job,id),cost=nd.cost||1;
+  const j=jS(),nd=nodeOf(job,id);if(!nd)return'';const cur=job==='com'?rk(job,id):((j.pts[job]&&j.pts[job][id])|0),cost=nd.cost||1;   // 찍은 점만 세요 (장인 보너스 제외)
   if(cur>=nd.max)return'최고 단계';if(id==='cap'&&job!=='com'&&capLocked())return'바꾼 지 2주 뒤';if(ptsLeft()<cost)return'포인트 부족';
   if(job!=='com'){if(j.id!==job)return'주 직업만';const need=TIER_NEED[tierOf_(job,id)];if(spentOf(j.pts[job])<need)return'이 직업에 '+need+'점 필요'}
   return'';
@@ -2795,11 +2798,118 @@ function upNode(job,id){const why=canUp(job,id);if(why){toast(why);Snd.sfx('no')
   recalc();saveState(true);rosterSoon();Snd.sfx('buy');toast(nd.n+' '+rk(job,id)+'단계!');openTree(job)}
 const JOB_CHANGE_G=5000,JOB_CHANGE_DAYS=14;
 function pickJob(id){
-  const j=jS();if(j.id===id)return;if(vLv()<5){toast('마을 레벨 5부터 고를 수 있어요');return}
+  const j=jS();if(j.id===id)return;
+  if(admOn()){const first=!j.id;j.id=id;j.t=0;j.ch=0;recalc();saveState(true);rosterSoon();Snd.sfx('buy');toast('🛠️ '+JOBS[id].ic+' '+JOBS[id].name+'(으)로 바꿨어요 (운영자 · 대기 없음)'+(first?'':' 예전에 찍은 포인트가 돌아왔어요'));openTree(id);return}
+  if(vLv()<5){toast('마을 레벨 5부터 고를 수 있어요');return}
   const first=!j.id;if(!first){const left=JOB_CHANGE_DAYS-Math.floor((Date.now()-j.t)/864e5);if(left>0){toast('직업은 '+JOB_CHANGE_DAYS+'일에 한 번 바꿀 수 있어요 ('+left+'일 남음)');return}
     if(S.gold<JOB_CHANGE_G){toast('직업을 바꾸려면 '+fmt(JOB_CHANGE_G)+'골드가 필요해요');return}S.gold-=JOB_CHANGE_G}
   j.id=id;j.t=Date.now();if(!first)j.ch=j.t;recalc();saveState(true);rosterSoon();Snd.sfx('buy');
   toast(JOBS[id].ic+' '+JOBS[id].name+'이(가) 됐어요!'+(first?' 포인트를 찍어 보세요':' 예전에 찍은 포인트가 돌아왔어요'));openTree(id)}
+
+/* ========== 직업 2.0: 숙련도 · 등급 · 오늘의 일 · 의뢰판 · 이름 붙은 생산물 ==========
+   숙련도는 그 직업 일을 해야만 올라요 (마을 레벨과 따로). 견습 → 숙련 → 장인 → 명장 */
+const JR=[{n:'견습',x:0},{n:'숙련',x:300},{n:'장인',x:1200},{n:'명장',x:4000}];
+const RANK_GIFT=['','칭호 「숙련 …」 · 이름표 ★','모든 직업 노드가 한 단계 더 (최대치 넘어서) · 칭호 · ★★','하루 한 번 마을 축복 · 명장 망토 · 칭호 · ★★★'];
+const JOB_HOW={fish:'희귀 이상 · 대물 낚기',sch:'새 물고기 등록 · 연구 노트 · 항로 지도 · 예보',cra:'만들기 (전설 미끼는 크게)',tam:'쓰다듬기 · 산책 · 냄새 소원 · 짝꿍 재료',mer:'물고기 팔기 · 수입품 · 위탁 판매'};
+const JTASK={
+ fish:[{k:'rare',n:5,t:'희귀 이상 5마리 낚기'},{k:'catch',n:40,t:'직접 40마리 낚기'},{k:'zones',n:3,t:'서로 다른 낚시터 3곳에서 낚기'}],
+ sch:[{k:'newsp',n:8,t:'서로 다른 물고기 8종 낚기'},{k:'zones',n:3,t:'낚시터 3곳 둘러보며 낚기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
+ cra:[{k:'craft',n:6,t:'아무거나 6개 만들기'},{k:'bait',n:3,t:'미끼 3개 만들기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
+ tam:[{k:'pet',n:5,t:'동물 친구 5번 쓰다듬기'},{k:'walk',n:1,t:'루비와 산책 한 바퀴'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
+ mer:[{k:'sellg',n:3000,t:'물고기 3,000골드어치 팔기'},{k:'trade',n:1,t:'친구와 교환 1번'},{k:'req',n:1,t:'의뢰 1개 해결하기'}]};
+/* 누가 만드는 물건인지 (server.js MAKER와 같아요) */
+const MAKER={flesh:'cra',b_dough:'cra',soup:'cra',grill:'cra',b_shine:'cra',snack:'cra',charm:'cra',b_legend:'cra',note:'sch',map:'sch',shell:'tam',weed:'tam',pearl:'tam',feather:'tam',scale:'fish',thread:'mer',sail:'mer',toy:'mer'};
+const CRAFT_XP={flesh:1,b_dough:4,soup:5,grill:5,b_shine:8,snack:5,charm:15,b_legend:60,note:12,map:40};
+JOB_IDS.forEach(j=>[1,2,3].forEach(r=>{const c={id:'t_j'+j+r,k:'title',name:JR[r].n+' '+JOBS[j].name,jr:[j,r]};COS.push(c);COS_BY[c.id]=c}));
+{const c={id:'mastercape',k:'outfit',name:'명장 망토',jr:['any',3]};COS.push(c);COS_BY[c.id]=c}
+const jxpOf=id=>{const j=jS();return(j.xp&&j.xp[id])|0};
+const jRank=id=>{const x=jxpOf(id);let r=0;for(let i=1;i<JR.length;i++)if(x>=JR[i].x)r=i;return r};
+function txtCan(t,col){const c=document.createElement('canvas'),x=c.getContext('2d');x.font='bold 9px sans-serif';c.width=Math.ceil(x.measureText(t).width)+4;c.height=12;x.font='bold 9px sans-serif';x.fillStyle='rgba(74,61,107,.75)';x.fillText(t,3,10);x.fillStyle=col||'#fff';x.fillText(t,2,9);return c}
+function jxpAdd(n,why,job){
+  job=job||jobId();if(!job||!JOBS[job]||!(n>0))return;const j=jS();if(!j.xp||typeof j.xp!=='object')j.xp={};
+  const r0=jRank(job);j.xp[job]=(j.xp[job]|0)+Math.round(n);const r1=jRank(job);
+  if(P)floats.push({x:P.x,y:P.y-30,t:-.1,img:txtCan(JOBS[job].ic+' +'+Math.round(n),JOBS[job].col)});
+  if(r1>r0){for(let r=r0+1;r<=r1;r++){const id='t_j'+job+r;if(!owns(id))S.cos.own.push(id);if(r>=3&&!owns('mastercape'))S.cos.own.push('mastercape')}
+    Snd.sfx('page');if(P)sparkFx(P.x,P.y-12,30,['#ffe27a','#ffffff',JOBS[job].col]);
+    setTimeout(()=>toast('🎉 '+JR[r1].n+' '+JOBS[job].name+' 등급이 됐어요! '+RANK_GIFT[r1]),600);
+    if(ONLINE&&Net.me)Net.send({t:'say',text:'🎉 '+JR[r1].n+' '+JOBS[job].name+'!'});recalc()}
+  saveState();
+}
+/* 이름표 배지: 직업 아이콘 + 등급 별 (친구 화면에도 보여요) */
+function jobBadge(){const id=jobId(),b=id&&jRank(id)>0?id+jRank(id):'';if(S.cos&&S.cos.look&&S.cos.look.j!==b){S.cos.look.j=b;if(ONLINE&&Net.me)Net.send({t:'look',look:S.cos.look});try{if(ME.tag)refreshMe()}catch(e){}}}
+const badgeHtml=b=>{const m=/^(fish|sch|cra|tam|mer)([1-3])$/.exec(b||'');return m?'<span class="jb" style="color:'+JOBS[m[1]].col+'">'+JOBS[m[1]].ic+'★'.repeat(+m[2])+'</span>':''};
+/* 오늘의 일 */
+function jdS(){const d=kstDay();if(!S.jd||S.jd.d!==d||typeof S.jd.done!=='object'||Array.isArray(S.jd.done))S.jd={d:d,c:{},done:{}};return S.jd}
+const jtProg=t=>{const v=jdS().c[t.k];return Array.isArray(v)?v.length:(v|0)};
+function jcount(k,n,val){const id=jobId();if(!id)return;const D=jdS();if(val!==undefined){const a=Array.isArray(D.c[k])?D.c[k]:(D.c[k]=[]);if(a.indexOf(val)<0)a.push(val)}else D.c[k]=(D.c[k]|0)+(n===undefined?1:n);jtaskCheck()}
+function jtaskCheck(){
+  const id=jobId();if(!id)return;const D=jdS(),dn=D.done[id]||(D.done[id]=[]);
+  JTASK[id].forEach((t,i)=>{if(dn.indexOf(i)>=0||jtProg(t)<t.n)return;dn.push(i);jxpAdd(40,'오늘의 일',id);vxp(30);
+    setTimeout(()=>toast('✅ 오늘의 일 「'+t.t+'」 완료! 숙련도 +40'+(dn.length===3?' · 세 가지 다 해서 강화권 +1!':'')),900);
+    if(dn.length===3&&!D.all){D.all=1;if(ONLINE&&Net.me){Net.flushSave(true);Net.send({t:'jtask_all'})}else{enhDaily(S.enh);S.enh.tk=Math.min(ENH.TK_MAX,S.enh.tk+1);updateTrapDot()}}});
+  saveState();
+}
+/* 낚을 때 · 만들 때 · 돌볼 때 */
+function jobCatch(f){jcount('catch');if(f.rar>=2)jcount('rare');jcount('zones',0,F.zone);jcount('newsp',0,f.id);
+  const id=jobId();if(id==='fish'){const n=[0,0,3,8,25][f.rar]+(F.big?10:0);if(n)jxpAdd(n)}if(id==='sch'&&F.isNew)jxpAdd(15);
+  if(F.baitBy&&f.rar>=3&&ONLINE&&Net.me){Net.send({t:'thanks',to:F.baitBy,item:F.baitId,fish:f.id});toast('🌟 '+F.baitBy+'표 '+ITEMS[F.baitId].n+' 덕분이에요! 고맙다는 소식을 보냈어요')}F.baitBy=null}
+function jobCraft(r){let n=0,b=0;for(const k in r.out){const v=outN(r,k);n+=v;if(k.indexOf('b_')===0)b+=v}jcount('craft',n);if(b)jcount('bait',b);jxpAdd((CRAFT_XP[r.id]||3)*(r.inF?1:Math.max(1,Math.min(3,n))),'',r.job)}
+/* 명장 축복: 하루 한 번, 마을 모두에게 20분 동안 행운 부적 효과 */
+const BLESS_MIN=20;
+function blessGo(){if(jRank(jobId())<3){toast('명장 등급부터 할 수 있어요');return}const D=jdS();if(D.bless){toast('오늘 축복은 이미 했어요');return}
+  if(ONLINE&&Net.me){Net.flushSave(true);Net.send({t:'bless'})}else{D.bless=1;blessGot('나',jobId())}}
+function blessGot(by,job){buffS().charm=Math.max(buffS().charm||0,Date.now()+BLESS_MIN*60e3);recalc();saveState();Snd.sfx('page');if(P)sparkFx(P.x,P.y-12,24,['#ffe27a','#ffffff','#ffd6e6']);
+  toast('✨ '+by+' 님('+(JOBS[job]?JR[3].n+' '+JOBS[job].name:'명장')+')의 축복! '+BLESS_MIN+'분 동안 희귀 +15% · 찌가 빨라져요')}
+/* 직업 안내 카드 (테크트리 맨 위) */
+function jobCard(){
+  const id=jobId(),J=JOBS[id],x=jxpOf(id),r=jRank(id),nx=JR[r+1],pc=nx?Math.min(100,(x-JR[r].x)/(nx.x-JR[r].x)*100):100,D=jdS(),dn=D.done[id]||[];
+  const wants=RQ.list?RQ.list.filter(q=>!q.mine&&MAKER[q.item]===id).length:0,nw=RQ.npc?RQ.npc.filter(q=>q.job===id&&(RQ.ndone||[]).indexOf(q.id)<0).length:0;
+  let h='<div class="jcard" style="border-color:'+J.col+'"><div style="display:flex;gap:10px;align-items:center"><span class="jic">'+J.ic+'</span><div style="flex:1;min-width:0"><div style="font-size:16px">'+JR[r].n+' '+J.name+' <span style="color:'+J.col+'">'+'★'.repeat(r)+'</span></div>'+
+    '<div class="bar" style="margin:4px 0"><i style="width:'+pc+'%;background:'+J.col+'"></i></div><div class="muted" style="font-size:11px">숙련도 '+fmt(x)+(nx?' / '+fmt(nx.x)+' · 다음 「'+nx.n+'」: '+RANK_GIFT[r+1]:' · 최고 등급!')+'</div></div></div>';
+  h+='<div style="font-size:13px;margin-top:8px;line-height:1.6"><div><b>내가 하는 일</b> · '+esc(J.make)+'</div><div><b>나에게 필요한 것</b> · '+esc(J.need)+'</div><div><b>숙련도 얻는 법</b> · '+JOB_HOW[id]+' · 의뢰 해결 · 오늘의 일 · 내가 만든 미끼로 친구가 대박</div>'+
+    (ONLINE&&Net.me?'<div><b>지금 마을이 바라는 것</b> · '+(RQ.list?'친구 의뢰 '+wants+'개 · 마을 의뢰 '+nw+'개':'의뢰판을 열어 확인')+'</div>':'')+'</div>';
+  h+='<div class="sec" style="margin-top:8px">오늘의 일 '+dn.length+' / 3'+(dn.length===3?' · 강화권 받음 ✓':' · 다 하면 강화권 +1')+'</div>'+JTASK[id].map((t,i)=>{const ok=dn.indexOf(i)>=0,pv=Math.min(t.n,jtProg(t));return'<div class="rw'+(ok?' on':'')+'"><b>'+(ok?'✓':pv+'/'+t.n)+'</b><span>'+t.t+'</span><i>+40</i></div>'}).join('');
+  h+='<div style="display:flex;gap:6px;margin-top:8px">'+(ONLINE&&Net.me?'<button class="btn sm mint" data-jq="rq" style="flex:1">📜 의뢰판</button>':'')+(r>=3?'<button class="btn sm pink" data-jq="bless" style="flex:1"'+(D.bless?' disabled':'')+'>'+(D.bless?'오늘 축복 ✓':'✨ 마을 축복')+'</button>':'')+'</div></div>';
+  return h;
+}
+/* ----- 마을 의뢰판: 친구 의뢰는 그 물건을 만드는 직업만 해결해요. 골드는 교환소가 맡아 둬요. 마을(NPC) 의뢰는 매일 바뀌어요 ----- */
+const RQ={list:null,npc:null,ndone:[],draft:null};
+function openReq(){TR.tab='rq';openTrade('rq')}
+function loadReq(){RQ.list=null;Net.flushSave(true);Net.send({t:'rq_list'})}
+const rqName=k=>k.indexOf('f:')===0?fishName(+k.slice(2)):ITEMS[k]?ITEMS[k].ic+' '+ITEMS[k].n:k;
+const rqHave=k=>k.indexOf('f:')===0?(S.inv[+k.slice(2)]||0):itN(k);
+function reqHtml(){
+  const id=jobId();
+  let h='<div class="muted" style="font-size:13px;margin-bottom:8px">필요한 물건을 의뢰하면, 그걸 만드는 직업 친구가 해결해 줘요. 해결하면 숙련도 +40과 의뢰비를 받아요.</div>';
+  if(RQ.draft){const d=RQ.draft,cap=Math.floor((ITEMS[d.item]?ITEMS[d.item].npc:0)*d.n*1.5);
+    h+='<div class="post"><div class="sec">무엇이 필요해요?</div><select class="tin" id="rqItem" style="width:100%;margin:4px 0">'+Object.keys(MAKER).map(k=>'<option value="'+k+'"'+(k===d.item?' selected':'')+'>'+ITEMS[k].ic+' '+ITEMS[k].n+' — '+JOBS[MAKER[k]].ic+' '+JOBS[MAKER[k]].name+'</option>').join('')+'</select>'+
+      '<div style="display:flex;gap:6px;align-items:center;margin:4px 0"><span>개수</span><input class="tin" id="rqN" type="number" min="1" max="10" value="'+d.n+'" style="width:70px"><span>의뢰비 (골드)</span><input class="tin" id="rqPay" type="number" min="0" value="'+d.pay+'" style="flex:1"></div>'+
+      '<div class="muted" style="font-size:12px">의뢰비는 잡화점 값의 1.5배('+fmt(cap)+')까지 · 교환소가 맡아 두었다가 해결한 친구에게 줘요. 3일 지나면 돌아와요.</div>'+
+      '<div style="display:flex;gap:6px;margin-top:8px"><button class="btn ghost sm" data-rq="cancel" style="flex:1">취소</button><button class="btn pink sm" data-rq="post" style="flex:2">의뢰 올리기</button></div></div>';return h}
+  h+='<button class="btn pink sm" data-rq="new" style="width:100%;margin-bottom:8px">+ 의뢰 올리기</button>';
+  if(!RQ.list)return h+'<div class="muted" style="text-align:center;padding:16px">의뢰판을 불러오는 중…</div>';
+  h+='<div class="sec">🏘️ 마을 의뢰 (오늘) <span class="muted" style="font-size:12px">· 해결하면 숙련도 +30 · 반짝 조각 +3</span></div>';
+  (RQ.npc||[]).forEach(q=>{const J=JOBS[q.job],done=RQ.ndone.indexOf(q.id)>=0,mine=id===q.job,can=mine&&!done&&rqHave(q.item)>=q.n;
+    h+='<div class="row"><span class="jic" style="font-size:18px">'+J.ic+'</span><div class="nm"><div>'+esc(q.who)+': '+esc(rqName(q.item))+' ×'+q.n+'</div><div class="muted" style="font-size:12px">'+J.name+' 의뢰 · 가진 것 '+rqHave(q.item)+'</div></div><div class="go">'+(done?'<span class="muted">✓ 완료</span>':mine?'<button class="btn sm mint" data-rq="npc" data-v="'+q.id+'"'+(can?'':' disabled')+'>납품</button>':'<span class="muted" style="font-size:12px">'+J.name+'만</span>')+'</div></div>'});
+  h+='<div class="sec" style="margin-top:10px">👥 친구 의뢰</div>';
+  if(!RQ.list.length)h+='<div class="muted" style="text-align:center;padding:10px">아직 의뢰가 없어요</div>';
+  RQ.list.forEach(q=>{const mk=MAKER[q.item],J=JOBS[mk],can=!q.mine&&id===mk&&itN(q.item)>=q.n;
+    h+='<div class="post"><div><span class="badge want">구해요</span> '+esc(q.by)+' <span class="muted" style="font-size:12px">· '+ago(q.at)+'</span></div><div class="ex"><span>'+esc(rqName(q.item))+' ×'+q.n+'</span><span class="muted" style="font-size:12px">→ 의뢰비 '+fmt(q.pay)+'골드 · '+J.ic+' '+J.name+'만</span></div>'+
+      (q.mine?'<button class="btn ghost sm" data-rq="del" data-v="'+q.id+'">의뢰 내리기 (골드 돌려받기)</button>':id===mk?'<button class="btn mint sm" data-rq="take" data-v="'+q.id+'"'+(can?'':' disabled')+'>해결하기 (가진 것 '+itN(q.item)+')</button>':'')+'</div>'});
+  return h;
+}
+function rqClick(t){
+  const a=t.dataset.rq,v=t.dataset.v;Snd.sfx('tap');
+  if(a==='new'){RQ.draft={item:'b_shine',n:1,pay:1000};renderTrade();return true}
+  if(a==='cancel'){RQ.draft=null;renderTrade();return true}
+  if(a==='post'){const d=RQ.draft;d.item=$('rqItem').value;d.n=Math.max(1,Math.min(10,+$('rqN').value|0));d.pay=Math.max(0,+$('rqPay').value|0);
+    const cap=Math.floor(ITEMS[d.item].npc*d.n*1.5);if(d.pay>cap){toast('의뢰비는 '+fmt(cap)+'골드까지예요');return true}if(d.pay>S.gold){toast('골드가 모자라요');return true}
+    Net.flushSave(true);Net.send({t:'rq_post',item:d.item,n:d.n,pay:d.pay});RQ.draft=null;RQ.list=null;renderTrade();return true}
+  if(a==='take'){t.disabled=true;Net.flushSave(true);Net.send({t:'rq_take',id:v});return true}
+  if(a==='npc'){t.disabled=true;Net.flushSave(true);Net.send({t:'rq_npc',id:v});return true}
+  if(a==='del'){t.disabled=true;Net.send({t:'rq_del',id:v});return true}
+  return true;
+}
 /* 끝 노드(3점)도 spentOf로 셀 수 있게 _c에 덤을 더해 둬요 */
 
 /* ----- 능력치에 반영 (recalc 끝에서) ----- */
@@ -2830,6 +2940,7 @@ const ITEMS={
  map:{n:'항로 지도',ic:'🗺️',d:'먼바다 너머 섬으로 가는 길 (도감 박사)',npc:40000},
  b_dough:{n:'반죽 미끼',ic:'🪱',d:'한 번 던질 때 희귀 이상 1.3배',npc:150,bait:{rare:1.3}},
  b_shine:{n:'반짝 미끼',ic:'✨',d:'한 번 던질 때 희귀 이상 1.8배',npc:1500,bait:{rare:1.8}},
+ b_legend_n:{n:'잡화점 전설 미끼',ic:'⭐',d:'장인이 만든 것보다 전설이 절반만 걸려요 (잡화점)',npc:150000,bait:{rare:1.2,leg:7}},
  b_legend:{n:'전설 미끼',ic:'🌟',d:'이 미끼를 써야만 전설이 걸려요',npc:150000,bait:{rare:1.5,leg:15}},
  soup:{n:'생선 수프',ic:'🍲',d:'먹으면 희귀 확률 +10%',npc:900,buff:true},
  grill:{n:'소금구이',ic:'🍢',d:'먹으면 판매가 +10%',npc:900,buff:true},
@@ -2852,7 +2963,7 @@ function useItem(id){
     if(a)for(let i=0;i<4;i++)parts.push({x:a.x-6+Math.random()*12,y:a.y-14,vx:(Math.random()-.5)*14,vy:-16,life:1.2,t:0,heart:true,g:0});toast(petName(pt)+'가 '+(big?'장난감을 물고 신났어요':'간식을 냠냠')+'!');Snd.sfx('buy');saveState(true);return}
 }
 /* 미끼: 던질 때 1개 써요 (걸어두기는 미끼를 쓰지 않아요) */
-function castBait(){F.bait=null;if(F.afk)return;const b=S.bait;if(b&&itN(b)>0){F.bait=b;itAdd(b,-1)}}
+function castBait(){F.bait=null;F.baitBy=null;if(F.afk)return;const b=S.bait;if(b&&itN(b)>0){F.bait=b;F.baitId=b;itAdd(b,-1);const q=S.mk&&S.mk[b];if(Array.isArray(q)&&q.length)F.baitBy=q.shift()}}   // 친구가 만든 미끼면 그 이름을 기억해요
 const KH=()=>new Date(Date.now()+9*3600e3).getUTCHours();
 const dayNum=()=>Math.floor((Date.now()+9*3600e3)/864e5);
 /* 오늘의 대박 시간 · 전설 시간: 날짜로 정해져서 모두에게 같아요. 도감 박사만 미리 볼 수 있어요 */
@@ -2891,18 +3002,18 @@ function craft(rid,fishId){
     if(r.inF.same){const need=noteNeed();if(have<need){toast(f.name+' '+need+'마리가 필요해요');return}S.inv[fishId]-=need}
     else{if(have<1||r.inF.rar.indexOf(f.rar)<0){toast('흔함 · 보통 물고기만 손질해요');return}S.inv[fishId]--;if(Math.random()<.25*rk('cra','prep'))itAdd('flesh',1)}
   }else for(const k in r.in)itAdd(k,-r.in[k]);
-  for(const k in r.out)itAdd(k,outN(r,k));
+  for(const k in r.out)itAdd(k,outN(r,k));jobCraft(r);
   vxp(r.id==='b_legend'?120:r.inF?2:8);Snd.sfx('buy');recalc();saveState(true);
   toast(Object.keys(r.out).map(k=>itName(k)+' +'+outN(r,k)).join(' · '));
 }
 /* 잡화점 (NPC): 빈 직업 대체품을 비싸게. 수입품 가게는 떠돌이 상인만 */
-const IMP_DAY=3,NPC_DAY_LIMIT=['scale','note','pearl','feather','thread','map','sail','b_legend']; // 핵심 재료 · 전설 미끼는 한 사람당 하루 1개
+const IMP_DAY=3,NPC_DAY_LIMIT=['scale','note','pearl','feather','thread','map','sail','b_legend_n']; // 핵심 재료 · 전설 미끼는 한 사람당 하루 1개
 function npcBuy(id,imp){const I=ITEMS[id];if(!I)return;const g=imp?I.imp:I.npc;
   if(imp){if(!rk('mer','cap')){toast('떠돌이 상인만 수입품을 살 수 있어요');return}const ib=S.imp&&S.imp.d===kstDay()?S.imp:(S.imp={d:kstDay()});if((ib[id]|0)>=IMP_DAY){toast('오늘 수입품은 다 샀어요 (하루 '+IMP_DAY+'개)');return}ib[id]=(ib[id]|0)+1}
   let nd=null;if(!imp&&NPC_DAY_LIMIT.indexOf(id)>=0){nd=S.npcd&&S.npcd.d===kstDay()?S.npcd:(S.npcd={d:kstDay()});if(nd[id]){toast('잡화점 '+ITEMS[id].n+'은(는) 하루 1개만 살 수 있어요');Snd.sfx('no');return}}
   if(S.gold<g){toast('골드가 모자라요');Snd.sfx('no');if(imp)S.imp[id]--;return}
   if(nd)nd[id]=1;
-  S.gold-=g;itAdd(id,1);Snd.sfx('coin');saveState(true);toast(itName(id)+' +1 · -'+fmt(g)+'골드')}
+  S.gold-=g;itAdd(id,1);if(imp&&jobId()==='mer')jxpAdd(10);Snd.sfx('coin');saveState(true);toast(itName(id)+' +1 · -'+fmt(g)+'골드')}
 /* 단골 손님: 날짜로 정해지는 물고기 r종은 상인에게 2배 값 */
 function regulars(){const r=rk('mer','reg');if(!r)return[];const pool=FISH.filter(f=>f.id<MAIN_N&&hasZone(f.zone)&&f.rar<=2),d=dayNum(),out=[];
   for(let k=0;out.length<r&&k<40;k++){const f=pool[(H2(d,k+11,331)*pool.length)|0];if(f&&out.indexOf(f.id)<0)out.push(f.id)}return out}
@@ -2912,7 +3023,7 @@ function tamerTick(m){
   const r=rk('tam','shore');if(!r)return;m.tm=(m.tm|0)+1;if(m.tm<30)return;m.tm=0;
   const got=[];for(let i=0;i<r;i++){const k=Math.random()<.5?'shell':'weed';itAdd(k,1);got.push(k)}
   const rr=rk('tam','rare');if(rr){if(Math.random()<.12*rr){itAdd('pearl',1);got.push('pearl')}if(Math.random()<.08*rr){itAdd('feather',1);got.push('feather')}}
-  const a=actorOf(m.pt);if(a)sparkFx(a.x,a.y-8,8,['#ffffff','#cfe8ff']);toast(petName(m.pt)+'가 바닷가에서 물어 왔어요: '+got.map(itName).join(', '));saveState();
+  if(jobId()==='tam')jxpAdd(2*got.length);const a=actorOf(m.pt);if(a)sparkFx(a.x,a.y-8,8,['#ffffff','#cfe8ff']);toast(petName(m.pt)+'가 바닷가에서 물어 왔어요: '+got.map(itName).join(', '));saveState();
 }
 
 /* ----- 마을 일꾼 현황판 (온라인: 서버가 모두의 직업을 알려 줘요) ----- */
@@ -2942,6 +3053,7 @@ function openTree(view){
   let h='<div class="pethead" style="margin-bottom:8px"><div style="flex:1"><div style="font-size:17px">마을 레벨 <b>'+L+'</b>'+(L>=VL.MAX?' (최고)':'')+'</div><div class="bar" style="margin:6px 0 4px"><i style="width:'+Math.round(nx*100)+'%;background:var(--lav)"></i></div>'+
     '<div class="muted" style="font-size:12px">낚시 · 새 물고기 · 산책 · 제작 · 교환 모두 경험치</div></div><div class="lvb">남은 점<b>'+ptsLeft()+'</b></div></div>';
   h+='<div class="tabs" style="flex-wrap:wrap">'+['pick','com'].concat(j.id?[j.id]:[]).map(k=>'<button class="tab'+(treeView===k?' on':'')+'" data-jv="'+k+'">'+(k==='pick'?'직업 고르기':k==='com'?'마을 생활':JOBS[k].ic+' '+JOBS[k].name)+'</button>').join('')+'</div>';
+  if(j.id&&treeView===j.id)h+=jobCard();
   if(treeView==='pick'){
     if(L<5)h+='<div class="muted" style="text-align:center;padding:8px">마을 레벨 5부터 직업을 고를 수 있어요 (지금 Lv'+L+')</div>';
     else if(j.id){const left=JOB_CHANGE_DAYS-Math.floor((Date.now()-j.t)/864e5);h+='<div class="muted" style="font-size:12px;margin-bottom:6px">지금 '+JOBS[j.id].name+'. 바꾸려면 '+fmt(JOB_CHANGE_G)+'골드, '+JOB_CHANGE_DAYS+'일에 한 번'+(left>0?' ('+left+'일 남음)':'')+'. 찍었던 포인트는 직업마다 기억해요. 바꾼 뒤 2주 동안은 끝 노드가 꺼져요'+(capLocked()?' (지금 꺼져 있어요)':'')+'.</div>'}
@@ -2953,8 +3065,8 @@ function openTree(view){
     if(job==='com')h+='<div class="muted" style="font-size:12px;margin-bottom:6px">누구나 찍는 편의 노드예요. 직업 특성은 건드리지 않아요.</div>';
     tiers.forEach((tier,ti)=>{
       if(job!=='com')h+='<div class="sec" style="margin-top:6px">'+(ti===2?'끝 노드':(ti+1)+'단계')+(TIER_NEED[ti]?' · 이 직업에 '+TIER_NEED[ti]+'점 찍으면 열려요'+(sp>=TIER_NEED[ti]?' ✓':''):'')+'</div>';
-      tier.forEach(nd=>{const r=rk(job,nd.id),why=canUp(job,nd.id);
-        h+='<div class="nrow'+(r?' on':'')+'"><div style="flex:1;min-width:0"><div>'+esc(nd.n)+' <span class="muted" style="font-size:12px">'+r+'/'+nd.max+(nd.cost?' · '+nd.cost+'점':'')+'</span></div><div class="muted" style="font-size:12px">'+esc(nd.d(Math.max(1,Math.min(nd.max,r+(r<nd.max?1:0)))))+'</div></div>'+
+      tier.forEach(nd=>{const r=rk(job,nd.id),why=canUp(job,nd.id),raw=job==='com'?r:((jS().pts[job]&&jS().pts[job][nd.id])|0);
+        h+='<div class="nrow'+(r?' on':'')+'"><div style="flex:1;min-width:0"><div>'+esc(nd.n)+' <span class="muted" style="font-size:12px">'+raw+'/'+nd.max+(r>raw?' <b style="color:#e07a2c">+1 장인</b>':'')+(nd.cost?' · '+nd.cost+'점':'')+'</span></div><div class="muted" style="font-size:12px">'+esc(nd.d(Math.max(1,Math.min(nd.max,r+(r<nd.max?1:0)))))+'</div></div>'+
           (r>=nd.max?'<span style="color:#2f7a63">✓</span>':'<button class="btn sm" data-jup="'+job+':'+nd.id+'"'+(why?' disabled':'')+'>'+(why||'+1')+'</button>')+'</div>'})});
     if(job==='sch'&&rk('sch','hint'))h+=wxTable();
     if(job==='sch'&&(rk('sch','fc')||rk('sch','cap')))h+=fcHtml();
@@ -2968,7 +3080,7 @@ function fcHtml(){let h='<div class="wishc" style="margin-top:8px"><div class="s
   if(rk('sch','fc'))h+='<div>⭐ 대박 시간: '+fcText('rare')+' (희귀 이상 2배)</div>';
   if(rk('sch','cap'))h+='<div>🌟 전설 시간: '+fcText('leg')+' (전설 미끼 효과 3배)</div>';
   return h+(ONLINE?'<button class="btn pink sm" style="margin-top:8px" data-jfc="1">마을에 알리기</button>':'')+'</div>'}
-function announceFc(){const t=['오늘 대박 시간 '+fcText('rare')];if(rk('sch','cap'))t.push('전설 시간 '+fcText('leg'));Net.send({t:'vil_note',text:t.join(' · ')});toast('마을 모두에게 예보를 알렸어요!');Snd.sfx('page')}
+function announceFc(){const t=['오늘 대박 시간 '+fcText('rare')];if(rk('sch','cap'))t.push('전설 시간 '+fcText('leg'));Net.send({t:'vil_note',text:t.join(' · ')});{const D=jdS();if(!D.fc&&jobId()==='sch'){D.fc=1;jxpAdd(20)}}toast('마을 모두에게 예보를 알렸어요!');Snd.sfx('page')}
 
 /* ----- 공방 창: 아이템 · 만들기 · 잡화점 · 수입품 · 위탁 판매 ----- */
 let craftTab='items',craftPick=null;
@@ -2996,7 +3108,7 @@ function renderCraft(){
   }
   else if(craftTab==='npc'){
     h+='<div class="muted" style="font-size:12px;margin-bottom:8px">빈 직업이 있을 때 쓰는 대체품이에요. 친구에게 받는 게 훨씬 싸요. 핵심 재료와 전설 미끼는 하루 1개씩만 팔아요.</div>';const nd=S.npcd&&S.npcd.d===kstDay()?S.npcd:{};
-    ['flesh','shell','weed','pearl','feather','scale','note','thread','b_dough','b_shine','snack','soup','grill','b_legend'].forEach(k=>{const I=ITEMS[k];
+    ['flesh','shell','weed','pearl','feather','scale','note','thread','b_dough','b_shine','snack','soup','grill','b_legend_n'].forEach(k=>{const I=ITEMS[k];
       h+='<div class="row"><span style="font-size:22px;width:30px;text-align:center">'+I.ic+'</span><div class="nm"><div>'+I.n+' <span class="muted" style="font-size:12px">가진 것 '+itN(k)+'</span></div><div class="muted" style="font-size:12px">'+esc(I.d)+'</div></div><div class="go"><button class="btn sm ghost" data-npc="'+k+'"'+(S.gold<I.npc||nd[k]?' disabled':'')+'>'+(nd[k]?'오늘 삼':fmt(I.npc))+'</button></div></div>'})}
   else if(craftTab==='imp'){const ib=S.imp&&S.imp.d===kstDay()?S.imp:{};
     h+='<div class="muted" style="font-size:12px;margin-bottom:8px">떠돌이 상인만 들여올 수 있는 물건이에요. 종류마다 하루 '+IMP_DAY+'개. 친구에게 골드를 받고 넘겨 줘요.</div>';
@@ -3745,7 +3857,7 @@ function renderShop(){
   }
   body().innerHTML=h;
 }
-function sell(id,n){const q=Math.min(n,S.inv[id]||0);if(q<=0)return 0;const p=sellPrice(FISH[id])*q;S.inv[id]-=q;S.gold+=p;S.stats.sold+=q;S.stats.earned+=p;return p}
+function sell(id,n){const q=Math.min(n,S.inv[id]||0);if(q<=0)return 0;const p=sellPrice(FISH[id])*q;S.inv[id]-=q;S.gold+=p;S.stats.sold+=q;S.stats.earned+=p;jcount('sellg',p);if(jobId()==='mer')jxpAdd(Math.max(1,Math.round(p/400)));return p}
 function upgrade(k){
   const u=GEAR[k].up[S.gear[k]];if(!u)return;
   if(S.gold<gearGold(u.g)||u.m.some(m=>(S.inv[m[0]]||0)<m[1])){Snd.sfx('no');return}
@@ -3810,6 +3922,37 @@ function renderDex(){
 }
 
 /* ----- 설정 ----- */
+/* ----- 운영자 모드: 운영자 계정(서버가 확인)만. 직업 대기 없이 바꾸기 · 공지 · 선물 · 친구 직업 대기 풀기 ----- */
+const isAdmin=()=>ONLINE?!!(Net.me&&Net.me.admin):true;   // 미리보기(혼자)에서는 시험해 볼 수 있게
+const admOn=()=>isAdmin()&&!!S.set.adm;
+const ADM={to:'',k:'tk',n:5};
+function openAdmin(){
+  if(!isAdmin())return;Snd.sfx('ui');const j=jS(),names=ONLINE&&Net.me?ROSTER.map(p=>p.name):['나'];if(!ADM.to||names.indexOf(ADM.to)<0)ADM.to=names[0]||'';
+  const opt=(v,t,cur)=>'<option value="'+esc(v)+'"'+(v===cur?' selected':'')+'>'+esc(t)+'</option>';
+  let h='<div class="pethead" style="background:linear-gradient(#ece8f8,#f8f4ff)"><div style="flex:1"><div style="font-size:17px">🛠️ 운영자 모드 <b>'+(admOn()?'켜짐':'꺼짐')+'</b></div><div class="muted" style="font-size:12px">켜 두면 직업을 대기 · 골드 · 레벨 없이 바로 바꿀 수 있고, 끝 노드 잠금도 없어요.</div></div><button class="btn sm '+(admOn()?'ghost':'pink')+'" data-adm="tog">'+(admOn()?'끄기':'켜기')+'</button></div>';
+  h+='<div class="sec">내 직업 바로 바꾸기</div><div class="warps">'+JOB_IDS.map(id=>'<button data-adm="job" data-v="'+id+'"'+(j.id===id?' disabled':'')+'>'+JOBS[id].ic+' '+JOBS[id].name+'</button>').join('')+'</div>';
+  if(ONLINE&&Net.me){
+    h+='<div class="sec">마을 공지</div><div style="display:flex;gap:6px;margin:4px 0 12px"><input class="tin" id="admNote" maxlength="80" placeholder="모두에게 보낼 말"><button class="btn sm" data-adm="notice">보내기</button></div>';
+    h+='<div class="sec">선물 주기 · 빼기 (서버가 바로 넣어 줘요)</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0">'+
+      '<select class="tin" id="admTo" style="flex:1 1 40%">'+names.map(n=>opt(n,n,ADM.to)).join('')+'</select>'+
+      '<select class="tin" id="admK" style="flex:1 1 40%">'+opt('tk','강화권',ADM.k)+opt('g','골드',ADM.k)+ITEM_IDS.map(k=>opt('i:'+k,ITEMS[k].ic+' '+ITEMS[k].n,ADM.k)).join('')+'</select>'+
+      '<input class="tin" id="admN" type="number" value="'+ADM.n+'" style="flex:1 1 30%" aria-label="개수 (빼려면 마이너스)"><button class="btn sm pink" data-adm="give" style="flex:1 1 30%">보내기</button></div>'+
+      '<div class="muted" style="font-size:12px;margin-bottom:10px">빼려면 -5처럼 마이너스로 적어요. 접속하지 않은 친구도 다음에 들어오면 받아요.</div>';
+    h+='<div class="sec">친구 직업 대기 풀기</div><div class="muted" style="font-size:12px;margin:2px 0 6px">14일 기다리지 않고 바로 직업을 바꿀 수 있게 해 줘요 (끝 노드 2주 잠금도 풀려요)</div>'+
+      '<div class="warps">'+names.map(n=>'<button data-adm="unjob" data-v="'+esc(n)+'">'+esc(n)+'</button>').join('')+'</div>';
+  }else h+='<div class="muted" style="font-size:12px;margin-top:8px">공지 · 선물 · 친구 직업 풀기는 Render 서버에 운영자 계정으로 로그인하면 쓸 수 있어요.</div>';
+  openSheet('운영자 도구',h);
+  ['admTo','admK','admN'].forEach(id=>{const el=$(id);if(el)el.onchange=()=>{ADM.to=$('admTo').value;ADM.k=$('admK').value;ADM.n=+$('admN').value|0}});
+}
+function admClick(t){
+  const a=t.dataset.adm,v=t.dataset.v;if(!a)return false;Snd.sfx('tap');
+  if(a==='tog'){S.set.adm=!S.set.adm;saveState();recalc();openAdmin();return true}
+  if(a==='job'){if(!admOn()){toast('운영자 모드를 먼저 켜 주세요');return true}pickJob(v);return true}
+  if(a==='notice'){const tx=($('admNote').value||'').trim();if(tx)Net.send({t:'adm',op:'notice',text:tx});$('admNote').value='';return true}
+  if(a==='give'){ADM.to=$('admTo').value;ADM.k=$('admK').value;ADM.n=+$('admN').value|0;if(!ADM.n){toast('개수를 적어 주세요');return true}Net.flushSave(true);Net.send({t:'adm',op:'give',to:ADM.to,k:ADM.k,n:ADM.n});return true}
+  if(a==='unjob'){Net.send({t:'adm',op:'unjob',to:v});return true}
+  return true;
+}
 function openSettings(){
   Snd.sfx('ui');
   openSheet('설정','<div style="margin-bottom:10px"><div class="muted">배경음악</div><input type="range" id="sBgm" min="0" max="100" value="'+Math.round(S.set.bgm*100)+'"></div>'+
@@ -3819,11 +3962,13 @@ function openSettings(){
     '<label style="display:flex;gap:10px;align-items:center;margin-bottom:16px;min-height:44px"><input type="checkbox" id="sMute"'+(S.set.mute?' checked':'')+' style="width:22px;height:22px;accent-color:#b9a6ee"> 모든 소리 끄기</label>'+
     '<div class="muted" style="margin-bottom:6px">플레이 기록: 낚시 '+S.stats.casts+'회 · 잡은 물고기 '+S.stats.catches+'마리 · 번 골드 '+fmt(S.stats.earned)+'</div>'+
     (ONLINE&&Net.me?'<div class="muted" style="margin-bottom:6px">'+esc(Net.me.name)+' 님으로 접속 중 · 지금 마을에 '+(others.size+1)+'명</div>':'')+
+    (isAdmin()?'<button class="btn sm" id="sAdm" style="width:100%;margin-top:6px;background:'+(admOn()?'#4a3d6b':'#efe7f7')+';color:'+(admOn()?'#fff':'var(--ink)')+'">🛠️ 운영자 모드 '+(admOn()?'켜짐 · 도구 열기':'켜기')+'</button>':'')+
     '<div style="margin-top:16px"><button class="btn ghost sm" id="sReset">'+(ONLINE?'로그아웃':'저장 데이터 지우기')+'</button></div>');
   $('sBgm').oninput=e=>{S.set.bgm=e.target.value/100;Snd.setVol('bgm',S.set.bgm)};
   $('sSfx').oninput=e=>{S.set.sfx=e.target.value/100;Snd.setVol('sfx',S.set.sfx)};
   $('sSfx').onchange=()=>Snd.sfx('tap');
   $('sMute').onchange=e=>{S.set.mute=e.target.checked;Snd.setMute(S.set.mute)};
+  if($('sAdm'))$('sAdm').onclick=()=>{if(!admOn()){S.set.adm=true;saveState();toast('🛠️ 운영자 모드를 켰어요')}openAdmin()};
   body().querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{S.set.mode=b.dataset.mode;Snd.sfx('tap');saveState();$('sheetwrap').hidden=true;uiOpen=false;openSettings()});
   $('sReset').onclick=function(){
     if(ONLINE){Net.flushSave(true);try{localStorage.removeItem(LOGIN_KEY)}catch(e){}setTimeout(()=>location.reload(),400);return}
@@ -3836,6 +3981,7 @@ function openSettings(){
 $('sheetbody').addEventListener('click',e=>{
   const t=e.target.closest('button');if(!t)return;
   if(craftClick(t))return;
+  if(t.dataset.adm&&admClick(t))return;
   if(boatClick(t))return;
   if(t.dataset.pty&&ptClick(t))return;
   if(t.dataset.pt2){const m=pm();m.pt2=t.dataset.pt2;saveState(true);toast(petName(m.pt2)+'가 두 번째 짝꿍이 됐어요!');openPetSheet(m.pt2);return}
@@ -3851,6 +3997,8 @@ $('sheetbody').addEventListener('click',e=>{
   if(t.dataset.dm){DEXM=t.dataset.dm;dexSel=-1;Snd.sfx('tap');renderDex();return}
   if(t.dataset.pz!==undefined){dexPage=+t.dataset.pz;dexSel=-1;Snd.sfx('tap');renderDex();return}
   if(t.dataset.tr&&onTradeClick(t))return;
+  if(t.dataset.rq&&rqClick(t))return;
+  if(t.dataset.jq){Snd.sfx('tap');if(t.dataset.jq==='rq')openReq();else if(t.dataset.jq==='bless')blessGo();return}
   if(t.dataset.fm){if(wheel.spin)return;forgeMode=t.dataset.fm;Snd.sfx('tap');renderForge();return}
   if(t.dataset.fg==='spin'){spinWheel();return}
   if(t.dataset.pop){const o=others.get(PF.id);if(!o)return;Net.send({t:'pop',id:PF.id,v:+t.dataset.pop});Snd.sfx('tap');return}
@@ -4107,7 +4255,8 @@ const others=new Map(); // id → {name,color,look,x,y,tx,ty,d,m,b,anim,seen,tag
 const ME={tag:null,tagOn:false,bub:null,say:null,emo:null};
 function setTag(a,name,ti,e){
   if(!a.tag)return;const t=COS_BY[ti];
-  a.tag.innerHTML=(t?'<span class="ti">「'+esc(t.name)+'」</span>':'')+esc(name||'')+(e>0?'<span class="en">+'+e+'</span>':'');a.tagOn=!!(name||t||e>0);a.tagH=0;
+  const jb=badgeHtml(a===ME?S.cos.look.j:(a.look&&a.look.j));
+  a.tag.innerHTML=(t?'<span class="ti">「'+esc(t.name)+'」</span>':'')+jb+esc(name||'')+(e>0?'<span class="en">+'+e+'</span>':'');a.tagOn=!!(name||t||e>0||jb);a.tagH=0;
 }
 function showSay(a,text){
   if(a.bub)a.bub.remove();const el=document.createElement('div');el.className='bub';el.textContent=text;$('tags').appendChild(el);
@@ -4147,18 +4296,19 @@ function openTrade(tab){
   if(tab)TR.tab=tab;TR.view='list';TR.pick=null;
   openSheet('교환소','',()=>{if(TR.ses){Net.send({t:'tr_cancel'});TR.ses=null}});
   if(!ONLINE||!Net.me){body().innerHTML='<div style="text-align:center;padding:18px 6px;line-height:1.7"><div style="font-size:17px">교환소는 친구들과 함께 열려요</div><div class="muted" style="margin-top:6px">Render 주소로 접속해 로그인하면<br>게시판에 글을 남기고 친구와 물고기를 바꿀 수 있어요.</div></div>';return}
-  if(TR.tab==='board')loadBoard();renderTrade();
+  if(TR.tab==='board')loadBoard();if(TR.tab==='rq')loadReq();renderTrade();
 }
 function loadBoard(){TR.err='';TR.wait=performance.now();Net.flushSave(true);Net.send({t:'bd_list'});
   setTimeout(()=>{if(TR.wait&&performance.now()-TR.wait>5500){TR.wait=0;TR.err='서버가 대답하지 않아요. 서버(server.js)가 4단계로 업데이트됐는지 확인해 주세요.';if(tradeOpen())renderTrade()}},6000)}
 const tradeOpen=()=>!$('sheetwrap').hidden&&$('sheettitle').textContent==='교환소';
 function renderTrade(){
   if(!tradeOpen())return;
-  let h='<div class="tabs"><button class="tab'+(TR.tab==='board'?' on':'')+'" data-tr="tab" data-v="board">게시판</button><button class="tab'+(TR.tab==='direct'?' on':'')+'" data-tr="tab" data-v="direct">직접 교환</button><button class="tab'+(TR.tab==='fr'?' on':'')+'" data-tr="tab" data-v="fr">친구 물고기</button></div>';
+  let h='<div class="tabs"><button class="tab'+(TR.tab==='board'?' on':'')+'" data-tr="tab" data-v="board">게시판</button><button class="tab'+(TR.tab==='direct'?' on':'')+'" data-tr="tab" data-v="direct">직접 교환</button><button class="tab'+(TR.tab==='fr'?' on':'')+'" data-tr="tab" data-v="fr">친구 물고기</button><button class="tab'+(TR.tab==='rq'?' on':'')+'" data-tr="tab" data-v="rq">📜 의뢰</button></div>';
   if(TR.ipick&&TR.ses)h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="btn ghost sm" data-tr="ipk" data-v="">◀ 돌아가기</button><div class="muted" style="font-size:13px">올릴 아이템</div></div>'+(ITEM_IDS.filter(k=>itN(k)>0).map(k=>'<div class="row"><span style="font-size:22px;width:30px;text-align:center">'+ITEMS[k].ic+'</span><div class="nm">'+ITEMS[k].n+' ×'+itN(k)+'</div><div class="go"><button class="btn sm" data-tr="ipk" data-v="'+k+'">올리기</button></div></div>').join('')||'<div class="muted" style="text-align:center;padding:16px">아이템이 없어요</div>');
   else if(TR.pick)h+=pickHtml();
   else if(TR.tab==='board')h+=TR.view==='write'?writeHtml():boardHtml();
   else if(TR.tab==='fr')h+=frHtml();
+  else if(TR.tab==='rq')h+=reqHtml();
   else h+=directHtml();
   body().innerHTML=h;
   const ni=$('trNote');if(ni)ni.oninput=e=>{TR.draft.note=e.target.value};
@@ -4255,7 +4405,7 @@ function directHtml(){
 function sendOffer(){const s=TR.ses;if(!s)return;s.okMe=false;Net.flushSave(true);Net.send({t:'tr_offer',items:s.mine});renderTrade()}
 function onTradeClick(t){
   const a=t.dataset.tr,v=t.dataset.v,d=TR.draft;Snd.sfx('tap');
-  if(a==='tab'){TR.tab=v;TR.view='list';TR.pick=null;TR.err='';if(v==='board')loadBoard();if(v==='fr')loadFr();renderTrade();return true}
+  if(a==='tab'){TR.tab=v;TR.view='list';TR.pick=null;TR.err='';if(v==='board')loadBoard();if(v==='fr')loadFr();if(v==='rq')loadReq();renderTrade();return true}
   if(a==='frm'){TR.frMiss=!TR.frMiss;renderTrade();return true}
   if(a==='frw'){const id=+v;TR.tab='board';TR.draft={kind:'want',give:-1,gn:1,want:id,wn:1,note:''};TR.view='write';TR.pick={from:'bag',key:'give',zone:placeOf(id)};renderTrade();return true}
   if(a==='write'){TR.draft={kind:'give',give:-1,gn:1,want:-1,wn:1,note:''};TR.view='write';renderTrade();return true}
@@ -4313,7 +4463,7 @@ function applyDelta(d,rev,why){
     if(n>0){const e=S.dex[id]||(S.dex[id]={n:0,best:FISH[id].len});e.n+=n;got.push(FISH[id].name+' ×'+n)}});
   if(Number.isInteger(rev))S.rev=rev;
   const g=grantRewards();recalc();saveState(true);
-  if(why)toast(why+(got.length?' · 받은 것: '+got.join(', '):''));if(why==='교환 완료!')vxp(10);if(craftOpen())renderCraft();
+  if(why)toast(why+(got.length?' · 받은 것: '+got.join(', '):''));if(why==='교환 완료!')vxp(10);if(why==='교환 완료!'||why==='교환소 거래 완료!')jcount('trade');if(craftOpen())renderCraft();
   if(g.length)setTimeout(()=>toast('도감 보상: '+g.join(', ')),2400);
 }
 const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:false,lastPos:'',posT:0,hbT:0,saveT:0,saveQ:false,onLogin:null,
@@ -4336,7 +4486,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
   login(name,code){this.creds={name:name,code:code};if(this.state==='open')this.send({t:'login',name:name,code:code})},
   posKey:'',
   onMsg(m){
-    if(m.t==='login_ok'){const first=!this.me;this.me={id:m.id,name:m.name,color:m.color};
+    if(m.t==='login_ok'){const first=!this.me;this.me={id:m.id,name:m.name,color:m.color,admin:!!m.admin};
       try{localStorage.setItem(LOGIN_KEY,JSON.stringify(this.creds))}catch(e){}
       this.lastPos='';netBanner();if(first&&this.onLogin)this.onLogin(m);else this.flushSave(true);
       this.send({t:'look',look:S.cos.look});refreshMe()}
@@ -4352,6 +4502,14 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     /* 4단계: 교환 · 가방 동기화 */
     else if(m.t==='delta')applyDelta(m.d,m.rev,m.why);
     else if(m.t==='gift')onGift(m);
+    else if(m.t==='adm_ok')toast('🛠️ '+m.text);
+    else if(m.t==='jxp'){jxpAdd(m.n|0,m.why,m.job);if(m.why)toast(m.why)}
+    else if(m.t==='rq_list'){RQ.list=m.list||[];RQ.npc=m.npc||[];RQ.ndone=m.ndone||[];if(tradeOpen()&&TR.tab==='rq')renderTrade()}
+    else if(m.t==='rq_ok'){if(m.solved)jcount('req');toast(m.text);loadReq()}
+    else if(m.t==='rq_err'){toast(m.msg);loadReq()}
+    else if(m.t==='mk'){if(!S.mk||typeof S.mk!=='object')S.mk={};const q=Array.isArray(S.mk[m.item])?S.mk[m.item]:(S.mk[m.item]=[]);for(let i=0;i<(m.n|0||1);i++)q.push(m.by);if(q.length>40)q.splice(0,q.length-40);saveState()}
+    else if(m.t==='bless'){if(m.mine)jdS().bless=1;blessGot(m.by,m.job)}
+    else if(m.t==='job_free'){const j=jS();j.t=0;j.ch=0;recalc();saveState(true);toast('운영자가 직업 바꾸기 대기를 풀어 줬어요. 지금 바로 바꿀 수 있어요!')}
     else if(m.t==='sdex'){S.sdex=m.sdex&&typeof m.sdex==='object'?m.sdex:{};if(dexOpen())renderDex();setTimeout(checkSzRw,0)}
     else if(m.t==='sz_got'){(m.ids||[]).forEach(id=>{if(COS_BY[id]&&!owns(id))S.cos.own.push(id)});if(Array.isArray(m.szrw))S.szrw=m.szrw;if(m.z)szMsg(m.z,m.tk|0,!!m.all,m.ids);recalc();saveState(true);if(dexOpen())renderDex()}
     else if(m.t==='fr_list'){TR.wait=0;TR.fr=m.list||[];if(tradeOpen()&&TR.tab==='fr')renderTrade()}
