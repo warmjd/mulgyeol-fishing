@@ -2283,10 +2283,16 @@ function followStep(a,dt){
   if(ruby&&WK&&WK.ev&&WK.ev.hold){walkHoldStep(a,dt);return}
   if(a.fetch){fetchStep(a,dt);return}
   if(a.greet){greetStep(a,dt);return}
-  const near=ruby?(WK?18:30):44,dx=P.x-a.x,dy=P.y-a.y,d=Math.hypot(dx,dy);
-  if(d>200){a.x=P.x-(ruby?14:-16);a.y=P.y+2}
-  if(d>near+4){const s=Math.min(d-near,(d>80||WK?80:a.p.speed+20)*dt);a.x+=dx/d*s;a.y+=dy/d*s;a.state='walk';a.anim+=dt;a.face=dx<0?-1:1}
-  else{if(a.state==='walk'){a.state='sit';a.t=8+Math.random()*8}if(a.t<0){a.state=a.state==='sit'&&!WK?'sleep':'sit';a.t=10+Math.random()*10}}
+  /* 부드럽게 따라가기: 거리만큼 속도를 서서히 올리고 내려요. 멈춘 지 0.4초가 지나야 앉아서 걷기↔앉기가 깜빡이지 않아요 */
+  const near=ruby?(WK?22:30):44,dx=P.x-a.x,dy=P.y-a.y,d=Math.hypot(dx,dy);
+  if(d>200){a.x=P.x-(ruby?14:-16);a.y=P.y+2;a.sp=0}
+  const cap=WK||d>70?96:Math.max(70,a.p.speed+40),want=d>near?Math.min(cap,(d-near)*4.5+(P.moving?40:0)):0;
+  a.sp=(a.sp||0)+(want-(a.sp||0))*Math.min(1,dt*(want>(a.sp||0)?6:10));
+  if(a.sp>3&&d>near*.7){const s=Math.min(a.sp*dt,Math.max(0,d-near*.7));a.x+=dx/d*s;a.y+=dy/d*s;a.anim+=dt*Math.min(1.4,.5+a.sp/70);a.still=0;
+    if(a.state!=='walk')a.state='walk';if(Math.abs(dx)>4)a.face=dx<0?-1:1}
+  else{a.still=(a.still||0)+dt;
+    if(a.state==='walk'&&a.still>.4){a.state='sit';a.t=8+Math.random()*8}
+    else if(a.state!=='walk'&&a.t<0){a.state=a.state==='sit'&&!WK?'sleep':'sit';a.t=10+Math.random()*10}}
   if(ruby&&!WK)maybeGreet(a,dt);
 }
 /* 루비는 다른 친구에게도 꼬리를 흔들어요 — 모두의 강아지라는 걸 자연스럽게 */
