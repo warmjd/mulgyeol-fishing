@@ -229,6 +229,14 @@ function enhRoll(e, mode, gold) {
 const LIFE_RULE = { spark: { cd: 100, ch: 1, n: 1 }, tree: { cd: 1800, ch: .5, n: 1, per: true }, pet: { cd: 600, ch: .4, n: 1, per: true }, litter: { cd: 7000, ch: 1, n: 2 }, sit: { cd: 840, ch: 1, n: 1 } };
 const DROP_MS = 10 * 60e3; let dropSeq = 0;   // 떨어진 반짝 조각은 10분 안에 주워요
 const PET_IDS = ['ruby', 'dot', 'nurung', 'kkam', 'churi'];
+/* ---------- 동물 친구: 산책 · 냄새 소원 · 선물 보상 (index.html의 petReward와 같은 규칙 — 골드 · 강화권은 서버가 줘요) ---------- */
+const PLV_CUM = [0, 0]; for (let L = 1; L < 99; L++) PLV_CUM[L + 1] = PLV_CUM[L] + Math.round(1.3 * Math.pow(L, 1.95)) + 20;
+const petLvOf = xp => { let L = 1; while (L < 99 && xp >= PLV_CUM[L + 1]) L++; return L; };
+const petXp = st => !st || typeof st !== 'object' ? 0 : (Number.isFinite(st.xp) ? Math.max(0, st.xp) : Math.max(0, (st.a | 0) * 30));
+const fetchMax = L => L >= 70 ? 3 : L >= 30 ? 2 : L >= 20 ? 1 : 0;
+const WISH_RW = [{ tk: 1, g: 200 }, { tk: 2, g: 500 }, { tk: 3, g: 1200 }, { tk: 4, g: 3000 }, { tk: 5, g: 8000 }];
+const fishZone = id => id < 100 ? Math.floor(id / 20) + 1 : Math.floor((id - 100) / 20) + 1;
+function petRwOf(save) { const d = kstDay(); let r = save.petrw; if (!r || typeof r !== 'object' || r.d !== d) r = save.petrw = { d, walk: 0, wish: 0, fetch: 0 }; return r; }
 const popOf = s => Object.assign({ n: 0, up: 0, dn: 0 }, s && s.pop && typeof s.pop === 'object' ? s.pop : {});
 const lifeCd = new Map();     // key -> {src[:id]: 시각}
 const rankCache = new Map();  // key -> {name, lv, max}
@@ -356,6 +364,7 @@ wss.on('connection', (ws) => {
         m.data.enh = me.save ? me.save.enh : enhDefault();
         m.data.pop = me.save && me.save.pop ? me.save.pop : { n: 0, up: 0, dn: 0 };   // 인기도도 서버 것만 믿어요
         m.data.popGv = me.save && me.save.popGv ? me.save.popGv : {};
+        m.data.petrw = me.save && me.save.petrw ? me.save.petrw : null;   // 동물 친구 보상 받은 기록도 서버 것만
         const e = enhOf(m.data), out = [];
         enhDaily(e, out);
         if (!first) { let pts = 0; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) pts += dn * ENH.PTS[fishRar(+k)]; } if (pts) enhAddPoints(e, pts, out); }
@@ -527,11 +536,42 @@ function onMsg(ws, me, m) {
       const e = enhOf(me.save), out = []; enhDaily(e, out); enhAddPiece(e, d.n, out);
       queueSave(me.key, me.save); sendEnh(ws, me, { note: out });
     }); break;
+    /* ----- 동물 친구 보상: 산책 · 냄새 소원은 하루 한 번, 선물은 짝꿍 레벨만큼 ----- */
+    case 'pet_rw': withLock(me.key, () => {
+      const s = me.save; if (!s) return;
+      const rw = petRwOf(s), e = enhOf(s), out = []; enhDaily(e, out);
+      let g = 0, tk = 0, label = '';
+      if (m.kind === 'walk') {
+        if (rw.walk) return send(ws, { t: 'news', text: '오늘 산책 보상은 이미 받았어요' });
+        rw.walk = 1; g = 300; tk = 1; label = '산책 보상';
+      } else if (m.kind === 'wish') {
+        if (rw.wish) return send(ws, { t: 'news', text: '오늘 냄새 소원 보상은 이미 받았어요' });
+        const id = m.id, dex = s.dex || {}, hasD = k => !!(dex[k] && dex[k].n > 0);
+        if (!Number.isInteger(id) || id < 0 || id >= FISH_N || zonesOf(s).indexOf(fishZone(id)) < 0) return;
+        const full = !!m.full;
+        if (full && !hasD(id)) return send(ws, { t: 'news', text: '도감에 없는 물고기예요' });
+        if (!full && !Object.keys(dex).some(k => +k < FISH_N && +k !== id && fishZone(+k) === fishZone(id) && hasD(k))) return send(ws, { t: 'news', text: '같은 낚시터 물고기가 도감에 없어요' });
+        rw.wish = 1; const w = WISH_RW[fishRar(id)]; g = full ? w.g : Math.round(w.g / 2); tk = full ? w.tk : Math.floor(w.tk / 2); label = '냄새 소원 보상';
+      } else if (m.kind === 'fetch') {
+        const sp = s.pets && typeof s.pets === 'object' ? s.pets : {}, pt = sp._ && PET_IDS.includes(sp._.pt) ? sp._.pt : 'ruby', L = petLvOf(petXp(sp[pt]));
+        if (rw.fetch >= fetchMax(L)) return;
+        rw.fetch++; const tkP = (L >= 70 ? .12 : .06) * (pt === 'ruby' ? 1.5 : 1);
+        if (Math.random() < tkP * 2) tk = 1; else g = 150 + L * 15;
+        label = '선물 주머니';
+      } else return;
+      if (tk) e.tk = Math.min(ENH.TK_MAX, e.tk + tk);
+      const extra = { note: out.concat([label + ': ' + [g ? '골드 +' + g : '', tk ? '강화권 +' + tk : ''].filter(Boolean).join(' · ')]) };
+      if (g) { s.gold = (Number(s.gold) || 0) + g; s.rev = (s.rev | 0) + 1; extra.dgold = g; extra.rev = s.rev; }
+      queueSave(me.key, s); sendEnh(ws, me, extra);
+    }).catch(e => console.error('pet_rw', e.message)); break;
     /* ----- 스테이터스 창 · 인기도 ----- */
     case 'prof': {
       const l = liveById(m.id); if (!l) return;
       const o = l[1], s = o.save || {}, dex = s.dex || {};
-      const pets = {}; if (s.pets && typeof s.pets === 'object') for (const k in s.pets) if (PET_IDS.includes(k)) pets[k] = { a: Math.max(0, Math.min(100, s.pets[k] && s.pets[k].a | 0)) };
+      const pets = {}, sp = s.pets && typeof s.pets === 'object' ? s.pets : {};
+      for (const k of PET_IDS) { const st = sp[k]; if (!st || typeof st !== 'object') continue;
+        pets[k] = { a: Math.max(0, Math.min(100, st.a | 0)), xp: Math.floor(petXp(st)), h: Math.max(0, Math.min(100, st.h | 0)), hd: typeof st.hd === 'string' ? st.hd.slice(0, 10) : '' }; }
+      if (sp._ && PET_IDS.includes(sp._.pt)) pets._ = { pt: sp._.pt };
       send(ws, { t: 'prof', id: o.id, name: o.name, ti: o.look.ti, e: o.look.e, max: s.enh ? s.enh.max | 0 : 0,
         pop: popOf(s), pets, catches: s.stats ? s.stats.catches | 0 : 0, dex: Object.keys(dex).filter(k => dex[k] && dex[k].n > 0).length });
       break;
