@@ -1597,12 +1597,16 @@ PAGE_IDS.forEach((ids,p)=>ids.forEach(id=>FISH[id].page=p));
 
 /* ---------- 낚싯대 강화 룰렛: 규칙 (server.js에도 똑같이 있어요) ----------
    +0 → +20. 강화권 1장으로 돌려요.
-   안전 강화: 강화권 + 골드. 실패할수록 '장인의 손맛'이 쌓여 100%가 되면 다음 안전 강화는 무조건 성공. 파괴 없음
-   한방 강화: 강화권만. 성공 확률 70%로 낮지만 가끔 +2 대성공. 대신 +5부터 파괴(→ +0) 위험
-   → 꾸준히 낚시해 골드를 모아 안전하게 가는 쪽이 장기적으로 확실히 유리하게 맞췄어요 */
+   안전 강화: 강화권 + 골드. 절대 안 떨어지고, 실패할 때마다 '장인의 손맛'이 차서 PN번이면 무조건 성공
+   한방 강화: 강화권만. 성공 확률 3배 · 가끔 +2 대성공. 손맛은 안 쌓이고 +5부터 가끔 하락 · 아주 가끔 파괴(-3)
+   → 낮은 단계는 한방이 빠르고, +10부터는 안전이 확실하게 맞췄어요 */
 const ENH={
   MAX:20,
-  P:[.9,.75,.6,.5,.4,.32,.25,.2,.15,.12,.08,.06,.05,.04,.03,.025,.02,.015,.01,.005],
+  /* 밸런스 (2026-11-03): 단계마다 강화권 몇 장이 드는지로 맞췄어요. 안전 강화는 떨어지지 않고, 실패하면 장인의 손맛이 차서 PN번이면 확정.
+     하루 20장 기준 +6 약 5일 · +10 약 4주 · +15 약 3달 · +20 약 8달 (server.js ENH와 같아야 해요) */
+  P:[.7208,.4806,.1442,.0541,.0288,.0192,.0133,.0102,.0067,.0051,.0043,.0035,.0029,.0026,.0023,.0017,.0016,.0014,.0013,.0012],
+  PN:[2,4,12,32,60,90,130,170,260,340,400,500,600,660,740,1000,1100,1200,1300,1400],   // 확정까지 실패 횟수
+  G:3,   // 한방 강화 성공 = 안전 확률 × 3 (최대 90%)
   cost:L=>Math.round(20*Math.pow(1.4,L)/10)*10||10,
   DAILY:3, FISH_CAP:15, FISH_PER:40, IDLE_MIN:30, IDLE_CAP:6, PIECE_CAP:20, PIECE_PER:5, TK_MAX:99,   // server.js ENH와 같아야 해요
   PTS:[1,2,5,15,40]
@@ -1610,18 +1614,16 @@ const ENH={
 /* 이번 강화의 돌림판 칸 (확률 합 1) */
 function enhSlices(L,mode){
   const p=ENH.P[L]||0,s=[];
-  if(mode==='safe'){
-    s.push({k:'up',p:p});const f=1-p;
-    if(L>=10){s.push({k:'keep',p:f*.6},{k:'down',p:f*.4})}else if(L>=5){s.push({k:'keep',p:f*.7},{k:'down',p:f*.3})}else s.push({k:'keep',p:f});
-  }else{
-    s.push({k:'jack',p:p*.105},{k:'up',p:p*.595});const f=1-p*.7;
-    if(L>=10)s.push({k:'keep',p:f*.5},{k:'down',p:f*.3},{k:'break',p:f*.2});
-    else if(L>=5)s.push({k:'keep',p:f*.67},{k:'down',p:f*.25},{k:'break',p:f*.08});
-    else s.push({k:'keep',p:f});
-  }
+  if(mode==='safe'){s.push({k:'up',p:p},{k:'keep',p:1-p})}   // 안전: 떨어지지 않아요
+  else{const g=Math.min(.9,p*ENH.G),f=1-g;s.push({k:'jack',p:g*.15},{k:'up',p:g*.85});
+    if(L>=10)s.push({k:'keep',p:f*.92},{k:'down',p:f*.06},{k:'break',p:f*.02});
+    else if(L>=5)s.push({k:'keep',p:f*.95},{k:'down',p:f*.04},{k:'break',p:f*.01});
+    else s.push({k:'keep',p:f})}
   return s;
 }
-const ENH_NAME={up:'성공 +1',jack:'대성공 +2',keep:'유지',down:'하락 -1',break:'파괴 → +0'};
+const ENH_NAME={up:'성공 +1',jack:'대성공 +2',keep:'유지',down:'하락 -1',break:'파괴 -3'};
+const pityStep=L=>100/(ENH.PN[L]||1);
+const pityLeft=e=>e.pity>=100?0:Math.ceil((100-e.pity)/pityStep(e.lv)-1e-9);
 const enhDefault=()=>({lv:0,max:0,tk:0,pity:0,day:'',fp:0,ft:0,it:0,idle:0,pc:0,pcd:0,lit:0,st:0});
 const streakBonus=st=>st>=7?2:st>=3?1:0;   // 연속 출석: 3일째부터 +1, 7일째부터 +2
 /* 낚싯대 강화 효과: 단계마다 조절 바 · 당기는 힘 +3%, 행운 +1.5%, 입질 1% 빨라짐. +10부터 걷는 속도 두 배 */
@@ -2032,8 +2034,8 @@ function recalc(){
   const b={bite:0,sell:0,bar:0,luck:0,reel:0};
   for(let p=0;p<MAIN_PAGES;p++){const k=PASSIVE_OF[p].k;b[k]+=pageTierBonus(p);if(pageDone(p))b[k]+=PAGE_BONUS}
   const en=enhFx(S.enh?S.enh.lv:0); // 낚싯대 강화: 바 · 힘 +3% · 행운 +1.5% · 입질 -1% (단계마다)
-  ST={b:b,bar:gearEff.rod(S.gear.rod)*(1+b.bar)*en.bar,wait:gearEff.bob(S.gear.bob)*(1-b.bite)*en.wait,luck:gearEff.lure(S.gear.lure)*(1+b.luck)*en.luck,
-      reel:gearEff.reel(S.gear.reel)*(1+b.reel)*en.reel,sell:1+b.sell};
+  ST={b:b,bar:gearEff.rod(gl('rod'))*(1+b.bar)*en.bar,wait:gearEff.bob(gl('bob'))*(1-b.bite)*en.wait,luck:gearEff.lure(gl('lure'))*(1+b.luck)*en.luck,
+      reel:gearEff.reel(gl('reel'))*(1+b.reel)*en.reel,sell:1+b.sell};
   jobMods();jobBadge();
 }
 const POOL={};FISH.forEach(f=>{if(f.id>=MAIN_N&&!f.isl&&!f.pty&&!f.mk)return;const k=f.zone+'-'+f.rar;(POOL[k]=POOL[k]||[]).push(f)});
@@ -2259,7 +2261,7 @@ function stepReel(dt){
   if(r.prog>=100){F.mode='pull';F.t=0;F.from=bobberPos();showReel(false);Snd.setIntense(false);Snd.sfx('splash')}
   else if(r.prog<=0&&S.enh.lv>=15&&F.fish.rar>=4&&!r.second){r.second=1;r.prog=35;Snd.sfx('page');const b=bobberPos();sparkFx(b[0],b[1],20,['#ffe27a','#ffffff']);toast('✨ +15 낚싯대가 버텼어요! 한 번 더!')}
   else if(r.prog<=0&&r.gap){F.mode='idle';showReel(false);Snd.setIntense(false);Snd.sfx('escape');toast('앗, 놓쳤어요… 「'+zoneNm(F.zone)+'」 권장 강화 +'+REC_ENH[F.zone]+' (지금 +'+S.enh.lv+')');inp.hold=false}
-  else if(r.prog<=0){F.mode='idle';showReel(false);Snd.setIntense(false);Snd.sfx('escape');toast(F.fish.rar>=3&&(S.gear.rod<5||S.gear.reel<5)?'앗, 놓쳤어요… 낚싯대 · 릴을 강화하면 큰 물고기도 버텨요':'앗, 놓쳤어요…');inp.hold=false}
+  else if(r.prog<=0){F.mode='idle';showReel(false);Snd.setIntense(false);Snd.sfx('escape');toast(F.fish.rar>=3&&(gl('rod')<5||gl('reel')<5)?(onIsle()?'앗, 놓쳤어요… 섬 장비(물결호 · 안개 섬 메뉴)를 올리면 버텨요':'앗, 놓쳤어요… 낚싯대 · 릴을 강화하면 큰 물고기도 버텨요'):'앗, 놓쳤어요…');inp.hold=false}
   updateReelUI(inBar);
 }
 function finishCatch(){
@@ -2278,9 +2280,9 @@ function finishCatch(){
   Snd.sfx('catch',f.rar);if(F.pageUp>=0||F.masterUp)setTimeout(()=>Snd.sfx('page'),900);
   if(f.rar>=3&&navigator.vibrate)try{navigator.vibrate([40,40,80])}catch(e){}
   // 직접 낚은 물고기는 언제나 카드로 보여 줘요 (이미 아는 물고기도). 버튼 한 번이면 닫고 바로 다시 던져요
-  F.double=false;if(f.mk)mkS().n++;ptCatch(f);jobCatch(f);
+  F.double=false;if(f.mk)mkS().n++;ptCatch(f);jobCatch(f);shardDrop(f);
   vxp(([3,5,12,30,80][f.rar]+(f.isl?6:0))*(pathed(f.zone)?1.3:1)+(F.isNew?20+25*rk('sch','dexrw'):0)+(had&&F.len>oldBest?15*rk('sch','size'):0));if(F.isNew&&rk('sch','dexrw'))addXp(partnerId(),20*rk('sch','dexrw'));
-  if(!F.isNew&&f.rar<=(rk('fish','dbl')?2:1)&&Math.random()<(gearEff.bob2(S.gear.bob)+.05*rk('fish','dbl'))*(S.enh.lv>=5?2:1)){S.inv[id]++;e.n++;sdAdd(id,1);S.stats.catches++;F.double=true;enhOnCatch(id,1);recalc()}
+  if(!F.isNew&&f.rar<=(rk('fish','dbl')?2:1)&&Math.random()<(gearEff.bob2(gl('bob'))+.05*rk('fish','dbl'))*(S.enh.lv>=5?2:1)){S.inv[id]++;e.n++;sdAdd(id,1);S.stats.catches++;F.double=true;enhOnCatch(id,1);recalc()}
   F.mode='result';showResult();giftLocal(f);
   saveState();
 }
@@ -2313,7 +2315,7 @@ function giftLocal(f){
   if(r<.04){const pool=GIFT_COS.filter(id=>!owns(id));if(pool.length){const id=pool[(Math.random()*pool.length)|0];S.cos.own.push(id);cos.push(id);giftShow([z],d,note,cos);return}}
   if(r<.12){e.tk=Math.min(ENH.TK_MAX,e.tk+1);note.push('강화권 +1')}
   else if(r<.45){e.pc+=2;note.push('반짝 조각 +2');while(e.pc>=ENH.PIECE_PER){e.pc-=ENH.PIECE_PER;e.tk=Math.min(ENH.TK_MAX,e.tk+1);note.push('조각으로 강화권 +1')}}
-  else{const m=Math.random()<.06?[['pearl',1],['feather',1],['scale',1]][(Math.random()*3)|0]:[['flesh',4],['shell',2],['weed',2]][(Math.random()*3)|0];itAdd(m[0],m[1]);d['i:'+m[0]]=m[1]}
+  else{const m=z===6?['shard',2]:Math.random()<.06?[['pearl',1],['feather',1],['scale',1]][(Math.random()*3)|0]:[['flesh',4],['shell',2],['weed',2]][(Math.random()*3)|0];itAdd(m[0],m[1]);d['i:'+m[0]]=m[1]}
   updateTrapDot();giftShow([z],d,note,cos);
 }
 /* 걸어두기: 켜 두기만 해도 3분마다 흔함 · 보통이 걸려요 (하루 30마리). 희귀 이상은 직접 낚아야 해요 */
@@ -2956,6 +2958,7 @@ const ITEMS={
  map:{n:'항로 지도',ic:'🗺️',d:'먼바다 너머 섬으로 가는 길 (도감 박사)',npc:40000},
  b_dough:{n:'반죽 미끼',ic:'🪱',d:'한 번 던질 때 희귀 이상 1.3배',npc:150,bait:{rare:1.3}},
  b_shine:{n:'반짝 미끼',ic:'✨',d:'한 번 던질 때 희귀 이상 1.8배',npc:1500,bait:{rare:1.8}},
+ shard:{n:'안개 조각',ic:'🔹',d:'안개 섬에서만 나와요 · 섬 장비와 등불 재료 · 주고받을 수 없어요',npc:0},
  b_legend_n:{n:'잡화점 전설 미끼',ic:'⭐',d:'장인이 만든 것보다 전설이 절반만 걸려요 (잡화점)',npc:150000,bait:{rare:1.2,leg:7}},
  b_legend:{n:'전설 미끼',ic:'🌟',d:'이 미끼를 써야만 전설이 걸려요',npc:150000,bait:{rare:1.5,leg:15}},
  soup:{n:'생선 수프',ic:'🍲',d:'먹으면 희귀 확률 +10%',npc:900,buff:true},
@@ -3185,7 +3188,26 @@ const TIDE_NAME={high:'밀물',low:'썰물'};
 const onIsle=()=>P&&P.y>=60*TS;
 /* 방수 등불: 섬 전용 장비. 섬 물고기 재료로만 강화돼서 옛 낚시터에는 영향이 없어요 */
 const LAMP={names:['등불 없음','반딧불 등불','유리 등불','은빛 등불','등대 등불','달빛 등대'],g:[3000,8000,20000,50000,120000],
-  m:[[['안개멸치',10]],[['섬우럭',10],['밀물전갱이',5]],[['안개날치',8],['산호농어',5]],[['안개해마',3],['썰물가오리',2]],[['등대고래상어',1]]],it:[{},{},{},{},{pearl:3}]};
+  m:[[['안개멸치',10]],[['섬우럭',10],['밀물전갱이',5]],[['안개날치',8],['산호농어',5]],[['안개해마',3],['썰물가오리',2]],[['등대고래상어',1]]],it:[{shard:2},{shard:5},{shard:10},{shard:15},{pearl:3,shard:25}]};
+/* 섬 장비: 섬에서는 마을 장비 대신 섬 장비를 써요. 모두 1단계에서 같이 시작하고, 안개 조각(섬에서만 · 하루 상한 · 못 주고받음)으로만 올라가요 */
+const ISLE_GEAR_KEYS=['rod','bob','lure','reel'];
+const IG_NAMES={rod:['갯바위 낚싯대','소금바람 낚싯대','산호 낚싯대','등대 낚싯대','안개왕 낚싯대'],bob:['조개 찌','물방울 찌','진주 찌','등대 찌','안개왕 찌'],lure:['해초 미끼','반짝 비늘 루어','산호 루어','등대 루어','안개왕 루어'],reel:['통나무 릴','소금 릴','산호 릴','등대 릴','안개왕 릴']};
+const IG_UP={shard:[3,8,15,25],g:[5000,20000,60000,150000],
+  m:{rod:[[['섬우럭',6]],[['산호농어',4]],[['안개해마',2]],[['등대고래상어',1],['썰물가오리',2]]],
+     bob:[[['안개멸치',6]],[['물방울복어',4]],[['무지개노랑촉수',2]],[['등대고래상어',1],['안개해마',2]]],
+     lure:[[['해무볼락',6]],[['섬쏠배감펭',4]],[['바다거북복',2]],[['등대고래상어',1],['무지개노랑촉수',2]]],
+     reel:[[['밀물전갱이',6]],[['은빛장어',4]],[['썰물가오리',2]],[['등대고래상어',1],['바다거북복',2]]]}};
+const igS=()=>{S.nav=S.nav||{};if(!S.nav.g||typeof S.nav.g!=='object')S.nav.g={};return S.nav.g};
+const igLv=k=>Math.max(1,Math.min(5,igS()[k]|0||1));
+const gl=k=>(typeof onIsle==='function'&&onIsle())?igLv(k):S.gear[k];   // 지금 쓰는 장비 단계 (섬이면 섬 장비)
+function upIsleGear(k){const L=igLv(k);if(L>=5)return;const g=gearGold(IG_UP.g[L-1]),sh=IG_UP.shard[L-1],ms=IG_UP.m[k][L-1].map(x=>[fid(x[0]),x[1]]);
+  if(S.gold<g||itN('shard')<sh||ms.some(x=>(S.inv[x[0]]|0)<x[1])){toast('재료나 골드가 모자라요');Snd.sfx('no');return}
+  S.gold-=g;itAdd('shard',-sh);ms.forEach(x=>S.inv[x[0]]-=x[1]);igS()[k]=L+1;recalc();saveState(true);Snd.sfx('buy');toast('🏝️ '+IG_NAMES[k][L]+' 완성! (섬에서만 써요)');openBoat()}
+/* 안개 조각: 섬 물고기를 직접 낚으면 가끔 (희귀할수록 잘). 하루 12개까지 */
+const SHARD_DAY=12;
+function shardDrop(f){if(!f.isl)return;const d=kstDay();if(!S.shd||S.shd.d!==d)S.shd={d:d,n:0};if(S.shd.n>=SHARD_DAY)return;
+  const n=Math.random()<[.15,.25,.6,1,1][f.rar]?(f.rar>=4?3:1):0;if(!n)return;const k=Math.min(n,SHARD_DAY-S.shd.n);S.shd.n+=k;itAdd('shard',k);
+  setTimeout(()=>toast('🔹 안개 조각 +'+k+' (오늘 '+S.shd.n+'/'+SHARD_DAY+')'),1400)}
 const lampLv=()=>(S.nav&&S.nav.lamp)|0;
 function upLamp(){const L=lampLv();if(L>=5)return;const g=gearGold(LAMP.g[L]),ms=LAMP.m[L].map(x=>[fid(x[0]),x[1]]),it=LAMP.it[L];
   if(S.gold<g||ms.some(x=>(S.inv[x[0]]|0)<x[1])||Object.keys(it).some(k=>itN(k)<it[k])){toast('재료나 골드가 모자라요');Snd.sfx('no');return}
@@ -3198,8 +3220,8 @@ function boardBoat(toIsle){
   if(toIsle&&!boatReady()){openBoat();return}
   if(toIsle&&!hasZone(6)){S.zones.push(6);S.zones.sort();toast('처음 오는 안개 섬! 6번 낚시터가 열렸어요')}
   const p=toIsle?ISLE_DOCK:HOME_DOCK;if(F.afk)stopAfk();if(WK)stopWalk('배를 타서 산책을 마쳤어요');
-  P.x=p[0];P.y=p[1];P.dir=toIsle?'down':'up';camX=P.x-VW/2;camY=P.y-VH/2;Snd.sfx('gate');sparkFx(P.x,P.y-10,16,['#ffffff','#a9d8f2','#e8f0ff']);saveState(true);
-  if(toIsle)setTimeout(()=>toast('지금은 '+TIDE_NAME[tideNow()]+' · '+WX_NAME[weatherNow()]+(lampLv()?'':' · 방수 등불이 있으면 안개 물고기가 보여요')),900);
+  P.x=p[0];P.y=p[1];P.dir=toIsle?'down':'up';camX=P.x-VW/2;camY=P.y-VH/2;Snd.sfx('gate');sparkFx(P.x,P.y-10,16,['#ffffff','#a9d8f2','#e8f0ff']);recalc();saveState(true);
+  if(toIsle)setTimeout(()=>toast('지금은 '+TIDE_NAME[tideNow()]+' · '+WX_NAME[weatherNow()]+(lampLv()?'':' · 방수 등불이 있으면 안개 물고기가 보여요')+' · 섬에서는 섬 장비를 써요 (낚싯대 '+igLv('rod')+'단계)'),900);
 }
 /* 마을 기부함: 서로 다른 친구 4명 이상이 기부해야 완성. 마지막 조립은 공방 장인 (바꾼 지 2주 지난) */
 const BOAT_NEED=Object.assign({},BOAT_REC,{g:BOAT_G}),DONORS_NEED=4,DON_MIN_G=1000;
@@ -3239,12 +3261,19 @@ function openBoat(){
   h+='<div class="sec" style="margin-top:8px">항해 장비 · 방수 등불</div><div class="gear"><h3>'+LAMP.names[L]+(L?' <span class="lv">'+'<i class="on"></i>'.repeat(L)+'<i></i>'.repeat(5-L)+'</span>':'')+'</h3><div class="muted" style="font-size:12px">'+(L?'섬에서 행운 +'+L*8+'% · 안개 물고기가 보여요':'등불이 있어야 안개 낀 날의 섬 물고기가 걸려요')+'</div>';
   if(L<5){const ms=LAMP.m[L],it=LAMP.it[L],g=gearGold(LAMP.g[L]);h+='<div class="mats">'+ms.map(x=>{const id=fid(x[0]),n=S.inv[id]|0;return'<span class="mat '+(n>=x[1]?'ok':'no')+'"><img src="'+fishURL(id)+'" alt="">'+esc(x[0])+' '+n+'/'+x[1]+'</span>'}).join('')+
     Object.keys(it).map(k=>'<span class="mat '+(itN(k)>=it[k]?'ok':'no')+'">'+ITEMS[k].ic+' '+itN(k)+'/'+it[k]+'</span>').join('')+'<span class="mat '+(S.gold>=g?'ok':'no')+'">🪙 '+fmt(g)+'</span></div><button class="btn sm" data-bt2="lamp">'+LAMP.names[L+1]+'(으)로</button>'}
-  h+='</div><div class="muted" style="font-size:12px">섬 물고기 20종 · 밀물 · 썰물은 실제 시계로 20분마다 바뀌어요 (지금 '+TIDE_NAME[tideNow()]+')</div>';
+  h+='</div>';
+  h+='<div class="sec" style="margin-top:8px">🏝️ 섬 장비 <span class="muted" style="font-size:12px">· 섬에서는 마을 장비 대신 이걸 써요. 모두 1단계부터</span></div>';
+  h+='<div class="muted" style="font-size:12px;margin-bottom:4px">🔹 안개 조각 '+itN('shard')+'개 · 섬 물고기를 직접 낚으면 가끔 (희귀할수록 잘) · 오늘 '+((S.shd&&S.shd.d===kstDay()?S.shd.n:0))+'/'+SHARD_DAY+' · 주고받을 수 없어요</div>';
+  ISLE_GEAR_KEYS.forEach(k=>{const L=igLv(k);h+='<div class="gear"><h3>'+IG_NAMES[k][L-1]+' <span class="lv">'+'<i class="on"></i>'.repeat(L)+'<i></i>'.repeat(5-L)+'</span></h3><div class="muted" style="font-size:12px">'+GEAR[k].eff+' (섬에서만)</div>';
+    if(L<5){const ms=IG_UP.m[k][L-1],sh=IG_UP.shard[L-1],g=gearGold(IG_UP.g[L-1]);h+='<div class="mats">'+ms.map(x=>{const id=fid(x[0]),n=S.inv[id]|0;return'<span class="mat '+(n>=x[1]?'ok':'no')+'"><img src="'+fishURL(id)+'" alt="">'+esc(x[0])+' '+n+'/'+x[1]+'</span>'}).join('')+
+      '<span class="mat '+(itN('shard')>=sh?'ok':'no')+'">🔹 '+itN('shard')+'/'+sh+'</span><span class="mat '+(S.gold>=g?'ok':'no')+'">🪙 '+fmt(g)+'</span></div><button class="btn sm" data-bt2="ig:'+k+'">'+IG_NAMES[k][L]+'(으)로</button>'}
+    else h+='<div class="muted" style="font-size:12px">최고 단계!</div>';h+='</div>'});
+  h+='<div class="muted" style="font-size:12px">섬 물고기 20종 · 밀물 · 썰물은 실제 시계로 20분마다 바뀌어요 (지금 '+TIDE_NAME[tideNow()]+') · 권장 강화 +'+REC_ENH[6]+'</div>';
   if(VPATHS.length)h+='<div class="muted" style="font-size:12px;margin-top:6px">길이 난 곳 (누군가 전설을 잡은 낚시터): '+VPATHS.map(ZN).join(', ')+' · 아직 그 전설을 못 잡았다면 거기서 경험치 · 행운이 조금 더</div>';
   openSheet('물결호 · 안개 섬',h);
 }
 function boatClick(t){if(t.dataset.don){const i=t.dataset.don.lastIndexOf(':');donate(t.dataset.don.slice(0,i),+t.dataset.don.slice(i+1));return true}const v=t.dataset.bt2;if(!v)return false;
-  if(v==='go'){closeSheet();boardBoat(true)}else if(v==='home'){closeSheet();boardBoat(false)}else if(v==='build')buildBoat();else if(v==='lamp')upLamp();
+  if(v==='go'){closeSheet();boardBoat(true)}else if(v==='home'){closeSheet();boardBoat(false)}else if(v==='build')buildBoat();else if(v==='lamp')upLamp();else if(v.indexOf('ig:')===0)upIsleGear(v.slice(3));
   return true}
 
 /* ---- 탐나는 옷 · 정복 · 시장 · 배낚시 ---- */
@@ -4077,7 +4106,7 @@ function enhRoll(e,mode,gold){
   const from=L;
   if(k==='up'){e.lv++;if(mode==='safe')e.pity=0}
   else if(k==='jack')e.lv=Math.min(ENH.MAX,L+2);
-  else{if(mode==='safe')e.pity=Math.min(100,e.pity+ENH.P[L]*50);if(k==='down')e.lv=Math.max(0,L-1);if(k==='break')e.lv=0}
+  else{if(mode==='safe')e.pity=Math.min(100,e.pity+pityStep(L));if(k==='down')e.lv=Math.max(0,L-1);if(k==='break')e.lv=Math.max(0,L-3)}
   e.max=Math.max(e.max,e.lv);
   return{k:k,from:from,to:e.lv,cost:cost,mode:mode};
 }
@@ -4153,12 +4182,12 @@ function renderForge(){
     '<div style="margin-top:4px;font-size:15px">강화권 <b>'+e.tk+'</b>장 · 골드 <b>'+fmt(S.gold)+'</b></div></div>';
   h+='<div class="tabs"><button class="tab'+(forgeMode==='safe'?' on':'')+'" data-fm="safe">안전 강화</button><button class="tab'+(forgeMode==='gamble'?' on':'')+'" data-fm="gamble">한방 강화</button></div>';
   h+='<div class="muted" style="font-size:12px;text-align:center">'+(forgeMode==='safe'
-    ?'강화권 1장 + '+fmt(cost)+'골드 · 파괴 없음 · 실패하면 장인의 손맛이 쌓여요'
-    :'강화권 1장만 · 대성공이면 +2! · '+(L>=5?'<b style="color:#c0506a">실패하면 파괴(→ +0)될 수 있어요</b>':'+5부터는 파괴 위험이 생겨요'))+'</div>';
+    ?'강화권 1장 + '+fmt(cost)+'골드 · 절대 안 떨어져요 · 실패하면 장인의 손맛이 차서 확정까지 <b>'+pityLeft(e)+'번</b>'
+    :'강화권 1장만 · 성공률 3배 · 대성공이면 +2! · 손맛은 안 쌓여요 · '+(L>=5?'<b style="color:#c0506a">실패하면 가끔 -1, 아주 가끔 파괴(-3)</b>':'+5부터는 하락 · 파괴 위험이 생겨요'))+'</div>';
   h+='<div class="wheelw"><div class="ptr"></div><canvas id="wheel" width="230" height="230"></canvas></div>';
-  if(forgeMode==='safe')h+='<div style="font-size:12px;display:flex;justify-content:space-between"><span>장인의 손맛</span><span>'+Math.floor(e.pity)+'%'+(e.pity>=100?' · 다음은 무조건 성공!':'')+'</span></div><div class="pity"><i style="width:'+Math.min(100,e.pity)+'%"></i></div>';
+  if(forgeMode==='safe')h+='<div style="font-size:12px;display:flex;justify-content:space-between"><span>장인의 손맛</span><span>'+Math.floor(e.pity)+'%'+(e.pity>=100?' · 다음은 무조건 성공!':' · 확정까지 '+pityLeft(e)+'번')+'</span></div><div class="pity"><i style="width:'+Math.min(100,e.pity)+'%"></i></div>';
   const can=e.tk>0&&L<ENH.MAX&&(forgeMode!=='safe'||S.gold>=cost)&&!wheel.spin;
-  h+='<button class="btn pink" data-fg="spin" style="width:100%;font-size:17px;margin:6px 0 4px"'+(can?'':' disabled')+'>'+(wheel.spin?'돌아가는 중…':L>=ENH.MAX?'최고 단계!':e.tk<1?'강화권이 없어요':forgeMode==='safe'&&S.gold<cost?'골드가 모자라요':'돌리기 ('+Math.round((forgeMode==='safe'?(e.pity>=100?1:p):p*.7)*1000)/10+'%)')+'</button>';
+  h+='<button class="btn pink" data-fg="spin" style="width:100%;font-size:17px;margin:6px 0 4px"'+(can?'':' disabled')+'>'+(wheel.spin?'돌아가는 중…':L>=ENH.MAX?'최고 단계!':e.tk<1?'강화권이 없어요':forgeMode==='safe'&&S.gold<cost?'골드가 모자라요':'돌리기 ('+Math.round((forgeMode==='safe'?(e.pity>=100?1:p):Math.min(.9,p*ENH.G))*1000)/10+'%)')+'</button>';
   h+='<div class="sec" style="margin-top:8px">강화권 모으기 (오늘)</div><div class="srcs">'+
     '<span>출석 <b>'+(e.day===kstDay()?'받음 ✓':'접속하면 '+ENH.DAILY+'장')+'</b>'+((e.st|0)>1?' · 연속 '+e.st+'일':'')+'</span>'+
     '<span>낚시 <b>'+e.ft+' / '+ENH.FISH_CAP+'장</b> ('+Math.floor(e.fp)+'/'+ENH.FISH_PER+'점)</span>'+
@@ -4172,9 +4201,9 @@ function renderForge(){
      '<div class="sec">낚시터 권장 강화 <span class="muted" style="font-size:12px">· 모자라면 물고기가 세져요</span></div><div class="srcs">'+[1,2,3,4,5,6,7,8].map(z=>'<span'+(L<REC_ENH[z]?' style="color:#c0506a"':'')+'>'+esc(zoneNm(z))+' <b>+'+REC_ENH[z]+'</b>'+(L>=REC_ENH[z]?' ✓':'')+'</span>').join('')+'</div>'+
      (nx?'<div class="muted" style="font-size:12px;margin:-4px 0 10px">다음 아우라: <b>+'+nx[0]+'</b> '+nx[1]+'</div>':'<div style="font-size:12px;margin:-4px 0 10px;color:#e07a2c">모든 아우라를 열었어요!</div>')}
   if(ONLINE)h+='<div class="sec">마을 강화 순위</div><div style="margin:4px 0 10px">'+(forgeRank?forgeRank.length?forgeRank.map((r,i)=>'<div class="rank"><span class="r">'+(i+1)+'</span><span class="n">'+esc(r.name)+'</span><span class="v">+'+r.lv+'</span><span class="muted" style="font-size:11px">최고 +'+r.max+'</span></div>').join(''):'<div class="muted">아직 아무도 강화하지 않았어요</div>':'<div class="muted">불러오는 중…</div>')+'</div>';
-  h+='<details><summary class="muted" style="font-size:12px">확률표 보기</summary><table class="ptab"><tr><th>단계</th><th>안전 성공</th><th>한방 성공</th><th>안전 비용</th></tr>'+
-    ENH.P.map((q,i)=>'<tr'+(i===L?' style="background:#fff4e4"':'')+'><td>+'+i+'→+'+(i+1)+'</td><td>'+Math.round(q*1000)/10+'%</td><td>'+Math.round(q*700)/10+'%</td><td>'+fmt(enhCost(i))+'</td></tr>').join('')+'</table>'+
-    '<div class="muted" style="font-size:11px;margin-top:4px">+5~9 실패: 안전은 30% 하락 / 한방은 25% 하락 · 8% 파괴. +10부터 실패: 안전은 40% 하락 / 한방은 30% 하락 · 20% 파괴. 강화 +1마다 줄다리기 조절 바 · 당기는 힘 1%.</div></details>';
+  h+='<details><summary class="muted" style="font-size:12px">확률표 보기</summary><table class="ptab"><tr><th>단계</th><th>안전 성공</th><th>확정까지</th><th>한방 성공</th><th>안전 비용</th></tr>'+
+    ENH.P.map((q,i)=>'<tr'+(i===L?' style="background:#fff4e4"':'')+'><td>+'+i+'→+'+(i+1)+'</td><td>'+Math.round(q*1000)/10+'%</td><td>'+ENH.PN[i]+'번</td><td>'+Math.round(Math.min(.9,q*ENH.G)*1000)/10+'%</td><td>'+fmt(enhCost(i))+'</td></tr>').join('')+'</table>'+
+    '<div class="muted" style="font-size:11px;margin-top:4px">안전 강화는 절대 떨어지지 않고, 실패할 때마다 장인의 손맛이 차서 「확정까지」 횟수면 무조건 성공해요. 한방 강화는 성공률 3배(대성공 +2)지만 손맛이 안 쌓이고, +5~9 실패의 4% 하락 · 1% 파괴, +10부터 6% 하락 · 2% 파괴 (파괴는 3단계 내려가요). 강화 +1마다 조절 바 · 당기는 힘 +3% · 행운 +1.5%.</div></details>';
   body().innerHTML=h;
   wheel.slices=enhSlices(L,forgeMode);drawWheel();
 }
@@ -4210,7 +4239,7 @@ function wheelLand(r){
 }
 function wheelDone(){
   const r=wheel.res;if(!r)return;
-  const msg={up:'성공! +'+r.to,jack:'대성공!! +'+r.from+' → +'+r.to,keep:'실패… +'+r.to+' 유지',down:'하락… +'+r.from+' → +'+r.to,break:'파괴!! +'+r.from+' → +0'}[r.k];
+  const msg={up:'성공! +'+r.to,jack:'대성공!! +'+r.from+' → +'+r.to,keep:'실패… +'+r.to+' 유지',down:'하락… +'+r.from+' → +'+r.to,break:'파괴!! +'+r.from+' → +'+r.to}[r.k];
   toast(msg);Snd.sfx(r.k==='up'||r.k==='jack'?(r.to>=10?'page':'buy'):'miss');
   if(r.k==='up'||r.k==='jack')sparkFx(P.x,P.y-20,r.to>=10?30:14,['#ffd27a','#ffffff','#ffb3c8']);
   enhTitles();recalc();refreshMe();updateTrapDot();if(forgeOpen())renderForge();saveState();
@@ -4299,6 +4328,7 @@ const zoneNm=z=>ZONES[z-1]?ZONES[z-1].name:'?';
 const isFishKey=k=>k!=='g'&&k.indexOf('i:')!==0;
 function tradeRule(a,b){
   const all=[a||{},b||{}],fish=[];all.forEach(o=>Object.keys(o).forEach(k=>{if(isFishKey(k)&&o[k]>0)fish.push(+k)}));
+  if(all.some(o=>(o['i:shard']|0)>0))return'안개 조각은 주고받을 수 없어요';
   if(!fish.length)return goldRule(all[0],all[1])||goldRule(all[1],all[0]);
   if(all.some(o=>Object.keys(o).some(k=>!isFishKey(k)&&o[k]>0)))return'물고기는 물고기와만 바꿀 수 있어요 (골드 · 아이템은 따로)';
   if(all.some(o=>!Object.keys(o).some(k=>o[k]>0)))return'물고기는 서로 한 마리 이상씩 올려야 바꿀 수 있어요';
@@ -4325,7 +4355,7 @@ const tradeOpen=()=>!$('sheetwrap').hidden&&$('sheettitle').textContent==='교�
 function renderTrade(){
   if(!tradeOpen())return;
   let h='<div class="tabs"><button class="tab'+(TR.tab==='board'?' on':'')+'" data-tr="tab" data-v="board">게시판</button><button class="tab'+(TR.tab==='direct'?' on':'')+'" data-tr="tab" data-v="direct">직접 교환</button><button class="tab'+(TR.tab==='fr'?' on':'')+'" data-tr="tab" data-v="fr">친구 물고기</button><button class="tab'+(TR.tab==='rq'?' on':'')+'" data-tr="tab" data-v="rq">📜 의뢰</button></div>';
-  if(TR.ipick&&TR.ses)h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="btn ghost sm" data-tr="ipk" data-v="">◀ 돌아가기</button><div class="muted" style="font-size:13px">올릴 아이템</div></div>'+(ITEM_IDS.filter(k=>itN(k)>0).map(k=>'<div class="row"><span style="font-size:22px;width:30px;text-align:center">'+ITEMS[k].ic+'</span><div class="nm">'+ITEMS[k].n+' ×'+itN(k)+'</div><div class="go"><button class="btn sm" data-tr="ipk" data-v="'+k+'">올리기</button></div></div>').join('')||'<div class="muted" style="text-align:center;padding:16px">아이템이 없어요</div>');
+  if(TR.ipick&&TR.ses)h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="btn ghost sm" data-tr="ipk" data-v="">◀ 돌아가기</button><div class="muted" style="font-size:13px">올릴 아이템</div></div>'+(ITEM_IDS.filter(k=>itN(k)>0&&k!=='shard').map(k=>'<div class="row"><span style="font-size:22px;width:30px;text-align:center">'+ITEMS[k].ic+'</span><div class="nm">'+ITEMS[k].n+' ×'+itN(k)+'</div><div class="go"><button class="btn sm" data-tr="ipk" data-v="'+k+'">올리기</button></div></div>').join('')||'<div class="muted" style="text-align:center;padding:16px">아이템이 없어요</div>');
   else if(TR.pick)h+=pickHtml();
   else if(TR.tab==='board')h+=TR.view==='write'?writeHtml():boardHtml();
   else if(TR.tab==='fr')h+=frHtml();

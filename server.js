@@ -127,7 +127,7 @@ function fishPrice(id) {
 }
 const validFish = id => Number.isInteger(id) && id >= 0 && id < FISH_MAX;
 const invOf = s => (s && s.inv) || {};
-const ITEM_IDS = ['flesh', 'scale', 'note', 'shell', 'weed', 'pearl', 'feather', 'thread', 'sail', 'toy', 'map', 'b_dough', 'b_shine', 'b_legend_n', 'b_legend', 'soup', 'grill', 'snack', 'charm'];   // index.html ITEMS와 같아야 해요
+const ITEM_IDS = ['flesh', 'scale', 'note', 'shell', 'weed', 'pearl', 'feather', 'thread', 'sail', 'toy', 'map', 'b_dough', 'b_shine', 'b_legend_n', 'b_legend', 'shard', 'soup', 'grill', 'snack', 'charm'];   // index.html ITEMS와 같아야 해요
 const itemsOf = s => (s && s.items && typeof s.items === 'object') ? s.items : {};
 /* 교환 열쇠: 물고기 번호 · 'i:아이템' · 'g'(골드) */
 const keyKind = k => k === 'g' ? 'g' : (typeof k === 'string' && k.startsWith('i:') && ITEM_IDS.includes(k.slice(2))) ? 'i' : validFish(+k) && String(+k) === String(k) ? 'f' : null;
@@ -209,7 +209,10 @@ function checkSave(old, neu, elapsedMs) {
 /* ---------- 낚싯대 강화 룰렛 (게임의 ENH와 똑같은 규칙 — 결과는 서버가 정해요) ---------- */
 const ENH = {
   MAX: 20,
-  P: [.9, .75, .6, .5, .4, .32, .25, .2, .15, .12, .08, .06, .05, .04, .03, .025, .02, .015, .01, .005],
+  // 밸런스 (2026-11-03): 안전 강화는 안 떨어지고 PN번 실패하면 확정. 한방은 성공 ×3 · 손맛 없음 · 하락/파괴(-3) 위험. index.html ENH와 같아야 해요
+  P: [.7208, .4806, .1442, .0541, .0288, .0192, .0133, .0102, .0067, .0051, .0043, .0035, .0029, .0026, .0023, .0017, .0016, .0014, .0013, .0012],
+  PN: [2, 4, 12, 32, 60, 90, 130, 170, 260, 340, 400, 500, 600, 660, 740, 1000, 1100, 1200, 1300, 1400],
+  G: 3,
   cost: L => Math.round(20 * Math.pow(1.4, L) / 10) * 10 || 10,
   DAILY: 3, FISH_CAP: 15, FISH_PER: 40, IDLE_MIN: 30, IDLE_CAP: 6, PIECE_CAP: 20, PIECE_PER: 5, TK_MAX: 99,   // 부지런한 사람에게 더: 낚시 15 · 켜 두기 6 · 돌보기 조각 20 (index.html ENH와 같아야 해요)
   PTS: [1, 2, 5, 15, 40]
@@ -222,13 +225,11 @@ const streakBonus = st => st >= 7 ? 2 : st >= 3 ? 1 : 0;   // 연속 출석: 3�
 const kstDay = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
 function enhSlices(L, mode) {
   const p = ENH.P[L] || 0, s = [];
-  if (mode === 'safe') {
-    s.push({ k: 'up', p }); const f = 1 - p;
-    if (L >= 10) s.push({ k: 'keep', p: f * .6 }, { k: 'down', p: f * .4 }); else if (L >= 5) s.push({ k: 'keep', p: f * .7 }, { k: 'down', p: f * .3 }); else s.push({ k: 'keep', p: f });
-  } else {
-    s.push({ k: 'jack', p: p * .105 }, { k: 'up', p: p * .595 }); const f = 1 - p * .7;
-    if (L >= 10) s.push({ k: 'keep', p: f * .5 }, { k: 'down', p: f * .3 }, { k: 'break', p: f * .2 });
-    else if (L >= 5) s.push({ k: 'keep', p: f * .67 }, { k: 'down', p: f * .25 }, { k: 'break', p: f * .08 });
+  if (mode === 'safe') s.push({ k: 'up', p }, { k: 'keep', p: 1 - p });   // 안전: 떨어지지 않아요
+  else {
+    const g = Math.min(.9, p * ENH.G), f = 1 - g; s.push({ k: 'jack', p: g * .15 }, { k: 'up', p: g * .85 });
+    if (L >= 10) s.push({ k: 'keep', p: f * .92 }, { k: 'down', p: f * .06 }, { k: 'break', p: f * .02 });
+    else if (L >= 5) s.push({ k: 'keep', p: f * .95 }, { k: 'down', p: f * .04 }, { k: 'break', p: f * .01 });
     else s.push({ k: 'keep', p: f });
   }
   return s;
@@ -263,7 +264,7 @@ function enhRoll(e, mode, gold, disc) {
   else { const sl = enhSlices(L, mode); let r = Math.random(); k = sl[sl.length - 1].k; for (const x of sl) { if (r < x.p) { k = x.k; break; } r -= x.p; } }
   if (k === 'up') { e.lv++; if (mode === 'safe') e.pity = 0; }
   else if (k === 'jack') e.lv = Math.min(ENH.MAX, L + 2);
-  else { if (mode === 'safe') e.pity = Math.min(100, e.pity + ENH.P[L] * 50); if (k === 'down') e.lv = Math.max(0, L - 1); if (k === 'break') e.lv = 0; }
+  else { if (mode === 'safe') e.pity = Math.min(100, e.pity + 100 / (ENH.PN[L] || 1)); if (k === 'down') e.lv = Math.max(0, L - 1); if (k === 'break') e.lv = Math.max(0, L - 3); }
   e.max = Math.max(e.max, e.lv);
   return { k, from: L, to: e.lv, cost, mode };
 }
@@ -284,6 +285,7 @@ const placeOf = id => id < FISH_N ? fishZone(id) : id < ISLE_FIRST ? (SEASON_FIS
 function tradeRule(a, b) {
   const all = [a || {}, b || {}], fish = [];
   for (const o of all) for (const k in o) if (keyKind(k) === 'f' && o[k] > 0) fish.push(+k);
+  if (all.some(o => (o['i:shard'] | 0) > 0)) return '안개 조각은 주고받을 수 없어요';   // 섬은 모두 같이 시작
   if (!fish.length) return goldRule(all[0], all[1]) || goldRule(all[1], all[0]);
   if (all.some(o => Object.keys(o).some(k => keyKind(k) !== 'f' && o[k] > 0))) return '물고기는 물고기와만 바꿀 수 있어요 (골드 · 아이템은 따로)';
   if (all.some(o => !Object.keys(o).some(k => o[k] > 0))) return '물고기는 서로 한 마리 이상씩 올려야 바꿀 수 있어요';
@@ -370,7 +372,7 @@ function checkSdex(oldS, neu, oldDex, newDex) {
 const GIFT_PLACES = [1, 2, 3, 4, 5, 6, 8];   // 배낚시(7)는 귀항 보상이 따로 있어요
 const GIFT_COS = ['cap', 'bucket', 'beanie', 'ribbon', 'flower', 'catear', 'frog', 'stripe', 'apron', 'overall', 'raincoat', 'hoodie', 'star'];
 function giftOf(s) { const d = kstDay(); let g = s.gift; if (!g || typeof g !== 'object' || g.d !== d || !Array.isArray(g.z)) g = s.gift = { d, z: [] }; return g; }
-function giftRoll(s, e, delta, cos, out) {
+function giftRoll(s, e, delta, cos, out, z) {
   const r = Math.random();
   if (r < .04) {   // 옷 (다 가졌으면 강화권)
     const own = (s.cos && s.cos.own) || [], pool = GIFT_COS.filter(id => !own.includes(id));
@@ -378,7 +380,7 @@ function giftRoll(s, e, delta, cos, out) {
   }
   if (r < .12) { e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.push('강화권 +1'); return; }
   if (r < .45) { e.pc += 2; out.push('반짝 조각 +2'); while (e.pc >= ENH.PIECE_PER) { e.pc -= ENH.PIECE_PER; e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.push('조각으로 강화권 +1'); } return; }
-  const m = Math.random() < .06 ? [['pearl', 1], ['feather', 1], ['scale', 1]][(Math.random() * 3) | 0] : [['flesh', 4], ['shell', 2], ['weed', 2]][(Math.random() * 3) | 0];
+  const m = z === 6 ? ['shard', 2] : Math.random() < .06 ? [['pearl', 1], ['feather', 1], ['scale', 1]][(Math.random() * 3) | 0] : [['flesh', 4], ['shell', 2], ['weed', 2]][(Math.random() * 3) | 0];
   delta['i:' + m[0]] = (delta['i:' + m[0]] | 0) + m[1];   // 재료 이름은 화면이 delta로 보여 줘요
 }
 function petRwOf(save) { const d = kstDay(); let r = save.petrw; if (!r || typeof r !== 'object' || r.d !== d) r = save.petrw = { d, walk: 0, wish: 0, fetch: 0 }; return r; }
@@ -558,7 +560,7 @@ wss.on('connection', (ws) => {
           for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0), z = placeOf(+k); if (dn > 0 && GIFT_PLACES.includes(z) && !g.z.includes(z) && !places.includes(z)) places.push(z); }
           if (places.length) {
             const delta = {}, cos = [], gout = [];
-            for (const z of places) { g.z.push(z); giftRoll(m.data, e, delta, cos, gout); }
+            for (const z of places) { g.z.push(z); giftRoll(m.data, e, delta, cos, gout, z); }
             const got = giveCos(m.data, cos), rev = Object.keys(delta).length ? applyInv(m.data, delta) : (m.data.rev | 0);
             send(ws, { t: 'gift', places, d: delta, rev, enh: e, cos: got, note: gout, gift: g });
           }
@@ -717,7 +719,7 @@ function onMsg(ws, me, m) {
       queueSave(me.key, me.save); sendEnh(ws, me, extra);
       lookChanged(ws, me); rankSet(me.key, me.name, e, me.look);
       if ((r.k === 'up' || r.k === 'jack') && r.to >= 10) broadcast({ t: 'news', text: '✨ ' + me.name + ' 님이 낚싯대 +' + r.to + ' 강화에 성공했어요!' }, ws);
-      if (r.k === 'break' && r.from >= 8) broadcast({ t: 'news', text: '💥 ' + me.name + ' 님의 +' + r.from + ' 낚싯대가 산산조각 났어요…' }, ws);
+      if (r.k === 'break' && r.from >= 8) broadcast({ t: 'news', text: '💥 ' + me.name + ' 님의 +' + r.from + ' 낚싯대가 부서져서 +' + r.to + '(으)로 내려갔어요…' }, ws);
     }).catch(e => console.error('enh_try', e.message)); break;
     case 'enh_rank': send(ws, { t: 'enh_rank', list: rankTop() }); break;
     case 'giant': {   // 👑 거대 개체 자랑 (+5 낚싯대부터)
