@@ -58,7 +58,7 @@ if (SB_URL && SB_KEY) {
       return data;
     },
     async roster() {   // 직업 현황판: 모두의 직업 · 마을 레벨 · 손맛 도감
-      const { data, error } = await sb.from('players').select('key,name,job:save->job,vl:save->vl,boat:save->boat,dex:save->dex,sdex:save->sdex');
+      const { data, error } = await sb.from('players').select('key,name,job:save->job,vl:save->vl,boat:save->boat,dex:save->dex,sdex:save->sdex,giant:save->giant');
       if (error) throw error;
       return data;
     }
@@ -73,7 +73,7 @@ if (SB_URL && SB_KEY) {
     async posts() { return []; }, async addPost() {}, async delPost() {},
     async mails() { return []; }, async addMail() {},
     async ranks() { return [...mem.entries()].map(([key, r]) => ({ key, name: r.name, enh: r.save && r.save.enh, look: r.save && r.save.cos && r.save.cos.look, own: r.save && r.save.cos && r.save.cos.own })); },
-    async roster() { return [...mem.entries()].map(([key, r]) => ({ key, name: r.name, job: r.save && r.save.job, vl: r.save && r.save.vl, boat: r.save && r.save.boat, dex: r.save && r.save.dex, sdex: r.save && r.save.sdex })); }
+    async roster() { return [...mem.entries()].map(([key, r]) => ({ key, name: r.name, job: r.save && r.save.job, vl: r.save && r.save.vl, boat: r.save && r.save.boat, dex: r.save && r.save.dex, sdex: r.save && r.save.sdex, giant: r.save && r.save.giant })); }
   };
   console.warn('⚠ SUPABASE_URL / SUPABASE_SECRET_KEY가 없어 메모리에만 저장합니다 (서버가 꺼지면 사라져요).');
 }
@@ -720,6 +720,11 @@ function onMsg(ws, me, m) {
       if (r.k === 'break' && r.from >= 8) broadcast({ t: 'news', text: '💥 ' + me.name + ' 님의 +' + r.from + ' 낚싯대가 산산조각 났어요…' }, ws);
     }).catch(e => console.error('enh_try', e.message)); break;
     case 'enh_rank': send(ws, { t: 'enh_rank', list: rankTop() }); break;
+    case 'giant': {   // 👑 거대 개체 자랑 (+5 낚싯대부터)
+      const now = Date.now(); if (now - (me.gtT || 0) < 20000) return; me.gtT = now;
+      const nm = cleanText(m.name, 16), len = Math.max(1, Math.min(9999, m.len | 0)); if (!nm) return;
+      broadcast({ t: 'news', text: '👑 ' + me.name + ' 님이 거대 ' + nm + '(' + len + 'cm)을(를) 낚았어요!' }, ws); break;
+    }
     /* ----- 마을 의뢰판 ----- */
     case 'rq_list': reqList(me).then(r => send(ws, r)).catch(e => console.error('rq_list', e.message)); break;
     case 'rq_post': withLock(me.key, async () => {
@@ -1110,15 +1115,16 @@ const rosterCache = new Map();   // key -> {name, job, lv, sit}
 let vNote = null, rosterSig = '', rosterT = 0, vBoat = null;
 function rosterSet(key, name, save) {
   const j = save && save.job, job = j && ['fish', 'sch', 'cra', 'tam', 'mer'].includes(j.id) ? j.id : '';
-  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), dex: dexIds(save && save.dex) });
+  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), gt: gtN(save), dex: dexIds(save && save.dex) });
   if (save && save.boat && !vBoat) vBoat = { by: name };
   rosterSoon();
 }
+const gtN = s => (s && s.giant && typeof s.giant === 'object') ? Object.keys(s.giant).length : 0;
 const dexIds = d => { const out = []; if (d && typeof d === 'object') for (const k in d) if (d[k] && d[k].n > 0 && validFish(+k)) out.push(+k); return out; };
 function rosterSoon() { clearTimeout(rosterT); rosterT = setTimeout(rosterSend, 500); }
 function rosterSend(force) {
   const live = new Set([...players.values()].map(p => p.key));
-  const list = [...rosterCache.entries()].map(([k, r]) => ({ name: r.name, job: r.job, lv: r.lv, on: live.has(k), sit: r.sit && live.has(k), sd: r.sd | 0 }));
+  const list = [...rosterCache.entries()].map(([k, r]) => ({ name: r.name, job: r.job, lv: r.lv, on: live.has(k), sit: r.sit && live.has(k), sd: r.sd | 0, gt: r.gt | 0 }));
   const vdex = [...new Set([...rosterCache.values()].flatMap(r => r.dex || []))].sort((a, b) => a - b);   // 마을 도감: 모두가 만난 물고기
   const note = vNote && vNote.d === kstDay() ? vNote : null, paths = [...new Set([...rosterCache.values()].flatMap(r => r.legs || []))].sort();
   const sig = JSON.stringify([list, note, vBoat, paths, vdex]);
@@ -1188,7 +1194,7 @@ setInterval(() => {
     });
   }
 }, 60000);
-db.roster().then(rows => { for (const r of rows || []) { if (r.boat && !vBoat) vBoat = { by: r.name }; if (!rosterCache.has(r.key)) rosterCache.set(r.key, { name: r.name, job: r.job && r.job.id || '', lv: vlOf(r.vl), sit: false, legs: legZones({ dex: r.dex }), sd: sdN({ sdex: r.sdex }), dex: dexIds(r.dex) }); } console.log('현황판', rosterCache.size, '명'); }).catch(e => console.error('현황판을 읽지 못했어요', e.message));
+db.roster().then(rows => { for (const r of rows || []) { if (r.boat && !vBoat) vBoat = { by: r.name }; if (!rosterCache.has(r.key)) rosterCache.set(r.key, { name: r.name, job: r.job && r.job.id || '', lv: vlOf(r.vl), sit: false, legs: legZones({ dex: r.dex }), sd: sdN({ sdex: r.sdex }), gt: gtN({ giant: r.giant }), dex: dexIds(r.dex) }); } console.log('현황판', rosterCache.size, '명'); }).catch(e => console.error('현황판을 읽지 못했어요', e.message));
 db.ranks().then(rows => { for (const r of rows || []) rankSet(r.key, r.name, r.enh, cleanLook(r.look, { cos: { own: Array.isArray(r.own) ? r.own : [] }, enh: r.enh }, colorOf(r.key))); champBoot = true; console.log('강화 순위', rankCache.size, '명 · 동상', champ ? champ.name + ' +' + champ.lv : '없음'); }).catch(e => { champBoot = true; console.error('강화 순위를 읽지 못했어요', e.message); });
 
 // 친구 위치 묶어서 보내기

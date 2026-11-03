@@ -88,6 +88,7 @@ button:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
 .cell.unk img{filter:brightness(0) opacity(.18)}
 .cell.sel{border-color:var(--lav);background:#fff}
 .cell .dot{position:absolute;right:4px;top:4px;width:8px;height:8px;border-radius:50%}
+.cell .crown{position:absolute;left:2px;top:0;font-size:11px;line-height:1}
 .cell.has{padding-bottom:14px}
 .cell .cnt{position:absolute;left:0;right:0;bottom:2px;font-size:10px;line-height:12px;text-align:center;color:var(--ink-soft);font-variant-numeric:tabular-nums}
 .cell.done{border-color:var(--mint)}.cell.done .cnt{color:#2f7a63}
@@ -1626,6 +1627,15 @@ const streakBonus=st=>st>=7?2:st>=3?1:0;   // 연속 출석: 3일째부터 +1, 7
 /* 낚싯대 강화 효과: 단계마다 조절 바 · 당기는 힘 +3%, 행운 +1.5%, 입질 1% 빨라짐. +10부터 걷는 속도 두 배 */
 const enhFx=lv=>({bar:1+.03*lv,reel:1+.03*lv,luck:1+.015*lv,wait:Math.max(.7,1-.01*lv)});
 const enhSpeed=lv=>lv>=20?2.6:lv>=15?2.3:lv>=10?2:1+.03*lv;
+/* 낚시터별 권장 강화: 모자라면 그 낚시터 물고기가 세져요 (못 들어가진 않아요). 스토리(1~5번)는 +4 이하 */
+const REC_ENH={1:0,2:1,3:2,4:3,5:4,6:6,7:5,8:2};
+const recGap=z=>Math.max(0,(REC_ENH[z]|0)-((S.enh&&S.enh.lv)|0));
+/* 강화로 열리는 새 능력 */
+const ENH_MILE=[[5,'두 마리 확률 두 배 · 거대 개체가 나타나기 시작'],[8,'걸어두기에 희귀도 걸려요'],[10,'거대 개체 확률 크게 ↑'],[12,'줄다리기 막대가 물고기를 살짝 따라가요 (자석)'],[15,'전설을 놓쳐도 한 번 더 기회 · 거대 개체 더 ↑'],[20,'전설 미끼 하나로 두 번 던지기']];
+const giantP=lv=>lv<5?0:lv<10?.01+.004*(lv-5):lv<15?.05+.004*(lv-10):.10+.006*(lv-15);
+const giantS=()=>{if(!S.giant||typeof S.giant!=='object')S.giant={};return S.giant};
+let recWarned={};
+function recWarn(z){const g=recGap(z);if(!g||recWarned[z])return;recWarned[z]=1;setTimeout(()=>toast('⚠️ 「'+zoneNm(z)+'」 권장 강화 +'+REC_ENH[z]+' · 지금 +'+S.enh.lv+' — 여기 물고기가 세요! (모자란 만큼 막대가 좁고 빨리 도망가요)'),500)}
 const kstDay=()=>new Date(Date.now()+9*3600e3).toISOString().slice(0,10);
 const ENH_TITLES=[[10,'t_enh10'],[15,'t_enh15'],[20,'t_enh20']];
 
@@ -2206,7 +2216,7 @@ $('bAfk').onclick=()=>{if(F.afk)stopAfk('낚싯대를 거뒀어요');else startA
 function releaseAct(){if(F.mode==='reel')inp.hold=false}
 function startCast(c){
   castBait();
-  P.dir=c.dir;F.target={x:c.x,y:c.y,k:c.k};F.zone=W.Z[c.y][c.x];giftHint(F.zone);F.mode='cast';F.t=0;F.fish=null;
+  P.dir=c.dir;F.target={x:c.x,y:c.y,k:c.k};F.zone=W.Z[c.y][c.x];giftHint(F.zone);recWarn(F.zone);F.mode='cast';F.t=0;F.fish=null;
   S.stats.casts++;Snd.sfx('cast');hideHint();
 }
 function castTip(){const d=P.dir,o={right:[13,-21],left:[-13,-21],up:[6,-25],down:[9,-11]}[d];return[P.x+o[0],P.y+o[1]]}
@@ -2227,7 +2237,8 @@ function hook(){
   if(easyMode()&&f.rar<=1){F.mode='pull';F.t=0;F.from=bobberPos();Snd.sfx('hook');Snd.sfx('splash');return}
   F.mode='reel';F.t=0;Snd.sfx('hook');Snd.setIntense(true);
   const R=REEL[easyMode()?'easy':'hard'][f.rar];
-  F.reel={bp:0,bv:0,fp:50,ft:50,ftT:0,prog:R.p,size:ST.bar*R.s,d:Math.min(1,f.diff*R.d),g:R.g,l:R.l,tick:0,time:0};
+  const gp=recGap(F.zone);   // 권장 강화보다 모자란 단계
+  F.reel={bp:0,bv:0,fp:50,ft:50,ftT:0,prog:R.p,size:ST.bar*R.s*Math.max(.55,1-.09*gp),d:Math.min(1,f.diff*R.d*(1+.15*gp)),g:R.g,l:R.l*(1+.15*gp),tick:0,time:0,gap:gp};
   showReel(true);
 }
 function stepReel(dt){
@@ -2237,6 +2248,7 @@ function stepReel(dt){
   r.bp+=r.bv*dt;
   if(r.bp<0){r.bp=0;r.bv=Math.max(0,r.bv*-.2)}
   if(r.bp>100-r.size){r.bp=100-r.size;r.bv=-Math.abs(r.bv)*.25}
+  if(S.enh.lv>=12){const tgt=Math.max(0,Math.min(100-r.size,r.fp-r.size/2));r.bp+=(tgt-r.bp)*Math.min(1,dt*(S.enh.lv>=17?1.3:.9))}   // +12 자석
   r.ftT-=dt;
   if(r.ftT<=0){r.ftT=.45+Math.random()*.9-d*.25;const rng=26+d*58;r.ft=Math.max(6,Math.min(94,r.fp+(Math.random()*2-1)*rng))}
   const sp=32+d*78;r.fp+=Math.max(-sp*dt,Math.min(sp*dt,r.ft-r.fp));
@@ -2245,6 +2257,8 @@ function stepReel(dt){
   r.prog=Math.min(100,r.prog);
   r.tick-=dt;if(inBar&&r.tick<=0){r.tick=.16;Snd.sfx('reel',r.prog/100)}
   if(r.prog>=100){F.mode='pull';F.t=0;F.from=bobberPos();showReel(false);Snd.setIntense(false);Snd.sfx('splash')}
+  else if(r.prog<=0&&S.enh.lv>=15&&F.fish.rar>=4&&!r.second){r.second=1;r.prog=35;Snd.sfx('page');const b=bobberPos();sparkFx(b[0],b[1],20,['#ffe27a','#ffffff']);toast('✨ +15 낚싯대가 버텼어요! 한 번 더!')}
+  else if(r.prog<=0&&r.gap){F.mode='idle';showReel(false);Snd.setIntense(false);Snd.sfx('escape');toast('앗, 놓쳤어요… 「'+zoneNm(F.zone)+'」 권장 강화 +'+REC_ENH[F.zone]+' (지금 +'+S.enh.lv+')');inp.hold=false}
   else if(r.prog<=0){F.mode='idle';showReel(false);Snd.setIntense(false);Snd.sfx('escape');toast(F.fish.rar>=3&&(S.gear.rod<5||S.gear.reel<5)?'앗, 놓쳤어요… 낚싯대 · 릴을 강화하면 큰 물고기도 버텨요':'앗, 놓쳤어요…');inp.hold=false}
   updateReelUI(inBar);
 }
@@ -2253,8 +2267,10 @@ function finishCatch(){
   F.len=Math.max(1,Math.round(f.len*(.7+Math.random()*.6)));
   const had=!!S.dex[id],wasT=tierOf(id),oldBest=S.dex[id]?S.dex[id].best|0:0;
   F.big=f.rar>=4&&rk('fish','cap')||Math.random()<.04*rk('fish','big');if(F.big){F.len=Math.round(f.len*(1.5+Math.random()*.5));itAdd('scale',f.rar>=4?5:1)}const wasDone=[];for(let p=0;p<PAGES;p++)wasDone[p]=pageDone(p);
-  S.inv[id]=(S.inv[id]||0)+1;sdAdd(id,1);
+  F.giant=!f.boss&&Math.random()<giantP(S.enh.lv);if(F.giant)F.len=Math.round(f.len*(2+Math.random()*.6));   // 👑 거대 개체 (+5부터)
+  S.inv[id]=(S.inv[id]||0)+1+(F.giant?2:0);sdAdd(id,1);
   const e=S.dex[id]||(S.dex[id]={n:0,best:0});e.n++;e.best=Math.max(e.best,F.len);
+  if(F.giant){e.n+=2;S.stats.catches+=2;const gg=giantS();gg[id]=Math.max(gg[id]|0,F.len);if(ONLINE&&Net.me)Net.send({t:'giant',name:f.name,len:F.len})}
   S.stats.catches++;F.isNew=!had;F.pageUp=-1;F.masterUp=tierOf(id)>wasT?tierOf(id):0;
   for(let p=0;p<PAGES;p++)if(!wasDone[p]&&pageDone(p))F.pageUp=p;
   F.gift=grantRewards().join(', ');enhOnCatch(id,1);
@@ -2264,7 +2280,7 @@ function finishCatch(){
   // 직접 낚은 물고기는 언제나 카드로 보여 줘요 (이미 아는 물고기도). 버튼 한 번이면 닫고 바로 다시 던져요
   F.double=false;if(f.mk)mkS().n++;ptCatch(f);jobCatch(f);
   vxp(([3,5,12,30,80][f.rar]+(f.isl?6:0))*(pathed(f.zone)?1.3:1)+(F.isNew?20+25*rk('sch','dexrw'):0)+(had&&F.len>oldBest?15*rk('sch','size'):0));if(F.isNew&&rk('sch','dexrw'))addXp(partnerId(),20*rk('sch','dexrw'));
-  if(!F.isNew&&f.rar<=(rk('fish','dbl')?2:1)&&Math.random()<gearEff.bob2(S.gear.bob)+.05*rk('fish','dbl')){S.inv[id]++;e.n++;sdAdd(id,1);S.stats.catches++;F.double=true;enhOnCatch(id,1);recalc()}
+  if(!F.isNew&&f.rar<=(rk('fish','dbl')?2:1)&&Math.random()<(gearEff.bob2(S.gear.bob)+.05*rk('fish','dbl'))*(S.enh.lv>=5?2:1)){S.inv[id]++;e.n++;sdAdd(id,1);S.stats.catches++;F.double=true;enhOnCatch(id,1);recalc()}
   F.mode='result';showResult();giftLocal(f);
   saveState();
 }
@@ -2313,7 +2329,7 @@ function afkBite(){
   F.wait=AFK_SEC;
   if(afkLeft()<=0){stopAfk('오늘 걸어두기는 다 썼어요');return}
   let f=rollFish(F.zone,condNow(F.target));
-  if(f.rar>=2){toast('큰 물고기가 줄을 끊고 도망갔어요! 직접 낚아야 잡혀요');return}
+  if(f.rar>=(S.enh.lv>=8?3:2)){toast('큰 물고기가 줄을 끊고 도망갔어요! 직접 낚아야 잡혀요'+(S.enh.lv<8?' (+8 낚싯대면 희귀는 걸어두기로도 잡혀요)':''));return}
   S.afk.n++;vxp(1);if(f.mk)mkS().n++;const id=f.id;F.len=Math.max(1,Math.round(f.len*(.7+Math.random()*.6)));
   S.inv[id]=(S.inv[id]||0)+1;const e=S.dex[id]||(S.dex[id]={n:0,best:0});const isNew=!e.n;e.n++;e.best=Math.max(e.best,F.len);S.stats.catches++;sdAdd(id,1);
   enhOnCatch(id,1);giftLocal(f);const g=grantRewards();recalc();saveState();
@@ -2963,7 +2979,9 @@ function useItem(id){
     if(a)for(let i=0;i<4;i++)parts.push({x:a.x-6+Math.random()*12,y:a.y-14,vx:(Math.random()-.5)*14,vy:-16,life:1.2,t:0,heart:true,g:0});toast(petName(pt)+'가 '+(big?'장난감을 물고 신났어요':'간식을 냠냠')+'!');Snd.sfx('buy');saveState(true);return}
 }
 /* 미끼: 던질 때 1개 써요 (걸어두기는 미끼를 쓰지 않아요) */
-function castBait(){F.bait=null;F.baitBy=null;if(F.afk)return;const b=S.bait;if(b&&itN(b)>0){F.bait=b;F.baitId=b;itAdd(b,-1);const q=S.mk&&S.mk[b];if(Array.isArray(q)&&q.length)F.baitBy=q.shift()}}   // 친구가 만든 미끼면 그 이름을 기억해요
+function castBait(){F.bait=null;F.baitBy=null;if(F.afk)return;const b=S.bait;if(b&&itN(b)>0){F.bait=b;F.baitId=b;
+    if(S.enh.lv>=20&&(b==='b_legend'||b==='b_legend_n')&&S.lbFree){S.lbFree=0;toast('✨ +20 낚싯대: 전설 미끼를 한 번 더 썼어요 (안 줄어요)');return}
+    itAdd(b,-1);if(S.enh.lv>=20&&(b==='b_legend'||b==='b_legend_n'))S.lbFree=1;const q=S.mk&&S.mk[b];if(Array.isArray(q)&&q.length)F.baitBy=q.shift()}}   // 친구가 만든 미끼면 그 이름을 기억해요
 const KH=()=>new Date(Date.now()+9*3600e3).getUTCHours();
 const dayNum=()=>Math.floor((Date.now()+9*3600e3)/864e5);
 /* 오늘의 대박 시간 · 전설 시간: 날짜로 정해져서 모두에게 같아요. 도감 박사만 미리 볼 수 있어요 */
@@ -3040,8 +3058,8 @@ function openRoster(){
       (ps.length?'<div class="muted" style="font-size:12px">'+ps.map(p=>(p.on?'🟢 ':'')+esc(p.name)+' Lv'+p.lv+(p.sd?' · 🎣'+p.sd:'')).join(' · ')+'</div>':'<div style="font-size:12px;color:#c0506a">지금 '+J.name+'이(가) 없어요</div>')+'</div></div>'});
   const none=L.filter(p=>!p.job);if(none.length)h+='<div class="muted" style="font-size:12px;margin-top:6px">아직 직업 없음: '+none.map(p=>esc(p.name)+' Lv'+p.lv).join(' · ')+'</div>';
   if(!ONLINE)h+='<div class="muted" style="font-size:12px;margin-top:8px">혼자 모드예요. 친구들과 하면 모두의 직업이 여기에 보여요.</div>';
-  const sr=L.map(p=>({name:p.name,sd:p.me?sdTotal():p.sd|0})).sort((a,b)=>b.sd-a.sd);
-  h+='<div class="sec" style="margin-top:12px">🎣 손맛 순위 <span class="muted" style="font-size:12px">· 직접 낚은 물고기 종 수</span></div>'+sr.map((p,i)=>'<div class="rank"><span class="r">'+(i+1)+'</span><span class="n">'+esc(p.name)+'</span><span class="v">'+p.sd+'종</span></div>').join('');
+  const sr=L.map(p=>({name:p.name,sd:p.me?sdTotal():p.sd|0,gt:p.me?Object.keys(giantS()).length:p.gt|0})).sort((a,b)=>b.sd-a.sd);
+  h+='<div class="sec" style="margin-top:12px">🎣 손맛 순위 <span class="muted" style="font-size:12px">· 직접 낚은 물고기 종 수 · 👑 거대 개체</span></div>'+sr.map((p,i)=>'<div class="rank"><span class="r">'+(i+1)+'</span><span class="n">'+esc(p.name)+'</span><span class="v">'+p.sd+'종</span><span class="muted" style="font-size:11px">👑'+p.gt+'</span></div>').join('');
   if(ONLINE&&Net.me)h+='<div class="muted" style="font-size:12px;margin-top:8px">🏘️ 마을 도감: 우리 마을이 함께 만난 물고기 '+VDEX.length+' / '+FISH.length+'종</div>';
   openSheet('오늘의 마을 일꾼',h);
 }
@@ -3737,7 +3755,7 @@ function showResult(){
   $('rname').textContent=f.name;
   const t=$('rrar');t.textContent=RARITY[f.rar].name;t.style.background=RARITY[f.rar].color;
   $('rdesc').textContent=f.desc+(f.when?' ('+condText(f)+')':'')+(f.season?' · '+seasonById(f.season).name+' 한정':'');
-  const extra=F.big?'<div style="color:#5d9be8;margin-bottom:2px">대물이다!! 대물 비늘 +'+(f.rar>=4?5:1)+'</div>':F.double?'<div style="color:#e07a2c;margin-bottom:2px">두 마리가 한꺼번에! ×2</div>':F.familiar?'<div style="color:#2f7a63;margin-bottom:2px">익숙한 손맛!</div>':'';
+  const extra=F.giant?'<div style="color:#e0a83a;margin-bottom:2px">👑 거대 개체!! '+F.len+'cm · 가방에 3마리 몫</div>':F.big?'<div style="color:#5d9be8;margin-bottom:2px">대물이다!! 대물 비늘 +'+(f.rar>=4?5:1)+'</div>':F.double?'<div style="color:#e07a2c;margin-bottom:2px">두 마리가 한꺼번에! ×2</div>':F.familiar?'<div style="color:#2f7a63;margin-bottom:2px">익숙한 손맛!</div>':'';
   $('rinfo').innerHTML=extra+F.len+' cm · 판매가 <b>'+fmt(sellPrice(f))+'</b> 골드'+(F.double?' ×2':'')+'<div class="muted" style="margin-top:4px">도감 '+stars(tierOf(f.id))+' · '+(maxed(f.id)?dexN(f.id)+'마리 · 단골 (판매가 +'+Math.round(REGULAR_SELL*100)+'%)':dexN(f.id)+' / '+needOf(f.id)+'마리')+'</div>';
   $('rnew').hidden=!F.isNew;
   const pg=$('rpage');
@@ -3905,12 +3923,12 @@ function renderDex(){
     '<button class="btn ghost sm" data-pg="1"'+(p===PAGES-1?' disabled':'')+'>▶</button></div>';
   h+='<div class="dexgrid">';
   for(const id of ids){const f=FISH[id],k=SM?sdHas(id):!!S.dex[id],m=!SM&&mastered(id),mx=!SM&&maxed(id),cn=SM?'×'+(sdS()[id]|0):mx?'★★★':dexN(id)+'/'+needOf(id);
-    h+='<button class="cell'+(k?' has':' unk')+(m?' done':'')+(mx?' max':'')+(dexSel===id?' sel':'')+'" data-d="'+id+'" aria-label="'+(k?esc(f.name)+' '+cn:'미발견')+'"><img src="'+fishURL(id)+'" alt="">'+(k?'<span class="dot" style="background:'+RARITY[f.rar].color+'"></span><span class="cnt">'+cn+'</span>':'')+'</button>'}
+    h+='<button class="cell'+(k?' has':' unk')+(m?' done':'')+(mx?' max':'')+(dexSel===id?' sel':'')+'" data-d="'+id+'" aria-label="'+(k?esc(f.name)+' '+cn:'미발견')+'"><img src="'+fishURL(id)+'" alt="">'+(k?'<span class="dot" style="background:'+RARITY[f.rar].color+'"></span><span class="cnt">'+cn+'</span>':'')+(giantS()[id]?'<span class="crown">👑</span>':'')+'</button>'}
   h+='</div>';
   if(dexSel>=0&&FISH[dexSel].page===p){
     const f=FISH[dexSel],e=S.dex[dexSel],cond=condText(f);
     const chips='<div class="pas" style="justify-content:center">'+(cond?'<span>'+esc(cond)+'</span>':'<span>언제든</span>')+(f.season?'<span>'+esc(seasonById(f.season).name)+' 한정</span>':'')+'</div>';
-    h+=e?'<div class="detail"><img src="'+fishURL(dexSel)+'" alt="" style="height:'+Math.min(66,fishCan(dexSel).height*3)+'px"><div style="font-size:17px;margin-top:4px">'+esc(f.name)+' '+rarTag(f.rar)+'</div><div class="muted" style="margin:4px 0">'+esc(f.desc)+'</div><div class="muted">'+ZONES[f.zone-1].name+' · 최대 '+e.best+'cm · 지금까지 '+e.n+'마리 (직접 낚은 것 '+(sdS()[dexSel]|0)+'마리) · '+f.price+'골드</div>'+chips+
+    h+=e?'<div class="detail"><img src="'+fishURL(dexSel)+'" alt="" style="height:'+Math.min(66,fishCan(dexSel).height*3)+'px"><div style="font-size:17px;margin-top:4px">'+esc(f.name)+' '+rarTag(f.rar)+'</div><div class="muted" style="margin:4px 0">'+esc(f.desc)+'</div><div class="muted">'+ZONES[f.zone-1].name+' · 최대 '+e.best+'cm · 지금까지 '+e.n+'마리 (직접 낚은 것 '+(sdS()[dexSel]|0)+'마리) · '+f.price+'골드'+(giantS()[dexSel]?' · 👑 거대 '+giantS()[dexSel]+'cm':'')+'</div>'+chips+
       '<div style="margin-top:4px;font-size:14px"><span style="color:#e0a83a">'+stars(tierOf(dexSel))+'</span> '+(maxed(dexSel)?'단골 · 판매가 +'+Math.round(REGULAR_SELL*100)+'%':e.n+' / '+needOf(dexSel)+'마리')+(ps?' · '+ps.name+' +'+pct(tierBonus(dexSel)):'')+'</div><div class="muted" style="font-size:12px">'+NEED[f.rar].map((n,i)=>'★'+(i+1)+' '+n+'마리').join(' · ')+'</div><div class="bar" style="margin:6px 20px 0"><i style="width:'+Math.min(100,e.n/needOf(dexSel)*100)+'%"></i></div></div>'
       :'<div class="detail"><div style="font-size:30px;margin:8px 0;color:#c9bedd">?</div><div class="muted">'+ZONES[f.zone-1].name+'에서 만날 수 있어요.'+(hasZone(f.zone)?'':'<br>아직 열리지 않은 낚시터예요.')+'</div>'+chips+'<div class="muted" style="font-size:12px">친구와 교환해도 도감엔 올라요. 손맛 도감은 직접 낚아야 올라요.</div></div>';
   }else h+='<div class="detail"><div class="muted" style="padding-top:36px">물고기를 눌러 보세요.</div></div>';
@@ -4149,6 +4167,9 @@ function renderForge(){
   h+='<div class="muted" style="font-size:11px;margin:-4px 0 10px">낚시 점수: 흔함 1 · 보통 2 · 희귀 5 · 영웅 15 · 전설 40. 반짝 조각은 나무 흔들기 · 반짝이는 곳 · 고양이 돌보기 · 벤치에서 쉬기로 모여요. 연속 출석 3일째부터 +1장, 7일째부터 +2장.</div>';
   {const fx=enhFx(L),nx=[[1,'발밑에 빛'],[3,'반짝임'],[5,'빛 방울'],[7,'걸으면 반짝이'],[10,'잔상 · 금빛 · 걷는 속도 두 배'],[13,'빛기둥'],[15,'무지개 · 속도 2.3배'],[20,'빛의 고리 · 속도 2.6배']].find(a=>a[0]>L);
    h+='<div class="sec">지금 강화 효과</div><div class="srcs"><span>조절 바 · 힘 <b>+'+Math.round((fx.bar-1)*100)+'%</b></span><span>행운 <b>+'+Math.round((fx.luck-1)*1000)/10+'%</b></span><span>입질 <b>'+Math.round((1-fx.wait)*100)+'% 빨리</b></span><span>걷는 속도 <b>×'+(Math.round(enhSpeed(L)*100)/100)+'</b></span></div>'+
+     '<div class="sec">강화로 열리는 능력</div><div class="rwl">'+ENH_MILE.map(a=>'<div class="rw'+(L>=a[0]?' on':'')+'"><b>+'+a[0]+'</b><span>'+a[1]+'</span><i>'+(L>=a[0]?'✓':'')+'</i></div>').join('')+'</div>'+
+     '<div class="muted" style="font-size:12px;margin:4px 0 6px">거대 개체 확률 지금 '+(Math.round(giantP(L)*1000)/10)+'% · 가방에 3마리 몫 · 도감에 👑</div>'+
+     '<div class="sec">낚시터 권장 강화 <span class="muted" style="font-size:12px">· 모자라면 물고기가 세져요</span></div><div class="srcs">'+[1,2,3,4,5,6,7,8].map(z=>'<span'+(L<REC_ENH[z]?' style="color:#c0506a"':'')+'>'+esc(zoneNm(z))+' <b>+'+REC_ENH[z]+'</b>'+(L>=REC_ENH[z]?' ✓':'')+'</span>').join('')+'</div>'+
      (nx?'<div class="muted" style="font-size:12px;margin:-4px 0 10px">다음 아우라: <b>+'+nx[0]+'</b> '+nx[1]+'</div>':'<div style="font-size:12px;margin:-4px 0 10px;color:#e07a2c">모든 아우라를 열었어요!</div>')}
   if(ONLINE)h+='<div class="sec">마을 강화 순위</div><div style="margin:4px 0 10px">'+(forgeRank?forgeRank.length?forgeRank.map((r,i)=>'<div class="rank"><span class="r">'+(i+1)+'</span><span class="n">'+esc(r.name)+'</span><span class="v">+'+r.lv+'</span><span class="muted" style="font-size:11px">최고 +'+r.max+'</span></div>').join(''):'<div class="muted">아직 아무도 강화하지 않았어요</div>':'<div class="muted">불러오는 중…</div>')+'</div>';
   h+='<details><summary class="muted" style="font-size:12px">확률표 보기</summary><table class="ptab"><tr><th>단계</th><th>안전 성공</th><th>한방 성공</th><th>안전 비용</th></tr>'+
