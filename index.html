@@ -121,6 +121,12 @@ input[type=range]{width:100%;accent-color:var(--lav);height:32px}
 .ptag{position:absolute;left:0;top:0;font-size:11px;color:#fff;background:rgba(74,61,107,.72);border-radius:999px;padding:0 7px;white-space:nowrap;will-change:transform}
 .ntag .en{color:#e07a2c;font-weight:700;margin-left:3px}
 .ntag{pointer-events:auto;cursor:pointer}
+/* 절전 모드: 까만 화면 + 흐린 시계. 게임은 뒤에서 계속 (걸어두기 · 켜 둔 보상) */
+#eco{position:fixed;inset:0;z-index:60;background:#000;color:#2e2e33;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;touch-action:none;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+#bEco{position:fixed;left:max(22px,env(safe-area-inset-left,0px));bottom:calc(166px + env(safe-area-inset-bottom,0px));width:46px;height:46px;border-radius:50%;background:rgba(74,61,107,.78);color:#fff;border:2px solid rgba(255,255,255,.8);font-size:12px;z-index:5;padding:0}
+#ecoClock{font-size:64px;font-weight:200;letter-spacing:.02em;font-variant-numeric:tabular-nums;color:#38383e}
+#ecoInfo{font-size:12px;line-height:1.7;text-align:center;color:#2e2e33}
+#ecoHint{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom,0px));font-size:11px;color:#222226}
 .pcs{color:#b07ad8;margin-left:4px;font-variant-numeric:tabular-nums}
 .pf-top{text-align:center;background:linear-gradient(#f3ecff,#fff4f7);border-radius:18px;padding:12px 8px 10px;margin-bottom:10px}
 .pf-top .nm{font-size:20px}.pf-top .ti{color:#a070c8;font-size:12px}
@@ -219,6 +225,7 @@ input.tin:focus{outline:3px solid var(--lav);outline-offset:1px}
   <button class="hbtn" id="bSet" aria-label="메뉴">메뉴<i id="trapDot" hidden></i></button>
 </div>
 <div id="region"></div>
+<div id="eco" hidden><div id="ecoClock">00:00</div><div id="ecoInfo"></div><div id="ecoHint">두 번 톡 누르면 돌아가요</div></div>
 <div id="toast"></div>
 <div id="hint" hidden>왼쪽 스틱으로 걷고, 물가에서 오른쪽 버튼으로 낚시해요.<br>찌가 흔들리면 바로 눌러요. 상점 · 이동은 「메뉴」에서.</div>
 
@@ -226,6 +233,7 @@ input.tin:focus{outline:3px solid var(--lav);outline-offset:1px}
 <button id="act" class="off">—</button>
 <button id="bTalk" aria-label="말하기와 감정표현" aria-expanded="false">말</button>
 <button id="bAfk" hidden>걸어두기</button>
+<button id="bEco" aria-label="절전 모드">절전</button>
 <div id="talk" hidden>
   <div class="emos" id="emos"></div>
   <div class="phr" id="phr"></div>
@@ -2428,12 +2436,40 @@ function update(dt){
   if(ONLINE)Net.tick(dt);
 }
 function frame(ts){
+  if(ECO.on){ // 절전: 그리지 않고 0.5초마다 게임만 돌려요
+    const real=Math.min(5,(ts-last)/1000||0);if(real<.5){requestAnimationFrame(frame);return}last=ts;
+    for(let t=real;t>0;t-=.05)update(Math.min(.05,t));ecoInfo();requestAnimationFrame(frame);return}
   const dt=Math.min(.05,(ts-last)/1000||0);last=ts;
   if(P&&!$('title').hidden===false){}
   if(P){update(dt);render(dt);updateHud()}
   requestAnimationFrame(frame);
 }
 
+/* ----- 절전 모드 ----- */
+const ECO={on:false,c0:0,lock:null,tap:0};
+function ecoInfo(){
+  const d=new Date();$('ecoClock').textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  const a=[];if(F.afk)a.push('걸어두기 중 · 오늘 '+S.afk.n+'/'+AFK_CAP);
+  const got=S.stats.catches-ECO.c0;if(got>0)a.push('절전 중 '+got+'마리');
+  a.push('강화권 '+S.enh.tk+'장 · 오늘 켜 둔 보상 '+S.enh.it+'/'+ENH.IDLE_CAP);
+  if(S.trap)a.push('통발 '+trapCount()+'마리');
+  const h=a.join('<br>');if($('ecoInfo').innerHTML!==h)$('ecoInfo').innerHTML=h;
+}
+function ecoOn(){
+  if(ECO.on||F.mode==='reel'||F.mode==='bite'||F.mode==='pull')return;
+  if(!$('sheetwrap').hidden)closeSheet();
+  ECO.on=true;ECO.c0=S.stats.catches;inp.x=inp.y=0;inp.hold=false;Snd.setMute(true);$('eco').hidden=false;ecoInfo();saveState(true);
+  try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(l=>{ECO.lock=l}).catch(()=>{})}catch(e){} // 화면이 꺼지지 않게 (되는 기기만)
+}
+function ecoOff(){
+  if(!ECO.on)return;ECO.on=false;$('eco').hidden=true;Snd.setMute(!!S.set.mute);floats.length=0;parts.length=0;
+  try{if(ECO.lock)ECO.lock.release()}catch(e){}ECO.lock=null;
+  const got=S.stats.catches-ECO.c0;toast('절전 모드 끝'+(got>0?' · 그동안 '+got+'마리 잡았어요':''));
+}
+$('bEco').onclick=()=>{Snd.resume();ecoOn()};
+$('eco').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();const n=performance.now();if(n-ECO.tap<450){ECO.tap=0;ecoOff()}else ECO.tap=n});
+document.addEventListener('keydown',e=>{if(ECO.on&&e.key==='Escape')ecoOff()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ECO.on&&navigator.wakeLock&&!ECO.lock)try{navigator.wakeLock.request('screen').then(l=>{ECO.lock=l}).catch(()=>{})}catch(e){}});
 /* ---------- UI: HUD · 낚시 UI · 상점 · 도감 · 설정 ---------- */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const rarTag=r=>'<span class="tag" style="background:'+RARITY[r].color+'">'+RARITY[r].name+'</span>';
