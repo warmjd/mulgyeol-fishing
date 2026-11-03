@@ -2103,10 +2103,10 @@ function finishCatch(){
   recalc();F.t=0;
   Snd.sfx('catch',f.rar);if(F.pageUp>=0||F.masterUp)setTimeout(()=>Snd.sfx('page'),900);
   if(f.rar>=3&&navigator.vibrate)try{navigator.vibrate([40,40,80])}catch(e){}
-  if(F.isNew||f.rar>=2||F.pageUp>=0||F.masterUp||F.gift){F.mode='result';showResult()}
-  else{F.mode='idle';
-    if(f.rar<=1&&Math.random()<gearEff.bob2(S.gear.bob)){S.inv[id]++;e.n++;S.stats.catches++;F.double=true;enhOnCatch(id,1);recalc()}else F.double=false;
-    quickCatch(f)}
+  // 직접 낚은 물고기는 언제나 카드로 보여 줘요 (이미 아는 물고기도). 버튼 한 번이면 닫고 바로 다시 던져요
+  F.double=false;
+  if(!F.isNew&&f.rar<=1&&Math.random()<gearEff.bob2(S.gear.bob)){S.inv[id]++;e.n++;S.stats.catches++;F.double=true;enhOnCatch(id,1);recalc()}
+  F.mode='result';showResult();
   saveState();
 }
 /* 걸어두기: 켜 두기만 해도 3분마다 흔함 · 보통이 걸려요 (하루 30마리). 희귀 이상은 직접 낚아야 해요 */
@@ -2876,11 +2876,13 @@ function updateReelUI(inBar){
 /* ----- 결과 카드 ----- */
 function showResult(){
   const f=F.fish;
-  $('rimg').innerHTML='<img src="'+fishURL(f.id)+'" alt="" style="height:'+Math.min(92,fishCan(f.id).height*3)+'px">';
+  {const fc=fishCan(f.id),k=Math.max(2,Math.min(8,Math.floor(Math.min(220/fc.width,88/fc.height))));
+   $('rimg').innerHTML='<img src="'+fishURL(f.id)+'" alt="'+esc(f.name)+'" style="width:'+fc.width*k+'px;height:'+fc.height*k+'px;max-width:none;max-height:none">'}
   $('rname').textContent=f.name;
   const t=$('rrar');t.textContent=RARITY[f.rar].name;t.style.background=RARITY[f.rar].color;
   $('rdesc').textContent=f.desc+(f.when?' ('+condText(f)+')':'')+(f.season?' · '+seasonById(f.season).name+' 한정':'');
-  $('rinfo').innerHTML=F.len+' cm · 판매가 <b>'+fmt(sellPrice(f))+'</b> 골드<div class="muted" style="margin-top:4px">도감 '+stars(tierOf(f.id))+' · '+(maxed(f.id)?dexN(f.id)+'마리 · 단골 (판매가 +'+Math.round(REGULAR_SELL*100)+'%)':dexN(f.id)+' / '+needOf(f.id)+'마리')+'</div>';
+  const extra=F.double?'<div style="color:#e07a2c;margin-bottom:2px">두 마리가 한꺼번에! ×2</div>':F.familiar?'<div style="color:#2f7a63;margin-bottom:2px">익숙한 손맛!</div>':'';
+  $('rinfo').innerHTML=extra+F.len+' cm · 판매가 <b>'+fmt(sellPrice(f))+'</b> 골드'+(F.double?' ×2':'')+'<div class="muted" style="margin-top:4px">도감 '+stars(tierOf(f.id))+' · '+(maxed(f.id)?dexN(f.id)+'마리 · 단골 (판매가 +'+Math.round(REGULAR_SELL*100)+'%)':dexN(f.id)+' / '+needOf(f.id)+'마리')+'</div>';
   $('rnew').hidden=!F.isNew;
   const pg=$('rpage');
   const msg=[];
