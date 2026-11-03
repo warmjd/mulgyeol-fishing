@@ -227,6 +227,9 @@ function enhRoll(e, mode, gold) {
 }
 /* 반짝 조각: 어디서 왔든 하루 상한이 있어서, 꾸며서 보내도 정직한 사람보다 더 받을 수 없어요 */
 const LIFE_RULE = { spark: { cd: 100, ch: 1, n: 1 }, tree: { cd: 1800, ch: .5, n: 1, per: true }, pet: { cd: 600, ch: .4, n: 1, per: true }, litter: { cd: 7000, ch: 1, n: 2 }, sit: { cd: 840, ch: 1, n: 1 } };
+const DROP_MS = 10 * 60e3; let dropSeq = 0;   // 떨어진 반짝 조각은 10분 안에 주워요
+const PET_IDS = ['ruby', 'dot', 'nurung', 'kkam', 'churi'];
+const popOf = s => Object.assign({ n: 0, up: 0, dn: 0 }, s && s.pop && typeof s.pop === 'object' ? s.pop : {});
 const lifeCd = new Map();     // key -> {src[:id]: 시각}
 const rankCache = new Map();  // key -> {name, lv, max}
 function rankSet(key, name, e) { if (e && (e.max > 0 || e.lv > 0)) rankCache.set(key, { name, lv: e.lv | 0, max: e.max | 0 }); }
@@ -351,6 +354,8 @@ wss.on('connection', (ws) => {
         const oldDex = (me.save && me.save.dex) || {}, newDex = m.data.dex || {}, first = !me.save;
         const ce = m.data.enh;   // 화면이 들고 있던 값 (믿지 않음)
         m.data.enh = me.save ? me.save.enh : enhDefault();
+        m.data.pop = me.save && me.save.pop ? me.save.pop : { n: 0, up: 0, dn: 0 };   // 인기도도 서버 것만 믿어요
+        m.data.popGv = me.save && me.save.popGv ? me.save.popGv : {};
         const e = enhOf(m.data), out = [];
         enhDaily(e, out);
         if (!first) { let pts = 0; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) pts += dn * ENH.PTS[fishRar(+k)]; } if (pts) enhAddPoints(e, pts, out); }
@@ -505,9 +510,48 @@ function onMsg(ws, me, m) {
       if (cd[k] && now - cd[k] < r.cd * 1000) return;
       cd[k] = now; lifeCd.set(me.key, cd);
       const e = enhOf(me.save), out = []; enhDaily(e, out);
-      if (Math.random() < r.ch) enhAddPiece(e, r.n, out);
       if (out.length) { queueSave(me.key, me.save); sendEnh(ws, me, { note: out }); }
+      if (Math.random() < r.ch) {   // 조각은 땅에 떨어지고, 주워야(pick) 가방에 들어가요
+        const dr = me.drops || (me.drops = new Map());
+        for (const [k2, d] of dr) if (now - d.at > DROP_MS) dr.delete(k2);
+        let lying = 0; for (const d of dr.values()) lying += d.n;
+        const n = Math.min(r.n, ENH.PIECE_CAP - e.pcd - lying);
+        if (n <= 0) return send(ws, { t: 'news', text: '오늘 모을 수 있는 반짝 조각은 다 모았어요' });
+        const did = ++dropSeq; dr.set(did, { n, at: now });
+        send(ws, { t: 'drop', src: m.src, id, did, n });
+      }
     }); break;
+    case 'pick': withLock(me.key, () => {
+      const dr = me.drops, d = dr && dr.get(m.did); if (!d || !me.save) return;
+      dr.delete(m.did); if (Date.now() - d.at > DROP_MS) return;
+      const e = enhOf(me.save), out = []; enhDaily(e, out); enhAddPiece(e, d.n, out);
+      queueSave(me.key, me.save); sendEnh(ws, me, { note: out });
+    }); break;
+    /* ----- 스테이터스 창 · 인기도 ----- */
+    case 'prof': {
+      const l = liveById(m.id); if (!l) return;
+      const o = l[1], s = o.save || {}, dex = s.dex || {};
+      const pets = {}; if (s.pets && typeof s.pets === 'object') for (const k in s.pets) if (PET_IDS.includes(k)) pets[k] = { a: Math.max(0, Math.min(100, s.pets[k] && s.pets[k].a | 0)) };
+      send(ws, { t: 'prof', id: o.id, name: o.name, ti: o.look.ti, e: o.look.e, max: s.enh ? s.enh.max | 0 : 0,
+        pop: popOf(s), pets, catches: s.stats ? s.stats.catches | 0 : 0, dex: Object.keys(dex).filter(k => dex[k] && dex[k].n > 0).length });
+      break;
+    }
+    case 'pop': {
+      const l = liveById(m.id), v = m.v === 1 ? 1 : m.v === -1 ? -1 : 0; if (!l || !v) return;
+      const [tws, T] = l; if (T.key === me.key) return;
+      withLocks([me.key, T.key], () => {
+        if (!me.save || !T.save) return send(ws, { t: 'news', text: '잠시 뒤에 다시 해 주세요' });
+        const gv = me.save.popGv && typeof me.save.popGv === 'object' ? me.save.popGv : (me.save.popGv = {}), day = kstDay();
+        if (gv[T.key] === day) return send(ws, { t: 'news', text: T.name + ' 님에게는 오늘 이미 인기도를 줬어요' });
+        for (const k in gv) if (gv[k] !== day) delete gv[k];   // 지난 날 기록 정리
+        gv[T.key] = day;
+        const p = popOf(T.save); p.n += v; if (v > 0) p.up++; else p.dn++; T.save.pop = p;
+        queueSave(me.key, me.save); queueSave(T.key, T.save);
+        send(ws, { t: 'pop_ok', id: T.id, v, pop: p });
+        send(tws, { t: 'pop_got', name: me.name, v, pop: p });
+      }).catch(e => console.error('pop', e.message));
+      break;
+    }
   }
 }
 function trState(T) {
