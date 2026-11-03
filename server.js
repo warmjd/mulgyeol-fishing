@@ -175,6 +175,17 @@ function cleanLook(l, save, color) {
 /* 낚시터 문: 연 사람만 들어가요. 새로 연 문은 그 값만큼 골드가 줄어야 해요 (index.html ZONES의 gate와 같아야 해요) */
 const GATE_PRICE = { 2: 3000, 3: 15000, 4: 60000, 5: 200000 };   // 6번 안개 섬은 문 대신 물결호 (마을에 배가 있어야 해요)
 function zonesOf(s) { return Array.isArray(s && s.zones) ? s.zones : [1]; }
+/* 안개 조각 · 섬 장비: 조각은 서버만 늘려요 (shardRoll · 선물 · 운영자). 등불 · 섬 장비는 줄어든 조각만큼만 오를 수 있어요
+   index.html의 IG_UP.shard · LAMP.it(shard)와 같아야 해요 */
+const IG_SH = [3, 8, 15, 25], LAMP_SH = [2, 5, 10, 15, 25], IG_KEYS = ['rod', 'bob', 'lure', 'reel'];
+function navCost(o, n) {
+  o = o && typeof o === 'object' ? o : {}; n = n && typeof n === 'object' ? n : {};
+  const og = o.g && typeof o.g === 'object' ? o.g : {}, ng = n.g && typeof n.g === 'object' ? n.g : {};
+  let c = 0;
+  for (const k of IG_KEYS) { const a = Math.max(1, og[k] | 0), b = Math.max(1, ng[k] | 0); if (b < a || b > 5) return -1; for (let L = a; L < b; L++) c += IG_SH[L - 1]; }
+  const la = o.lamp | 0, lb = n.lamp | 0; if (lb < la || lb > 5) return -1; for (let L = la; L < lb; L++) c += LAMP_SH[L];
+  return c;
+}
 function checkSave(old, neu, elapsedMs) {
   if (!neu || typeof neu !== 'object') return '저장 형식이 이상해요';
   old = old || { inv: {}, dex: {}, gold: 60, rev: 0 };
@@ -204,6 +215,9 @@ function checkSave(old, neu, elapsedMs) {
   // 판매가 보너스(도감 · 단골 2배 · 상인 · 요리 · 정복 · 시세)를 다 겹쳐도 넘지 않게 넉넉히 4배
   // (예전엔 return이 주석 안에 들어가 있어서 이 검사가 꺼져 있었어요)
   if (g1 - g0 + gateCost > soldValue * 4 + 50) return gateCost ? '문 값을 내지 않고 낚시터가 열렸어요' : '판 것보다 골드가 많이 늘었어요';
+  const nav = navCost(old.nav, neu.nav); if (nav < 0) return '섬 장비 기록이 이상해요';
+  const sh0 = itemsOf(old).shard | 0, sh1 = itemsOf(neu).shard | 0;
+  if (sh1 > sh0 - nav) return nav ? '안개 조각이 모자란데 섬 장비가 올랐어요' : '안개 조각이 저절로 늘었어요';
   return null;
 }
 /* ---------- 낚싯대 강화 룰렛 (게임의 ENH와 똑같은 규칙 — 결과는 서버가 정해요) ---------- */
@@ -222,6 +236,7 @@ const fishRar = id => id < 100 ? rarOf(id % 20) : id < FISH_N ? rarOf((id - 100)
 function legZones(save) { const d = (save && save.dex) || {}, out = []; for (const k in d) { const id = +k; if (!(d[k] && d[k].n > 0) || fishRar(id) !== 4) continue; const z = id < FISH_N ? (id < 100 ? Math.floor(id / 20) : Math.floor((id - 100) / 20)) + 1 : id >= ISLE_FIRST && id < PTY_FIRST ? 6 : 0; if (z && out.indexOf(z) < 0) out.push(z); } return out; }
 const enhDefault = () => ({ lv: 0, max: 0, tk: 0, pity: 0, day: '', fp: 0, ft: 0, it: 0, idle: 0, pc: 0, pcd: 0, lit: 0, st: 0 });
 const streakBonus = st => st >= 7 ? 2 : st >= 3 ? 1 : 0;   // 연속 출석: 3일째부터 +1, 7일째부터 +2
+const CATCH_GAP = 5, CATCH_TK = 2;   // 따라잡기: 광장 동상 주인보다 5단계 이상 낮으면 출석 강화권 +2
 const kstDay = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
 function enhSlices(L, mode) {
   const p = ENH.P[L] || 0, s = [];
@@ -240,8 +255,9 @@ function enhDaily(e, out) {
   const y = new Date(Date.now() + 9 * 3600e3 - 864e5).toISOString().slice(0, 10);
   e.st = e.day === y ? Math.min(999, (e.st | 0) + 1) : 1;
   e.day = d; e.ft = 0; e.it = 0; e.idle = 0; e.pcd = 0;
-  const n = ENH.DAILY + streakBonus(e.st); e.tk = Math.min(ENH.TK_MAX, e.tk + n);
-  out.push('오늘의 출석 강화권 ' + n + '장!' + (e.st > 1 ? ' (연속 ' + e.st + '일째)' : ''));
+  const cu = champ && (champ.lv | 0) - (e.lv | 0) >= CATCH_GAP ? CATCH_TK : 0;
+  const n = ENH.DAILY + streakBonus(e.st) + cu; e.tk = Math.min(ENH.TK_MAX, e.tk + n);
+  out.push('오늘의 출석 강화권 ' + n + '장!' + (e.st > 1 ? ' (연속 ' + e.st + '일째)' : '') + (cu ? ' · 따라잡기 +' + cu : ''));
 }
 function enhAddPoints(e, pts, out) {
   if (e.ft >= ENH.FISH_CAP) { e.fp = 0; return; }
@@ -382,6 +398,17 @@ function giftRoll(s, e, delta, cos, out, z) {
   if (r < .45) { e.pc += 2; out.push('반짝 조각 +2'); while (e.pc >= ENH.PIECE_PER) { e.pc -= ENH.PIECE_PER; e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.push('조각으로 강화권 +1'); } return; }
   const m = z === 6 ? ['shard', 2] : Math.random() < .06 ? [['pearl', 1], ['feather', 1], ['scale', 1]][(Math.random() * 3) | 0] : [['flesh', 4], ['shell', 2], ['weed', 2]][(Math.random() * 3) | 0];
   delta['i:' + m[0]] = (delta['i:' + m[0]] | 0) + m[1];   // 재료 이름은 화면이 delta로 보여 줘요
+}
+/* 안개 조각: 섬 물고기를 직접 낚으면 (손맛 도감이 늘어난 만큼) 희귀할수록 잘. 하루 SHARD_DAY개까지 — index.html shardDrop과 같은 규칙 */
+const SHARD_DAY = 12, SHARD_CH = [.15, .25, .6, 1, 1];
+function shardRoll(s, oldSd) {
+  const d = kstDay(); if (!s.shd || typeof s.shd !== 'object' || s.shd.d !== d) s.shd = { d, n: 0 };
+  const nsd = (s.sdex && typeof s.sdex === 'object') ? s.sdex : {}; let got = 0;
+  for (let id = ISLE_FIRST; id < PTY_FIRST; id++) {
+    let dn = Math.max(0, (nsd[id] | 0) - (oldSd[id] | 0)); const r = fishRar(id);
+    while (dn-- > 0 && s.shd.n < SHARD_DAY) if (Math.random() < SHARD_CH[r]) { const k = Math.min(r >= 4 ? 3 : 1, SHARD_DAY - s.shd.n); s.shd.n += k; got += k; }
+  }
+  return got;
 }
 function petRwOf(save) { const d = kstDay(); let r = save.petrw; if (!r || typeof r !== 'object' || r.d !== d) r = save.petrw = { d, walk: 0, wish: 0, fetch: 0 }; return r; }
 const popOf = s => Object.assign({ n: 0, up: 0, dn: 0 }, s && s.pop && typeof s.pop === 'object' ? s.pop : {});
@@ -547,6 +574,8 @@ wss.on('connection', (ws) => {
         m.data.nrq = me.save && me.save.nrq ? me.save.nrq : null;   // 오늘 해결한 마을 의뢰
         m.data.jtd = me.save && me.save.jtd ? me.save.jtd : '';   // 오늘의 일 강화권 받은 날
         m.data.blessd = me.save && me.save.blessd ? me.save.blessd : '';   // 명장 축복 한 날
+        m.data.shd = me.save && me.save.shd ? me.save.shd : null;   // 오늘 모은 안개 조각 수 (서버가 세요)
+        const oldSd = (me.save && me.save.sdex) || {};
         const sFixed = checkSdex(me.save, m.data, oldDex, newDex);   // 손맛 도감은 실제로 낚은 만큼만
         m.data.cosg = me.save && Array.isArray(me.save.cosg) ? me.save.cosg : [];   // 서버가 준 옷: 화면 저장에서 빠져도 다시 넣어요
         if (m.data.cosg.length) { const c = m.data.cos && typeof m.data.cos === 'object' ? m.data.cos : (m.data.cos = {}); c.own = Array.isArray(c.own) ? c.own : []; for (const id of m.data.cosg) if (!c.own.includes(id)) c.own.push(id); }
@@ -555,6 +584,10 @@ wss.on('connection', (ws) => {
         if (!first) { let pts = 0; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) pts += dn * ENH.PTS[fishRar(+k)]; } if (pts) enhAddPoints(e, pts, out); }
         me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data);
         if (sFixed) send(ws, { t: 'sdex', sdex: m.data.sdex });   // 손맛 도감을 서버 기록에 맞춰요
+        if (!first) {   // 섬 물고기를 직접 낚았으면 안개 조각
+          const sh = shardRoll(m.data, oldSd);
+          if (sh) { const rev = applyInv(m.data, { 'i:shard': sh }); send(ws, { t: 'delta', d: { 'i:shard': sh }, rev, shd: m.data.shd, why: '🔹 섬 물고기를 직접 낚았어요 (오늘 ' + m.data.shd.n + '/' + SHARD_DAY + ')' }); }
+        }
         if (!first) {   // 장소마다 오늘 첫 낚시 선물
           const g = giftOf(m.data), places = [];
           for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0), z = placeOf(+k); if (dn > 0 && GIFT_PLACES.includes(z) && !g.z.includes(z) && !places.includes(z)) places.push(z); }

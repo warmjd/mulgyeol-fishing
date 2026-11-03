@@ -1476,7 +1476,7 @@ function addFish(zi,rar,idx,r,when){
   if(ex.td&&w)w.td=ex.td;
   const f={id:FISH.length,zone:zi+1,idx:idx,rar:rar,name:r[0],
     spec:{tpl:r[1],c:r[2],pat:r[3],pc:ex.pc,belly:ex.belly,fin:ex.fin,art:LEGEND_ART[r[0]]},
-    len:r[4],desc:r[5],when:w,
+    len:r[4],desc:r[5],when:w,need:ex.need||null,
     price:Math.max(1,Math.round(ZONE_PRICE[zi]*RARITY[rar].mult)),
     diff:Math.min(1,.12+.1*zi+.12*rar)};
   FISH.push(f);return f;
@@ -1485,7 +1485,8 @@ RAW.forEach((z,zi)=>z.forEach((r,i)=>addFish(zi,RAR_OF(i),i,r,OLD_WHEN[r[0]])));
 RAW2.forEach((z,zi)=>z.forEach((r,i)=>addFish(zi,RAR_OF(i),20+i,r)));
 const MAIN_N=FISH.length; // 200
 SEASONS.forEach(s=>{s.ids=s.fish.map(r=>{const f=addFish(r[1]-1,r[2],-1,[r[0],r[3],r[4],r[5],r[6],r[7],r[8]]);f.season=s.id;return f.id})});
-/* 2부 안개 섬 20종 (id 208~227): 순서가 희귀도 (8·6·4·1·1). td = 밀물(high) · 썰물(low) */
+/* 2부 안개 섬 20종 (id 208~227): 순서가 희귀도 (8·6·4·1·1). td = 밀물(high) · 썰물(low)
+   need = 섬 장비 단계 조건 (lamp 방수 등불 · rod 섬 낚싯대). 안개 조각(하루 상한)으로 올리니, 몰아서 해도 섬 도감은 며칠에 걸쳐 채워져요 */
 const ISLE_RAW=[
 ['안개멸치','tiny','#dfe6ee',0,6,'안개 속에서 은빛으로 반짝인다.'],
 ['물안개빙어','tiny','#e8f0f8',1,9,'몸이 반쯤 투명해서 안개에 녹아든다.'],
@@ -1502,11 +1503,11 @@ const ISLE_RAW=[
 ['조개지킴이','flat','#d8c8a8',5,30,'썰물 때 조개밭을 지키듯 엎드려 있다.',{td:'low'}],
 ['은빛장어','eel','#c8ccd8',0,70,'밤바다에서 은실처럼 미끄러진다.',{t:'night'}],
 ['안개해마','seahorse','#d0e0f0',4,15,'안개 낀 날에만 꼬리를 감고 나타난다.',{w:'fog'}],
-['무지개노랑촉수','angel','#f0d060',1,22,'무지개가 뜨면 일곱 빛깔로 반짝인다.',{w:'rainbow'}],
-['바다거북복','box','#88b878',5,35,'등껍질 같은 비늘을 두른 느긋한 물고기.'],
-['썰물가오리','ray','#a8a0b8',2,90,'물이 빠지면 모래 위를 날듯이 미끄러진다.',{td:'low'}],
-['등대고래상어','shark','#7890b0',2,300,'밤이면 등대 불빛 아래로 거대한 그림자가 지난다.',{t:'night',pc:'#f0f0d0'}],
-['안개용왕','whale','#b8c8e8',4,600,'안개 섬의 주인. 밀물이 차오를 때 깊은 바다에서 올라온다.',{td:'high',pc:'#ffffff'}]];
+['무지개노랑촉수','angel','#f0d060',1,22,'무지개가 뜨면 일곱 빛깔로 반짝인다.',{w:'rainbow',need:{lamp:2}}],
+['바다거북복','box','#88b878',5,35,'등껍질 같은 비늘을 두른 느긋한 물고기.',{need:{lamp:2}}],
+['썰물가오리','ray','#a8a0b8',2,90,'물이 빠지면 모래 위를 날듯이 미끄러진다.',{td:'low',need:{lamp:2}}],
+['등대고래상어','shark','#7890b0',2,300,'밤이면 등대 불빛 아래로 거대한 그림자가 지난다.',{t:'night',pc:'#f0f0d0',need:{lamp:3,rod:2}}],
+['안개용왕','whale','#b8c8e8',4,600,'안개 섬의 주인. 밀물이 차오를 때 깊은 바다에서 올라온다.',{td:'high',pc:'#ffffff',need:{lamp:5,rod:3}}]];
 const ISLE_IDS=ISLE_RAW.map((r,i)=>{const f=addFish(5,RAR_OF(i),i,r);f.isl=true;return f.id});
 /* 배낚시 12종 (id 228~239) + 거대 참다랑어 (240, 다 같이 당겨야만) · 물결 시장 6종 (241~246) — server.js와 같은 순서 */
 const PTY_RAR=[0,0,0,0,1,1,1,2,2,2,3,4],MK_RAR=[0,0,0,1,1,2];
@@ -2060,8 +2061,10 @@ function spotOf(t){
   return'';
 }
 const condNow=t=>({t:timeSlot(),w:weatherNow(),s:spotOf(t)});
-function condOk(f,c){const w=f.when;if(f.isl&&w&&w.w==='fog'&&!lampLv())return false;if(!w)return true;if(w.td&&w.td!==tideNow())return false;if(w.t&&w.t.split('|').indexOf(c.t)<0)return false;if(w.w&&w.w!==c.w)return false;if(w.s&&w.s!==c.s)return false;return true}
-function condText(f){const w=f.when;if(!w)return'';const a=[];if(w.t)a.push(w.t.split('|').map(k=>TIME_NAME[k]).join('·'));if(w.w)a.push(WX_COND[w.w]);if(w.s)a.push(SPOT_NAME[w.s]);if(w.td)a.push(TIDE_NAME[w.td]+' 때');return a.join(' · ')}
+const needOk=n=>!n||(lampLv()>=(n.lamp|0)&&igLv('rod')>=(n.rod|0));
+const needText=n=>!n?'':[n.lamp?'방수 등불 '+n.lamp+'단계':'',n.rod?'섬 낚싯대 '+n.rod+'단계':''].filter(Boolean).join(' · ')+' 필요';
+function condOk(f,c){const w=f.when;if(f.isl&&w&&w.w==='fog'&&!lampLv())return false;if(f.need&&!needOk(f.need))return false;if(!w)return true;if(w.td&&w.td!==tideNow())return false;if(w.t&&w.t.split('|').indexOf(c.t)<0)return false;if(w.w&&w.w!==c.w)return false;if(w.s&&w.s!==c.s)return false;return true}
+function condText(f){const w=f.when;const a=[];if(f.need)a.push(needText(f.need));if(!w)return a.join(' · ');if(w.t)a.push(w.t.split('|').map(k=>TIME_NAME[k]).join('·'));if(w.w)a.push(WX_COND[w.w]);if(w.s)a.push(SPOT_NAME[w.s]);if(w.td)a.push(TIDE_NAME[w.td]+' 때');return a.join(' · ')}
 function rollFish(zone,c){
   c=c||condNow(null);
   const ev=[];SEASONS.forEach(s=>{if(seasonOn(s))s.ids.forEach(id=>{const f=FISH[id];if(f.zone===zone&&condOk(f,c))ev.push(f)})});
@@ -3203,9 +3206,10 @@ const gl=k=>(typeof onIsle==='function'&&onIsle())?igLv(k):S.gear[k];   // 지�
 function upIsleGear(k){const L=igLv(k);if(L>=5)return;const g=gearGold(IG_UP.g[L-1]),sh=IG_UP.shard[L-1],ms=IG_UP.m[k][L-1].map(x=>[fid(x[0]),x[1]]);
   if(S.gold<g||itN('shard')<sh||ms.some(x=>(S.inv[x[0]]|0)<x[1])){toast('재료나 골드가 모자라요');Snd.sfx('no');return}
   S.gold-=g;itAdd('shard',-sh);ms.forEach(x=>S.inv[x[0]]-=x[1]);igS()[k]=L+1;recalc();saveState(true);Snd.sfx('buy');toast('🏝️ '+IG_NAMES[k][L]+' 완성! (섬에서만 써요)');openBoat()}
-/* 안개 조각: 섬 물고기를 직접 낚으면 가끔 (희귀할수록 잘). 하루 12개까지 */
+/* 안개 조각: 섬 물고기를 직접 낚으면 가끔 (희귀할수록 잘). 하루 12개까지. server.js SHARD_DAY · SHARD_CH와 같아야 해요 */
 const SHARD_DAY=12;
-function shardDrop(f){if(!f.isl)return;const d=kstDay();if(!S.shd||S.shd.d!==d)S.shd={d:d,n:0};if(S.shd.n>=SHARD_DAY)return;
+function shardDrop(f){if(!f.isl||ONLINE)return;   // 온라인이면 서버가 굴려서 보내 줘요 (server.js shardRoll)
+  const d=kstDay();if(!S.shd||S.shd.d!==d)S.shd={d:d,n:0};if(S.shd.n>=SHARD_DAY)return;
   const n=Math.random()<[.15,.25,.6,1,1][f.rar]?(f.rar>=4?3:1):0;if(!n)return;const k=Math.min(n,SHARD_DAY-S.shd.n);S.shd.n+=k;itAdd('shard',k);
   setTimeout(()=>toast('🔹 안개 조각 +'+k+' (오늘 '+S.shd.n+'/'+SHARD_DAY+')'),1400)}
 const lampLv=()=>(S.nav&&S.nav.lamp)|0;
@@ -3268,7 +3272,7 @@ function openBoat(){
     if(L<5){const ms=IG_UP.m[k][L-1],sh=IG_UP.shard[L-1],g=gearGold(IG_UP.g[L-1]);h+='<div class="mats">'+ms.map(x=>{const id=fid(x[0]),n=S.inv[id]|0;return'<span class="mat '+(n>=x[1]?'ok':'no')+'"><img src="'+fishURL(id)+'" alt="">'+esc(x[0])+' '+n+'/'+x[1]+'</span>'}).join('')+
       '<span class="mat '+(itN('shard')>=sh?'ok':'no')+'">🔹 '+itN('shard')+'/'+sh+'</span><span class="mat '+(S.gold>=g?'ok':'no')+'">🪙 '+fmt(g)+'</span></div><button class="btn sm" data-bt2="ig:'+k+'">'+IG_NAMES[k][L]+'(으)로</button>'}
     else h+='<div class="muted" style="font-size:12px">최고 단계!</div>';h+='</div>'});
-  h+='<div class="muted" style="font-size:12px">섬 물고기 20종 · 밀물 · 썰물은 실제 시계로 20분마다 바뀌어요 (지금 '+TIDE_NAME[tideNow()]+') · 권장 강화 +'+REC_ENH[6]+'</div>';
+  h+='<div class="muted" style="font-size:12px">섬 물고기 20종 · 밀물 · 썰물은 실제 시계로 20분마다 바뀌어요 (지금 '+TIDE_NAME[tideNow()]+') · 권장 강화 +'+REC_ENH[6]+'<br>귀한 섬 물고기 몇 종은 방수 등불 · 섬 낚싯대 단계가 있어야 나와요 (도감에서 조건을 볼 수 있어요)</div>';
   if(VPATHS.length)h+='<div class="muted" style="font-size:12px;margin-top:6px">길이 난 곳 (누군가 전설을 잡은 낚시터): '+VPATHS.map(ZN).join(', ')+' · 아직 그 전설을 못 잡았다면 거기서 경험치 · 행운이 조금 더</div>';
   openSheet('물결호 · 안개 섬',h);
 }
@@ -3783,7 +3787,7 @@ function showResult(){
    $('rimg').innerHTML='<img src="'+fishURL(f.id)+'" alt="'+esc(f.name)+'" style="width:'+fc.width*k+'px;height:'+fc.height*k+'px;max-width:none;max-height:none">'}
   $('rname').textContent=f.name;
   const t=$('rrar');t.textContent=RARITY[f.rar].name;t.style.background=RARITY[f.rar].color;
-  $('rdesc').textContent=f.desc+(f.when?' ('+condText(f)+')':'')+(f.season?' · '+seasonById(f.season).name+' 한정':'');
+  $('rdesc').textContent=f.desc+(f.when||f.need?' ('+condText(f)+')':'')+(f.season?' · '+seasonById(f.season).name+' 한정':'');
   const extra=F.giant?'<div style="color:#e0a83a;margin-bottom:2px">👑 거대 개체!! '+F.len+'cm · 가방에 3마리 몫</div>':F.big?'<div style="color:#5d9be8;margin-bottom:2px">대물이다!! 대물 비늘 +'+(f.rar>=4?5:1)+'</div>':F.double?'<div style="color:#e07a2c;margin-bottom:2px">두 마리가 한꺼번에! ×2</div>':F.familiar?'<div style="color:#2f7a63;margin-bottom:2px">익숙한 손맛!</div>':'';
   $('rinfo').innerHTML=extra+F.len+' cm · 판매가 <b>'+fmt(sellPrice(f))+'</b> 골드'+(F.double?' ×2':'')+'<div class="muted" style="margin-top:4px">도감 '+stars(tierOf(f.id))+' · '+(maxed(f.id)?dexN(f.id)+'마리 · 단골 (판매가 +'+Math.round(REGULAR_SELL*100)+'%)':dexN(f.id)+' / '+needOf(f.id)+'마리')+'</div>';
   $('rnew').hidden=!F.isNew;
@@ -4193,7 +4197,7 @@ function renderForge(){
     '<span>낚시 <b>'+e.ft+' / '+ENH.FISH_CAP+'장</b> ('+Math.floor(e.fp)+'/'+ENH.FISH_PER+'점)</span>'+
     '<span>켜 두기 <b>'+e.it+' / '+ENH.IDLE_CAP+'장</b> ('+ENH.IDLE_MIN+'분마다)</span>'+
     '<span>반짝 조각 <b>'+e.pc+' / '+ENH.PIECE_PER+'</b> (오늘 '+e.pcd+'/'+ENH.PIECE_CAP+')</span></div>';
-  h+='<div class="muted" style="font-size:11px;margin:-4px 0 10px">낚시 점수: 흔함 1 · 보통 2 · 희귀 5 · 영웅 15 · 전설 40. 반짝 조각은 나무 흔들기 · 반짝이는 곳 · 고양이 돌보기 · 벤치에서 쉬기로 모여요. 연속 출석 3일째부터 +1장, 7일째부터 +2장.</div>';
+  h+='<div class="muted" style="font-size:11px;margin:-4px 0 10px">낚시 점수: 흔함 1 · 보통 2 · 희귀 5 · 영웅 15 · 전설 40. 반짝 조각은 나무 흔들기 · 반짝이는 곳 · 고양이 돌보기 · 벤치에서 쉬기로 모여요. 연속 출석 3일째부터 +1장, 7일째부터 +2장. 광장 동상 주인보다 5단계 이상 낮으면 따라잡기 +2장.</div>';
   {const fx=enhFx(L),nx=[[1,'발밑에 빛'],[3,'반짝임'],[5,'빛 방울'],[7,'걸으면 반짝이'],[10,'잔상 · 금빛 · 걷는 속도 두 배'],[13,'빛기둥'],[15,'무지개 · 속도 2.3배'],[20,'빛의 고리 · 속도 2.6배']].find(a=>a[0]>L);
    h+='<div class="sec">지금 강화 효과</div><div class="srcs"><span>조절 바 · 힘 <b>+'+Math.round((fx.bar-1)*100)+'%</b></span><span>행운 <b>+'+Math.round((fx.luck-1)*1000)/10+'%</b></span><span>입질 <b>'+Math.round((1-fx.wait)*100)+'% 빨리</b></span><span>걷는 속도 <b>×'+(Math.round(enhSpeed(L)*100)/100)+'</b></span></div>'+
      '<div class="sec">강화로 열리는 능력</div><div class="rwl">'+ENH_MILE.map(a=>'<div class="rw'+(L>=a[0]?' on':'')+'"><b>+'+a[0]+'</b><span>'+a[1]+'</span><i>'+(L>=a[0]?'✓':'')+'</i></div>').join('')+'</div>'+
@@ -4551,7 +4555,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='say'){const o=others.get(m.id);if(o)showSay(o,cleanText(m.text))}
     else if(m.t==='emo'){const o=others.get(m.id);if(o&&SP.emo[m.k])o.emo={k:m.k,at:performance.now()}}
     /* 4단계: 교환 · 가방 동기화 */
-    else if(m.t==='delta')applyDelta(m.d,m.rev,m.why);
+    else if(m.t==='delta'){if(m.shd&&typeof m.shd==='object')S.shd=m.shd;applyDelta(m.d,m.rev,m.why)}
     else if(m.t==='gift')onGift(m);
     else if(m.t==='adm_ok')toast('🛠️ '+m.text);
     else if(m.t==='jxp'){jxpAdd(m.n|0,m.why,m.job);if(m.why)toast(m.why)}
