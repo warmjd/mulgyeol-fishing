@@ -196,7 +196,9 @@ function checkSave(old, neu, elapsedMs) {
   if (nz.indexOf(6) >= 0 && oz.indexOf(6) < 0 && !vBoat) return '물결호가 없는데 섬에 갔어요';
   const g0 = Number(old.gold) || 0, g1 = neu.gold;
   if (!Number.isFinite(g1) || g1 < 0) return '골드가 이상해요';
-  if (g1 - g0 + gateCost > soldValue * 2.3 + 50)   // 판매가 보너스(도감 · 단골 · 상인 · 요리)를 넉넉히 return gateCost ? '문 값을 내지 않고 낚시터가 열렸어요' : '판 것보다 골드가 많이 늘었어요';
+  // 판매가 보너스(도감 · 단골 2배 · 상인 · 요리 · 정복 · 시세)를 다 겹쳐도 넘지 않게 넉넉히 4배
+  // (예전엔 return이 주석 안에 들어가 있어서 이 검사가 꺼져 있었어요)
+  if (g1 - g0 + gateCost > soldValue * 4 + 50) return gateCost ? '문 값을 내지 않고 낚시터가 열렸어요' : '판 것보다 골드가 많이 늘었어요';
   return null;
 }
 /* ---------- 낚싯대 강화 룰렛 (게임의 ENH와 똑같은 규칙 — 결과는 서버가 정해요) ---------- */
@@ -263,6 +265,34 @@ const petXp = st => !st || typeof st !== 'object' ? 0 : (Number.isFinite(st.xp) 
 const fetchMax = L => L >= 70 ? 3 : L >= 30 ? 2 : L >= 20 ? 1 : 0;
 const WISH_RW = [{ tk: 1, g: 200 }, { tk: 2, g: 500 }, { tk: 3, g: 1200 }, { tk: 4, g: 3000 }, { tk: 5, g: 8000 }];
 const fishZone = id => id < 100 ? Math.floor(id / 20) + 1 : Math.floor((id - 100) / 20) + 1;
+/* 물고기가 사는 낚시터 (index.html FISH의 zone과 같아요): 1~5 · 6 안개 섬 · 7 배낚시 · 8 물결 시장 */
+const placeOf = id => id < FISH_N ? fishZone(id) : id < ISLE_FIRST ? (SEASON_FISH[id - FISH_N] || [0, 0])[1] : id < PTY_FIRST ? 6 : id < MK_FIRST ? 7 : 8;
+/* 교환 규칙: 물고기는 물고기와만, 같은 낚시터끼리만. 골드 · 아이템 교환은 그대로 */
+function tradeRule(a, b) {
+  const all = [a || {}, b || {}], fish = [];
+  for (const o of all) for (const k in o) if (keyKind(k) === 'f' && o[k] > 0) fish.push(+k);
+  if (!fish.length) return null;
+  if (all.some(o => Object.keys(o).some(k => keyKind(k) !== 'f' && o[k] > 0))) return '물고기는 물고기와만 바꿀 수 있어요 (골드 · 아이템은 따로)';
+  if (all.some(o => !Object.keys(o).some(k => o[k] > 0))) return '물고기는 서로 한 마리 이상씩 올려야 바꿀 수 있어요';
+  if (new Set(fish.map(placeOf)).size > 1) return '같은 낚시터 물고기끼리만 바꿀 수 있어요';
+  return null;
+}
+const postOk = p => !!(p.give && p.want && placeOf(p.give[0]) === placeOf(p.want[0]));
+/* 장소마다 하루 한 번: 그날 처음 낚으면 랜덤 선물 (index.html GIFT와 같은 규칙). 어느 낚시터든 선물 가치는 같아요 */
+const GIFT_PLACES = [1, 2, 3, 4, 5, 6, 8];   // 배낚시(7)는 귀항 보상이 따로 있어요
+const GIFT_COS = ['cap', 'bucket', 'beanie', 'ribbon', 'flower', 'catear', 'frog', 'stripe', 'apron', 'overall', 'raincoat', 'hoodie', 'star'];
+function giftOf(s) { const d = kstDay(); let g = s.gift; if (!g || typeof g !== 'object' || g.d !== d || !Array.isArray(g.z)) g = s.gift = { d, z: [] }; return g; }
+function giftRoll(s, e, delta, cos, out) {
+  const r = Math.random();
+  if (r < .04) {   // 옷 (다 가졌으면 강화권)
+    const own = (s.cos && s.cos.own) || [], pool = GIFT_COS.filter(id => !own.includes(id));
+    if (pool.length) { const id = pool[(Math.random() * pool.length) | 0]; cos.push(id); out.push('새 옷!'); return; }
+  }
+  if (r < .12) { e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.push('강화권 +1'); return; }
+  if (r < .45) { e.pc += 2; out.push('반짝 조각 +2'); while (e.pc >= ENH.PIECE_PER) { e.pc -= ENH.PIECE_PER; e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.push('조각으로 강화권 +1'); } return; }
+  const m = Math.random() < .06 ? [['pearl', 1], ['feather', 1], ['scale', 1]][(Math.random() * 3) | 0] : [['flesh', 4], ['shell', 2], ['weed', 2]][(Math.random() * 3) | 0];
+  delta['i:' + m[0]] = (delta['i:' + m[0]] | 0) + m[1];   // 재료 이름은 화면이 delta로 보여 줘요
+}
 function petRwOf(save) { const d = kstDay(); let r = save.petrw; if (!r || typeof r !== 'object' || r.d !== d) r = save.petrw = { d, walk: 0, wish: 0, fetch: 0 }; return r; }
 const popOf = s => Object.assign({ n: 0, up: 0, dn: 0 }, s && s.pop && typeof s.pop === 'object' ? s.pop : {});
 const lifeCd = new Map();     // key -> {src[:id]: 시각}
@@ -402,12 +432,23 @@ wss.on('connection', (ws) => {
         m.data.don = me.save && me.save.don && typeof me.save.don === 'object' ? me.save.don : {};   // 마을 기부함에 넣은 것
         m.data.zrw = me.save && Array.isArray(me.save.zrw) ? me.save.zrw : [];   // 낚시터 정복 보상 받은 기록
         m.data.ptd = me.save && me.save.ptd ? me.save.ptd : null;   // 오늘 배낚시 나간 횟수
+        m.data.gift = me.save && me.save.gift ? me.save.gift : null;   // 오늘 장소별 첫 낚시 선물 받은 기록
         m.data.cosg = me.save && Array.isArray(me.save.cosg) ? me.save.cosg : [];   // 서버가 준 옷: 화면 저장에서 빠져도 다시 넣어요
         if (m.data.cosg.length) { const c = m.data.cos && typeof m.data.cos === 'object' ? m.data.cos : (m.data.cos = {}); c.own = Array.isArray(c.own) ? c.own : []; for (const id of m.data.cosg) if (!c.own.includes(id)) c.own.push(id); }
         const e = enhOf(m.data), out = [];
         enhDaily(e, out);
         if (!first) { let pts = 0; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) pts += dn * ENH.PTS[fishRar(+k)]; } if (pts) enhAddPoints(e, pts, out); }
         me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data);
+        if (!first) {   // 장소마다 오늘 첫 낚시 선물
+          const g = giftOf(m.data), places = [];
+          for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0), z = placeOf(+k); if (dn > 0 && GIFT_PLACES.includes(z) && !g.z.includes(z) && !places.includes(z)) places.push(z); }
+          if (places.length) {
+            const delta = {}, cos = [], gout = [];
+            for (const z of places) { g.z.push(z); giftRoll(m.data, e, delta, cos, gout); }
+            const got = giveCos(m.data, cos), rev = Object.keys(delta).length ? applyInv(m.data, delta) : (m.data.rev | 0);
+            send(ws, { t: 'gift', places, d: delta, rev, enh: e, cos: got, note: gout, gift: g });
+          }
+        }
         queueSave(me.key, m.data);
         if (out.length || first || !ce || ce.tk !== e.tk || ce.lv !== e.lv || ce.max !== e.max) sendEnh(ws, me, { note: out });
       });
@@ -458,6 +499,8 @@ function onMsg(ws, me, m) {
     case 'bd_post': withLock(me.key, async () => {
       const kind = m.kind === 'want' ? 'want' : 'give', give = m.give || null, want = m.want || null;
       if (!okPair(give) || !okPair(want) || (kind === 'give' && !give) || (kind === 'want' && !want)) return send(ws, { t: 'bd_err', msg: '글 내용이 이상해요' });
+      if (!give || !want) return send(ws, { t: 'bd_err', msg: '줄 물고기와 받을 물고기를 둘 다 골라 주세요' });
+      if (placeOf(give[0]) !== placeOf(want[0])) return send(ws, { t: 'bd_err', msg: '같은 낚시터 물고기끼리만 바꿀 수 있어요' });
       const myMax = POST_MAX_EACH + jobRank(me.save, 'mer', 'slot');
       if (posts.filter(p => p.by_key === me.key).length >= myMax) return send(ws, { t: 'bd_err', msg: '글은 ' + myMax + '개까지 올릴 수 있어요' });
       if (posts.length >= POST_MAX_ALL) return send(ws, { t: 'bd_err', msg: '게시판이 꽉 찼어요. 조금 뒤에 올려 주세요' });
@@ -484,6 +527,7 @@ function onMsg(ws, me, m) {
         const i = posts.findIndex(p => p.id === m.id);
         if (i < 0) return send(ws, { t: 'bd_err', msg: '이미 누가 가져갔어요' });
         const p = posts[i];
+        if (!postOk(p)) return send(ws, { t: 'bd_err', msg: '예전 규칙으로 쓴 글이라 받을 수 없어요 (곧 내려가요)' });
         if (p.want && !has(me.save, p.want[0], p.want[1])) return send(ws, { t: 'bd_err', msg: '가방에 그 물고기가 부족해요' });
         posts.splice(i, 1); await db.delPost(p.id);
         const d = {};
@@ -529,6 +573,8 @@ function onMsg(ws, me, m) {
       withLocks([A.key, B.key], async () => {
         if (A.tr !== T || B.tr !== T) return;
         const oa = T.offer.get(A.id), ob = T.offer.get(B.id);
+        const rule = tradeRule(oa, ob);
+        if (rule) { T.ok.clear(); trState(T); for (const w of [aws, bws]) send(w, { t: 'bd_err', msg: rule }); return; }
         const fine = Object.keys(oa).every(k => hasKey(A.save, k, oa[k])) && Object.keys(ob).every(k => hasKey(B.save, k, ob[k]));
         if (!fine) { T.ok.clear(); trState(T); for (const w of [aws, bws]) send(w, { t: 'bd_err', msg: '가방이 바뀌어서 다시 확인해 주세요' }); return; }
         const da = {}, dbb = {};
@@ -558,6 +604,20 @@ function onMsg(ws, me, m) {
       if (r.k === 'break' && r.from >= 8) broadcast({ t: 'news', text: '💥 ' + me.name + ' 님의 +' + r.from + ' 낚싯대가 산산조각 났어요…' }, ws);
     }).catch(e => console.error('enh_try', e.message)); break;
     case 'enh_rank': send(ws, { t: 'enh_rank', list: rankTop() }); break;
+    /* ----- 친구 물고기 보기: 친구 가방에 있는 물고기 · 친구 도감에 없는 내 물고기 ----- */
+    case 'fr_list': (async () => {
+      const mine = invOf(me.save), live = new Set([...players.values()].map(p => p.key)), list = [];
+      for (const key of rosterCache.keys()) {
+        if (key === me.key) continue;
+        const sv = await loadSave(key); if (!sv) continue;
+        const inv = invOf(sv), dex = sv.dex || {}, have = [];
+        for (const k in inv) if ((inv[k] | 0) > 0 && validFish(+k)) have.push([+k, inv[k] | 0]);
+        const lack = Object.keys(mine).filter(k => (mine[k] | 0) > 0 && validFish(+k) && !(dex[k] && dex[k].n > 0)).map(Number);
+        const l = liveByKey(key);
+        list.push({ name: (rosterCache.get(key) || {}).name || key, on: live.has(key), id: l ? l[1].id : 0, have, lack });
+      }
+      send(ws, { t: 'fr_list', list });
+    })().catch(e => console.error('fr_list', e.message)); break;
     case 'life': withLock(me.key, () => {
       const r = LIFE_RULE[m.src]; if (!r || !me.save) return;
       const id = cleanText(m.id, 12), cd = lifeCd.get(me.key) || {}, k = m.src + (r.per ? ':' + id : ''), now = Date.now();
@@ -860,13 +920,14 @@ function endTrade(me, msg) {
 }
 /* 3일 지난 글은 내리고, 맡긴 물고기는 주인에게 돌려줘요 */
 async function expirePosts() {
-  const old = posts.filter(p => Date.now() - Date.parse(p.created_at) > POST_DAYS * 864e5);
+  const old = posts.filter(p => Date.now() - Date.parse(p.created_at) > POST_DAYS * 864e5 || !postOk(p));   // 예전 규칙 글(선물 · 다른 낚시터)도 내려요
   for (const p of old) {
     await withLock(p.by_key, async () => {
       if (!posts.includes(p)) return;
+      const rule = postOk(p);
       posts = posts.filter(x => x !== p); await db.delPost(p.id);
-      if (p.give) await changeBag(p.by_key, { [p.give[0]]: p.give[1] }, '게시판 글 기한이 지나 맡긴 물고기가 돌아왔어요');
-      addMail(p.by_key, '게시판 글이 ' + POST_DAYS + '일이 지나 내려갔어요.');
+      if (p.give) await changeBag(p.by_key, { [p.give[0]]: p.give[1] }, rule ? '게시판 글 기한이 지나 맡긴 물고기가 돌아왔어요' : '교환 규칙이 바뀌어 글을 내리고 맡긴 물고기를 돌려드렸어요');
+      addMail(p.by_key, rule ? '게시판 글이 ' + POST_DAYS + '일이 지나 내려갔어요.' : '이제 물고기는 같은 낚시터 물고기끼리만 바꿔요. 예전 글은 내려갔어요.');
     }).catch(e => console.error('글 정리 실패', e.message));
   }
 }
