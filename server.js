@@ -367,9 +367,9 @@ const hasReqItem = (s, item, n) => item.startsWith('f:') ? has(s, +item.slice(2)
 /* 직업 4.0 (2026-11-05): 조사 쪽지 · 장인 명품 상자 — index.html ITEMS와 같아요 */
 const MP_IDS = ["mp_b_dragon", "mp_b_angel", "mp_b_sun", "mp_b_galaxy", "mp_b_crown", "mp_b_rainbowp", "mp_b_hourglass", "mp_b_starheart", "mp_r_aurora", "mp_r_dragon", "mp_r_gold2", "mp_r_cosmos"];
 ITEM_IDS.push('clue', ...MP_IDS);
-ITEM_IDS.push('log', 'plank', 'wplank', 'dye', 'cloth', 'honey', 'honey_lav', 'honey_rb', 'wildhoney', 'pie', 'apple', 'peach', 'orange', 'cherry', 'fl_tulip', 'fl_sun', 'fl_cosmos', 'fl_lav', 'fl_rose', 'fl_hydr', 'fl_lily', 'fl_rb');   // 자연 1.0 (index.html ITEMS와 같아요)
+ITEM_IDS.push('log', 'plank', 'wplank', 'dye', 'cloth', 'honey', 'honey_lav', 'honey_rb', 'wildhoney', 'pie', 'apple', 'peach', 'orange', 'cherry', 'fl_tulip', 'fl_sun', 'fl_cosmos', 'fl_lav', 'fl_rose', 'fl_hydr', 'fl_lily', 'fl_rb', 'sap_oak', 'sap_pine', 'sap_apple', 'sap_peach', 'sap_orange', 'sap_cherry');   // 자연 1.0 (index.html ITEMS와 같아요)
 LOOK_IDS.bob.push('b_bfly'); LOOK_IDS.ti.push('t_bug1', 't_bug2', 't_ark');
-Object.assign(ITEM_NPC, { clue: 20000 }, {"mp_b_dragon": 12500000, "mp_b_angel": 14000000, "mp_b_sun": 15000000, "mp_b_galaxy": 17500000, "mp_b_crown": 20000000, "mp_b_rainbowp": 22500000, "mp_b_hourglass": 50000000, "mp_b_starheart": 75000000, "mp_r_aurora": 12500000, "mp_r_dragon": 15000000, "mp_r_gold2": 25000000, "mp_r_cosmos": 60000000});
+Object.assign(ITEM_NPC, { clue: 20000, fl_tulip: 4000, fl_cosmos: 5000, fl_sun: 7000, fl_lav: 10000, fl_rose: 20000, fl_hydr: 30000, fl_lily: 50000, fl_rb: 300000, apple: 3000, peach: 4000, orange: 3500, cherry: 8000, honey: 800, wildhoney: 6000, log: 300, plank: 400, wplank: 2500, sap_oak: 1000000, sap_pine: 1000000, sap_apple: 2500000, sap_peach: 4000000, sap_orange: 4000000, sap_cherry: 7500000 }, {"mp_b_dragon": 12500000, "mp_b_angel": 14000000, "mp_b_sun": 15000000, "mp_b_galaxy": 17500000, "mp_b_crown": 20000000, "mp_b_rainbowp": 22500000, "mp_b_hourglass": 50000000, "mp_b_starheart": 75000000, "mp_r_aurora": 12500000, "mp_r_dragon": 15000000, "mp_r_gold2": 25000000, "mp_r_cosmos": 60000000});
 Object.assign(MAKER, { clue: 'sch' }, {"mp_b_dragon": "cra", "mp_b_angel": "cra", "mp_b_sun": "cra", "mp_b_galaxy": "cra", "mp_b_crown": "cra", "mp_b_rainbowp": "cra", "mp_b_hourglass": "cra", "mp_b_starheart": "cra", "mp_r_aurora": "cra", "mp_r_dragon": "cra", "mp_r_gold2": "cra", "mp_r_cosmos": "cra"});
 Object.assign(ITEM_NAME, { clue: '조사 쪽지' }, {"mp_b_dragon": "용의 알 찌 상자", "mp_b_angel": "천사 찌 상자", "mp_b_sun": "태양 찌 상자", "mp_b_galaxy": "은하수 찌 상자", "mp_b_crown": "왕관 찌 상자", "mp_b_rainbowp": "무지개 진주 찌 상자", "mp_b_hourglass": "시간의 모래시계 찌 상자", "mp_b_starheart": "별의 심장 찌 상자", "mp_r_aurora": "오로라 낚싯대 상자", "mp_r_dragon": "용염 낚싯대 상자", "mp_r_gold2": "순금 용왕 낚싯대 상자", "mp_r_cosmos": "우주의 낚싯대 상자"});
 LOOK_IDS.bob.push('jb_fish1','jb_fish3','jb_sch1','jb_sch3','jb_cra1','jb_cra3','jb_tam1','jb_tam3','jb_mer1','jb_mer3','b_trust'); LOOK_IDS.rod.push('jr_fish','jr_sch','jr_cra','jr_tam','jr_mer'); LOOK_IDS.bk.push('k_trust'); LOOK_IDS.ti.push('t_trust1','t_trust2');
@@ -602,7 +602,8 @@ wss.on('connection', (ws) => {
         m.data.popGv = me.save && me.save.popGv ? me.save.popGv : {};
         m.data.petrw = me.save && me.save.petrw ? me.save.petrw : null;   // 동물 친구 보상 받은 기록도 서버 것만
         m.data.cs = me.save && Array.isArray(me.save.cs) ? me.save.cs : [];   // 위탁 판매에 맡긴 물고기는 서버가 들고 있어요
-        m.data.boat = me.save && me.save.boat ? me.save.boat : 0;   // 물결호를 만든 기록도 서버 것만
+        m.data.boat = me.save && me.save.boat ? me.save.boat : 0;
+        m.data.arkd = me.save ? me.save.arkd | 0 : 0;   // 물결호에 실은 수 (방주 칭호)   // 물결호를 만든 기록도 서버 것만
         m.data.don = me.save && me.save.don && typeof me.save.don === 'object' ? me.save.don : {};   // 마을 기부함에 넣은 것
         m.data.zrw = me.save && Array.isArray(me.save.zrw) ? me.save.zrw : [];   // 낚시터 정복 보상 받은 기록
         m.data.ptd = me.save && me.save.ptd ? me.save.ptd : null;   // 오늘 배낚시 나간 횟수
@@ -628,7 +629,7 @@ wss.on('connection', (ws) => {
         const e = enhOf(m.data), out = [];
         enhDaily(e, out);
         if (!first) { let pts = 0, cnt = 0; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) { pts += dn * ENH.PTS[fishRar(+k)]; cnt += dn; } } if (pts) enhAddPoints(e, pts, out); if (cnt) wkAdd('fish', cnt); }
-        me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data);
+        me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data); shipSnap(me, m.data);
         if (first) togCheck();
         if (sFixed) send(ws, { t: 'sdex', sdex: m.data.sdex });   // 손맛 도감을 서버 기록에 맞춰요
         if (!first) { shinyRoll(ws, me, m.data, oldSd); mythCheck(me, m.data, oldSd); dayStar(me, m.data, oldSd); mentorCheck(me, m.data, oldSd); starCatch(ws, m.data, oldSd); stampCheck(ws, m.data, oldSd); recCheck(ws, me, oldDex, m.data, oldSd); }
@@ -717,6 +718,25 @@ function onMsg(ws, me, m) {
       }
       vMark(); vSend();
     }).catch(e => console.error('ark_put', e.message)); break;
+    case 'ship_claim': withLock('__ship', async () => {
+      const s = me.save; if (!s || !V) return; const L = shipsOf();
+      if (shipIdx(me.key) >= 0) return send(ws, { t: 'ships', ships: shipPub() });
+      let i = L.findIndex(x => !x); const now = Date.now();
+      if (i < 0) i = L.findIndex(x => x && !liveByKey(x.key) && now - (x.t || 0) > SHIP_IDLE);
+      if (i < 0) return send(ws, { t: 'news', text: '빈 꽃배가 없어요 · 7일 넘게 안 온 사람의 배가 비면 받을 수 있어요' });
+      L[i] = { key: me.key, name: me.name, at: 'v', t: now, st: 0, gd: shipSnapOf(s) }; vMark();
+      send(ws, { t: 'ship_ok', ships: shipPub() }); broadcast({ t: 'ships', ships: shipPub() }, ws);
+      broadcast({ t: 'news', text: '🌷⛵ ' + me.name + ' 님의 꽃배가 꽃배 부두에 들어왔어요!' });
+    }).catch(e => console.error('ship_claim', e.message)); break;
+    case 'ship_sail': {
+      const i = shipIdx(me.key), at = m.at === 'i' ? 'i' : 'v'; if (i < 0) break; const x = V.ships[i]; if (x.at === at) break;
+      if (at === 'i' && !vBoat) { send(ws, { t: 'news', text: '마을 물결호가 있어야 안개 섬 뱃길을 알아요' }); break; }
+      const now = Date.now(); if (now - (x.st || 0) < SHIP_SAIL_MS) { send(ws, { t: 'news', text: '⛵ 돛을 다시 펴려면 ' + Math.ceil((SHIP_SAIL_MS - (now - x.st)) / 60000) + '분 기다려요' }); break; }
+      x.at = at; x.st = now; vMark();
+      send(ws, { t: 'ship_sail', at, ships: shipPub() }); broadcast({ t: 'ships', ships: shipPub() }, ws);
+      broadcast({ t: 'news', text: at === 'i' ? '🌫️⛵ ' + me.name + ' 님의 꽃배가 꽃을 싣고 안개 섬으로 떠났어요' : '🏘️⛵ ' + me.name + ' 님의 꽃배가 마을 꽃배 부두로 돌아왔어요' });
+      break;
+    }
     case 'rank_get': { const k = String(m.k || ''), r = rankOf(k, me); if (r) send(ws, Object.assign({ t: 'rank', k }, r)); break; }
     case 'trust_buy': withLock(me.key, async () => {
       const s = me.save, id = String(m.id || ''), cost = TRUST_SHOP[id]; if (!s || !cost) return;
@@ -1566,16 +1586,31 @@ async function vFlush() { if (!V) return; vDirty = false; V.jp = Math.floor(ebJP
 setInterval(() => { if (vDirty) vFlush(); }, 10000);
 const kstHM = ms => new Date(ms + 9 * 3600e3).toISOString().slice(11, 16);
 /* ⛵ 물결호 키우기 (자연 1.0): 마을 모두가 재료를 실어 단계를 올려요 · 마을 기록(__village)에 저장 · index.html ARK와 같아요 */
-const ARK_NEED = [null, null, { plank: 300, log: 200 }, { cloth: 40, dye: 40, wplank: 100 }, { wplank: 300, honey: 60, fruit: 150 }, { wplank: 600, cloth: 100, wildhoney: 50, honey_rb: 10, flower: 300, fruit: 300 }];
+const ARK_NEED = [null, null, { plank: 300, log: 200 }, { cloth: 20, dye: 20, wplank: 100 }, { wplank: 300, honey: 60, fruit: 80 }, { wplank: 600, cloth: 40, wildhoney: 50, honey_rb: 5, flower: 100, fruit: 120 }];   // index.html ARK와 같아요 (2026-11-05 꽃 · 나무가 귀해져서 줄였어요)
 const ARK_GROUP = { fruit: ['apple', 'peach', 'orange', 'cherry'], flower: ['fl_tulip', 'fl_sun', 'fl_cosmos', 'fl_lav', 'fl_rose', 'fl_hydr', 'fl_lily', 'fl_rb'] };
 const ARK_NAME = ['', '물결호', '튼튼한 물결호', '돛단 물결호', '물결 범선', '물결 방주'];
 const arkOf = () => { if (!V) return { st: 1, got: {}, dn: {} }; const a = V.ark && typeof V.ark === 'object' ? V.ark : (V.ark = { st: 1, got: {}, dn: {} }); a.st = Math.max(1, Math.min(5, a.st | 0)); a.got = a.got || {}; a.dn = a.dn || {}; return a; };
 const arkSt = () => arkOf().st;
+/* 🌷⛵ 꽃배 (2026-11-05): 한 사람에 한 척 · 8척 · 마을 꽃배 부두 ↔ 안개 섬 부두 (index.html SHIP_N과 같아요)
+   7일 넘게 안 온 사람의 배는 빈 배가 돼요 (그 사람 꽃은 저장에 그대로) */
+const SHIP_N = 8, SHIP_IDLE = 7 * 864e5, SHIP_SAIL_MS = 5 * 60e3;
+const shipsOf = () => { if (!V) return []; if (!Array.isArray(V.ships)) V.ships = []; while (V.ships.length < SHIP_N) V.ships.push(null); return V.ships; };
+const shipSnapOf = s => {
+  const g = s && s.gd, p = {}, o = {}; if (!g || typeof g !== 'object') return { n: 6, p, o, bd: 'wood' };
+  for (const k in (g.p && typeof g.p === 'object' ? g.p : {})) { const v = g.p[k]; if (v && typeof v.f === 'string' && +k >= 0 && +k < 40) p[k] = { f: v.f.slice(0, 8), t0: +v.t0 || 0 }; }
+  for (const k in (g.o && typeof g.o === 'object' ? g.o : {})) { const v = g.o[k]; if (v && typeof v.k === 'string' && +k >= 0 && +k < 12) { o[k] = { k: v.k.slice(0, 8), t0: +v.t0 || 0, fr: +v.fr || 0 }; if (Number.isInteger(v.x) && Number.isInteger(v.y) && v.x >= 0 && v.x < 24 && v.y >= 0 && v.y < 13) { o[k].x = v.x; o[k].y = v.y; } } }
+  return { n: Math.max(6, Math.min(40, g.n | 0)), p, o, bd: typeof g.bd === 'string' ? g.bd.slice(0, 8) : 'wood' };
+};
+const shipPub = () => shipsOf().map(x => x ? { name: x.name, at: x.at, gd: x.gd } : null);
+const shipIdx = key => shipsOf().findIndex(x => x && x.key === key);
+let shipT = 0;
+function shipSoon() { if (shipT) return; shipT = setTimeout(() => { shipT = 0; broadcast({ t: 'ships', ships: shipPub() }); }, 800); }
+function shipSnap(me, s) { if (!V) return; const i = shipIdx(me.key); if (i < 0) return; const x = V.ships[i], gd = shipSnapOf(s); x.t = Date.now(); if (JSON.stringify(gd) !== JSON.stringify(x.gd)) { x.gd = gd; shipSoon(); } vMark(); }
 const arkPub = () => { const a = arkOf(); return { st: a.st, got: a.got, dn: Object.entries(a.dn).sort((x, y) => y[1] - x[1]).slice(0, 10).map(([n, v]) => ({ n, v })) }; };
 function vPub() {
   if (!V) return { t: 'vil' };
   const st = vSt(), don = Object.entries(V.don).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, g]) => ({ name, g }));
-  return { t: 'vil', ark: arkPub(), fund: { g: V.fund.g, st, need: VF[st] ? VF[st].g : 0 }, don, wk: V.wk, rsv: V.rsv.map(r => ({ kind: r.kind, host: r.hostName, at: r.at })), fest: isFest(), festH: FEST_H, tog: { n: tog.n, on: tog.on, p: togLuck() }, boom: V.boom && V.boom.until > Date.now() ? V.boom : null, shop: medShop(), medCap: medCap() };
+  return { t: 'vil', ark: arkPub(), ships: shipPub(), fund: { g: V.fund.g, st, need: VF[st] ? VF[st].g : 0 }, don, wk: V.wk, rsv: V.rsv.map(r => ({ kind: r.kind, host: r.hostName, at: r.at })), fest: isFest(), festH: FEST_H, tog: { n: tog.n, on: tog.on, p: togLuck() }, boom: V.boom && V.boom.until > Date.now() ? V.boom : null, shop: medShop(), medCap: medCap() };
 }
 function vSend() { broadcast(vPub()); }
 function vSoon() { if (vT) return; vT = setTimeout(() => { vT = 0; vSend(); }, 500); }
