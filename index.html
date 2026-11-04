@@ -57,6 +57,7 @@ button:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
 .sr i{font-style:normal;font-size:20px;filter:grayscale(1);opacity:.4}.sr.on i{filter:none;opacity:1}.sr div{flex:1;min-width:0}.sr b{font-size:13px}.sr small{display:block;font-size:11px;color:var(--ink-soft)}.sr em{font-style:normal;font-size:12px;color:#8a7aa8;white-space:nowrap}.sr.on em{color:#2f7a63}
 .sr.s1.on{background:#eef6ff;border-color:#b8d8f4}.sr.s2.on{background:#fff1e6;border-color:#ffc89a}.sr.s3.on{background:#fffbe6;border-color:#ffe28a}
 .shb-top{background:#fffbe6;border:2px solid #ffe28a;border-radius:12px;padding:8px 10px;font-size:12px;margin-bottom:8px}.shrow{background:linear-gradient(90deg,#fffbe6,#fff)}
+.bub .vr{font-style:normal;display:inline-block;background:linear-gradient(90deg,#ffd34d,#ffb36b);color:#5a3a00;border-radius:8px;padding:1px 8px;font-size:12px;font-weight:700;margin-bottom:2px;animation:pop .4s cubic-bezier(.2,1.5,.4,1)}
 #dexDot{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#ff6e9a;border:2px solid #fff}
 #resultcard{background:var(--paper);border:3px solid #fff;box-shadow:0 0 0 2px var(--line),0 10px 0 rgba(120,100,170,.2);border-radius:24px;padding:20px 22px 18px;width:min(310px,100%);text-align:center;position:relative;animation:pop .35s cubic-bezier(.2,1.5,.4,1)}
 @keyframes pop{from{transform:scale(.7);opacity:0}}
@@ -2695,6 +2696,9 @@ const aqOpenNow=()=>!$('sheetwrap').hidden&&$('sheettitle').textContent==='🐠 
 function openAqua(name){if(!ONLINE||!Net.me){toast('수족관은 온라인에서 열려요');return}Snd.sfx('page');AQ.edit=false;AQ.view=null;openSheet('🐠 물결 수족관','<div class="muted" style="padding:20px;text-align:center">수족관에 들어가는 중…</div>',()=>{cancelAnimationFrame(AQ.anim)});
   Net.send({t:'aq_list'});Net.send({t:'aq_get',name:name||Net.me.name})}
 function onAqMsg(m){if(m.t==='aq'){AQ.view=m;if(aqOpenNow()&&!AQ.edit)renderAqua();return true}if(m.t==='aq_list'){AQ.list=m.list;if(aqOpenNow()&&!AQ.edit)renderAqua();return true}
+  if(m.t==='vrec'){if(VREC&&VREC.rec)VREC.rec[m.id]=[m.len,Net.me.name];showBanner('🏆 마을 신기록! '+fishName(m.id)+' '+m.len+'cm · '+m.prev[1]+' 님('+m.prev[0]+'cm)을 이겼어요!');return true}
+  if(m.t==='vrec_news'){if(VREC&&VREC.rec)VREC.rec[m.id]=[m.len,m.who];const mine=Net.me&&m.prev&&m.prev[1]===Net.me.name;
+    if(mine){showBanner('😱 '+m.who+' 님이 내 '+fishName(m.id)+' 기록('+m.prev[0]+'cm)을 깼어요! '+m.len+'cm');Snd.sfx('escape')}else toast('🏆 '+m.who+' 님 '+fishName(m.id)+' 마을 신기록 '+m.len+'cm (이전 '+m.prev[1]+' 님 '+m.prev[0]+'cm)');return true}
   if(m.t==='rec'){VREC=m;if(evOpenNow())renderEv();if(dexOpen())renderDex();return true}
   if(m.t==='shiny'){if(m.shb)S.shb=m.shb;if(m.enh)S.enh=Object.assign(enhDefault(),m.enh);shinyGot(m.id,m.n,m.cos);if(m.tk)setTimeout(()=>showBanner('✨ 반짝 도장! 「'+fishName(m.id)+'」 강화권 +'+m.tk),2600);if(forgeOpen())renderForge();return true}
   if(m.t==='shb'){S.shb=m.shb||{};if(m.sold!==undefined){coinRain(m.g);showBanner('✨ 반짝 '+fishName(m.sold)+' → '+fmt(m.g)+' 골드!')}if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='가방')renderBag();saveState();return true}
@@ -2749,18 +2753,20 @@ const LEG_LINE={'황금잉어':'눈부셔서 앞이 안 보여!','구름송어':
 const pick=a=>a[(Math.random()*a.length)|0];
 function holdClass(f,len,giant){const r=len/(f.len||1);return giant?'giant':(r>=1.15||f.len>=150)?'big':(r<.85&&f.len<60)?'small':'mid'}
 function holdLine(f,c){if(LEG_LINE[f.name])return LEG_LINE[f.name];const t=TPL_LINE[f.spec&&f.spec.tpl];if(t&&f.rar>=1&&Math.random()<.5)return t;return pick(HOLD_LINES[c])}
-function holdHtml(h){const f=FISH[h.f];if(!f)return'';return(h.sh?'✨ ':'')+'<b>'+esc(f.name)+'</b> '+h.len+'cm'+(h.x2?' ×'+h.x2:'')+(h.wl?' <i class="rb">월척!</i>':'')+(h.nw?' <i class="nw">NEW</i>':'')+(h.bt?' <i class="rb">최고 기록!</i>':'')+'<br><small>'+esc(h.ln||'')+'</small>'}
+function holdHtml(h){const f=FISH[h.f];if(!f)return'';return(h.vr?'<i class="vr">🏆 마을 신기록!</i><br>':'')+(h.sh?'✨ ':'')+'<b>'+esc(f.name)+'</b> '+h.len+'cm'+(h.x2?' ×'+h.x2:'')+(h.wl?' <i class="rb">월척!</i>':'')+(h.nw?' <i class="nw">NEW</i>':'')+'<br><small>'+(h.vr?'<b style="color:#d0800a">'+esc(h.vr[1])+' 님 '+h.vr[0]+'cm를 이겼어요!</b>':esc(h.ln||''))+'</small>'}
+/* 마을 신기록: 서버의 마을 1등 기록(VREC)보다 크고, 그 주인이 내가 아니면 → 이긴 사람 [cm, 이름] */
+function vrecBeat(id,len){if(!ONLINE||!Net.me||!VREC||!VREC.rec)return null;const me=Net.me.name,cur=VREC.rec[id];if(cur&&len<=cur[0])return null;VREC.rec[id]=[len,me];return cur&&cur[1]!==me?cur:null}
 const holdCls=h=>{const f=FISH[h.f];return'bub cb'+(f&&f.myth?' myth':f&&f.rar>=4?' leg':'')+(h.sh?' sh':'')};
 function showCatchBub(a,html,cls,ms){if(a.bub)a.bub.remove();const el=document.createElement('div');el.className=cls||'bub cb';el.innerHTML=html;$('tags').appendChild(el);a.bub=el;a.say={until:performance.now()+(ms||4000)}}
 let HOLD=null;
 function startHold(){const f=F.fish,c=holdClass(f,F.len,F.giant);
-  HOLD={f:f.id,len:F.len,c,sh:!!F.shinyNow,nw:!!F.isNew,pf:!!F.perfect,bt:!!F.best,x2:F.net?3:F.double?2:0,wl:!!F.wol,ln:holdLine(f,c),at:performance.now()};
+  const vr=vrecBeat(f.id,F.len);HOLD={f:f.id,len:F.len,c,vr,sh:!!F.shinyNow,nw:!!F.isNew,pf:!!F.perfect,bt:false,x2:F.net?3:F.double?2:0,wl:!!F.wol,ln:holdLine(f,c),at:performance.now()};
   P.dir='down';showCatchBub(ME,holdHtml(HOLD),holdCls(HOLD),600000);
   const lg=f.rar>=4||f.myth;sparkFx(P.x,P.y-30,lg?30:f.rar>=2?16:8,lg?['#ffe28a','#ffb3c8','#b9a6ee','#a9e8cf']:['#ffffff','#cfe8ff']);
   if(F.perfect)setTimeout(()=>sparkFx(P.x,P.y-34,14,['#ffffff','#fff6c8']),150);
   if(f.myth)DARK={t:2.4};
   pets.forEach(a=>{if(Math.hypot(a.x-P.x,a.y-P.y)<90){a.react=c==='small'?.5:1.2;if(c!=='small')parts.push({x:a.x-3,y:a.y-14,vx:0,vy:-14,life:1,t:0,heart:true,g:0})}});
-  if(ONLINE&&Net.me)Net.send({t:'hold',f:HOLD.f,len:HOLD.len,c,sh:HOLD.sh,nw:HOLD.nw,pf:HOLD.pf,bt:HOLD.bt,x2:HOLD.x2,wl:HOLD.wl,ln:HOLD.ln});
+  if(ONLINE&&Net.me)Net.send({t:'hold',f:HOLD.f,len:HOLD.len,c,sh:HOLD.sh,nw:HOLD.nw,pf:HOLD.pf,vr:HOLD.vr,x2:HOLD.x2,wl:HOLD.wl,ln:HOLD.ln});if(HOLD.vr){Snd.sfx('page');setTimeout(()=>sparkFx(P.x,P.y-40,30,['#ffd34d','#fff2a0','#ffffff','#ffb3c8']),200)}
   $('result').hidden=false}
 /* 붙잡고 있는 모습 그리기 (나 · 친구 같이 씀) */
 function drawHoldAt(x,y,spr,h,t,skin){
@@ -2795,7 +2801,7 @@ function sendWow(o){if(o.wowed===o.hold.at)return toast('이미 우와! 했어�
 function heartsAt(x,y,n){for(let i=0;i<n;i++)setTimeout(()=>parts.push({x:x+(Math.random()-.5)*12,y:y,vx:(Math.random()-.5)*8,vy:-16,life:1,t:0,heart:true,g:0}),i*120)}
 function onHoldMsg(m){
   if(m.t==='hold'){const o=others.get(m.id);if(!o)return true;if(m.miss){o.hold={miss:1,at:performance.now()};showCatchBub(o,'아…','bub cb',1800);return true}
-    if(!FISH[m.f])return true;o.hold={f:m.f,len:m.len|0,c:m.c,sh:!!m.sh,nw:!!m.nw,pf:!!m.pf,bt:!!m.bt,x2:Math.min(3,m.x2|0),wl:!!m.wl,ln:String(m.ln||'').slice(0,40),at:performance.now()};showCatchBub(o,holdHtml(o.hold),holdCls(o.hold),4200);
+    if(!FISH[m.f])return true;o.hold={f:m.f,len:m.len|0,c:m.c,sh:!!m.sh,nw:!!m.nw,pf:!!m.pf,vr:Array.isArray(m.vr)?[m.vr[0]|0,String(m.vr[1]||'').slice(0,12)]:null,x2:Math.min(3,m.x2|0),wl:!!m.wl,ln:String(m.ln||'').slice(0,40),at:performance.now()};showCatchBub(o,holdHtml(o.hold),holdCls(o.hold),4200);
     if(FISH[m.f].myth&&Math.hypot(o.x-P.x,o.y-P.y)<400)DARK={t:1.6};return true}
   if(m.t==='wow'){const to=Net.me&&m.to===Net.me.id;const o=others.get(m.id);if(o)showSay(o,'우와!');
     if(to){heartsAt(P.x,P.y-30,5);toastNow('💕 '+m.name+' 님: 우와!');Snd.sfx('page')}else{const t=others.get(m.to);if(t)heartsAt(t.x,t.y-30,3)}return true}
@@ -5234,7 +5240,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
   posKey:'',
   onMsg(m){
     if(onEvMsg(m)||onEbMsg(m)||onVilMsg(m))return;
-    if(m.t==='login_ok'){const first=!this.me;this.me={id:m.id,name:m.name,color:m.color,admin:!!m.admin};
+    if(m.t==='login_ok'){const first=!this.me;this.me={id:m.id,name:m.name,color:m.color,admin:!!m.admin};setTimeout(()=>Net.send({t:'rec_list'}),1500);   // 마을 신기록 판정용
       try{localStorage.setItem(LOGIN_KEY,JSON.stringify(this.creds))}catch(e){}
       this.lastPos='';netBanner();if(first&&this.onLogin)this.onLogin(m);else this.flushSave(true);
       this.send({t:'look',look:S.cos.look});refreshMe()}

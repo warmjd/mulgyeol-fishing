@@ -595,7 +595,7 @@ wss.on('connection', (ws) => {
         me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data);
         if (first) togCheck();
         if (sFixed) send(ws, { t: 'sdex', sdex: m.data.sdex });   // 손맛 도감을 서버 기록에 맞춰요
-        if (!first) { shinyRoll(ws, me, m.data, oldSd); mythCheck(me, m.data, oldSd); dayStar(me, m.data, oldSd); mentorCheck(me, m.data, oldSd); stampCheck(ws, m.data, oldSd); }
+        if (!first) { shinyRoll(ws, me, m.data, oldSd); mythCheck(me, m.data, oldSd); dayStar(me, m.data, oldSd); mentorCheck(me, m.data, oldSd); stampCheck(ws, m.data, oldSd); recCheck(ws, me, oldDex, m.data, oldSd); }
         if (!first) {   // 섬 물고기를 직접 낚았으면 안개 조각
           const sh = shardRoll(m.data, oldSd);
           if (sh) { const rev = applyInv(m.data, { 'i:shard': sh }); send(ws, { t: 'delta', d: { 'i:shard': sh }, rev, shd: m.data.shd, why: '🔹 섬 물고기를 직접 낚았어요 (오늘 ' + m.data.shd.n + '/' + SHARD_DAY + ')' }); }
@@ -661,7 +661,7 @@ function onMsg(ws, me, m) {
       const now = Date.now(); if (now - (me.holdT || 0) < 700) return; me.holdT = now;
       if (m.miss) { broadcast({ t: 'hold', id: me.id, miss: 1 }, ws); break; }
       const f = m.f | 0; if (!validFish(f)) return; const c = ['small', 'mid', 'big', 'giant'].includes(m.c) ? m.c : 'mid';
-      broadcast({ t: 'hold', id: me.id, f, len: Math.max(1, Math.min(9999, m.len | 0)), c, sh: !!m.sh, nw: !!m.nw, pf: !!m.pf, bt: !!m.bt, x2: Math.min(3, m.x2 | 0), wl: !!m.wl, ln: String(m.ln || '').replace(/[<>]/g, '').slice(0, 40) }, ws); break;
+      broadcast({ t: 'hold', id: me.id, f, len: Math.max(1, Math.min(9999, m.len | 0)), c, sh: !!m.sh, nw: !!m.nw, pf: !!m.pf, bt: !!m.bt, x2: Math.min(3, m.x2 | 0), wl: !!m.wl, vr: Array.isArray(m.vr) ? [m.vr[0] | 0, String(m.vr[1] || '').slice(0, 12)] : null, ln: String(m.ln || '').replace(/[<>]/g, '').slice(0, 40) }, ws); break;
     }
     case 'wow': {   // 친구가 든 물고기에 '우와!'
       const now = Date.now(); if (now - (me.wowT || 0) < 1200) return; me.wowT = now; const l = liveById(m.id); if (!l || l[1].key === me.key) return;
@@ -864,7 +864,7 @@ function onMsg(ws, me, m) {
     case 'ev_buy': evBuy(ws, me, m); break;
     case 'ev_bid': evBid(ws, me, m); break;
     case 'ev_list': send(ws, { t: 'ev', list: evList() }); break;
-    case 'rec_list': recList().then(r => send(ws, { t: 'rec', rec: r, myth: (V && V.myth) || {} })).catch(() => { }); break;
+    case 'rec_list': recInit().then(() => send(ws, { t: 'rec', rec: (V && V.rec) || {}, myth: (V && V.myth) || {} })).catch(() => { }); break;
     case 'aq_set': case 'aq_list': case 'aq_get': case 'aq_like': aqMsg(ws, me, m); break;
     case 'vil': case 'wk_claim': case 'med_buy': case 'ev_rsv': case 'ev_rsv_del': case 'vf_put': vilMsg(ws, me, m); break;
     /* ----- 은비랜드 ----- */
@@ -1593,6 +1593,17 @@ async function recList() {
   for (const key of rosterCache.keys()) { const sv = await loadSave(key); if (!sv || !sv.dex) continue; const nm = (rosterCache.get(key) || {}).name || key;
     for (const k in sv.dex) { const b = sv.dex[k] && sv.dex[k].best | 0; if (b > 0 && validFish(+k) && (!out[k] || b > out[k][0])) out[k] = [b, nm]; } }
   return out;
+}
+/* 마을 신기록: 물고기마다 마을 1등 크기 (V.rec = { id: [cm, 이름] }). 직접 낚아서 남의 기록을 깨면 마을 전체에 소식 */
+let recReady = null;
+function recInit() { if (!recReady) recReady = recList().then(r => { if (!V) return; V.rec = V.rec || {}; for (const k in r) if (!V.rec[k] || r[k][0] > V.rec[k][0]) V.rec[k] = r[k]; vMark(); }).catch(() => { recReady = null; }); return recReady; }
+function recCheck(ws, me, oldDex, s, oldSd) {
+  const nd = s.dex || {}, nsd = s.sdex || {}, cand = [];
+  for (const k in nd) { const id = +k, nb = nd[k] && nd[k].best | 0, ob = oldDex[k] ? oldDex[k].best | 0 : 0; if (nb > ob && nb < 20000 && validFish(id) && (nsd[k] | 0) > (oldSd[k] | 0)) cand.push([id, nb]); }
+  if (!cand.length) return;
+  recInit().then(() => { if (!V) return; V.rec = V.rec || {};
+    for (const [id, len] of cand) { const cur = V.rec[id]; if (cur && len <= cur[0]) continue; V.rec[id] = [len, me.name]; vMark();
+      if (cur && cur[1] !== me.name) { send(ws, { t: 'vrec', id, len, prev: cur }); broadcast({ t: 'vrec_news', who: me.name, id, len, prev: cur }, ws); } } });
 }
 /* 수족관: 내가 만난 물고기 8마리까지 넣어 두고 친구가 구경 · 하루 한 번 좋아요 */
 const AQ_MAX = 8;
