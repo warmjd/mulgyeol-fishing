@@ -173,6 +173,7 @@ function cleanLook(l, save, color) {
   const enh = save && save.enh;
   if (ENH_TITLE_NEED[o.ti] && !(enh && enh.max >= ENH_TITLE_NEED[o.ti])) o.ti = '';
   o.e = enh ? enh.lv | 0 : 0;   // 이름표 옆 +강화 수치: 서버 기록 그대로
+  { const cup = (save && save.cup) || {}; o.gs = Math.max(cup[o.o] | 0, cup[o.hat] | 0, cup[o.bk] | 0, cup[o.fa] | 0); }   // 치장 별 (입은 것 중 가장 높은 별)
   o.j = typeof l.j === 'string' && /^(fish|sch|cra|tam|mer)[0-3]$/.test(l.j) ? l.j : '';   // 직업 배지 (아이콘 + 등급 별)
   return o;
 }
@@ -583,7 +584,7 @@ wss.on('connection', (ws) => {
         m.data.auh = me.save && Array.isArray(me.save.auh) ? me.save.auh : [];   // 반짝 장터에 맡긴 골드
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 코인 (서버만)
-        for (const k of ['med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 메달 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 메달 · 행사 강화권 · 주간 보상 받은 기록
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {};
@@ -666,6 +667,8 @@ function onMsg(ws, me, m) {
       if (k === 'cat') { const e = enhOf(s); e.cat = Math.min(3, (e.cat | 0) + 1); e.catk = jobRank(s, 'cra', 'cat2'); out.enh = e; }
       queueSave(me.key, s); send(ws, out);
     }).catch(e => console.error('skill', e.message)); break;
+    case 'aq_buy': case 'aq_on': case 'cos_up': case 'pv_buy': case 'pv_list': spendMsg(ws, me, m); break;
+    case 'home_get': case 'home_list': case 'home_like': case 'home_buy': case 'home_set': homeMsg(ws, me, m); break;
     case 'sh_sell': withLock(me.key, async () => {   // 가방 반짝 칸의 반짝 물고기 팔기: 보통의 10배 × 낚싯대 판매가
       const s = me.save, id = m.id | 0; if (!s || !validFish(id)) return; const b = objOf(s, 'shb'); if (!((b[id] | 0) > 0)) return send(ws, { t: 'news', text: '가방에 그 반짝 물고기가 없어요' });
       b[id]--; const g = Math.round(fishPrice(id) * 10 * enhSell(s.enh && s.enh.lv)); await changeBag(me.key, { g }, null); send(ws, { t: 'shb', shb: b, sold: id, g });
@@ -1637,19 +1640,122 @@ function recCheck(ws, me, oldDex, s, oldSd) {
 const AQ_MAX = 8;
 function aqClean(s, slots) {
   const dex = s.dex || {}, sh = s.shiny || {}, out = [];
-  for (const x of Array.isArray(slots) ? slots.slice(0, AQ_MAX) : []) { const id = x && x.id; if (!validFish(id) || !(dex[id] && dex[id].n > 0)) continue; out.push({ id, sh: !!(x.sh && sh[id] > 0 && ((s.shb || {})[id] | 0) > 0), len: Math.max(1, Math.min(dex[id].best | 0 || 1, x.len | 0 || dex[id].best | 0)) }); }
+  for (const x of Array.isArray(slots) ? slots.slice(0, aqMax(s)) : []) { const id = x && x.id; if (!validFish(id) || !(dex[id] && dex[id].n > 0)) continue; out.push({ id, sh: !!(x.sh && sh[id] > 0 && ((s.shb || {})[id] | 0) > 0), len: Math.max(1, Math.min(dex[id].best | 0 || 1, x.len | 0 || dex[id].best | 0)) }); }
   return out;
 }
+/* ---------- 골드 쓰는 곳 2.0 (2026-11-04): 수족관 확장 · 치장 별 · 주간 한정 · 안개 섬 고급 치장 (index.html과 같은 숫자) ---------- */
+const AQX_N = [8, 12, 16, 24], AQX_G = [1e6, 5e6, 2e7];
+const AQ_DECO = { coral: 3e5, shellbed: 2e5, weed2: 2.5e5, chest: 5e5, castle: 8e5, bubbler: 4e5, sand_pink: 3e5, sand_night: 6e5, light_sun: 1e6, light_moon: 1.5e6 };
+const aqMax = s => AQX_N[Math.min(3, s.aqx | 0)];
+/* 치장 별 ★1~5: 입은 것이 반짝반짝 (모두에게 보여요). ★5는 반짝 물고기 1마리도 같이 */
+const CUP_BASE = { o: 1e5, hat: 6e4, bk: 1.5e5, fa: 4e4, bob: 4e4 }, CUP_MUL = [1, 3, 8, 20, 50];
+const cosSlot = id => { for (const k of ['o', 'hat', 'bk', 'fa', 'bob']) if (LOOK_IDS[k].includes(id)) return k; return ''; };
+const cupCost = (id, cur) => { const k = cosSlot(id); return k && cur < 5 ? Math.round(CUP_BASE[k] * CUP_MUL[cur] * (id.startsWith('pv_') ? 2 : 1)) : 0; };
+/* 한정 치장: 이미 있는 옷의 특별한 색 (주간 상점 · 안개 섬) */
+const PV_WEEK = [['o', 'pondrobe', 'gold'], ['o', 'starcloak', 'ember'], ['o', 'suit', 'gold'], ['o', 'pd_snow', 'crystal'], ['o', 'knight', 'gold'], ['o', 'idol', 'rainbow'], ['o', 'hanbok_p', 'pearl'], ['o', 'witchrobe', 'night'], ['o', 'sailor', 'pearl'],
+  ['hat', 'crown', 'rainbow'], ['hat', 'tiara', 'crystal'], ['hat', 'mooncrown', 'ember'], ['hat', 'captain', 'gold'], ['hat', 'witchhat', 'night'], ['hat', 'halo', 'rainbow'],
+  ['bk', 'angelwings', 'gold'], ['bk', 'fairywings', 'rainbow'], ['bk', 'dracape', 'ember'], ['bk', 'kingcape', 'night'], ['bk', 'butterfly', 'crystal']];
+const PV_ISLE = [['o', 'fogcoat', 'fog'], ['o', 'deepsea', 'coral'], ['o', 'lifejacket', 'coral'], ['hat', 'pirate', 'fog'], ['hat', 'whalehat', 'coral'], ['bk', 'xcape_n', 'fog']];
+const pvId = x => 'pv_' + x[2] + '_' + x[1];
+const PV_PRICE = { o: 5e6, hat: 3e6, bk: 8e6 }, PV_ISLE_PRICE = { o: [2e6, 40], hat: [1.5e6, 30], bk: [3e6, 60] };
+for (const x of PV_WEEK.concat(PV_ISLE)) LOOK_IDS[x[0]].push(pvId(x));
+function pvWeek() { const n = wkNum(), pool = PV_WEEK.slice(), out = []; let seed = n * 7919 + 13; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const backs = pool.filter(x => x[0] === 'bk'); out.push(backs[Math.floor(rnd() * backs.length)]);
+  while (out.length < 4) { const x = pool[Math.floor(rnd() * pool.length)]; if (!out.includes(x)) out.push(x); }
+  return out.map(x => ({ id: pvId(x), g: PV_PRICE[x[0]] })); }
+const pvIsle = () => PV_ISLE.map(x => ({ id: pvId(x), g: PV_ISLE_PRICE[x[0]][0], sh: PV_ISLE_PRICE[x[0]][1] }));
+const wkLeftMs = () => { const n = wkNum(); return (n + 1) * 7 * 864e5 - Date.parse(new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10)) + 0; };
+function spendMsg(ws, me, m) {
+  const err = text => send(ws, { t: 'ev_err', text });
+  if (m.t === 'pv_list') return send(ws, { t: 'pv', week: pvWeek(), isle: pvIsle(), wk: wkNum() });
+  withLock(me.key, async () => {
+    const s = me.save; if (!s) return;
+    if (m.t === 'aq_buy') {
+      if (m.k === 'slot') { const lv = s.aqx | 0; if (lv >= 3) return err('수조가 이미 가장 커요'); const g = AQX_G[lv]; if (!hasKey(s, 'g', g)) return err('골드가 모자라요');
+        await changeBag(me.key, { g: -g }, null); s.aqx = lv + 1; }
+      else { const id = String(m.id || ''), g = AQ_DECO[id]; if (!g) return; const d = Array.isArray(s.aqd) ? s.aqd : (s.aqd = []); if (d.includes(id)) return err('이미 있어요'); if (!hasKey(s, 'g', g)) return err('골드가 모자라요');
+        await changeBag(me.key, { g: -g }, null); d.push(id); const on = objOf(s, 'aqon'); if (id.startsWith('sand_')) on.sand = id; if (id.startsWith('light_')) on.light = id; }
+      queueSave(me.key, s); return send(ws, Object.assign(aqPub(s, me.name, true), { note: '🐠 수족관이 좋아졌어요!' }));
+    }
+    if (m.t === 'aq_on') { const on = objOf(s, 'aqon'), id = String(m.id || ''), d = s.aqd || []; const k = m.k === 'light' ? 'light' : 'sand'; on[k] = id && d.includes(id) && id.startsWith(k + '_') ? id : ''; queueSave(me.key, s); return send(ws, aqPub(s, me.name, true)); }
+    if (m.t === 'cos_up') {
+      const id = String(m.id || ''), own = (s.cos && s.cos.own) || [], k = cosSlot(id); if (!k || !own.includes(id)) return err('가지고 있는 치장만 올릴 수 있어요');
+      const cup = objOf(s, 'cup'), cur = cup[id] | 0; if (cur >= 5) return err('이미 ★5예요'); const g = cupCost(id, cur); if (!hasKey(s, 'g', g)) return err('골드가 모자라요');
+      let shUse = 0; if (cur === 4) { const b = objOf(s, 'shb'); const ids = Object.keys(b).filter(x => (b[x] | 0) > 0).sort((a, c) => fishPrice(+a) - fishPrice(+c)); if (!ids.length) return err('★5에는 반짝 물고기 1마리가 필요해요 (가방 반짝 칸)'); shUse = +ids[0]; b[shUse]--; }
+      await changeBag(me.key, { g: -g }, null); cup[id] = cur + 1; queueSave(me.key, s);
+      me.look = cleanLook(me.look, s, me.color); broadcast({ t: 'look', id: me.id, look: me.look }, ws);
+      if (cur + 1 >= 5) broadcast({ t: 'news', text: '✨ ' + me.name + ' 님이 치장을 ★5까지 올렸어요!' }, ws);
+      return send(ws, { t: 'cup', cup, id, shb: s.shb, used: shUse });
+    }
+    if (m.t === 'pv_buy') {
+      const id = String(m.id || ''), own = (s.cos && s.cos.own) || []; if (own.includes(id)) return err('이미 가지고 있어요');
+      const w = pvWeek().find(x => x.id === id), i = pvIsle().find(x => x.id === id), it = w || i; if (!it) return err('이번 주에는 없는 물건이에요');
+      if (!hasKey(s, 'g', it.g)) return err('골드가 모자라요'); if (it.sh && !hasKey(s, 'i:shard', it.sh)) return err('안개 조각이 모자라요 (' + it.sh + '개)');
+      const d = { g: -it.g }; if (it.sh) d['i:shard'] = -it.sh; await changeBag(me.key, d, null); const got = giveCos(s, [id]); queueSave(me.key, s);
+      send(ws, { t: 'cos_got', ids: got }); broadcast({ t: 'news', text: (w ? '✨ ' : '🏝️ ') + me.name + ' 님이 한정 치장을 샀어요!' }, ws); return;
+    }
+  }).catch(e => console.error('spend', e.message));
+}
+
+/* ---------- 내 집 (2026-11-04): 방 넓히기 · 벽지 · 바닥 · 가구 놓기 · 친구 집 놀러 가기 (index.html HOME과 같은 숫자) ---------- */
+const HOME_ROOM = [[6, 5], [8, 6], [10, 7], [12, 8]], HOME_ROOM_G = [0, 1e6, 5e6, 2e7];
+const HOME_WALL = { w_cream: 0, w_mint: 3e4, w_pink: 3e4, w_sky: 5e4, w_stripe: 1e5, w_star: 3e5, w_wood: 2e5, w_night: 8e5, w_gold: 3e6 };
+const HOME_FLOOR = { f_wood: 0, f_tile: 4e4, f_check: 8e4, f_grass: 1.5e5, f_marble: 6e5, f_carpet: 3e5, f_cloud: 1.5e6, f_gold: 4e6 };
+const HOME_FUR = { chair: [2e4, 1, 1], table: [5e4, 2, 1], bed: [1.5e5, 2, 2], sofa: [2e5, 2, 1], lamp: [4e4, 1, 1], plant: [3e4, 1, 1], bigplant: [1.2e5, 1, 1], rug: [8e4, 2, 2], shelf: [1.5e5, 2, 1], wardrobe: [2.5e5, 1, 1],
+  tv: [4e5, 2, 1], tank: [6e5, 2, 1], fireplace: [1e6, 2, 1], piano: [2e6, 2, 1], clock: [1.5e5, 1, 1], bear: [1e5, 1, 1], cake: [6e4, 1, 1], trophy: [8e5, 1, 1], arcade: [1.2e6, 1, 1], starlamp: [5e5, 1, 1],
+  goldfish: [3e6, 1, 1], fountain: [8e6, 2, 2], cherry: [5e6, 2, 2], throne: [1e7, 1, 1] };
+const homeOf = s => { const h = s.home && typeof s.home === 'object' ? s.home : (s.home = {}); h.lv = Math.max(0, Math.min(3, h.lv | 0)); if (!HOME_WALL.hasOwnProperty(h.wall)) h.wall = 'w_cream'; if (!HOME_FLOOR.hasOwnProperty(h.floor)) h.floor = 'f_wood';
+  h.own = h.own && typeof h.own === 'object' ? h.own : {}; h.walls = Array.isArray(h.walls) ? h.walls : ['w_cream']; h.floors = Array.isArray(h.floors) ? h.floors : ['f_wood']; h.items = Array.isArray(h.items) ? h.items : []; return h; };
+function homeClean(h, items) {   // 방 안 · 가진 수만큼 · 겹치지 않게
+  const [W, H] = HOME_ROOM[h.lv], used = {}, cnt = {}, out = [];
+  for (const it of Array.isArray(items) ? items.slice(0, 60) : []) { if (!Array.isArray(it)) continue; const [id, x, y] = [String(it[0]), it[1] | 0, it[2] | 0], F = HOME_FUR[id]; if (!F) continue;
+    if ((cnt[id] | 0) >= (h.own[id] | 0) || x < 0 || y < 0 || x + F[1] > W || y + F[2] > H) continue; let ok = true;
+    if (id !== 'rug') for (let dx = 0; dx < F[1]; dx++) for (let dy = 0; dy < F[2]; dy++) if (used[(x + dx) + ',' + (y + dy)]) ok = false;
+    if (!ok) continue; if (id !== 'rug') for (let dx = 0; dx < F[1]; dx++) for (let dy = 0; dy < F[2]; dy++) used[(x + dx) + ',' + (y + dy)] = 1; cnt[id] = (cnt[id] | 0) + 1; out.push([id, x, y]); }
+  return out;
+}
+const homeScore = h => { let v = HOME_ROOM_G[h.lv] / 1e4 + (HOME_WALL[h.wall] + HOME_FLOOR[h.floor]) / 1e4; for (const it of h.items) v += (HOME_FUR[it[0]] || [0])[0] / 1e4; return Math.round(v); };
+const homePub = (s, name, mine, liked, look) => { const h = homeOf(s); return { t: 'home', name, mine, liked: !!liked, lv: h.lv, wall: h.wall, floor: h.floor, items: h.items, likes: s.hml | 0, look: look || null, own: mine ? h.own : null, walls: mine ? h.walls : null, floors: mine ? h.floors : null, score: homeScore(h) }; };
+function homeMsg(ws, me, m) {
+  const err = text => send(ws, { t: 'ev_err', text });
+  if (m.t === 'home_get') return (async () => { const key = String(m.name || me.name).toLowerCase(), sv = key === me.key ? me.save : await loadSave(key); if (!sv) return err('그런 집이 없어요');
+    const g = me.save && me.save.hmlg && me.save.hmlg.d === kstDay() ? me.save.hmlg.k : [];
+    send(ws, homePub(sv, (rosterCache.get(key) || {}).name || m.name || me.name, key === me.key, g.includes(key), cleanLook(sv.cos && sv.cos.look, sv, colorOf(key)))); })().catch(() => { });
+  if (m.t === 'home_list') return (async () => { const list = []; for (const [key, r] of rosterCache) { const sv = await loadSave(key); if (sv && sv.home && (sv.home.items || []).length) list.push({ name: r.name, likes: sv.hml | 0, score: homeScore(homeOf(sv)) }); } list.sort((a, b) => b.likes - a.likes || b.score - a.score); send(ws, { t: 'home_list', list: list.slice(0, 30) }); })().catch(() => { });
+  if (m.t === 'home_like') { const key = String(m.name || '').toLowerCase(); if (key === me.key || !rosterCache.has(key)) return;
+    return withLocks([me.key, key], async () => { const s = me.save, t = await loadSave(key); if (!s || !t) return; const g = s.hmlg && s.hmlg.d === kstDay() ? s.hmlg : (s.hmlg = { d: kstDay(), k: [] });
+      if (g.k.includes(key)) return err('오늘은 이미 좋아요를 눌렀어요'); g.k.push(key); t.hml = (t.hml | 0) + 1; queueSave(me.key, s); queueSave(key, t);
+      send(ws, homePub(t, (rosterCache.get(key) || {}).name, false, true, cleanLook(t.cos && t.cos.look, t, colorOf(key))));
+      const l = liveByKey(key); if (l) send(l[0], { t: 'news', text: '🏠 ' + me.name + ' 님이 우리 집에 좋아요를 눌렀어요 (♥ ' + t.hml + ')' }); }).catch(() => { }); }
+  withLock(me.key, async () => {
+    const s = me.save; if (!s) return; const h = homeOf(s), done = () => { queueSave(me.key, s); send(ws, homePub(s, me.name, true, false, me.look)); };
+    if (m.t === 'home_buy') {
+      let g = 0; const id = String(m.id || '');
+      if (m.k === 'room') { if (h.lv >= 3) return err('가장 넓은 집이에요'); g = HOME_ROOM_G[h.lv + 1]; }
+      else if (m.k === 'wall') { if (!HOME_WALL.hasOwnProperty(id) || h.walls.includes(id)) return; g = HOME_WALL[id]; }
+      else if (m.k === 'floor') { if (!HOME_FLOOR.hasOwnProperty(id) || h.floors.includes(id)) return; g = HOME_FLOOR[id]; }
+      else if (m.k === 'fur') { if (!HOME_FUR[id]) return; if ((h.own[id] | 0) >= 9) return err('9개까지 가질 수 있어요'); g = HOME_FUR[id][0]; }
+      else return;
+      if (!hasKey(s, 'g', g)) return err('골드가 모자라요'); if (g) await changeBag(me.key, { g: -g }, null);
+      if (m.k === 'room') { h.lv++; broadcast({ t: 'news', text: '🏠 ' + me.name + ' 님의 집이 넓어졌어요!' }, ws); }
+      else if (m.k === 'wall') { h.walls.push(id); h.wall = id; } else if (m.k === 'floor') { h.floors.push(id); h.floor = id; } else h.own[id] = (h.own[id] | 0) + 1;
+      return done();
+    }
+    if (m.t === 'home_set') { if (m.wall && h.walls.includes(m.wall)) h.wall = m.wall; if (m.floor && h.floors.includes(m.floor)) h.floor = m.floor; if (m.items) h.items = homeClean(h, m.items); return done(); }
+  }).catch(e => console.error('home', e.message));
+}
+
+const aqPub = (s, name, mine, liked) => ({ t: 'aq', name, slots: aqClean(s, s.aq), likes: s.aql | 0, mine, liked: !!liked, max: aqMax(s), deco: Array.isArray(s.aqd) ? s.aqd : [], on: s.aqon || {} });
 function aqMsg(ws, me, m) {
-  if (m.t === 'aq_set') return withLock(me.key, () => { const s = me.save; if (!s) return; s.aq = aqClean(s, m.slots); queueSave(me.key, s); send(ws, { t: 'aq', name: me.name, slots: s.aq, likes: (s.aql | 0), mine: true }); }).catch(() => { });
+  if (m.t === 'aq_set') return withLock(me.key, () => { const s = me.save; if (!s) return; s.aq = aqClean(s, m.slots); queueSave(me.key, s); send(ws, aqPub(s, me.name, true)); }).catch(() => { });
   if (m.t === 'aq_list') return (async () => { const list = []; for (const [key, r] of rosterCache) { const sv = await loadSave(key); if (sv && Array.isArray(sv.aq) && sv.aq.length) list.push({ name: r.name, n: sv.aq.length, likes: sv.aql | 0, sh: sv.aq.filter(x => x.sh).length }); } list.sort((a, b) => b.likes - a.likes); send(ws, { t: 'aq_list', list }); })().catch(() => { });
   if (m.t === 'aq_get') return (async () => { const key = String(m.name || '').toLowerCase(), sv = await loadSave(key); if (!sv) return send(ws, { t: 'ev_err', text: '그런 수족관이 없어요' });
     const g = me.save && me.save.aqlg && me.save.aqlg.d === kstDay() ? me.save.aqlg.k : [];
-    send(ws, { t: 'aq', name: (rosterCache.get(key) || {}).name || m.name, slots: aqClean(sv, sv.aq), likes: sv.aql | 0, mine: key === me.key, liked: g.includes(key) }); })().catch(() => { });
+    send(ws, aqPub(sv, (rosterCache.get(key) || {}).name || m.name, key === me.key, g.includes(key))); })().catch(() => { });
   if (m.t === 'aq_like') { const key = String(m.name || '').toLowerCase(); if (key === me.key || !rosterCache.has(key)) return;
     return withLocks([me.key, key], async () => { const s = me.save, t = await loadSave(key); if (!s || !t) return; const g = s.aqlg && s.aqlg.d === kstDay() ? s.aqlg : (s.aqlg = { d: kstDay(), k: [] });
       if (g.k.includes(key)) return send(ws, { t: 'ev_err', text: '오늘은 이미 좋아요를 눌렀어요' }); g.k.push(key); t.aql = (t.aql | 0) + 1; queueSave(me.key, s); queueSave(key, t);
-      send(ws, { t: 'aq', name: (rosterCache.get(key) || {}).name, slots: aqClean(t, t.aq), likes: t.aql, mine: false, liked: true });
+      send(ws, aqPub(t, (rosterCache.get(key) || {}).name, false, true));
       const l = liveByKey(key); if (l) send(l[0], { t: 'news', text: '🐠 ' + me.name + ' 님이 내 수족관에 좋아요를 눌렀어요 (♥ ' + t.aql + ')' }); }).catch(() => { }); }
 }
 
