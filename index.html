@@ -3066,7 +3066,7 @@ function pressAct(){
     else if(a.type==='stand'){P.sit=null;P.y+=10;if(blockedAt(P.x,P.y))P.y-=10;Snd.sfx('tap')}
     else if(a.type==='tree'){shakeTree(a.tree);if(wildTree(a.tree))shakeBug(a.tree)}
     else if(a.type==='chop')chopWild(a.tree);
-    else if(a.type.indexOf('nat_')===0||a.type==='garden')natPress(a);
+    else if(a.type.indexOf('nat_')===0||a.type.indexOf('ship_')===0||a.type==='garden')natPress(a);
     else if(a.type==='player'){Snd.sfx('ui');askTrade(a.id)}
   }else if(F.mode==='wait'&&F.afk){stopAfk('낚싯대를 거뒀어요')}
   else if(F.mode==='wait'){F.mode='idle';Snd.sfx('back');toast('너무 일찍 당겼어요');Snd.setIntense(false)}
