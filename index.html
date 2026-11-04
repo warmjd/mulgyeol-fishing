@@ -244,6 +244,46 @@ input.tin:focus{outline:3px solid var(--lav);outline-offset:1px}
 .pet-row .n{width:auto;min-width:52px;white-space:nowrap}.pet-row .v{width:auto;min-width:72px;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+
+/* 마을 행사 허브 · 알림판 · 이름표 테두리 */
+.hub-top{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px}.hub-top>div{background:var(--paper-2);border-radius:12px;padding:6px 2px;text-align:center}
+.hub-top small{display:block;font-size:10px;color:var(--ink-soft)}.hub-top b{font-size:13px;font-weight:400}.hub-top .hot{background:#fff1c9}
+.wk-head{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px}.wk-head span{color:var(--ink-soft);font-size:12px}
+.wk-goal{background:var(--paper-2);border-radius:14px;padding:10px 12px;margin-bottom:8px}.wk-goal .t{font-size:13px}.wk-goal.done{background:#effaf6}
+.wk-goal .rw{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink-soft)}.wk-goal .rw .btn{width:auto;padding:4px 14px}
+.wk-all{display:flex;align-items:center;gap:8px;background:#fff4e4;border:2px dashed #f0d2a6;border-radius:14px;padding:10px 12px}.wk-all span{flex:1;font-size:12px;color:var(--ink-soft)}.wk-all .btn{width:auto;padding:4px 14px}
+.ok{color:#2f9a7a;font-size:12px}.sbar.big{height:26px}.sbar.big span{line-height:26px}
+.ccard.rot{border-color:#f0c35a;background:#fffbea}.bigic{font-size:30px;line-height:40px}
+.vf-list{display:grid;gap:6px;margin-bottom:8px}.vf{display:flex;align-items:center;gap:10px;background:var(--paper-2);border-radius:14px;padding:8px 12px;opacity:.6}
+.vf.on{opacity:1;background:#effaf6}.vf.cur{opacity:1;border:2px solid var(--lav);background:#fff}.vf .ic{font-size:24px}.vf div{flex:1}.vf small{display:block;font-size:11px;color:var(--ink-soft)}.vf i{font-style:normal;font-size:12px;color:var(--ink-soft)}
+.rsv{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px;margin:4px 0}.rsv .btn{width:auto}
+.pill.vibe{font-size:12px;padding:4px 10px;position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:calc(50px + env(safe-area-inset-top,0px))}
+.wk-all .btn.xs,.wk-goal .btn.xs,.rsv .btn.xs{width:auto;flex:none}.wk-all b{flex:none}.pill.vibe.fest{background:linear-gradient(90deg,#fff1c9,#ffe0ee);border-color:#f0c35a}
+#banner{position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translate(-50%,-14px);opacity:0;z-index:31;pointer-events:none;background:linear-gradient(90deg,#ff7aa0,#ffb36a);color:#fff;border:3px solid #fff;border-radius:18px;padding:10px 18px;font-size:15px;box-shadow:0 6px 0 rgba(200,80,110,.3);max-width:88vw;text-align:center;transition:.3s}
+#banner.on{opacity:1;transform:translate(-50%,0)}
+.ntag.tf_silver{border-color:#c8ccd8;background:linear-gradient(#ffffff,#eef0f6)}
+.ntag.tf_gold{border-color:#e8b84a;background:linear-gradient(#fffbe8,#ffeeb0);box-shadow:0 0 6px rgba(255,200,80,.6)}
+.ntag.tf_rainbow{border:2px solid transparent;background:linear-gradient(#fffaf2,#fffaf2) padding-box,linear-gradient(90deg,#ff8aa8,#ffd27a,#8fd3c0,#a9b8f2,#d6a8f0) border-box;box-shadow:0 0 8px rgba(255,170,200,.6)}
+
+/* 교환 2.0 · 낚시터 문 */
+.tr-who{text-align:center;font-size:15px;margin-bottom:8px}
+.tr-side{background:var(--paper-2);border:2px solid var(--line);border-radius:16px;padding:10px 12px}.tr-side.ok{border-color:var(--mint);background:#f1fbf7}
+.tr-side .hd{font-size:13px;color:var(--ink-soft);margin-bottom:6px}.tr-side .hd b{color:#2f9a7a;font-weight:400}
+.tr-arrow{text-align:center;color:var(--ink-soft);margin:4px 0}.tr-empty{font-size:12px;color:var(--ink-soft);padding:4px 0}
+.tr-gold{font-size:16px;margin-bottom:6px;display:flex;align-items:center;gap:6px}.tr-gold button,.tchip button{background:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;color:var(--ink-soft);padding:0}
+.tr-chips{display:flex;flex-wrap:wrap;gap:5px}.tchip{display:flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:2px 4px 2px 6px;font-size:12px}
+.tchip img{width:26px;height:18px;object-fit:contain;image-rendering:pixelated}.tchip i{font-style:normal}.tchip b{font-weight:400;color:#e07a2c}
+.tr-add{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.tr-msg{text-align:center;font-size:12px;color:var(--ink-soft);margin:10px 0}.tr-msg .bad{color:#d0607a}
+.bgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:10px}
+.bcell{aspect-ratio:1;border-radius:14px;background:var(--paper-2);border:2px solid var(--line);position:relative;display:grid;place-items:center;padding:4px}
+.bcell img{max-width:100%;max-height:70%;image-rendering:pixelated}.bcell i{font-style:normal;font-size:22px}.bcell.on{border-color:var(--pink);background:#fff4f8}.bcell.no{opacity:.35}
+.bcell .hv{position:absolute;right:4px;bottom:2px;font-size:10px;color:var(--ink-soft)}.bcell .sel{position:absolute;left:-4px;top:-6px;background:var(--pink);color:#6b2a45;border:2px solid #fff;border-radius:999px;font-size:11px;padding:0 6px;line-height:16px}
+.fg-btns.sticky{position:sticky;bottom:-18px;background:var(--paper);padding:8px 0}
+.gpad{text-align:center;background:linear-gradient(#fff8e6,#fff);border-radius:18px;padding:12px;margin-bottom:10px}.gpad .v{font-size:28px;margin:4px 0}.gpad small{color:var(--ink-soft);font-size:12px}
+.gin{display:flex;gap:6px;margin:10px 0}.gin .tin{flex:1}
+.gate{text-align:center;padding:4px 0}.gate .req{background:var(--paper-2);border-radius:14px;padding:10px 12px;margin:8px 0;text-align:left;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px;font-size:14px}
+.gate .req .sbar{flex-basis:100%;margin:6px 0 0}.gate .req.ok{background:#effaf6}.gate .req.ok b{color:#2f9a7a}
 /* ===== UI 2.0 (2026-11-04): 깔끔하게. 긴 설명은 머리글의 ? 안으로 ===== */
 #sheethead h2{font-size:18px;letter-spacing:-.01em}
 .hq{width:34px;height:34px;border-radius:50%;background:#efe7f7;color:var(--ink);font-size:16px;box-shadow:0 2px 0 #d6c9e8;padding:0;flex:none}
@@ -323,9 +363,11 @@ details.more summary::-webkit-details-marker{display:none}
 <div id="tags"></div>
 <div id="net" hidden></div>
 
+<div id="banner"></div>
 <div class="hud">
   <div class="pill"><span class="coin"></span><b id="gold">0</b><span class="pcs" id="pcs" title="반짝 조각">✦0</span></div>
   <div class="pill"><span id="clock">06:00</span></div>
+  <div class="pill vibe" id="vibe" hidden></div>
   <div class="sp"></div>
   <button class="hbtn" id="bBag" aria-label="가방">가방</button>
   <button class="hbtn" id="bDex" aria-label="도감">도감</button>
@@ -1002,6 +1044,8 @@ function drawHat2(b,dir,id,hair,hairTop){
     case'bunnyears':{hairTop();const w=[250,246,250],pk=[255,186,206];if(side){fillR(b,7,0,1,3,w);px(b,7,1,pk)}else{fillR(b,5,0,1,3,w);fillR(b,10,0,1,3,w);px(b,5,1,pk);px(b,10,1,pk)}fillR(b,4,3,8,1,[255,150,180]);break}
     case'chefhat':{const w=[255,255,255],s=[226,226,236];fillR(b,4,3,8,3,w);fillR(b,3,0,10,3,w);fillR(b,4,5,8,1,s);px(b,5,1,s);px(b,9,1,s);break}
     case'nightcap':{const c=[140,170,240],d=[110,140,214],w=[255,255,255];fillR(b,4,3,8,3,c);fillR(b,5,2,6,1,c);fillR(b,6,1,4,1,c);fillR(b,4,5,8,1,w);for(let x=5;x<11;x+=2)px(b,x,4,d);if(side){fillR(b,10,1,2,1,c);px(b,12,2,w)}else{px(b,10,1,c);px(b,11,2,c);px(b,12,3,w)}break}
+    case'laurel':{hairTop();const g=[110,180,90],gl=[160,220,120],y=[255,206,84];for(let x=4;x<12;x++)px(b,x,3,x%2?g:gl);px(b,4,2,g);px(b,11,2,g);px(b,5,1,gl);px(b,10,1,gl);if(!up&&!side){px(b,7,3,y);px(b,8,3,y)}break}
+    case'aurora':{hairTop();const cs=[[150,240,220],[170,190,255],[255,170,230],[255,240,170]];fillR(b,4,3,8,1,[230,236,255]);[4,6,8,10].forEach((x,i)=>{fillR(b,x,0,1,3,cs[i]);px(b,x+1,1,cs[(i+1)%4])});if(!up)fillR(b,7,1,2,2,[255,255,255]);break}
     case'ebcrown':{hairTop();const g=[255,210,80],gd=[214,160,40],pk=[255,110,170];fillR(b,4,2,8,2,g);fillR(b,4,3,8,1,gd);[4,6,8,10].forEach(x=>{px(b,x,1,g);px(b,x+1,0,g)});if(!up){px(b,7,2,pk);px(b,8,2,pk);px(b,5,2,[140,220,255]);px(b,10,2,[140,220,255])}break}
     default:return false}
   return true}
@@ -1042,6 +1086,8 @@ function drawOutfit2(b,dir,id,sh,shD,pants){
     case'pajama':{const c=[170,200,250],d=[140,170,230],y=[255,236,140];fillR(b,tx,11,tw,7,c);arms(c);fillR(b,5,18,6,2,c);[[5,12],[9,14],[6,16],[10,17],[7,19]].forEach(q=>px(b,q[0],q[1],y));fillR(b,tx,17,tw,1,d);break}
     case'knight':{const s=[200,206,220],sd=[150,156,176],l=[236,240,250],r=[214,72,90];fillR(b,tx,11,tw,7,s);arms(s);fillR(b,5,18,6,2,sd);px(b,tx,12,l);if(!back&&!side){fillR(b,7,12,2,4,r);px(b,7,13,[255,206,84])}for(let x=tx;x<tx+tw;x++)px(b,x,16,sd);break}
     case'idol':{const c=[255,120,200],d=[220,80,170],st=[255,255,255];fillR(b,tx,11,tw,5,c);arms(c);dress(b,dir,c,[150,120,255],[255,236,140],tx,tw);for(let i=0;i<5;i++)px(b,3+((i*5)%10),12+(i*3)%7,st);break}
+    case'stardress':{const c=[70,60,140],c2=[110,90,200],st=[255,240,170];dress(b,dir,c2,c,[200,190,255],tx,tw);for(let i=0;i<7;i++)px(b,3+((i*7)%10),12+((i*5)%8),i%2?st:[255,255,255]);break}
+    case'legendcoat':{const c=[40,60,90],cd=[30,44,70],g=[255,206,84],l=[150,220,255];fillR(b,tx,11,tw,8,c);fillR(b,tx,18,tw,1,cd);arms(c);fillR(b,5,19,6,1,c);fillR(b,tx,15,tw,1,g);if(!back&&!side){fillR(b,7,11,2,4,l);px(b,7,12,g);px(b,8,13,g);px(b,4,11,g);px(b,11,11,g)}if(back)fillR(b,6,12,4,3,l);break}
     case'ebsuit':{const k=[40,36,50],g=[255,206,84],pk=[255,110,170];fillR(b,tx,11,tw,5,k);fillR(b,tx,15,tw,1,g);arms(k);fillR(b,5,16,6,2,k);if(!back&&!side){fillR(b,7,11,2,3,[255,255,255]);px(b,7,12,pk);px(b,8,12,pk);px(b,5,12,g);px(b,10,12,g)}break}
     default:return false}
   return true}
@@ -1062,6 +1108,10 @@ function drawBack(b,dir,id){
     case'fairywings':wing([200,240,250],[255,210,240]);break;
     case'butterfly':wing([255,170,90],[120,90,200],'bfly');break;
     case'ebwings':wing([255,210,80],[255,248,200]);break;
+    case'flagback':{const pole=[160,120,90],f=[255,120,160],y=[255,214,80];if(up||side){fillR(b,side?3:7,4,1,12,pole);fillR(b,side?4:8,4,5,4,f);px(b,side?5:9,5,y)}else{fillR(b,13,4,1,10,pole);fillR(b,14,4,2,3,f)}break}
+    case'kingcape':cape([170,30,50],[255,206,84],()=>{for(let x=3;x<13;x+=2)px(b,x,18,[255,255,255]);fillR(b,4,11,8,1,[255,255,255]);px(b,7,14,[255,206,84]);px(b,8,14,[255,206,84])});if(!up&&!side){px(b,3,10,[255,255,255]);px(b,12,10,[255,255,255])}break;
+    case'rainbowwings':{const cs=[[255,140,150],[255,206,120],[255,240,140],[160,226,150],[140,196,250],[190,160,240]];const L=[[0,10],[0,11],[1,11],[0,12],[1,12],[2,12],[1,13],[2,13],[2,14],[0,13],[1,14]];
+      if(side){L.forEach((p,i)=>px(b,p[0]+1,p[1],cs[i%6]))}else L.forEach((p,i)=>{px(b,p[0],p[1]-(up?1:0),cs[i%6]);px(b,15-p[0],p[1]-(up?1:0),cs[i%6])});break}
     case'bearbag':{const c=[176,124,88],l=[222,180,140];if(up){fillR(b,5,11,6,5,c);fillR(b,6,13,4,3,l);px(b,5,10,c);px(b,10,10,c);px(b,6,12,[44,34,60]);px(b,9,12,[44,34,60])}else if(side){fillR(b,3,11,2,5,c)}else{px(b,5,11,c);px(b,10,11,c);px(b,5,12,c);px(b,10,12,c)}break}
   }}
 /* 얼굴 장식 (앞 · 옆만) */
@@ -1836,13 +1886,13 @@ const ENH={
      도전: 강화권만 · 성공하면 별 3개 (10%는 대성공 6개) · +5부터 실패하면 별 1개를 잃어요 */
   P:[.95,.90,.85,.80,.75,.70,.65,.60,.55,.50,.46,.43,.40,.37,.34,.31,.29,.27,.25,.23],
   S:[1,1,2,3,4,6,9,13,18,24,32,40,50,62,75,90,106,124,144,168],
-  cost:L=>Math.round(50*Math.pow(1.28,L)/10)*10,
+  cost:L=>L<10?Math.round(50*Math.pow(1.28,L)/10)*10:Math.round(3000*Math.pow(1.32,L-10)/100)*100,
   DAILY:3, FISH_CAP:15, FISH_PER:40, IDLE_MIN:30, IDLE_CAP:6, PIECE_CAP:20, PIECE_PER:5, TK_MAX:99,
   PTS:[1,2,5,15,40]
 };
 ENH.K=ENH.P.map(p=>Math.max(2,Math.round(1.8/p)));
 const sureLeft=e=>Math.max(0,ENH.K[e.lv]-(e.fl|0));
-const enhDefault=()=>({lv:0,max:0,tk:0,star:0,fl:0,day:'',fp:0,ft:0,it:0,idle:0,pc:0,pcd:0,lit:0,st:0});
+const enhDefault=()=>({lv:0,max:0,tk:0,star:0,fl:0,sure:0,day:'',fp:0,ft:0,it:0,idle:0,pc:0,pcd:0,lit:0,st:0});
 const streakBonus=st=>st>=7?2:st>=3?1:0;   // 연속 출석: 3일째부터 +1, 7일째부터 +2
 /* 낚싯대 강화 효과: 단계마다 조절 바 · 당기는 힘 +3%, 행운 +1.5%, 입질 1% 빨라짐. +10부터 걷는 속도 두 배 */
 const enhFx=lv=>({bar:1+.03*lv,reel:1+.03*lv,luck:1+.015*lv,wait:Math.max(.7,1-.01*lv)});
@@ -1948,17 +1998,27 @@ const COS=[
  {id:'t_ebvip',k:'title',name:'은비랜드 VIP',eb:30000},{id:'t_jackpot',k:'title',name:'잭팟의 주인공',ev:'jackpot'},
  {id:'t_cup',k:'title',name:'월척왕',ev:'cup'},{id:'t_bounty',k:'title',name:'현상금 사냥꾼',ev:'bounty'},{id:'t_host',k:'title',name:'마을 잔치꾼',ev:'host'},
  {id:'t_a_pearl',k:'title',name:'진주 수집가',ev:'auc'},{id:'t_a_moon',k:'title',name:'달빛 로맨티스트',ev:'auc'},{id:'t_a_tea',k:'title',name:'오후의 찻집 주인',ev:'auc'},
- {id:'t_a_star',k:'title',name:'별을 낚는 사람',ev:'auc'},{id:'t_a_cloud',k:'title',name:'구름 위 산책자',ev:'auc'},{id:'t_a_sea',k:'title',name:'바다 냄새 나는 사람',ev:'auc'}
+ {id:'t_a_star',k:'title',name:'별을 낚는 사람',ev:'auc'},{id:'t_a_cloud',k:'title',name:'구름 위 산책자',ev:'auc'},{id:'t_a_sea',k:'title',name:'바다 냄새 나는 사람',ev:'auc'},
+ /* 🎖️ 메달 상점 (행사 참여로만) */
+ {id:'laurel',k:'hat',name:'우승 월계관',med:15},{id:'flagback',k:'back',name:'축제 깃발',med:30},
+ {id:'tf_silver',k:'frame',name:'은빛 이름표',med:10},{id:'tf_gold',k:'frame',name:'금빛 이름표',med:25},{id:'tf_rainbow',k:'frame',name:'무지개 이름표',med:40},
+ {id:'ft_petal',k:'foot',name:'꽃잎 발자국',med:20},{id:'ft_star',k:'foot',name:'별가루 발자국',med:20},{id:'ft_drop',k:'foot',name:'물방울 발자국',med:20},
+ {id:'t_fest',k:'title',name:'축제의 주인공',med:15},{id:'t_medal',k:'title',name:'메달 수집가',med:20},{id:'t_regular',k:'title',name:'마을 단골손님',med:10},
+ {id:'t_vf1',k:'title',name:'마을 후원자',ev:'vf1'},{id:'t_vf2',k:'title',name:'마을 대부호',ev:'vf2'},
+ /* 💎 전설 치장 (골드) */
+ {id:'aurora',k:'hat',name:'오로라 왕관',price:1500000,set:'전설'},{id:'kingcape',k:'back',name:'왕의 망토',price:2000000,set:'전설'},
+ {id:'stardress',k:'outfit',name:'별빛 드레스',price:2500000,set:'전설',fx:'star'},{id:'rainbowwings',k:'back',name:'무지개 날개',price:3000000,set:'전설',fx:'petal'},
+ {id:'legendcoat',k:'outfit',name:'전설 낚시꾼 코트',price:5000000,set:'전설',fx:'glow'}
 ];
 const COS_BY={};COS.forEach(c=>COS_BY[c.id]=c);
-const COS_KINDS={hat:'모자',outfit:'옷',face:'얼굴',back:'망토 · 날개',dye:'염색',hstyle:'헤어스타일',rod:'낚싯대',bob:'찌',title:'칭호'};
-const LOOK_KEY={hat:'hat',outfit:'o',face:'fa',back:'bk',dye:'h',hstyle:'hs',rod:'rod',bob:'bob',title:'ti'};
+const COS_KINDS={hat:'모자',outfit:'옷',face:'얼굴',back:'망토 · 날개',dye:'염색',hstyle:'헤어스타일',frame:'이름표 테두리',foot:'발자국',rod:'낚싯대',bob:'찌',title:'칭호'};
+const LOOK_KEY={hat:'hat',outfit:'o',face:'fa',back:'bk',dye:'h',hstyle:'hs',frame:'tf',foot:'ft',rod:'rod',bob:'bob',title:'ti'};
 /* 입었는지 · 입기 (염색 · 헤어스타일은 번호로) */
 const cosOn=c=>{const L=S.cos.look;return c.k==='dye'?(L.h|0)===c.hc:c.k==='hstyle'?(L.hs|0)===c.hs:L[LOOK_KEY[c.k]]===c.id};
-function wearCos(c,off){if(c.k==='dye')return setLook('h',off?0:c.hc);if(c.k==='hstyle')return setLook('hs',off?0:c.hs);setLook(LOOK_KEY[c.k],off?(c.k==='hat'?'nohat':c.k==='outfit'?'tee':''):c.id)}
-const EV_HOW={cup:'월척 대회에서 우승하면',bounty:'현상수배 물고기를 처음 낚으면',host:'마을 행사를 5번 열면',auc:'반짝 장터에서 낙찰받으면',jackpot:'은비랜드 잭팟이 터지면'};
+function wearCos(c,off){if(c.k==='dye')return setLook('h',off?0:c.hc);if(c.k==='hstyle')return setLook('hs',off?0:c.hs);setLook(LOOK_KEY[c.k],off?(c.k==='hat'?'nohat':c.k==='outfit'?'tee':''):c.id);if(c.k==='frame'||c.k==='foot')refreshMe()}
+const EV_HOW={vf1:'마을 발전 기금에 100만 골드를 기부하면',vf2:'마을 발전 기금에 1,000만 골드를 기부하면',cup:'월척 대회에서 우승하면',bounty:'현상수배 물고기를 처음 낚으면',host:'마을 행사를 5번 열면',auc:'반짝 장터에서 낙찰받으면',jackpot:'은비랜드 잭팟이 터지면'};
 function rewardOf(p){if(PAGE_SEASON[p])return PAGE_SEASON[p].reward;const c=COS.find(c=>c.reward===p);return c?c.id:null}
-function rewardText(c){if(c.price!==undefined)return'';if(c.eb)return'🎰 은비랜드 경품 (코인 '+fmt(c.eb)+')';if(c.ev)return EV_HOW[c.ev]||'행사 보상';if(c.jr)return c.jr[0]==='any'?'어느 직업이든 명장 등급이 되면':JR[c.jr[1]].n+' '+JOBS[c.jr[0]].name+' 등급이 되면';if(c.sz)return c.sz==='all'?'손맛 도감 여섯 낚시터를 모두 채우면':'「'+ZONES[c.sz-1].name+'」 손맛 도감을 직접 낚은 물고기로 채우면';if(c.enh)return'낚싯대를 +'+c.enh+'까지 강화하면';if(c.pet)return PETS.find(p=>p.id===c.pet).name+' Lv10이 되면';if(c.zone)return'「'+ZONES[c.zone-1].name+'」 '+(c.zone===6?20:40)+'종을 모두 채우면 (걸으면 반짝!)'.replace(' (걸으면 반짝!)',c.fx?' · 걸으면 효과':'');if(c.boatd)return'배낚시 만선 상자에서 '+(c.boatd===2?'아주 낮은':'낮은')+' 확률로';if(c.reward==='all')return'도감 '+MAIN_N+'종을 모두 채우면';if(c.season)return'「'+seasonById(c.season).name+'」 도감을 채우면';return'도감 「'+PAGE_TITLES[c.reward]+'」을 채우면'}
+function rewardText(c){if(c.price!==undefined)return'';if(c.eb)return'🎰 은비랜드 경품 (코인 '+fmt(c.eb)+')';if(c.med)return'🎖️ 메달 상점 (메달 '+c.med+'개)';if(c.ev)return EV_HOW[c.ev]||'행사 보상';if(c.jr)return c.jr[0]==='any'?'어느 직업이든 명장 등급이 되면':JR[c.jr[1]].n+' '+JOBS[c.jr[0]].name+' 등급이 되면';if(c.sz)return c.sz==='all'?'손맛 도감 여섯 낚시터를 모두 채우면':'「'+ZONES[c.sz-1].name+'」 손맛 도감을 직접 낚은 물고기로 채우면';if(c.enh)return'낚싯대를 +'+c.enh+'까지 강화하면';if(c.pet)return PETS.find(p=>p.id===c.pet).name+' Lv10이 되면';if(c.zone)return'「'+ZONES[c.zone-1].name+'」 '+(c.zone===6?20:40)+'종을 모두 채우면 (걸으면 반짝!)'.replace(' (걸으면 반짝!)',c.fx?' · 걸으면 효과':'');if(c.boatd)return'배낚시 만선 상자에서 '+(c.boatd===2?'아주 낮은':'낮은')+' 확률로';if(c.reward==='all')return'도감 '+MAIN_N+'종을 모두 채우면';if(c.season)return'「'+seasonById(c.season).name+'」 도감을 채우면';return'도감 「'+PAGE_TITLES[c.reward]+'」을 채우면'}
 /* 친구에게서 받은 외형은 목록에 있는 값만 받아들여요 */
 function cleanLook(l,color){
   l=l&&typeof l==='object'?l:{};
@@ -1966,7 +2026,7 @@ function cleanLook(l,color){
   const n=(v,max,d)=>Number.isInteger(v)&&v>=0&&v<max?v:d;
   return{h:n(l.h,HAIRS.length,0),k:n(l.k,SKINS.length,0),s:n(l.s,SHIRTS.length,(color|0)%SHIRTS.length),
     hat:ok(l.hat,'hat')?l.hat:'straw',o:ok(l.o,'outfit')?l.o:'tee',rod:ok(l.rod,'rod')?l.rod:'bamboo',bob:ok(l.bob,'bob')?l.bob:'basicbob',ti:ok(l.ti,'title')?l.ti:'',e:n(l.e,21,0),j:typeof l.j==='string'&&/^(fish|sch|cra|tam|mer)[0-3]$/.test(l.j)?l.j:'',
-    hs:n(l.hs,8,0),fa:ok(l.fa,'face')?l.fa:'',bk:ok(l.bk,'back')?l.bk:''};
+    hs:n(l.hs,8,0),fa:ok(l.fa,'face')?l.fa:'',bk:ok(l.bk,'back')?l.bk:'',tf:ok(l.tf,'frame')?l.tf:'',ft:ok(l.ft,'foot')?l.ft:''};
 }
 
 
@@ -2313,6 +2373,7 @@ function recalc(){
   const en=enhFx(S.enh?S.enh.lv:0); // 낚싯대 강화: 바 · 힘 +3% · 행운 +1.5% · 입질 -1% (단계마다)
   ST={b:b,bar:gearEff.rod(gl('rod'))*(1+b.bar)*en.bar,wait:gearEff.bob(gl('bob'))*(1-b.bite)*en.wait,luck:gearEff.lure(gl('lure'))*(1+b.luck)*en.luck,
       reel:gearEff.reel(gl('reel'))*(1+b.reel)*en.reel,sell:1+b.sell};
+  if(VIL&&VIL.tog&&VIL.tog.on)ST.luck*=1+(VIL.tog.p||.05);   // 함께 접속 보너스
   jobMods();jobBadge();
 }
 const POOL={};FISH.forEach(f=>{if(f.id>=MAIN_N&&!f.isl&&!f.pty&&!f.mk)return;const k=f.zone+'-'+f.rar;(POOL[k]=POOL[k]||[]).push(f)});
@@ -2376,6 +2437,8 @@ function cosIcon(id){
   else if(c.k==='face'){const f=lookSprites(Object.assign({},S.cos.look,{fa:id,hat:'nohat'})).down[0];cv=document.createElement('canvas');cv.width=12;cv.height=8;cv.getContext('2d').drawImage(f,2,4,12,8,0,0,12,8)}
   else if(c.k==='back')cv=lookSprites(Object.assign({},S.cos.look,{bk:id})).up[0];
   else if(c.k==='hstyle'){const f=lookSprites(Object.assign({},S.cos.look,{hs:c.hs,hat:'nohat'})).down[0];cv=document.createElement('canvas');cv.width=16;cv.height=15;cv.getContext('2d').drawImage(f,0,0)}
+  else if(c.k==='frame'){cv=document.createElement('canvas');cv.width=22;cv.height=12;const x=cv.getContext('2d'),g=x.createLinearGradient(0,0,22,0);({tf_silver:['#c8ccd8','#f4f6fa'],tf_gold:['#e8b84a','#fff2b0'],tf_rainbow:['#ff8aa8','#ffd27a','#8fd3c0','#a9b8f2']}[id]||['#ccc','#eee']).forEach((col,i,a)=>g.addColorStop(i/(a.length-1||1),col));x.fillStyle=g;x.fillRect(0,0,22,12);x.fillStyle='#fffaf2';x.fillRect(2,2,18,8)}
+  else if(c.k==='foot'){cv=document.createElement('canvas');cv.width=14;cv.height=14;const x=cv.getContext('2d'),col=(FX_COL[{ft_petal:'petal',ft_star:'star',ft_drop:'drop'}[id]]||['#fff']);[[2,10],[6,6],[10,2]].forEach((q,i)=>{x.fillStyle=col[i%col.length];x.fillRect(q[0],q[1],3,3)})}
   else if(c.k==='dye'){cv=document.createElement('canvas');cv.width=12;cv.height=12;const x=cv.getContext('2d'),col=HAIRS[c.hc]||[0,0,0];x.fillStyle='rgb('+col.join(',')+')';x.beginPath();x.arc(6,6,5.5,0,6.28);x.fill();x.fillStyle='rgba(255,255,255,.55)';x.fillRect(3,3,2,2)}
   else if(c.k==='rod'){cv=document.createElement('canvas');cv.width=14;cv.height=14;const x=cv.getContext('2d');const n=13;for(let i=0;i<=n;i++){x.fillStyle=c.col[Math.min(c.col.length-1,(i/n*c.col.length)|0)];x.fillRect(1+i,13-i,1,1);x.fillRect(1+i,12-i,1,1)}x.fillStyle='#8c7aa8';x.fillRect(2,9,3,3)}
   else return'';
@@ -3483,7 +3546,7 @@ function craftClick(t){const D=t.dataset;
    물결호는 마을에 한 척. 마을 기부함에 서로 다른 친구 4명 이상이 기부하고, 공방 장인이 조립해요 (돈만으로는 못 만들어요).
    한 번 만들어지면 누구나 먼바다 부두 끝에서 타고 안개 섬(6번 낚시터)으로 가요.
    기존 1~5번 낚시터 숫자는 그대로예요. 섬은 밀물 · 썰물 · 안개 · 방수 등불로 새로 막아요 */
-const BOAT_REC={scale:10,pearl:3,map:1,sail:1},BOAT_G=20000; // server.js BOAT_NEED와 같아야 해요
+const BOAT_REC={scale:10,pearl:3,map:1,sail:1},BOAT_G=10000000; // server.js BOAT_NEED와 같아야 해요
 const ISLE_DOCK=[17*TS+8,66*TS+12],HOME_DOCK=[17*TS+8,57*TS+12];
 let VBOAT=null,VPATHS=[];
 const boatReady=()=>ONLINE?!!VBOAT:!!S.boat;
@@ -3529,11 +3592,11 @@ function boardBoat(toIsle){
   if(toIsle)setTimeout(()=>toast('지금은 '+TIDE_NAME[tideNow()]+' · '+WX_NAME[weatherNow()]+(lampLv()?'':' · 방수 등불이 있으면 안개 물고기가 보여요')+' · 섬에서는 섬 장비를 써요 (낚싯대 '+igLv('rod')+'단계)'),900);
 }
 /* 마을 기부함: 서로 다른 친구 4명 이상이 기부해야 완성. 마지막 조립은 공방 장인 (바꾼 지 2주 지난) */
-const BOAT_NEED=Object.assign({},BOAT_REC,{g:BOAT_G}),DONORS_NEED=4,DON_MIN_G=1000;
+const BOAT_NEED=Object.assign({},BOAT_REC,{g:BOAT_G}),DONORS_NEED=4,DON_MIN_G=10000;
 let BOX=null;
 function boxNow(){if(ONLINE){const b=BOX||{tot:{},donors:[],per:{}};return{tot:b.tot,donors:b.donors,mine:(Net.me&&b.per&&b.per[Net.me.name])||{}}}const b=S.box||(S.box={tot:{},donors:[]});return{tot:b.tot,donors:b.donors,mine:{},solo:true}}
 /* 한 사람 몫: 재료는 필요한 양의 절반(최소 1), 골드는 1만까지. 골드는 목표를 넘어도 받아요 (server.js donCap과 같아요) */
-const donCap=k=>k==='g'?10000:Math.max(1,Math.ceil(BOAT_NEED[k]/2));
+const donCap=k=>k==='g'?5000000:Math.max(1,Math.ceil(BOAT_NEED[k]/2));
 const donLeft=(b,k)=>Math.min(k==='g'?Infinity:BOAT_NEED[k]-(b.tot[k]|0),b.solo?Infinity:donCap(k)-(b.mine[k]|0));
 const boxFull=b=>Object.keys(BOAT_NEED).every(k=>(b.tot[k]|0)>=BOAT_NEED[k]);
 function donate(k,n){
@@ -3549,10 +3612,10 @@ function buildBoat(){
   if(ONLINE){Net.send({t:'boat_build'});return}
   S.boat=1;S.box={tot:{},donors:[]};vxp(300);saveState(true);Snd.sfx('page');toast('⛵ 물결호 완성! 먼바다 부두 끝에서 탈 수 있어요');openBoat()}
 function boxHtml(){const b=boxNow(),full=boxFull(b),dn=b.donors.length;
-  let h='<div class="wishc"><div style="font-size:16px">마을 기부함 · 물결호 만들기</div><div class="muted" style="font-size:12px;margin:4px 0 8px">재료가 다 모이고, <b>서로 다른 친구 '+DONORS_NEED+'명 이상</b>이 기부하면 공방 장인이 조립해요. 아이템 1개나 '+fmt(DON_MIN_G)+'골드 이상이면 기부한 친구로 쳐요. 한 사람은 재료마다 절반까지, 골드는 1만까지 넣을 수 있어요.</div>';
+  let h='<div class="wishc"><div style="font-size:16px">마을 기부함 · 물결호 만들기</div><div class="muted" style="font-size:12px;margin:4px 0 8px">재료가 다 모이고, <b>서로 다른 친구 '+DONORS_NEED+'명 이상</b>이 기부하면 공방 장인이 조립해요. 아이템 1개나 '+fmt(DON_MIN_G)+'골드 이상이면 기부한 친구로 쳐요. 한 사람은 재료마다 절반까지, 골드는 500만까지 넣을 수 있어요.</div>';
   Object.keys(BOAT_NEED).forEach(k=>{const t=b.tot[k]|0,nd=BOAT_NEED[k],g=k==='g',ok=t>=nd;
     h+='<div class="row"><span style="font-size:20px;width:28px;text-align:center">'+(g?'🪙':ITEMS[k].ic)+'</span><div class="nm"><div>'+(g?'골드':ITEMS[k].n)+' <b>'+fmt(t)+'</b> / '+fmt(nd)+(ok?' ✓':'')+'</div><div class="bar" style="margin-top:4px"><i style="width:'+Math.min(100,t/nd*100)+'%"></i></div></div><div class="go">'+
-      (donLeft(b,k)<=0?'<span class="muted" style="font-size:12px">'+(ok?'':'내 몫 끝')+'</span>':g?'<button class="btn sm ghost" data-don="g:1000">+1천</button><button class="btn sm ghost" data-don="g:'+Math.min(10000,donLeft(b,'g'))+'">+'+fmt(Math.min(10000,donLeft(b,'g')))+'</button>':'<button class="btn sm ghost" data-don="'+k+':1"'+(itN(k)?'':' disabled')+'>+1 (가진 '+itN(k)+')</button>')+'</div></div>'});
+      (donLeft(b,k)<=0?'<span class="muted" style="font-size:12px">'+(ok?'':'내 몫 끝')+'</span>':g?'<button class="btn sm ghost" data-don="g:10000">+1만</button><button class="btn sm ghost" data-don="g:100000">+10만</button><button class="btn sm ghost" data-don="g:1000000">+100만</button>':'<button class="btn sm ghost" data-don="'+k+':1"'+(itN(k)?'':' disabled')+'>+1 (가진 '+itN(k)+')</button>')+'</div></div>'});
   h+='<div style="margin:6px 0">기부한 친구 <b>'+dn+'</b> / '+DONORS_NEED+'명'+(dn?' · '+b.donors.map(esc).join(', '):'')+(b.solo?' <span class="muted" style="font-size:12px">(혼자 모드라 인원 조건 없음)</span>':'')+'</div>';
   const canB=rk('cra','prep')&&!capLocked()&&full&&(b.solo||dn>=DONORS_NEED);
   h+='<button class="btn pink sm" data-bt2="build"'+(canB?'':' disabled')+'>'+(!rk('cra','prep')?'조립은 공방 장인이 해요':capLocked()?'직업을 바꾼 지 2주 뒤에 조립':!full?'재료가 다 모이면 조립':(b.solo||dn>=DONORS_NEED)?'물결호 조립하기!':'친구 '+(DONORS_NEED-dn)+'명이 더 기부해야 해요')+'</button>';
@@ -3586,7 +3649,11 @@ function boatClick(t){if(t.dataset.don){const i=t.dataset.don.lastIndexOf(':');d
 /* ----- 옷 효과: 정복 세트를 입고 걸으면 꽃잎 · 물방울 · 거품 · (밤에) 빛 · 별가루 ----- */
 const FX_COL={petal:['#ffc4d6','#ffe0ea'],drop:['#a9d8f2','#e0f4ff'],bubble:['#ffffff','#cfeaff'],glow:['#9fe8ff','#e0fbff','#c8f4ff'],star:['#fff6b0','#ffffff','#d6b8ff']};
 let FXDT=1/60;
-function lookFx(x,y,look,moving){const c=COS_BY[look&&look.o];if(!c||!c.fx)return;const night=isNight(dayTint().ph);
+function lookFx(x,y,look,moving){
+  if(look&&look.ft&&moving&&Math.random()<FXDT*9){const fc=FX_COL[{ft_petal:'petal',ft_star:'star',ft_drop:'drop'}[look.ft]];if(fc)parts.push({x:x+(Math.random()-.5)*6,y:y-1,vx:0,vy:-2,life:1.2,t:0,c:fc[(Math.random()*fc.length)|0],g:0,s:Math.random()<.4?2:1})}
+  if(look&&look.bk&&COS_BY[look.bk]&&COS_BY[look.bk].fx)lookFx1(x,y,COS_BY[look.bk],moving);
+  lookFx1(x,y,COS_BY[look&&look.o],moving)}
+function lookFx1(x,y,c,moving){if(!c||!c.fx)return;const night=isNight(dayTint().ph);
   const rate=(moving?7:1.2)*(c.fx==='glow'?(night?2:.3):1);if(Math.random()>rate*FXDT)return;const cols=FX_COL[c.fx];
   parts.push({x:x+(Math.random()-.5)*10,y:y-3-Math.random()*14,vx:(Math.random()-.5)*8,vy:c.fx==='drop'?4:c.fx==='petal'?3:-9,life:.8+Math.random()*.6,t:0,
     c:cols[(Math.random()*cols.length)|0],g:c.fx==='drop'?36:c.fx==='petal'?6:-5,s:(c.fx==='star'||c.fx==='glow')&&Math.random()<.35?2:1})}
@@ -3908,7 +3975,7 @@ function render(dt){
   W.trees.forEach(t=>{if(t.x>=x0-2&&t.x<=x1+2&&t.y>=y0-2&&t.y<=y1+3){const s=treeSpr(t),wob=shaking&&shaking.t===t?Math.round(Math.sin(shaking.time*40)*1.5):0;drawables.push({y:t.y*TS+15,fn:()=>cx.drawImage(s,t.x*TS+8-13+wob,t.y*TS+16-33)})}});
   W.buildings.forEach(b=>drawables.push({y:(b.y+1)*TS,fn:()=>cx.drawImage(SP.house[b.id],b.x*TS+(b.w*TS-48)/2,(b.y+1)*TS-50)}));
   W.props.forEach(p=>{const s=p.kind==='litter'?SP.litter[litterDirty()?1:0]:SP[p.kind];if(!s)return;drawables.push({y:p.y*TS+15,fn:()=>cx.drawImage(s,p.x*TS+(TS-s.width)/2,p.y*TS+16-s.height)})});
-  evDrawables(drawables,x0,x1,y0,y1);
+  evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
   drawables.push({y:P.y,fn:drawPlayer});
   drawOthers(dt,drawables);
   updatePets(dt);updateSparks(dt);
@@ -4138,7 +4205,7 @@ function renderBag(){
   body().innerHTML=h;
 }
 /* 꾸미기: 가진 것만 보여요 (사기 · 입어 보기는 치장 상점) */
-const LOOK_KINDS=['hat','outfit','face','back','hstyle','rod','bob','title'];
+const LOOK_KINDS=['hat','outfit','face','back','hstyle','frame','foot','rod','bob','title'];
 function lookHtml(){
   const L=S.cos.look,pl=SP.pl,ti=COS_BY[L.ti];
   let h='<div class="prev"><img src="'+pl.down[0].toDataURL()+'" alt="앞모습"><img src="'+pl.right[0].toDataURL()+'" alt="옆모습"><img src="'+pl.up[0].toDataURL()+'" alt="뒷모습"></div>';
@@ -4147,9 +4214,9 @@ function lookHtml(){
   const sw=(key,list,arr,cur)=>'<div class="sws">'+list.map(i=>{const c=arr[i],col=Array.isArray(c[0])?c[0]:c;return'<button class="sw'+(cur===i?' on':'')+'" data-look="'+key+':'+i+'" style="background:rgb('+col.join(',')+')" aria-label="'+(i+1)+'번 색"></button>'}).join('')+'</div>';
   h+='<div class="sec">머리색</div>'+sw('h',hairs,HAIRS,L.h|0)+'<div class="sec">피부색</div>'+sw('k',SKINS.map((c,i)=>i),SKINS,L.k|0)+'<div class="sec">옷 색</div>'+sw('s',SHIRTS.map((c,i)=>i),SHIRTS,L.s|0);
   LOOK_KINDS.forEach(k=>{
-    const mine=COS.filter(c=>c.k===k&&owns(c.id)),all=COS.filter(c=>c.k===k).length;if(!mine.length&&k!=='face'&&k!=='back'&&k!=='hstyle'&&k!=='title')return;
+    const mine=COS.filter(c=>c.k===k&&owns(c.id)),all=COS.filter(c=>c.k===k).length,opt=['face','back','hstyle','title','frame','foot'].indexOf(k)>=0;if(!mine.length&&!opt)return;
     h+='<div class="sec">'+COS_KINDS[k]+' <span class="cnt">'+mine.length+' / '+all+'</span></div><div class="chips">';
-    if(k==='title'||k==='face'||k==='back'||k==='hstyle')h+='<button class="chip'+((k==='hstyle'?!(L.hs|0):!L[LOOK_KEY[k]])?' on':'')+'" data-eq="'+k+':">'+(k==='hstyle'?'기본':'없음')+'</button>';
+    if(opt)h+='<button class="chip'+((k==='hstyle'?!(L.hs|0):!L[LOOK_KEY[k]])?' on':'')+'" data-eq="'+k+':">'+(k==='hstyle'?'기본':'없음')+'</button>';
     h+=mine.map(c=>{const ic=cosIcon(c.id);return'<button class="chip'+(cosOn(c)?' on':'')+'" data-eq="'+k+':'+c.id+'">'+(ic?'<img src="'+ic+'" alt="">':'')+esc(c.name)+'</button>'}).join('')+'</div>';
   });
   return h;
@@ -4176,7 +4243,7 @@ function renderBoutique(){
   h+='<div class="cgrid">'+list.map(c=>{const have=owns(c.id),on=cosOn(c),ic=cosIcon(c.id),buyable=c.price!==undefined;
     const btn=have?'<button class="btn xs '+(on?'ghost':'mint')+'" data-eq="'+c.k+':'+(on&&(c.k==='title'||c.k==='face'||c.k==='back')?'':c.id)+'">'+(on?(c.k==='title'||c.k==='face'||c.k==='back'?'벗기':'착용 중'):'입기')+'</button>'
       :buyable?'<button class="btn xs pink" data-buy="'+c.id+'"'+(S.gold>=c.price?'':' disabled')+'><span class="coin"></span>'+fmtK(c.price)+'</button>'
-      :'<span class="lock" title="'+esc(rewardText(c))+'">'+(c.eb?'🎰 경품':'🔒 보상')+'</span>';
+      :'<span class="lock" title="'+esc(rewardText(c))+'">'+(c.eb?'🎰 경품':c.med?'🎖️ 메달':'🔒 보상')+'</span>';
     return'<div class="ccard'+(btqTry===c.id?' sel':'')+(have?' have':'')+'" data-btry="'+c.id+'">'+(ic?'<img class="ci" src="'+ic+'" alt="">':'<span class="ttl sm">「」</span>')+'<div class="cn">'+(c.k==='title'?'「'+esc(c.name)+'」':esc(c.name))+'</div>'+btn+'</div>'}).join('')+'</div>';
   body().innerHTML=h;
 }
@@ -4222,16 +4289,20 @@ function upgrade(k){
 }
 
 /* ----- 낚시터 문 ----- */
+/* 낚시터 문: 골드 + 앞 낚시터에서 '직접 낚은' 물고기 (손맛 도감 · 주고받을 수 없어서 스스로 열어야 해요). server.js GATE_SD와 같아요 */
+const GATE_SD={};   // 손맛 조건을 다시 켜려면 {2:12,3:15,4:18,5:20} (server.js와 같이)
+const sdZoneN=z=>FISH.filter(f=>f.zone===z&&f.id<MAIN_N&&sdHas(f.id)).length;
 function openGate(zone){
-  const z=ZONES[zone-1];
-  openSheet(z.name,'<div style="text-align:center;padding:8px 0 4px"><div class="muted">새로운 낚시터의 문이에요.</div><div style="margin:12px 0;font-size:20px"><span class="coin"></span> <b>'+fmt(z.gate)+'</b> 골드</div>'+
-    '<div class="muted" style="margin-bottom:6px">이곳의 물고기 40종이 도감에 더해져요.</div>'+
-    '<div class="muted" style="font-size:12px;margin-bottom:14px">문은 연 사람만 지나갈 수 있어요. 친구들은 각자 열어야 해요.</div>'+
-    '<button class="btn pink" id="gOpen"'+(S.gold>=z.gate?'':' disabled')+' style="min-width:160px">'+(S.gold>=z.gate?'문 열기':'골드가 부족해요')+'</button></div>');
+  const z=ZONES[zone-1],need=GATE_SD[zone]||0,pz=zone-1,have=need?sdZoneN(pz):0,okSd=have>=need,okG=S.gold>=z.gate;
+  openSheet(z.name,'<div class="gate"><div class="muted">새로운 낚시터의 문이에요</div>'+
+    (need?'<div class="req'+(okSd?' ok':'')+'"><span>🎣 「'+esc(zoneNm(pz))+'」에서 직접 낚은 물고기</span><b>'+have+' / '+need+'종</b><div class="sbar"><i style="width:'+Math.min(100,have/need*100)+'%"></i></div></div>':'')+
+    '<div class="req'+(okG?' ok':'')+'"><span><span class="coin"></span> 골드</span><b>'+fmt(z.gate)+'</b></div>'+
+    '<button class="btn pink big" id="gOpen"'+(okSd&&okG?'':' disabled')+'>'+(!okSd?'물고기를 더 직접 낚아 주세요':!okG?'골드가 부족해요':'문 열기')+'</button>'+
+    '<p class="note">'+(need?'교환이나 선물로 받은 물고기는 세지 않아요. ':'')+'이곳의 물고기 40종이 도감에 더해져요. 문은 연 사람만 지나갈 수 있어요.</p></div>');
   $('gOpen').onclick=()=>{
-    if(S.gold<z.gate){Snd.sfx('no');return}
-    S.gold-=z.gate;S.zones.push(zone);Snd.sfx('gate');saveState();closeSheet();
-    toast(z.name+'이(가) 열렸어요! (나만 지나갈 수 있는 문이에요)');const g=W.gates.find(g=>g.zone===zone);sparkFx(g.x*TS+8,g.y*TS+4,30,['#ffe28a','#ffb3c8','#ffffff','#b9a6ee']);
+    if(!okSd||S.gold<z.gate){Snd.sfx('no');return}
+    S.gold-=z.gate;S.zones.push(zone);Snd.sfx('gate');saveState(true);closeSheet();
+    toast(z.name+'이(가) 열렸어요!');const g=W.gates.find(g=>g.zone===zone);sparkFx(g.x*TS+8,g.y*TS+4,30,['#ffe28a','#ffb3c8','#ffffff','#b9a6ee']);
   };
 }
 
@@ -4429,7 +4500,8 @@ function enhRoll(e,mode,gold){
   if(e.tk<1)return{err:'강화권이 없어요'};
   const cost=mode==='safe'?enhCost(L):0;if(gold<cost)return{err:'골드가 모자라요'};
   e.tk--;e.star=e.star|0;e.fl=e.fl|0;
-  const sure=mode==='safe'&&e.fl>=ENH.K[L],ok=sure||Math.random()<ENH.P[L];let k,ds=0;
+  const ticket=(e.sure|0)>0;if(ticket)e.sure--;
+  const sure=ticket||(mode==='safe'&&e.fl>=ENH.K[L]),ok=sure||Math.random()<ENH.P[L];let k,ds=0;
   if(ok){ds=mode==='safe'?1:(Math.random()<.1?6:3);k=ds>=6?'jack':'up';e.fl=0}
   else{k='keep';if(mode==='safe')e.fl++;else if(L>=5&&e.star>0){ds=-1;k='down'}}
   e.star=Math.max(0,e.star+ds);
@@ -4509,7 +4581,8 @@ function renderForge(){
     '<div class="fg-res" id="fgres">'+(FG.last||'')+'</div></div>';
   if(!max){
     h+='<div class="seg"><button class="'+(safe?'on':'')+'" data-fm="safe"><b>안전 강화</b><small>골드 '+fmtK(cost)+' · 별을 안 잃어요</small></button><button class="'+(!safe?'on':'')+'" data-fm="gamble"><b>도전 강화</b><small>무료 · 성공하면 별 ×3</small></button></div>';
-    h+='<div class="fg-odds"><div><small>성공 확률</small><b>'+(safe&&sl===0?'100':Math.round(p*100))+'%</b></div>'+
+    if(e.sure|0)h+='<div class="fg-next" style="border-color:#ffb3c8"><span class="ic">🎯</span><div><small>메달 확정권 '+e.sure+'장</small><div>다음 강화는 무조건 성공!</div></div></div>';
+    h+='<div class="fg-odds"><div><small>성공 확률</small><b>'+((safe&&sl===0)||(e.sure|0)?'100':Math.round(p*100))+'%</b></div>'+
       (safe?'<div><small>확정까지</small><b>'+(sl?sl+'번':'다음!')+'</b><div class="mini"><i style="width:'+((e.fl|0)/ENH.K[L]*100)+'%"></i></div></div>':'<div><small>실패하면</small><b>'+(L>=5?'별 -1':'그대로')+'</b></div>')+
       '<div><small>강화권</small><b>'+e.tk+'</b></div></div>';
     const can=e.tk>0&&(!safe||S.gold>=cost)&&!FG.busy;
@@ -4606,6 +4679,7 @@ function setTag(a,name,ti,e){
   if(!a.tag)return;const t=COS_BY[ti];
   const jb=badgeHtml(a===ME?S.cos.look.j:(a.look&&a.look.j));
   const st=typeof evStatus==='function'?evStatus(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name):'';
+  {const tf=a===ME?S.cos.look.tf:(a.look&&a.look.tf);a.tag.className='ntag'+(tf?' '+tf:'')}
   a.tag.innerHTML=(t?'<span class="ti">「'+esc(t.name)+'」</span>':'')+jb+esc(name||'')+(e>0?'<span class="en">+'+e+'</span>':'')+(st?'<span class="st">'+esc(st)+'</span>':'');a.tagOn=!!(name||t||e>0||jb||st);a.tagH=0;
 }
 function showSay(a,text){
@@ -4626,25 +4700,14 @@ const TR={tab:'board',view:'list',posts:null,mail:[],err:'',wait:0,draft:null,pi
 const placeOf=id=>FISH[id]?FISH[id].zone:0;
 const zoneNm=z=>ZONES[z-1]?ZONES[z-1].name:'?';
 const isFishKey=k=>k!=='g'&&k.indexOf('i:')!==0;
-function tradeRule(a,b){
-  const all=[a||{},b||{}],fish=[];all.forEach(o=>Object.keys(o).forEach(k=>{if(isFishKey(k)&&o[k]>0)fish.push(+k)}));
-  if(all.some(o=>(o['i:shard']|0)>0))return'안개 조각은 주고받을 수 없어요';
-  if(!fish.length)return goldRule(all[0],all[1])||goldRule(all[1],all[0]);
-  if(all.some(o=>Object.keys(o).some(k=>!isFishKey(k)&&o[k]>0)))return'물고기는 물고기와만 바꿀 수 있어요 (골드 · 아이템은 따로)';
-  if(all.some(o=>!Object.keys(o).some(k=>o[k]>0)))return'물고기는 서로 한 마리 이상씩 올려야 바꿀 수 있어요';
-  if(new Set(fish.map(placeOf)).size>1)return'같은 낚시터 물고기끼리만 바꿀 수 있어요';
-  return'';
-}
-/* 골드는 아이템 값만큼만 (server.js goldRule과 같아요): 상대가 아이템을 내야 하고, 골드 ≤ 그 아이템 잡화점 값 × 1.5 */
-const tradeGoldCap=o=>{let v=0;for(const k in o)if(k.indexOf('i:')===0&&o[k]>0)v+=((ITEMS[k.slice(2)]||{}).npc||0)*o[k];return Math.floor(v*1.5)};
-function goldRule(a,b){const g=a.g|0;if(g<=0)return'';if((b.g|0)>0)return'골드끼리는 바꿀 수 없어요';const cap=tradeGoldCap(b);if(!cap)return'골드는 아이템을 받을 때만 줄 수 있어요';if(g>cap)return'골드는 받는 아이템 값의 1.5배('+fmt(cap)+')까지만 줄 수 있어요';return''}
+function tradeRule(a,b){const all=[a||{},b||{}];if(all.some(o=>(o['i:shard']|0)>0))return'안개 조각은 주고받을 수 없어요';if(!all.some(o=>Object.keys(o).some(k=>o[k]>0)))return'올린 것이 없어요';return''}
 /* 교환 중인 물고기의 낚시터 (없으면 0) */
 function sesZone(s){if(!s)return 0;for(const o of [s.mine,s.theirs])for(const k in o)if(isFishKey(k)&&o[k]>0)return placeOf(+k);return 0}
 const fishName=id=>FISH[id]?FISH[id].name:'?';
 const fchip=(id,n)=>'<span class="fishchip"><img src="'+fishURL(id)+'" alt=""'+(S.dex[id]?'':' style="filter:brightness(0) opacity(.25)"')+'>'+esc(fishName(id))+' ×'+n+'</span>';
 const ago=t=>{const m=Math.max(0,Math.round((Date.now()-t)/60000));return m<1?'방금':m<60?m+'분 전':m<1440?Math.round(m/60)+'시간 전':Math.round(m/1440)+'일 전'};
 function openTrade(tab){
-  if(tab)TR.tab=tab;TR.view='list';TR.pick=null;
+  if(tab)TR.tab=tab;TR.view='list';TR.pick=null;TR.bag=null;TR.goldp=null;
   openSheet('교환소','',()=>{if(TR.ses){Net.send({t:'tr_cancel'});TR.ses=null}});
   if(!ONLINE||!Net.me){body().innerHTML='<div style="text-align:center;padding:18px 6px;line-height:1.7"><div style="font-size:17px">교환소는 친구들과 함께 열려요</div><div class="muted" style="margin-top:6px">Render 주소로 접속해 로그인하면<br>게시판에 글을 남기고 친구와 물고기를 바꿀 수 있어요.</div></div>';return}
   if(TR.tab==='board')loadBoard();if(TR.tab==='rq')loadReq();renderTrade();
@@ -4665,13 +4728,13 @@ function renderTrade(){
   const ni=$('trNote');if(ni)ni.oninput=e=>{TR.draft.note=e.target.value};
 }
 function boardHtml(){
-  let h='<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><div class="muted" style="flex:1;font-size:13px">물고기는 <b>같은 낚시터 물고기끼리만</b> 바꿔요. 접속 시간이 달라도 줄 물고기는 교환소가 맡아 둬요.</div><button class="btn pink sm" data-tr="write">글 쓰기</button></div>';
+  let h='<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><div class="muted" style="flex:1;font-size:13px">접속 시간이 달라도 줄 물고기는 교환소가 맡아 둬요. 어떤 물고기끼리든 바꿀 수 있어요.</div><button class="btn pink sm" data-tr="write">글 쓰기</button></div>';
   if(TR.mail.length)h+='<div class="post" style="background:#effaf6"><div class="muted" style="font-size:12px;margin-bottom:4px">받은 소식</div>'+TR.mail.slice(0,5).map(m=>'<div style="font-size:13px;margin:2px 0">'+esc(m.text)+' <span class="muted" style="font-size:11px">'+ago(m.at)+'</span></div>').join('')+'</div>';
   if(TR.err)return h+'<div class="muted" style="text-align:center;padding:16px">'+esc(TR.err)+'</div>';
   if(!TR.posts)return h+'<div class="muted" style="text-align:center;padding:16px">게시판을 불러오는 중…</div>';
   if(!TR.posts.length)return h+'<div class="muted" style="text-align:center;padding:16px">아직 글이 없어요. 첫 글을 남겨 보세요!</div>';
   TR.posts.forEach(p=>{
-    const g=p.give,w=p.want,okRule=!!(g&&w&&placeOf(g[0])===placeOf(w[0])),newG=g&&!hasDex(g[0]);
+    const g=p.give,w=p.want,okRule=!!(g||w),newG=g&&!hasDex(g[0]);
     h+='<div class="post"><div><span class="badge '+p.kind+'">'+(p.kind==='give'?'드려요':'구해요')+'</span> <span style="font-size:14px">'+esc(p.by)+'</span> <span class="muted" style="font-size:12px">· '+(g?esc(zoneNm(placeOf(g[0])))+' · ':'')+ago(p.at)+'</span>'+(newG&&!p.mine?' <span class="badge new">✨ 내 도감에 없어요</span>':'')+'</div>';
     h+='<div class="ex">'+(g?'<span class="muted" style="font-size:12px">줄게요</span>'+fchip(g[0],g[1]):'')+(g&&w?'<span>↔</span>':'')+(w?'<span class="muted" style="font-size:12px">원해요</span>'+fchip(w[0],w[1]):'')+(!w&&g?'<span class="muted" style="font-size:12px">· 선물이에요</span>':'')+(!g&&w?'<span class="muted" style="font-size:12px">· 답례 없음</span>':'')+'</div>';
     if(p.note)h+='<div style="font-size:13px;margin-bottom:6px">“'+esc(p.note)+'”</div>';
@@ -4688,13 +4751,13 @@ function writeHtml(){
   const slot=(key,id,n,label)=>'<div class="sec">'+label+'</div><div style="display:flex;gap:8px;align-items:center;margin:4px 0 10px"><button class="slot" data-tr="pick" data-v="'+key+'">'+(id>=0?fchip(id,n)+(key==='want'&&!hasDex(id)?' <span class="badge new">✨ 내 도감에 없어요</span>':''):'<span class="muted">눌러서 고르기</span>')+'</button>'+
     (id>=0?'<span class="step"><button data-tr="cnt" data-v="'+key+':-1" aria-label="한 마리 빼기">−</button><button data-tr="cnt" data-v="'+key+':1" aria-label="한 마리 더하기">+</button><button data-tr="clr" data-v="'+key+'" aria-label="비우기">×</button></span>':'')+'</div>';
   let h='<div class="tabs" style="margin-top:-2px"><button class="tab'+(isGive?' on':'')+'" data-tr="kind" data-v="give">드려요</button><button class="tab'+(!isGive?' on':'')+'" data-tr="kind" data-v="want">구해요</button></div>';
-  h+='<div class="muted" style="font-size:12px;margin:-2px 0 8px">'+(z?'「'+esc(zoneNm(z))+'」 물고기끼리 바꿔요':'같은 낚시터 물고기끼리만 바꿀 수 있어요')+'</div>';
+
   const gs=slot('give',d.give,d.gn,'줄 물고기 (교환소에 맡겨 둬요)'),ws=slot('want',d.want,d.wn,'받고 싶은 물고기');
   h+=isGive?gs+ws:ws+gs;
   h+='<div class="sec">한마디 (20자)</div><input class="tin" id="trNote" maxlength="20" value="'+esc(d.note||'')+'" placeholder="예: 밤에만 나오는 애예요" style="width:100%;margin:4px 0 12px">';
-  const ok=d.give>=0&&d.want>=0&&placeOf(d.give)===placeOf(d.want);
+  const ok=d.give>=0||d.want>=0;
   h+='<div style="display:flex;gap:8px"><button class="btn ghost" data-tr="back" style="flex:1">취소</button><button class="btn pink" data-tr="post" style="flex:2"'+(ok?'':' disabled')+'>게시판에 올리기</button></div>';
-  h+='<div class="muted" style="font-size:12px;margin-top:8px">줄 물고기와 받을 물고기를 둘 다 골라야 해요. 글은 3일 뒤 내려가고, 맡긴 물고기는 그때 돌아와요.</div>';
+  h+='<div class="muted" style="font-size:12px;margin-top:8px">한쪽만 골라도 돼요 (줄 것만 고르면 선물). 글은 3일 뒤 내려가고, 맡긴 물고기는 그때 돌아와요.</div>';
   return h;
 }
 function pickHtml(){
@@ -4711,7 +4774,7 @@ function pickHtml(){
 function loadFr(){TR.fr=null;TR.wait=performance.now();Net.flushSave(true);Net.send({t:'fr_list'});
   setTimeout(()=>{if(TR.wait&&!TR.fr&&performance.now()-TR.wait>5500){TR.wait=0;TR.fr=[];TR.err='서버가 대답하지 않아요. server.js가 최신인지 확인해 주세요.';if(tradeOpen())renderTrade()}},6000)}
 function frHtml(){
-  let h='<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><div class="muted" style="flex:1;font-size:13px">친구 가방에 있는 물고기예요. 같은 낚시터 물고기로 바꿔서 도감을 채워 보세요.</div><button class="btn ghost sm" data-tr="frm">'+(TR.frMiss?'✨ 내 도감에 없는 것만':'전부 보기')+'</button></div>';
+  let h='<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><div class="muted" style="flex:1;font-size:13px">친구 가방에 있는 물고기예요. 교환으로 도감을 채워 보세요 (손맛 도감은 직접 낚아야 올라요).</div><button class="btn ghost sm" data-tr="frm">'+(TR.frMiss?'✨ 내 도감에 없는 것만':'전부 보기')+'</button></div>';
   if(!TR.fr)return h+'<div class="muted" style="text-align:center;padding:16px">친구 가방을 살펴보는 중…</div>';
   if(TR.err&&!TR.fr.length)return h+'<div class="muted" style="text-align:center;padding:16px">'+esc(TR.err)+'</div>';
   if(!TR.fr.length)return h+'<div class="muted" style="text-align:center;padding:16px">아직 다른 친구가 없어요.</div>';
@@ -4735,24 +4798,46 @@ function frHtml(){
 function directHtml(){
   const s=TR.ses;
   if(!s){
-    let h='<div class="muted" style="font-size:13px;margin-bottom:10px">같은 마을에 있는 친구와 서로 올리고, 둘 다 확인을 누르면 바뀌어요. 물고기는 <b>같은 낚시터 물고기끼리</b>, 골드는 아이템을 받을 때 그 값만큼만 줄 수 있어요. 친구 옆에서 오른쪽 버튼을 눌러도 돼요.</div>';
+    let h='<p class="note">마을에 있는 친구와 서로 올리고, 둘 다 확인하면 바뀌어요. 물고기 · 아이템 · 골드 무엇이든, 한쪽만 줘도(선물) 돼요. 친구 옆에서 오른쪽 버튼을 눌러도 돼요.</p>';
     const list=[...others.values()];
     if(!list.length)return h+'<div class="muted" style="text-align:center;padding:16px">지금 마을에 다른 친구가 없어요.</div>';
     return h+list.map(o=>'<div class="row"><div class="nm"><div>'+esc(o.name)+'</div>'+(COS_BY[o.look&&o.look.ti]?'<div class="muted" style="font-size:12px">「'+esc(COS_BY[o.look.ti].name)+'」</div>':'')+'</div><div class="go"><button class="btn mint sm" data-tr="req" data-v="'+o.id+'"'+(TR.asking?' disabled':'')+'>'+(TR.asking===o.id?'기다리는 중…':'교환 신청')+'</button></div></div>').join('');
   }
-  const rows=(m,mine)=>{const ks=Object.keys(m);if(!ks.length)return'<div class="muted" style="font-size:12px">아직 없어요</div>';
-    return ks.map(k=>{const g=k==='g',it=k.indexOf('i:')===0,st=g?100:1;
-      return'<div class="trow">'+(g?'<span style="font-size:18px">🪙</span>':it?'<span style="font-size:18px">'+(ITEMS[k.slice(2)]||{ic:'?'}).ic+'</span>':'<img src="'+fishURL(+k)+'" alt="">')+'<span class="nm">'+(g?'골드 '+fmt(m[k]):it?esc((ITEMS[k.slice(2)]||{n:k}).n)+' ×'+m[k]:esc(fishName(+k))+' ×'+m[k])+'</span>'+
-      (mine?'<button data-tr="dcnt" data-v="'+k+':-'+st+'" aria-label="빼기">−</button><button data-tr="dcnt" data-v="'+k+':'+st+'" aria-label="더하기">+</button>'+(g?'<button data-tr="dcnt" data-v="g:1000" aria-label="1000 더하기">+1k</button>':''):'')+'</div>'}).join('')};
-  const sz=sesZone(s),other=[s.mine,s.theirs].some(o=>Object.keys(o).some(k=>!isFishKey(k)&&o[k]>0)),rule=tradeRule(s.mine,s.theirs);
-  let h='<div style="text-align:center;margin-bottom:8px">'+esc(s.name)+' 님과 교환 중'+(sz?'<div class="muted" style="font-size:12px">「'+esc(zoneNm(sz))+'」 물고기끼리 바꾸는 중</div>':other?'<div class="muted" style="font-size:12px">골드 · 아이템 교환 중 (물고기는 따로)</div>':'')+'</div><div class="cols">';
-  h+='<div class="box'+(s.okMe?' ok':'')+'"><h4>내가 줄 것'+(s.okMe?' ✓':'')+'</h4>'+rows(s.mine,true)+(Object.keys(s.mine).length<6?(other?'':'<button class="btn ghost sm" style="width:100%;margin-top:6px" data-tr="dadd">+ 물고기'+(sz?' ('+esc(zoneNm(sz))+')':'')+'</button>')+(sz?'':'<div style="display:flex;gap:4px;margin-top:4px"><button class="btn ghost sm" style="flex:1" data-tr="iadd">+ 아이템</button><button class="btn ghost sm" style="flex:1" data-tr="gadd">+ 골드</button></div>'):'')+'</div>';
-  h+='<div class="box'+(s.okThem?' ok':'')+'"><h4>'+esc(s.name)+' 님이 줄 것'+(s.okThem?' ✓':'')+'</h4>'+rows(s.theirs,false)+'</div></div>';
-  const empty=!Object.keys(s.mine).length&&!Object.keys(s.theirs).length;
-  h+='<div class="muted" style="font-size:12px;text-align:center;margin:8px 0">'+(rule&&!empty?'<span style="color:#d0607a">'+esc(rule)+'</span>':s.okMe&&!s.okThem?'상대가 확인하기를 기다리는 중…':s.okThem&&!s.okMe?'상대가 확인했어요. 괜찮으면 확인을 눌러요.':'올린 물고기를 바꾸면 확인이 풀려요.')+'</div>';
-  h+='<div style="display:flex;gap:8px"><button class="btn ghost" data-tr="dquit" style="flex:1">그만두기</button><button class="btn '+(s.okMe?'ghost':'mint')+'" data-tr="dok" style="flex:2"'+(empty||(rule&&!s.okMe)?' disabled':'')+'>'+(s.okMe?'확인 취소':'확인')+'</button></div>';
+  if(TR.bag)return bagPickHtml();
+  if(TR.goldp)return goldPadHtml();
+  const rule=tradeRule(s.mine,s.theirs),empty=!Object.keys(s.mine).length&&!Object.keys(s.theirs).length;
+  let h='<div class="tr-who">'+esc(s.name)+' 님과 교환 중</div>';
+  h+='<div class="tr-side'+(s.okMe?' ok':'')+'"><div class="hd">내가 줄 것'+(s.okMe?' <b>✓ 확인</b>':'')+'</div>'+offerChips(s.mine,true)+
+    '<div class="tr-add"><button class="btn ghost sm" data-tr="bag">🎒 가방에서 고르기</button><button class="btn ghost sm" data-tr="gpad">🪙 골드</button></div></div>';
+  h+='<div class="tr-arrow">⇅</div>';
+  h+='<div class="tr-side'+(s.okThem?' ok':'')+'"><div class="hd">'+esc(s.name)+' 님이 줄 것'+(s.okThem?' <b>✓ 확인</b>':'')+'</div>'+offerChips(s.theirs,false)+'</div>';
+  h+='<div class="tr-msg">'+(rule&&!empty?'<span class="bad">'+esc(rule)+'</span>':s.okMe&&!s.okThem?'상대가 확인하기를 기다리는 중…':s.okThem&&!s.okMe?'상대가 확인했어요. 괜찮으면 교환하기를 눌러요':'올린 것을 바꾸면 확인이 풀려요')+'</div>';
+  h+='<div class="fg-btns"><button class="btn '+(s.okMe?'ghost':'mint')+'" data-tr="dok"'+(empty||(rule&&!s.okMe)?' disabled':'')+'>'+(s.okMe?'확인 취소':'이대로 교환하기')+'</button><button class="btn ghost" data-tr="dquit">그만두기</button></div>';
   return h;
 }
+/* 올린 것 보여 주기 (내 것은 눌러서 빼요) */
+function offerChips(m,mine){const ks=Object.keys(m).filter(k=>m[k]>0);if(!ks.length)return'<div class="tr-empty">아직 없어요</div>';
+  const g=ks.indexOf('g')>=0?'<div class="tr-gold">🪙 <b>'+fmt(m.g)+'</b> 골드'+(mine?'<button data-tr="dclr" data-v="g" aria-label="빼기">×</button>':'')+'</div>':'';
+  return g+'<div class="tr-chips">'+ks.filter(k=>k!=='g').map(k=>{const it=k.indexOf('i:')===0,I=it&&ITEMS[k.slice(2)];
+    return'<span class="tchip">'+(it?'<i>'+(I?I.ic:'?')+'</i>':'<img src="'+fishURL(+k)+'" alt="">')+'<span>'+esc(it?(I?I.n:k):fishName(+k))+'</span><b>×'+fmt(m[k])+'</b>'+(mine?'<button data-tr="dclr" data-v="'+k+'" aria-label="빼기">×</button>':'')+'</span>'}).join('')+'</div>'}
+/* 가방에서 한 번에 여러 개 고르기: 누를 때마다 정한 만큼 더해져요 */
+function bagPickHtml(){const s=TR.ses,sel=TR.bag.sel,step=TR.bag.step,tab=TR.bag.tab;
+  let h='<div class="tabs"><button class="tab'+(tab==='f'?' on':'')+'" data-tr="btab" data-v="f">물고기</button><button class="tab'+(tab==='i'?' on':'')+'" data-tr="btab" data-v="i">아이템</button></div>';
+  h+='<div class="fchips"><span class="muted" style="font-size:12px;align-self:center">누를 때마다</span>'+[1,5,10,'all'].map(v=>'<button class="fchip'+(step===v?' on':'')+'" data-tr="bstep" data-v="'+v+'">'+(v==='all'?'전부':'+'+v)+'</button>').join('')+'</div>';
+  const cells=tab==='f'?Object.keys(S.inv).map(Number).filter(i=>(S.inv[i]|0)>0&&FISH[i]).sort((a,b)=>FISH[b].rar-FISH[a].rar||a-b).map(i=>({k:String(i),have:S.inv[i]|0,img:fishURL(i),name:fishName(i),rar:FISH[i].rar}))
+    :ITEM_IDS.filter(k=>itN(k)>0).map(k=>({k:'i:'+k,have:itN(k),ic:ITEMS[k].ic,name:ITEMS[k].n,no:k==='shard'}));
+  if(!cells.length)h+='<div class="muted" style="text-align:center;padding:18px">'+(tab==='f'?'가방에 물고기가 없어요':'아이템이 없어요')+'</div>';
+  else h+='<div class="bgrid">'+cells.map(c=>{const n=sel[c.k]|0;return'<button class="bcell'+(n?' on':'')+(c.no?' no':'')+'" data-tr="bput" data-v="'+c.k+'"'+(c.no?' disabled':'')+' aria-label="'+esc(c.name)+'">'+(c.img?'<img src="'+c.img+'" alt="">':'<i>'+c.ic+'</i>')+'<span class="hv">'+fmt(c.have)+'</span>'+(n?'<span class="sel">'+fmt(n)+'</span>':'')+'</button>'}).join('')+'</div>';
+  const kinds=Object.keys(sel).filter(k=>sel[k]>0).length;
+  h+='<div class="fg-btns sticky"><button class="btn pink" data-tr="bok">'+(kinds?kinds+'종 올리기':'고른 것 없이 돌아가기')+'</button><button class="btn ghost" data-tr="bclr">비우기</button></div>';
+  return h}
+/* 골드: 빠른 버튼 + 직접 입력 */
+function goldPadHtml(){const s=TR.ses,g=TR.goldp.g,max=Math.floor(S.gold);
+  return'<div class="gpad"><small>줄 골드</small><div class="v">🪙 '+fmt(g)+'</div><small>가진 골드 '+fmt(max)+'</small></div>'+
+    '<div class="eb-coin">'+[10000,100000,1000000,10000000].map(n=>'<button class="ccard" data-tr="gplus" data-v="'+n+'"'+(g+n>max?' disabled':'')+'><b>+'+fmtK(n)+'</b></button>').join('')+'</div>'+
+    '<div class="gin"><input class="tin" id="gIn" inputmode="numeric" placeholder="직접 입력 (예: 250000)"><button class="btn ghost sm" data-tr="gset">입력</button></div>'+
+    '<div class="fchips"><button class="fchip" data-tr="gall">전부</button><button class="fchip" data-tr="gzero">0</button></div>'+
+    '<div class="fg-btns"><button class="btn pink" data-tr="gok">'+(g?fmt(g)+' 골드 올리기':'골드 빼기')+'</button><button class="btn ghost" data-tr="gback">취소</button></div>'}
 function sendOffer(){const s=TR.ses;if(!s)return;s.okMe=false;Net.flushSave(true);Net.send({t:'tr_offer',items:s.mine});renderTrade()}
 function onTradeClick(t){
   const a=t.dataset.tr,v=t.dataset.v,d=TR.draft;Snd.sfx('tap');
@@ -4762,16 +4847,15 @@ function onTradeClick(t){
   if(a==='write'){TR.draft={kind:'give',give:-1,gn:1,want:-1,wn:1,note:''};TR.view='write';renderTrade();return true}
   if(a==='back'){TR.view='list';renderTrade();return true}
   if(a==='kind'){d.kind=v;renderTrade();return true}
-  if(a==='pick'){const o=v==='give'?d.want:d.give;TR.pick={from:v==='give'?'bag':'all',key:v,zone:o>=0?placeOf(o):0};renderTrade();return true}
+  if(a==='pick'){TR.pick={from:v==='give'?'bag':'all',key:v,zone:0};renderTrade();return true}
   if(a==='unpick'){TR.pick=null;renderTrade();return true}
   if(a==='pk'){const pk=TR.pick,id=+v;TR.pick=null;
     if(pk.key==='dadd'){const s=TR.ses;if(s){s.mine[id]=Math.min(S.inv[id]||0,(s.mine[id]||0)+1);sendOffer()}return true}
-    if(pk.key==='give'){d.give=id;d.gn=1;if(d.want>=0&&placeOf(d.want)!==placeOf(id))d.want=-1}else{d.want=id;d.wn=1;if(d.give>=0&&placeOf(d.give)!==placeOf(id))d.give=-1}renderTrade();return true}
+    if(pk.key==='give'){d.give=id;d.gn=1}else{d.want=id;d.wn=1}renderTrade();return true}
   if(a==='cnt'){const p=v.split(':'),k=p[0],dn=+p[1];if(k==='give')d.gn=Math.max(1,Math.min(S.inv[d.give]||1,99,d.gn+dn));else d.wn=Math.max(1,Math.min(99,d.wn+dn));renderTrade();return true}
   if(a==='clr'){if(v==='give')d.give=-1;else d.want=-1;renderTrade();return true}
   if(a==='post'){
-    if(d.give<0||d.want<0){toast('줄 물고기와 받을 물고기를 둘 다 골라 주세요');return true}
-    if(placeOf(d.give)!==placeOf(d.want)){toast('같은 낚시터 물고기끼리만 바꿀 수 있어요');return true}
+    if(d.give<0&&d.want<0){toast('줄 물고기나 받을 물고기를 골라 주세요');return true}
     if(d.give>=0&&(S.inv[d.give]||0)<d.gn){toast('가방에 그만큼 없어요');return true}
     t.disabled=true;Net.flushSave(true);
     Net.send({t:'bd_post',kind:d.kind,give:d.give>=0?[d.give,d.gn]:null,want:d.want>=0?[d.want,d.wn]:null,note:cleanText(d.note).slice(0,20)});
@@ -4779,7 +4863,21 @@ function onTradeClick(t){
   if(a==='take'){t.disabled=true;Net.flushSave(true);Net.send({t:'bd_take',id:v});return true}
   if(a==='del'){t.disabled=true;Net.send({t:'bd_del',id:v});return true}
   if(a==='req'){askTrade(v);return true}
-  if(a==='dadd'){TR.pick={from:'bag',key:'dadd',zone:sesZone(TR.ses),minus:i=>TR.ses?TR.ses.mine[i]||0:0};renderTrade();return true}
+  if(a==='bag'){const s=TR.ses;if(!s)return true;const sel={};for(const k in s.mine)if(k!=='g')sel[k]=s.mine[k];TR.bag={sel,step:TR.bagStep||1,tab:'f'};renderTrade();return true}
+  if(a==='btab'){TR.bag.tab=v;renderTrade();return true}
+  if(a==='bstep'){TR.bag.step=TR.bagStep=v==='all'?'all':+v;renderTrade();return true}
+  if(a==='bput'){const B=TR.bag,have=v.indexOf('i:')===0?itN(v.slice(2)):S.inv[+v]|0,cur=B.sel[v]|0;B.sel[v]=B.step==='all'?have:Math.min(have,cur+B.step);if(cur>=have)delete B.sel[v];renderTrade();return true}
+  if(a==='bclr'){TR.bag.sel={};renderTrade();return true}
+  if(a==='bok'){const s=TR.ses,B=TR.bag;TR.bag=null;if(!s)return true;const g=s.mine.g;s.mine={};if(g)s.mine.g=g;for(const k in B.sel)if(B.sel[k]>0)s.mine[k]=B.sel[k];sendOffer();return true}
+  if(a==='gpad'){TR.goldp={g:(TR.ses&&TR.ses.mine.g)|0};renderTrade();return true}
+  if(a==='gplus'){TR.goldp.g=Math.min(Math.floor(S.gold),TR.goldp.g+(+v));renderTrade();return true}
+  if(a==='gset'){const el=$('gIn'),n=Math.floor(Number(String(el&&el.value||'').replace(/[^0-9]/g,''))||0);TR.goldp.g=Math.max(0,Math.min(Math.floor(S.gold),n));renderTrade();return true}
+  if(a==='gall'){TR.goldp.g=Math.floor(S.gold);renderTrade();return true}
+  if(a==='gzero'){TR.goldp.g=0;renderTrade();return true}
+  if(a==='gok'){const s=TR.ses,g=TR.goldp.g;TR.goldp=null;if(!s)return true;if(g>0)s.mine.g=g;else delete s.mine.g;sendOffer();return true}
+  if(a==='gback'){TR.goldp=null;renderTrade();return true}
+  if(a==='dclr'){const s=TR.ses;if(s){delete s.mine[v];sendOffer()}return true}
+  if(a==='dadd'){TR.pick={from:'bag',key:'dadd',zone:0,minus:i=>TR.ses?TR.ses.mine[i]||0:0};renderTrade();return true}
   if(a==='dcnt'){const s=TR.ses;if(!s)return true;const i=v.lastIndexOf(':'),k=v.slice(0,i),n=(s.mine[k]||0)+(+v.slice(i+1));
     const cap=k==='g'?Math.floor(S.gold):k.indexOf('i:')===0?itN(k.slice(2)):S.inv[+k]||0;if(n<=0)delete s.mine[k];else s.mine[k]=Math.min(n,cap);if(!s.mine[k])delete s.mine[k];sendOffer();return true}
   if(a==='gadd'){const s=TR.ses;if(!s)return true;if(S.gold<100){toast('골드가 모자라요');return true}s.mine.g=Math.min(Math.floor(S.gold),(s.mine.g||0)+100);sendOffer();return true}
@@ -4837,7 +4935,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
   login(name,code){this.creds={name:name,code:code};if(this.state==='open')this.send({t:'login',name:name,code:code})},
   posKey:'',
   onMsg(m){
-    if(onEvMsg(m)||onEbMsg(m))return;
+    if(onEvMsg(m)||onEbMsg(m)||onVilMsg(m))return;
     if(m.t==='login_ok'){const first=!this.me;this.me={id:m.id,name:m.name,color:m.color,admin:!!m.admin};
       try{localStorage.setItem(LOGIN_KEY,JSON.stringify(this.creds))}catch(e){}
       this.lastPos='';netBanner();if(first&&this.onLogin)this.onLogin(m);else this.flushSave(true);
@@ -4885,7 +4983,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='mail'){TR.mail.unshift({at:Date.now(),text:m.text});toast(m.text);if(tradeOpen()&&TR.tab==='board')renderTrade()}
     else if(m.t==='tr_req'){if(TR.ses||askFrom||F.mode!=='idle')Net.send({t:'tr_ans',from:m.from,ok:false,busy:true});else showAsk(m.from,m.name)}
     else if(m.t==='tr_no'){TR.asking=0;toast(m.msg||'교환이 성사되지 않았어요');if(tradeOpen())renderTrade()}
-    else if(m.t==='tr_open'){TR.asking=0;TR.ses={id:m.with,name:m.name,mine:{},theirs:{},okMe:false,okThem:false};TR.tab='direct';TR.pick=null;
+    else if(m.t==='tr_open'){TR.asking=0;TR.ses={id:m.with,name:m.name,mine:{},theirs:{},okMe:false,okThem:false};TR.tab='direct';TR.pick=null;TR.bag=null;TR.goldp=null;
       if(!$('sheetwrap').hidden&&!tradeOpen()){openSheet.onClose=null;closeSheet()}
       if(!tradeOpen()){const s=TR.ses;openTrade('direct');TR.ses=s}renderTrade()}
     else if(m.t==='tr_state'){const s=TR.ses;if(!s)return;s.mine=m.mine||{};s.theirs=m.theirs||{};s.okMe=!!m.okMe;s.okThem=!!m.okThem;renderTrade()}
@@ -5014,11 +5112,11 @@ function onProf(m){if(PF.id!==m.id||$('sheetwrap').hidden)return;PF.data=m;body(
 /* ========== 마을 행사: 직업마다 하루 한 번 개최 (server.js EV_KIND와 같아야 해요) ==========
    버튼 하나로 열고 → 20~60분 동안 저절로 → 결과는 뉴스로. 참가는 평소 하던 행동 그대로 */
 const EV_KIND={
- cup:{job:'fish',min:30,name:'월척 대회',ic:'🏆',st:'월척 대회 여는 중',how:'30분 동안 낚은 물고기 크기로 겨뤄요 (그 물고기 평균 크기와 비교해서, 어떤 물고기든 공평하게). 낚시만 하면 자동 참가! 1~3등 골드 · 우승은 칭호 「월척왕」 (셋 이상 모이면 강화권도)'},
- bounty:{job:'sch',min:60,name:'현상수배',ic:'🎯',st:'현상수배 중',how:'박사가 고른 물고기를 처음 낚는 사람에게 현상금 · 강화권 · 칭호 「현상금 사냥꾼」. 박사도 강화권을 받아요'},
- stall:{job:'cra',min:30,name:'포장마차',ic:'🍢',st:'포장마차 영업 중',how:'장인이 만든 음식을 잡화점 반값에! 노점 가까이 가서 사면 바로 먹어요 (한 사람 3개까지). 판 돈은 장인에게'},
- play:{job:'tam',min:30,name:'펫 놀이터',ic:'🐾',st:'펫 놀이터 여는 중',how:'놀이터 근처(4칸 안)에 있으면 1분마다 짝꿍이 ♥ +5 · 경험치 +60. 그냥 옆에 서 있기만 해도 돼요'},
- auc:{job:'mer',min:20,name:'반짝 장터',ic:'🔔',st:'반짝 장터 여는 중',how:'오늘만 나오는 칭호 · 재료 · 전설 미끼를 골드로 겨뤄요. 더 높게 부르는 사람이 나오면 먼저 낸 골드는 바로 돌려줘요. 막판 1분 입찰은 1분 연장'}};
+ cup:{job:'fish',min:30,name:'월척 대회',ic:'🏆',st:'월척 대회 여는 중',how:'30분 동안 낚은 물고기 크기(그 물고기 평균과 비교)로 겨뤄요. 낚시만 하면 자동 참가 · 참가 메달 1 · 반짝 조각 2 · 1등 강화권 2 · 메달 3 · 「월척왕」 · 2~3등 강화권 1 · 메달 2'},
+ bounty:{job:'sch',min:60,name:'현상수배',ic:'🎯',st:'현상수배 중',how:'박사가 고른 물고기를 처음 낚으면 강화권 2 · 메달 3 · 「현상금 사냥꾼」. 해결되면 접속한 모두에게 축하 메달 1 · 박사도 강화권 1 · 메달 2'},
+ stall:{job:'cra',min:30,name:'포장마차',ic:'🍢',st:'포장마차 영업 중',how:'장인이 만든 음식을 잡화점 반값에! 가까이 가서 사면 바로 먹어요 (한 사람 3개) · 첫 손님 메달 1 · 판 돈은 장인에게'},
+ play:{job:'tam',min:30,name:'펫 놀이터',ic:'🐾',st:'펫 놀이터 여는 중',how:'근처(4칸 안)에 있으면 1분마다 짝꿍 ♥ +5 · 경험치 +60 · 5분 넘게 놀면 메달 1'},
+ auc:{job:'mer',min:20,name:'반짝 장터',ic:'🔔',st:'반짝 장터 여는 중',how:'오늘만 나오는 칭호 · 재료 · 전설 미끼를 골드로 겨뤄요 · 처음 입찰하면 메달 1 · 밀리면 골드는 바로 돌려받아요 · 막판 입찰은 1분 연장'}};
 const EV_OF_JOB={fish:'cup',sch:'bounty',cra:'stall',tam:'play',mer:'auc'};
 const JOB_CAN={
  fish:['🏆 월척 대회를 열어요 (하루 한 번)','대물 비늘을 모아 물결호 · 전설 미끼 재료를 대요','의뢰판에서 귀한 물고기를 구해 줘요'],
@@ -5026,7 +5124,7 @@ const JOB_CAN={
  cra:['🍢 포장마차를 열어요 (하루 한 번)','미끼 · 요리 · 펫 간식 · 행운 부적을 만들어요','전설 미끼는 공방 장인만 만들 수 있어요'],
  tam:['🐾 펫 놀이터를 열어요 (하루 한 번)','돌봐주기: 접속해 있으면 모두의 짝꿍 경험치 +25%','조개 · 해초 · 진주 · 반짝 깃털을 모아요'],
  mer:['🔔 반짝 장터를 열어요 (하루 한 번)','위탁 판매로 친구 물고기를 더 비싸게 팔아 줘요','반짝 실 · 수입 돛 · 펫 장난감을 사 와요']};
-let EVS=[];const EVU={sel:null,pick:false,petT:{}};
+let EVS=[];const EVU={sel:null,pick:false,petT:{},tab:'ev'};
 const myName=()=>ONLINE&&Net.me?Net.me.name:'나';
 const evHostOf=name=>EVS.find(e=>e.host===name);
 function evStatus(name){const e=name&&evHostOf(name);return e?EV_KIND[e.kind].ic+' '+EV_KIND[e.kind].st:''}
@@ -5035,7 +5133,7 @@ const evOpenNow=()=>!$('sheetwrap').hidden&&$('sheettitle').textContent==='마�
 const evHostedToday=()=>S.evd===kstDay();
 function refreshTagsAll(){try{refreshMe()}catch(e){}others.forEach(o=>setTag(o,o.name,o.look.ti,o.look.e))}
 function onEvList(list){const was=EVS.map(e=>e.id).join();EVS=Array.isArray(list)?list:[];if(was!==EVS.map(e=>e.id).join())refreshTagsAll();if(evOpenNow())renderEv()}
-setInterval(()=>{if(evOpenNow()&&!EVU.pick)renderEv()},2000);
+setInterval(()=>{if(evOpenNow()&&!EVU.pick&&EVU.tab==='ev')renderEv()},2000);
 /* 행사 물건 그림 (호스트가 연 자리에 생겨요 — 마을 · 축제 광장 · 안개 섬 어디든) */
 const EVSPR={};
 function evSpr(kind){if(EVSPR[kind])return EVSPR[kind];const W2={stall:34,play:72,cup:20,bounty:22,auc:26}[kind],H2={stall:34,play:28,cup:34,bounty:30,auc:28}[kind];
@@ -5058,17 +5156,21 @@ function evDrawables(list,x0,x1,y0,y1){EVS.forEach(e=>{const tx=e.x/TS,ty=e.y/TS
 function nearEv(mine){if(!ONLINE||!Net.me||!P)return null;let best=null,bd=22;EVS.forEach(e=>{if((e.host===Net.me.name)!==mine)return;const d=Math.hypot(e.x-P.x,e.y-P.y);if(d<bd){bd=d;best=e}});return best}
 const evLabel=e=>({cup:'대회판',bounty:'수배지',stall:'포장<br>마차',play:'놀이터',auc:'장터'})[e.kind];
 /* ----- 행사 화면 ----- */
-function openEvents(sel){if(!ONLINE||!Net.me){toast('행사는 친구들과 함께하는 온라인에서 열려요');return}EVU.sel=sel||null;EVU.pick=false;Snd.sfx('ui');openSheet('마을 행사','');Net.send({t:'ev_list'});renderEv()}
+function openEvents(sel,tab){if(!ONLINE||!Net.me){toast('행사는 친구들과 함께하는 온라인에서 열려요');return}EVU.sel=sel||null;EVU.pick=false;EVU.tab=tab||'ev';Snd.sfx('ui');openSheet('마을 행사','');Net.send({t:'ev_list'});Net.send({t:'vil'});renderEv()}
 function renderEv(){
   if(EVU.pick)return renderBountyPick();
   let h='';const me=myName(),job=jobId(),kind=job&&EV_OF_JOB[job];
   if(EVU.sel){const e=EVS.find(x=>x.id===EVU.sel);if(e){$('sheetbody').innerHTML=evDetail(e);return}EVU.sel=null}
+  h+=hubTop()+hubTabs();
+  if(EVU.tab==='wk'){$('sheetbody').innerHTML=h+renderWk();return}
+  if(EVU.tab==='shop'){$('sheetbody').innerHTML=h+renderMedShop();return}
+  if(EVU.tab==='vf'){$('sheetbody').innerHTML=h+renderVf();return}
   if(kind){const K=EV_KIND[kind],mine=EVS.find(e=>e.host===me);
     h+='<div class="jcard" style="border-color:'+JOBS[job].col+';margin-bottom:10px"><div style="font-size:15px">'+K.ic+' 내가 여는 행사 · '+K.name+'</div><div class="muted" style="font-size:12px;margin:4px 0">'+esc(K.how)+'</div>'+
       (mine?'<div style="font-size:13px">지금 열려 있어요 · 남은 시간 '+evLeftTxt(mine)+' · 함께한 친구 '+mine.n+'명</div>':evHostedToday()?'<div class="muted" style="font-size:13px">오늘은 이미 열었어요. 내일 또 열 수 있어요!</div>':
-       '<button class="btn pink sm" data-evo="'+kind+'" style="margin-top:4px">'+K.ic+' 지금 여기서 '+K.name+' 열기</button><div class="muted" style="font-size:11px;margin-top:4px">지금 서 있는 자리에 생겨요 · 열면 오늘의 일도 끝 (강화권 +1)</div>')+'</div>'}
+       '<div class="fg-btns" style="margin:6px 0 4px"><button class="btn pink" data-evo="'+kind+'">'+K.ic+' 지금 여기서 열기</button><button class="btn ghost" data-evo="'+kind+'" data-mega="1"'+(S.gold>=50000?'':' disabled')+'>📣 확성기<small style="display:block;font-size:10px">5만 골드</small></button></div>'+rsvHtml(kind)+'<p class="note">지금 서 있는 자리에 생겨요 · 열면 오늘의 일 완료 (강화권 +1) · 친구 2명 이상 오면 강화권 +1 · 3명 이상이면 모두 메달 +1, 5명 이상이면 +2 · 확성기는 마을 전체에 크게 알리고 참가자 메달 +1</p>')+'</div>'}
   else h+='<div class="muted" style="font-size:12px;margin-bottom:8px">직업을 고르면 하루 한 번 행사를 열 수 있어요 (메뉴 → 직업 · 테크트리).</div>';
-  h+='<div class="sec">지금 열린 행사</div>';
+  h+=rsvList()+'<div class="sec">지금 열린 행사</div>';
   if(!EVS.length)h+='<div class="muted" style="padding:6px 0 10px">지금은 열린 행사가 없어요. 축제 광장 게시판이나 여기서 알려 드릴게요!</div>';
   EVS.forEach(e=>{const K=EV_KIND[e.kind],J=JOBS[K.job];
     h+='<button class="mbtn" data-evs="'+e.id+'" style="width:100%;margin-bottom:6px;text-align:left;border-color:'+J.col+'">'+K.ic+' '+K.name+' <span class="muted" style="font-size:12px">· '+esc(e.host)+' 님 ('+J.name+')</span><small>남은 시간 '+evLeftTxt(e)+' · 함께한 친구 '+e.n+'명 · '+evWhere(e)+'</small></button>'});
@@ -5080,7 +5182,7 @@ function evDetail(e){const K=EV_KIND[e.kind],me=myName(),near=P&&Math.hypot(e.x-
   let h='<button class="btn ghost sm" data-evs="" style="margin-bottom:8px">◀ 행사 목록</button>';
   h+='<div class="wishc" style="margin-bottom:8px"><div style="font-size:16px">'+K.ic+' '+esc(e.host)+' 님의 '+K.name+'</div><div class="muted" style="font-size:12px;margin-top:4px">'+esc(K.how)+'</div><div style="font-size:13px;margin-top:6px">남은 시간 <b>'+evLeftTxt(e)+'</b> · '+evWhere(e)+' · 함께한 친구 '+e.n+'명</div></div>';
   if(e.kind==='cup'){const t=e.top||[];h+='<div class="sec">지금 순위</div>'+(t.length?t.map((b,i)=>'<div class="rank"><span class="r">'+(i===0?'🏆':i+1)+'</span><span class="n">'+esc(b.name)+'</span><span class="v">'+Math.round(b.r*100)+'%</span><span class="muted" style="font-size:11px">'+esc(fishName(b.fish))+' '+b.len+'cm</span></div>').join(''):'<div class="muted">아직 아무도 안 낚았어요. 첫 물고기의 주인공이 돼 보세요!</div>')+'<div class="muted" style="font-size:11px;margin-top:4px">%는 그 물고기 평균 크기와 비교한 값이에요 (100%보다 크면 큰 개체)</div>'}
-  if(e.kind==='bounty'){const f=FISH[e.fish];if(f)h+='<div class="detail"><img src="'+fishURL(e.fish)+'" alt="" style="height:44px"><div style="font-size:17px;margin-top:4px">'+esc(f.name)+' '+rarTag(f.rar)+'</div><div class="muted">'+esc(ZONES[f.zone-1].name)+(condText(f)?' · '+esc(condText(f)):'')+'</div><div style="margin-top:6px">현상금 <b>'+fmt(e.pay)+'골드</b> + 강화권 1장 + 칭호</div>'+(e.win?'<div style="color:#2f9a7a;margin-top:4px">🎉 '+esc(e.win)+' 님이 잡았어요!</div>':'')+(!hasZone(f.zone)?'<div class="muted" style="color:#c0506a">아직 열지 않은 낚시터예요</div>':'')+'</div>'}
+  if(e.kind==='bounty'){const f=FISH[e.fish];if(f)h+='<div class="detail"><img src="'+fishURL(e.fish)+'" alt="" style="height:44px"><div style="font-size:17px;margin-top:4px">'+esc(f.name)+' '+rarTag(f.rar)+'</div><div class="muted">'+esc(ZONES[f.zone-1].name)+(condText(f)?' · '+esc(condText(f)):'')+'</div><div style="margin-top:6px">현상금 <b>강화권 2 · 메달 3</b> + 칭호 「현상금 사냥꾼」</div>'+(e.win?'<div style="color:#2f9a7a;margin-top:4px">🎉 '+esc(e.win)+' 님이 잡았어요!</div>':'')+(!hasZone(f.zone)?'<div class="muted" style="color:#c0506a">아직 열지 않은 낚시터예요</div>':'')+'</div>'}
   if(e.kind==='stall'){h+='<div class="sec">메뉴 <span class="muted" style="font-size:12px">· 잡화점 반값 · 사면 바로 먹어요</span></div>'+(e.menu||[]).map(m=>{const I=ITEMS[m.k];return'<div class="row"><span style="font-size:22px;width:30px;text-align:center">'+I.ic+'</span><div class="nm">'+esc(I.n)+' <span class="muted" style="font-size:12px">남은 '+m.n+'</span><div class="muted" style="font-size:11px">'+esc(I.d||'')+'</div></div><div class="go"><button class="btn sm" data-evb="'+e.id+':'+m.k+'"'+(m.n>0&&near&&e.host!==me?'':' disabled')+'>🪙 '+fmt(m.price)+'</button></div></div>'}).join('')+
     (e.host===me?'<div class="muted" style="font-size:12px">내 노점이에요. 친구가 사 먹으면 골드와 숙련도가 들어와요.</div>':near?'':'<div class="muted" style="font-size:12px;color:#c0506a">포장마차 가까이 가야 살 수 있어요 ('+evWhere(e)+')</div>')}
   if(e.kind==='play')h+='<div class="muted" style="font-size:13px">'+(P&&Math.hypot(e.x-P.x,e.y-P.y)<64?'🐾 지금 놀이터 안에 있어요! 1분마다 짝꿍이 놀아요':'놀이터 근처로 가면 짝꿍이 놀기 시작해요 ('+evWhere(e)+')')+'</div>';
@@ -5099,10 +5201,11 @@ function renderBountyPick(){
   h+=c.map(f=>'<div class="row"><img src="'+fishURL(f.id)+'" alt="" style="width:34px;height:auto"><div class="nm">'+esc(f.name)+' '+rarTag(f.rar)+'<div class="muted" style="font-size:11px">'+esc(ZONES[f.zone-1].name)+(condText(f)?' · '+esc(condText(f)):'')+'</div></div><div class="go"><button class="btn sm pink" data-evf="'+f.id+'">고르기</button></div></div>').join('');
   $('sheetbody').innerHTML=h}
 function evClick(t){
+  if(vilClick(t))return true;
   if(t.dataset.evs!==undefined){EVU.sel=t.dataset.evs||null;Snd.sfx('tap');renderEv();return true}
-  if(t.dataset.evo){const k=t.dataset.evo;if(k==='bounty'){EVU.pick=true;renderEv();return true}Net.flushSave(true);Net.send({t:'ev_open',kind:k});Snd.sfx('buy');return true}
+  if(t.dataset.evo){const k=t.dataset.evo;EVU.mega=!!t.dataset.mega;if(k==='bounty'){EVU.pick=true;renderEv();return true}Net.flushSave(true);Net.send({t:'ev_open',kind:k,mega:EVU.mega});Snd.sfx('buy');return true}
   if(t.dataset.evp){EVU.pick=false;renderEv();return true}
-  if(t.dataset.evf){EVU.pick=false;Net.flushSave(true);Net.send({t:'ev_open',kind:'bounty',fish:+t.dataset.evf});Snd.sfx('buy');renderEv();return true}
+  if(t.dataset.evf){EVU.pick=false;Net.flushSave(true);Net.send({t:'ev_open',kind:'bounty',fish:+t.dataset.evf,mega:EVU.mega});Snd.sfx('buy');renderEv();return true}
   if(t.dataset.evb){const a=t.dataset.evb.split(':');Net.flushSave(true);Net.send({t:'ev_buy',ev:a[0],item:a[1]});Snd.sfx('coin');return true}
   if(t.dataset.evbid){const a=t.dataset.evbid.split(':');Net.flushSave(true);Net.send({t:'ev_bid',ev:a[0],lot:+a[1],g:+a[2]});Snd.sfx('coin');return true}
   return false}
@@ -5126,6 +5229,75 @@ function evCatchHook(f){
       if(T.n<3){T.n++;Net.send({t:'thanks',kind:'fc',to:VNOTE.by.toLowerCase(),fish:f.id});setTimeout(()=>toast('📖 '+VNOTE.by+' 박사의 예보 덕분이에요! 고맙다는 소식을 보냈어요'),1600)}}}}
 /* 짝꿍 레벨업: 돌봐주기 중인 동물 친구 덕분에 (하루 한 번) */
 function evSitThanks(){if(!ONLINE||!Net.me||S.thxSit===kstDay())return;const p=(ROSTER||[]).find(r=>r.sit&&!r.me&&r.on);if(!p)return;S.thxSit=kstDay();Net.send({t:'thanks',kind:'sit',to:p.name.toLowerCase()});setTimeout(()=>toast('🐾 '+p.name+' 님이 돌봐준 덕분이에요! 고맙다는 소식을 보냈어요'),1400)}
+
+/* ========== 마을 공동: 축제 메달 · 주간 마을 목표 · 축제 시간 · 함께 접속 · 행사 예약 · 발전 기금 (server.js와 같아야 해요) ========== */
+var VIL=null,MED={n:0,t:0,cap:10,tot:0};
+const VF=[{id:'fountain',name:'분수',g:5e6,eff:'행사 메달 하루 상한 +2',ic:'⛲'},{id:'stage',name:'축제 무대',g:1e7,eff:'모든 행사 시간 +10분',ic:'🎪'},{id:'carousel',name:'회전목마',g:2e7,eff:'주간 목표를 다 채우면 강화권 +1 더',ic:'🎠'},{id:'tower',name:'등대 전망대',g:3e7,eff:'함께 접속 보너스 행운 +10%',ic:'🗼'}];
+const MED_PRICE={tf_silver:10,tf_gold:25,t_fest:15,sure:8,laurel:15,ft_petal:20,ft_star:20,ft_drop:20,flagback:30,tf_rainbow:40,t_medal:20,t_regular:10};
+const vSt=()=>VIL&&VIL.fund?VIL.fund.st|0:0;
+function onVilMsg(m){
+  if(m.t==='vil'){const was=vSt(),tg=VIL&&VIL.tog&&VIL.tog.on;VIL=m;if(vSt()!==was)vfApply();if(!!(VIL.tog&&VIL.tog.on)!==!!tg)recalc();vilHud();if(evOpenNow())renderEv();return true}
+  if(m.t==='med'){MED=Object.assign(MED,m.med||{});if(m.wkc!==undefined)S.wkc=m.wkc;if(m.medw!==undefined)S.medw=m.medw;if(m.why)toast(m.why);vilHud();if(evOpenNow())renderEv();return true}
+  if(m.t==='ev_mega'){showBanner('📣 '+m.host+' 님의 「'+EV_KIND[m.kind].name+'」! 지금 함께해요');Snd.sfx('page');return true}
+  if(m.t==='ev_rsv_now'){showBanner('⏰ 예약한 「'+EV_KIND[m.kind].name+'」 시간이에요! 행사를 열어 주세요');Snd.sfx('page');return true}
+  return false}
+/* 화면 위 작은 알림판: 축제 시간 · 함께 접속 · 메달 */
+function vilHud(){const el=$('vibe');if(!el)return;if(!ONLINE||!Net.me||!VIL){el.hidden=true;return}
+  const a=[];if(VIL.fest)a.push('🎉 축제');if(VIL.tog&&VIL.tog.on)a.push('👥 '+VIL.tog.n+'명 +'+Math.round(VIL.tog.p*100)+'%');a.push('🎖️ '+MED.n);
+  el.textContent=a.join(' · ');el.hidden=false;el.classList.toggle('fest',!!VIL.fest)}
+function showBanner(t){const b=$('banner');if(!b)return toast(t);b.textContent=t;b.classList.remove('on');void b.offsetWidth;b.classList.add('on');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>b.classList.remove('on'),5200)}
+/* 발전 기금 시설: 다 지으면 축제 광장에 생겨요 */
+const VF_POS={fountain:[[40,24],[41,24]],stage:[[36,22],[37,22]],carousel:[[44,27],[45,27]],tower:[[47,23]]};
+function vfApply(){if(!W)return;VF.forEach((f,i)=>{const on=i<vSt();VF_POS[f.id].forEach(p=>{W.SOL[p[1]][p[0]]=on})})}
+const VFSPR={};
+function vfSpr(id){if(VFSPR[id])return VFSPR[id];const sz={fountain:[34,26],stage:[34,26],carousel:[34,36],tower:[16,46]}[id],cv=document.createElement('canvas');cv.width=sz[0];cv.height=sz[1];const x=cv.getContext('2d'),r=(c,a,b,w,h)=>{x.fillStyle=c;x.fillRect(a,b,w,h)};
+  if(id==='fountain'){x.fillStyle='#c8c0b0';x.beginPath();x.ellipse(17,19,16,6,0,0,6.28);x.fill();x.fillStyle='#8ccbe8';x.beginPath();x.ellipse(17,18,13,4.5,0,0,6.28);x.fill();r('#d8d0c0',15,6,4,12);r('#c8c0b0',11,6,12,3);r('#bfe6f8',16,0,2,6)}
+  if(id==='stage'){r('#a06a4a',1,12,32,12);r('#c88a60',1,12,32,3);r('#e05070',2,0,3,13);r('#e05070',29,0,3,13);for(let i=0;i<8;i++)r(i%2?'#ffd34d':'#ff7aa0',3+i*4,0,4,4);r('#ffe9a8',8,7,18,1)}
+  if(id==='carousel'){r('#ffd34d',2,6,30,3);x.fillStyle='#ff7aa0';x.beginPath();x.moveTo(1,7);x.lineTo(17,0);x.lineTo(33,7);x.fill();r('#fff',16,8,2,22);r('#e8d0f0',2,28,30,6);r('#c8a8e0',2,32,30,2)}
+  if(id==='tower'){r('#f4f0ea',4,10,8,36);for(let y=14;y<46;y+=8)r('#e05050',4,y,8,3);r('#5a5a70',3,6,10,4);r('#ffe9a8',5,1,6,5);r('#5a5a70',2,0,12,1)}
+  return VFSPR[id]=cv}
+function vfDrawables(list,x0,x1,y0,y1){if(vSt()<1||x1<35)return;VF.forEach((f,i)=>{if(i>=vSt())return;const p=VF_POS[f.id],tx=p[0][0],ty=p[0][1];list.push({y:ty*TS+15,fn:()=>{const s=vfSpr(f.id),cx0=(tx+p.length/2)*TS;cx.drawImage(s,Math.round(cx0-s.width/2),(ty+1)*TS-s.height);
+  if(f.id==='fountain'&&Math.random()<.3)parts.push({x:cx0+(Math.random()-.5)*6,y:(ty+1)*TS-s.height+2,vx:(Math.random()-.5)*14,vy:-14,life:.8,t:0,c:'#ffffff',g:40,s:1});
+  if(f.id==='carousel'&&Math.random()<.05)sparkFx(cx0,(ty+1)*TS-30,3,['#ffd34d','#ff7aa0']);
+  if(f.id==='tower'&&isNight(dayTint().ph)){cx.fillStyle='rgba(255,240,170,.18)';cx.beginPath();cx.moveTo(cx0,(ty+1)*TS-42);const a=wt*.8;cx.lineTo(cx0+Math.cos(a)*80,(ty+1)*TS-42+Math.sin(a)*24);cx.lineTo(cx0+Math.cos(a+.25)*80,(ty+1)*TS-42+Math.sin(a+.25)*24);cx.fill()}}})})}
+/* ----- 행사 허브의 탭들 ----- */
+const wkLeftTxt=()=>{const t=new Date(Date.now()+9*3600e3),dow=(t.getUTCDay()+6)%7;return(7-dow)+'일 남음'};
+function hubTop(){const v=VIL||{},f=v.fest,tg=v.tog||{};
+  return'<div class="hub-top"><div><small>오늘 메달</small><b>🎖️ '+MED.t+' / '+MED.cap+'</b></div><div><small>내 메달</small><b>'+MED.n+'</b></div><div class="'+(f?'hot':'')+'"><small>축제 시간</small><b>'+(f?'🎉 지금!':'밤 '+(v.festH||21)+'시')+'</b></div><div class="'+(tg.on?'hot':'')+'"><small>함께 접속</small><b>👥 '+(tg.n|0)+'명</b></div></div>'}
+function hubTabs(){return'<div class="tabs scroll">'+[['ev','🎪 행사'],['wk','🏘️ 주간 목표'],['shop','🎖️ 메달 상점'],['vf','🏗️ 마을 발전']].map(t=>'<button class="tab'+(EVU.tab===t[0]?' on':'')+'" data-hub="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>'}
+function renderWk(){const w=VIL&&VIL.wk;if(!w)return'<div class="muted">불러오는 중…</div>';const c=S.wkc&&S.wkc.id===w.id?S.wkc:{got:[]},all=w.goals.every(g=>g.p>=g.n);
+  let h='<div class="wk-head">이번 주 마을 목표 <span>'+wkLeftTxt()+'</span></div>';
+  h+=w.goals.map((g,i)=>{const done=g.p>=g.n,got=c.got.indexOf(i)>=0;return'<div class="wk-goal'+(done?' done':'')+'"><div class="t">'+esc(g.t)+'</div><div class="sbar"><i style="width:'+Math.min(100,g.p/g.n*100)+'%"></i><span>'+fmt(g.p)+' / '+fmt(g.n)+'</span></div>'+
+    '<div class="rw"><span>강화권 1 · 메달 2</span>'+(got?'<span class="ok">받음 ✓</span>':'<button class="btn xs pink" data-wkc="'+i+'"'+(done?'':' disabled')+'>받기</button>')+'</div></div>'}).join('');
+  const gotAll=c.got.indexOf('all')>=0,tk=2+(vSt()>=3?1:0);
+  h+='<div class="wk-all'+(all?' done':'')+'"><b>🎁 세 가지 모두</b><span>강화권 '+tk+' · 메달 5</span>'+(gotAll?'<span class="ok">받음 ✓</span>':'<button class="btn xs pink" data-wkc="all"'+(all?'':' disabled')+'>받기</button>')+'</div>';
+  return h+'<p class="note">마을 모두가 함께 채우고, 보상은 각자 받아요. 그 주 안에만 받으면 돼요.</p>'}
+function renderMedShop(){const list=(VIL&&VIL.shop)||[];const rot=list.slice(4);
+  let h='<div class="cgrid">'+list.map((it,i)=>{const id=it[0],pr=it[1],sure=id==='sure',c=COS_BY[id],have=!sure&&owns(id),wk=S.medw&&S.medw.id===(VIL.wk&&VIL.wk.id);const usedSure=sure&&S.medw&&(S.medw.sure|0)>=1&&wk;
+    const ic=sure?'':cosIcon(id);return'<div class="ccard'+(have?' have':'')+(i>=4?' rot':'')+'">'+(sure?'<span class="bigic">🎯</span>':ic?'<img class="ci" src="'+ic+'" alt="">':'<span class="ttl sm">「」</span>')+
+      '<div class="cn">'+(sure?'강화 확정권':c?(c.k==='title'?'「'+esc(c.name)+'」':esc(c.name)):id)+'</div>'+(have?'<span class="lock">가지고 있어요</span>':usedSure?'<span class="lock">이번 주 받음</span>':'<button class="btn xs pink" data-medb="'+id+'"'+(MED.n>=pr?'':' disabled')+'>🎖️ '+pr+'</button>')+'</div>'}).join('')+'</div>';
+  return h+'<p class="note">반짝이는 칸은 이번 주에만 있는 물건이에요. 매주 월요일에 바뀌어요 · 확정권은 일주일에 1장</p>'}
+function renderVf(){const v=VIL||{},f=v.fund||{g:0,st:0},st=f.st|0,cur=VF[st];
+  let h='<div class="vf-list">'+VF.map((x,i)=>'<div class="vf'+(i<st?' on':i===st?' cur':'')+'"><span class="ic">'+x.ic+'</span><div><b>'+x.name+'</b><small>'+x.eff+'</small></div><i>'+(i<st?'✓':fmtK(x.g))+'</i></div>').join('')+'</div>';
+  if(cur){h+='<div class="sec">지금 짓는 중 · '+cur.ic+' '+cur.name+'</div><div class="sbar big"><i style="width:'+Math.min(100,f.g/cur.g*100)+'%"></i><span>'+fmt(f.g)+' / '+fmt(cur.g)+'</span></div>'+
+    '<div class="eb-coin">'+[100000,1000000,5000000,10000000].map(g=>'<button class="ccard" data-vf="'+g+'"'+(S.gold>=g?'':' disabled')+'><b>💝 '+fmtK(g)+'</b><small>골드 기부</small></button>').join('')+'</div>'}
+  else h+='<div class="wishc" style="text-align:center">🎉 모든 시설을 다 지었어요! 고마워요</div>';
+  if(v.don&&v.don.length)h+='<div class="sec">기부 순위</div>'+v.don.map((d,i)=>'<div class="rank"><span class="r">'+(i+1)+'</span><span class="n">'+esc(d.name)+'</span><span class="v">'+fmtK(d.g)+'</span></div>').join('');
+  return h+'<p class="note">기부한 골드는 돌아오지 않아요. 누적 100만이면 칭호 「마을 후원자」, 1,000만이면 「마을 대부호」.</p>'}
+function rsvHtml(kind){const v=VIL||{},mine=(v.rsv||[]).find(r=>Net.me&&r.host===Net.me.name),hm=at=>new Date(at+9*3600e3).toISOString().slice(11,16);
+  if(mine)return'<div class="rsv">⏰ '+hm(mine.at)+' 예약됨 <button class="btn xs ghost" data-rsv="del">취소</button></div>';
+  const now=Date.now(),opts=[['30분 뒤',now+30*60e3],['1시간 뒤',now+60*60e3],['2시간 뒤',now+120*60e3]],kh=new Date(now+9*3600e3),fh=(v.festH||21),f=new Date(Date.UTC(kh.getUTCFullYear(),kh.getUTCMonth(),kh.getUTCDate(),fh,0)).getTime()-9*3600e3;
+  if(f>now+5*60e3)opts.push(['🎉 밤 '+fh+'시',f]);
+  return'<div class="rsv"><span>⏰ 예약</span>'+opts.map(o=>'<button class="fchip" data-rsv="'+o[1]+'">'+o[0]+'</button>').join('')+'</div>'}
+function rsvList(){const r=(VIL&&VIL.rsv)||[];if(!r.length)return'';const hm=at=>new Date(at+9*3600e3).toISOString().slice(11,16);
+  return'<div class="sec">예정된 행사</div>'+r.map(x=>'<div class="rank"><span class="r">⏰</span><span class="n">'+EV_KIND[x.kind].ic+' '+esc(x.host)+' 님의 '+EV_KIND[x.kind].name+'</span><span class="v">'+hm(x.at)+'</span></div>').join('')}
+function vilClick(t){
+  if(t.dataset.hub){EVU.tab=t.dataset.hub;EVU.sel=null;EVU.pick=false;Snd.sfx('tap');renderEv();return true}
+  if(t.dataset.wkc!==undefined){Net.send({t:'wk_claim',i:t.dataset.wkc==='all'?'all':+t.dataset.wkc});Snd.sfx('buy');return true}
+  if(t.dataset.medb){Net.send({t:'med_buy',id:t.dataset.medb});Snd.sfx('buy');return true}
+  if(t.dataset.vf){Net.flushSave(true);Net.send({t:'vf_put',g:+t.dataset.vf});Snd.sfx('coin');return true}
+  if(t.dataset.rsv){if(t.dataset.rsv==='del')Net.send({t:'ev_rsv_del'});else Net.send({t:'ev_rsv',kind:EV_OF_JOB[jobId()],at:+t.dataset.rsv});Snd.sfx('tap');return true}
+  return false}
 
 /* ========== 은비랜드 (축제 광장): 골드 → 코인 · 슬롯 · 거북이 경주 · 하이로우 · 경품 교환소 ==========
    결과는 서버가 정해요. server.js EB와 같아야 해요 */
@@ -5160,13 +5332,13 @@ function renderEb(){
   if(EBS.tab==='hilo'){const c=d.card||1,up=13-c,dn=c-1,mx=n=>n?(Math.floor(.94/(n/13)*20)/20).toFixed(2):'-';
     h+='<div class="hilo"><div class="card">'+cardName(c)+'</div><div class="eb-res">'+(EBS.last&&EBS.last.hilo?(EBS.last.hilo.ok?'맞았어요! '+cardName(EBS.last.hilo.from)+' → '+cardName(EBS.last.hilo.to)+' · +'+fmt(EBS.last.win):'틀렸어요… '+cardName(EBS.last.hilo.from)+' → '+cardName(EBS.last.hilo.to)):'다음 카드가 높을까요, 낮을까요?')+'</div></div>'+bets+
       '<div class="fg-btns"><button class="btn mint" data-eb="hi"'+(!up||d.c<EBS.bet?' disabled':'')+'>▲ 높다 ×'+mx(up)+'</button><button class="btn pink" data-eb="lo"'+(!dn||d.c<EBS.bet?' disabled':'')+'>▼ 낮다 ×'+mx(dn)+'</button></div><p class="note">같은 숫자가 나오면 져요.</p>'}
-  if(EBS.tab==='coin'){const left=EB.BUY_DAY-d.buy;
+  if(EBS.tab==='coin'){const left=(d.cap||EB.BUY_DAY)-d.buy;
     h+='<div class="eb-coin">'+[100,1000,5000,20000].map(n=>'<button class="ccard" data-ebc="'+n+'"'+(n>left||S.gold<n*EB.RATE?' disabled':'')+'><b>🪙 '+fmt(n)+'</b><small>'+fmt(n*EB.RATE)+' 골드</small></button>').join('')+'</div>'+
       '<p class="note">오늘 '+fmt(left)+'코인 더 바꿀 수 있어요 · 코인은 골드로 되돌릴 수 없어요</p>';
     const v=d.vip,nx=EB.VIP[v+1];
     h+='<div class="sec">VIP</div><div class="vip">'+EB.VIP.map((t,i)=>'<span class="'+(i<=v?'on':'')+'">'+t[1]+'<small>'+fmtK(t[0])+'</small></span>').join('')+'</div>'+
       (nx?'<div class="sbar"><i style="width:'+Math.min(100,d.wag/nx[0]*100)+'%"></i><span>다음 '+nx[1]+'까지 '+fmt(nx[0]-d.wag)+'코인</span></div>':'')+
-      (v>=0?'<button class="btn mint" data-eb="vip" style="width:100%;margin-top:8px"'+(d.vd?' disabled':'')+'>'+(d.vd?'오늘 VIP 보너스 받음 ✓':'오늘의 VIP 보너스 🪙 '+EB.VIP[v][2])+'</button>':'<p class="note">코인을 쓸수록 VIP 등급이 올라요. 브론즈부터 매일 보너스 코인!</p>')}
+      (v>=0?'<button class="btn mint" data-eb="vip" style="width:100%;margin-top:8px"'+(d.vd?' disabled':'')+'>'+(d.vd?'오늘 VIP 보너스 받음 ✓':'오늘의 VIP 보너스 🪙 '+EB.VIP[v][2])+'</button>':'<p class="note">코인을 쓸수록 VIP 등급이 올라요. 브론즈부터 매일 보너스 코인 · 하루에 바꿀 수 있는 코인도 늘어나요</p>')}
   if(EBS.tab==='shop'){h+='<div class="cgrid">'+EB.SHOP.map(it=>{const c=COS_BY[it[0]],have=owns(it[0]),ic=cosIcon(it[0]);return'<div class="ccard'+(have?' have':'')+'">'+(ic?'<img class="ci" src="'+ic+'" alt="">':'<span class="ttl sm">「」</span>')+'<div class="cn">'+(c.k==='title'?'「'+esc(c.name)+'」':esc(c.name))+'</div>'+(have?'<span class="lock">가지고 있어요</span>':'<button class="btn xs pink" data-ebs="'+it[0]+'"'+(d.c>=it[1]?'':' disabled')+'>🪙 '+fmtK(it[1])+'</button>')+'</div>'}).join('')+'</div><p class="note">여기서만 바꿀 수 있는 은비랜드 한정 치장이에요.</p>'}
   body().innerHTML=h;if(EBS.tab==='race')ebDrawRace(EBS.raceT||null);
 }
