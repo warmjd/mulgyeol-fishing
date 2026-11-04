@@ -45,7 +45,10 @@ button:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
 #rprogw{width:10px;border-radius:6px;background:rgba(255,250,242,.9);border:2px solid #fff;box-shadow:0 0 0 2px var(--line);position:relative;overflow:hidden}
 #rprog{position:absolute;left:0;right:0;bottom:0;background:var(--pink);border-radius:4px}
 /* 결과 카드 */
-#result{position:fixed;inset:0;display:grid;place-items:center;z-index:20;background:rgba(74,61,107,.28);padding:20px}
+#result{position:fixed;inset:0;display:grid;place-items:end center;z-index:20;background:transparent;padding:0 20px calc(150px + env(safe-area-inset-bottom))}#resultcard{display:none!important}#rhint{background:rgba(74,61,107,.55);color:#fff;border-radius:999px;padding:5px 14px;font-size:12px;animation:hintb 1.4s ease-in-out infinite}@keyframes hintb{50%{opacity:.55}}
+.bub.cb{text-align:center;max-width:210px;padding:4px 12px;font-size:14px}.bub.cb small{color:var(--ink-soft);font-size:12px}.bub .nw{font-style:normal;background:#ff7aa8;color:#fff;border-radius:6px;padding:0 5px;font-size:10px;vertical-align:2px}.bub .rb{font-style:normal;background:#ffd34d;color:#6a4a00;border-radius:6px;padding:0 5px;font-size:10px;vertical-align:2px}.bub.cb.leg{border-color:#e0a83a;box-shadow:0 0 0 2px #fff2b0,0 2px 0 rgba(120,100,170,.18)}.bub.cb.myth{border-color:#9a7aff;background:linear-gradient(#fff,#f1eaff);box-shadow:0 0 12px rgba(154,122,255,.6)}.bub.cb.sh{background:linear-gradient(#fffef0,#fff4fa)}
+#boatst,.boatst{background:#eef6ff;border-radius:12px;padding:8px 10px;margin-bottom:10px}.bs-top{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-size:13px}.bs-top b{font-size:16px}.bs-top span{color:var(--ink-soft)}.bs-row{display:flex;gap:4px;margin-top:6px}.bs-row i{flex:1;font-style:normal;text-align:center;font-size:18px;opacity:.3;filter:grayscale(1)}.bs-row i.on{opacity:1;filter:none}.bs-row small{display:block;font-size:10px;color:var(--ink-soft)}
+#dexDot{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#ff6e9a;border:2px solid #fff}
 #resultcard{background:var(--paper);border:3px solid #fff;box-shadow:0 0 0 2px var(--line),0 10px 0 rgba(120,100,170,.2);border-radius:24px;padding:20px 22px 18px;width:min(310px,100%);text-align:center;position:relative;animation:pop .35s cubic-bezier(.2,1.5,.4,1)}
 @keyframes pop{from{transform:scale(.7);opacity:0}}
 #rimg{height:92px;display:flex;align-items:center;justify-content:center;margin:2px 0 6px}
@@ -373,12 +376,12 @@ details.more summary::-webkit-details-marker{display:none}
 
 <div id="banner"></div>
 <div class="hud">
-  <div class="pill"><span class="coin"></span><b id="gold">0</b><span class="pcs" id="pcs" title="반짝 조각">✦0</span></div>
+  <div class="pill"><span class="coin"></span><b id="gold">0</b><span class="pcs" id="pcs" title="반짝 조각" hidden>✦0</span></div>
   <div class="pill"><span id="clock">06:00</span></div>
   <div class="pill vibe" id="vibe" hidden></div>
   <div class="sp"></div>
   <button class="hbtn" id="bBag" aria-label="가방">가방</button>
-  <button class="hbtn" id="bDex" aria-label="도감">도감</button>
+  <button class="hbtn" id="bDex" aria-label="도감">도감<i id="dexDot" hidden></i></button>
   <button class="hbtn" id="bSet" aria-label="메뉴">메뉴<i id="trapDot" hidden></i></button>
 </div>
 <div id="region"></div>
@@ -420,6 +423,7 @@ details.more summary::-webkit-details-marker{display:none}
     <div id="rpage" style="margin-top:8px;color:#2f7a63" hidden></div>
     <div class="muted" style="margin-top:12px">화면을 눌러 닫기</div>
   </div>
+  <div id="rhint">탭하면 계속</div>
 </div>
 
 <div id="sheetwrap" hidden>
@@ -1435,7 +1439,7 @@ const PETS=[
   pal:{h:'#2c2a34',b:'#2c2a34',u:'#34313e',f:'#2c2a34',l:'#2c2a34',t:'#2c2a34',a:'#3c3946',e:'#121016',w:'#ffffff',n:'#141218',c:'#ec5a6e',g:'#5c5868',k:'#121016'}},
  {id:'dot',name:'쫑이',kind:'kitten',desc:'하얀 바탕에 검은 점, 아기 고양이',speed:20,sleepy:.15,spots:'#2e2a36',
   pal:{h:'#fcfcfa',b:'#fcfcfa',u:'#ffffff',f:'#ffffff',l:'#fcfcfa',t:'#2e2a36',e:'#2e2a36',y:'#2e2a36',n:'#ffa4b4',k:'#2e2a36'}},
- {id:'nurung',name:'누릉이',kind:'cat',desc:'제일 활달한 치즈냥이 · 부자를 졸졸 따라다녀요',speed:24,sleepy:.03,stripes:'#d8873e',
+ {id:'nurung',name:'누릉이',kind:'cat',desc:'제일 활달한 치즈냥이 · 오늘 제일 열심히 낚은 친구를 졸졸 따라다녀요',speed:24,sleepy:.03,stripes:'#d8873e',
   pal:{h:'#f2ac5c',b:'#f2ac5c',u:'#ffe6c4',f:'#ffe6c4',l:'#f2ac5c',t:'#f2ac5c',e:'#5a3e2a',n:'#e88a8a',k:'#8a5a3a'}},
  {id:'kkam',name:'깜콩이',kind:'cat',desc:'일곱 살, 부엉이 눈의 까만 고양이',speed:11,sleepy:.3,owl:true,
   pal:{h:'#26222e',b:'#26222e',u:'#302b3a',f:'#26222e',l:'#26222e',t:'#26222e',e:'#ffd23c',y:'#ffd23c',n:'#3c3446',k:'#ffd23c'}},
@@ -1825,13 +1829,14 @@ const MK_RAW=[['통통고등어','long','#7ab0d8',7,30,'시장에서 제일 잘 
  ['시장삼치','long','#90a8c8',2,60,'살이 부드러워 인기 만점.'],['시장우럭','round','#7a7a88',5,30,'통통하게 살이 오른 우럭.'],['빨간도미','round','#f08888',1,40,'경사스러운 날 상에 오르는 도미.']];
 const MK_IDS=MK_RAW.map((r,i)=>{const f=addFish(7,MK_RAR[i],i,r);f.mk=true;return f.id});
 /* 신화 6종 (247~252): 낚시터마다 1종 · 조건이 겹칠 때 아주 가끔 · 미끼 없이도 걸려요 (server.js MYTH_Z와 같은 순서) */
+const MYTH_PRICE=[300000,500000,800000,1200000,2000000,3000000];   // server.js와 같아요 · 상점에서 '와!'
 const MYTH_RAW=[['연못의 수호 잉어','fancy','#ffd36e',6,120,'비 오는 밤, 연못을 천 년 지켜 온 금빛 잉어가 모습을 드러낸다.',{t:'night',w:'rain',pc:'#ff7a5c'}],
  ['은하수 송어','long','#3a4a9a',3,140,'맑은 새벽, 별빛을 몸에 두르고 시냇물을 거슬러 오른다.',{t:'dawn',w:'clear',pc:'#fff6c8'}],
  ['노을 고래','whale','#f08a6a',0,900,'무지개 뜬 노을 바다에서만 노래한다는 붉은 고래.',{t:'dusk',w:'rainbow',pc:'#ffd08a'}],
  ['심연의 왕오징어','angler','#6a2a7a',5,600,'안개 낀 밤, 먼바다 깊은 곳에서 빛나는 눈이 올라온다.',{t:'night',w:'fog',pc:'#7af0ff'}],
  ['달의 정령어','angel','#dcd8ff',2,90,'축제의 밤, 달빛 호수에 내려온 정령. 소원을 하나 들어준다고.',{t:'night',pc:'#a8f0ff'}],
  ['태초의 해룡','eel','#2a8a7a',4,1200,'안개 낀 밤 밀물에 섬을 휘감는 바다의 용. 이 섬이 생기기 전부터 있었다.',{t:'night',w:'fog',td:'high',pc:'#f0d070'}]];
-const MYTH_IDS=MYTH_RAW.map((r,i)=>{const f=addFish(i,4,i,r);f.myth=true;f.price=Math.round(ZONE_PRICE[i]*RARITY[4].mult*3);f.diff=1;if(i===4)f.fest=true;if(i===5)f.isl=false;return f.id});
+const MYTH_IDS=MYTH_RAW.map((r,i)=>{const f=addFish(i,4,i,r);f.myth=true;f.price=MYTH_PRICE[i];f.diff=1;if(i===4)f.fest=true;if(i===5)f.isl=false;return f.id});
 /* 축제 기간 (한국 시간 월-일, 해를 넘겨도 됨) */
 const kstMD=()=>{const d=new Date(Date.now()+9*3600e3);return String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')};
 const seasonOn=s=>{const t=kstMD();return s.from<=s.to?(t>=s.from&&t<=s.to):(t>=s.from||t<=s.to)};
@@ -2352,11 +2357,11 @@ const DAY_LEN=480;
 function defaultState(){return{v:1,gold:60,inv:{},dex:{},gear:{rod:1,bob:1,lure:1,reel:1,trap:1},zones:[1],t:DAY_LEN*.16,
   stats:{casts:0,catches:0,sold:0,earned:0},set:{bgm:.6,sfx:.8,mute:false,mode:'hard'},px:null,py:null,hinted:false,
   rev:0, // 4단계: 서버가 교환으로 가방을 바꿀 때마다 1씩 올라가는 번호
-  enh:enhDefault(), pets:{}, pop:{n:0,up:0,dn:0}, litT:0, afk:{day:'',n:0}, sdex:{}, shiny:{}, szrw:[],
+  enh:enhDefault(), pets:{}, pop:{n:0,up:0,dn:0}, litT:0, afk:{day:'',n:0}, sdex:{}, shiny:{}, soldK:{}, dexDot:false, rest:0, szrw:[],
   cos:{own:[],look:cleanLook({})}}}
 function fromSave(o){const d=defaultState();const c=o.cos||{};
   return Object.assign(d,o,{v:1,set:Object.assign(d.set,o.set||{}),gear:Object.assign(d.gear,o.gear||{}),stats:Object.assign(d.stats,o.stats||{}),
-    rev:o.rev|0,sdex:o.sdex&&typeof o.sdex==='object'?o.sdex:{},shiny:o.shiny&&typeof o.shiny==='object'?o.shiny:{},szrw:Array.isArray(o.szrw)?o.szrw:[],enh:Object.assign(enhDefault(),o.enh||{}),pets:o.pets&&typeof o.pets==='object'?o.pets:{},pop:Object.assign({n:0,up:0,dn:0},o.pop&&typeof o.pop==='object'?o.pop:{}),afk:Object.assign({day:'',n:0},o.afk||{}),cos:{own:Array.isArray(c.own)?c.own.filter(id=>COS_BY[id]):[],look:cleanLook(c.look)}})}
+    rev:o.rev|0,sdex:o.sdex&&typeof o.sdex==='object'?o.sdex:{},shiny:o.shiny&&typeof o.shiny==='object'?o.shiny:{},soldK:o.soldK&&typeof o.soldK==='object'?o.soldK:null,dexDot:!!o.dexDot,rest:Math.max(0,o.rest|0),szrw:Array.isArray(o.szrw)?o.szrw:[],enh:Object.assign(enhDefault(),o.enh||{}),pets:o.pets&&typeof o.pets==='object'?o.pets:{},pop:Object.assign({n:0,up:0,dn:0},o.pop&&typeof o.pop==='object'?o.pop:{}),afk:Object.assign({day:'',n:0},o.afk||{}),cos:{own:Array.isArray(c.own)?c.own.filter(id=>COS_BY[id]):[],look:cleanLook(c.look)}})}
 function loadState(){try{const r=localStorage.getItem(SAVE_KEY);if(r){const o=JSON.parse(r);if(o&&o.v===1)return fromSave(o)}}catch(e){}return defaultState()}
 let S=loadState();
 function saveState(now){if(P){S.px=Math.round(P.x);S.py=Math.round(P.y)}if(ONLINE){Net.save(now===true);return}try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
@@ -2394,6 +2399,8 @@ const maxTotal=()=>{let n=0;for(let i=0;i<MAIN_N;i++)if(maxed(i))n++;return n};
 const masterTotal=()=>{let n=0;for(let i=0;i<MAIN_N;i++)if(mastered(i))n++;return n};
 const pct=v=>(Math.round(v*1000)/10)+'%';
 let ST={};
+/* 마을의 응원: 손맛 도감이 마을 1등의 절반이 안 되면 행운 +20%, 1/4이 안 되면 +35% (헤비 유저를 따라잡게) */
+function cheerLuck(){if(typeof ONLINE==='undefined'||!ONLINE||typeof ROSTER==='undefined'||!ROSTER||!ROSTER.length)return 0;const top=Math.max(...ROSTER.map(r=>r.sd|0)),mine=sdTotal();if(top<20)return 0;return mine<top*.25?.35:mine<top*.5?.2:0}
 function recalc(){
   const b={bite:0,sell:0,bar:0,luck:0,reel:0};
   for(let p=0;p<MAIN_PAGES;p++){const k=PASSIVE_OF[p].k;b[k]+=pageTierBonus(p);if(pageDone(p))b[k]+=PAGE_BONUS}
@@ -2402,6 +2409,8 @@ function recalc(){
       reel:gearEff.reel(gl('reel'))*(1+b.reel)*en.reel,sell:1+b.sell};
   if(VIL&&VIL.tog&&VIL.tog.on)ST.luck*=1+(VIL.tog.p||.05);   // 함께 접속 보너스
   if(S.combo)ST.luck*=1+.02*Math.min(5,S.combo);   // 완벽한 손맛 연속
+  if((S.rest|0)>0)ST.luck*=1.3;   // 돌아온 친구의 휴식 행운 (직접 낚을 때마다 1씩 줄어요)
+  ST.luck*=1+cheerLuck();   // 마을의 응원: 손맛 도감이 마을 1등보다 많이 뒤처지면
   jobMods();jobBadge();
 }
 const POOL={};FISH.forEach(f=>{if(f.id>=MAIN_N&&!f.isl&&!f.pty&&!f.mk)return;const k=f.zone+'-'+f.rar;(POOL[k]=POOL[k]||[]).push(f)});
@@ -2529,6 +2538,7 @@ function findCast(){
 function nearAction(){
   const tx=Math.floor(P.x/TS),ty=Math.floor((P.y-2)/TS);
   if(WK){const w=walkAct();if(w)return w;const pt=nearPet();if(pt&&pt.p.id==='ruby'&&wishReady())return{type:'wish',label:'냄새<br>맡게 하기'};if(pt)return{type:'pet',pet:pt,label:'쓰다듬기'};return null}
+  {const wo=wowTarget();if(wo&&wo.wowed!==wo.hold.at)return{type:'wow',o:wo,label:'우와!'}}
   for(const g of W.gates){if(!hasZone(g.zone)&&Math.abs(g.x-tx)+Math.abs(g.y-ty)<=1)return{type:'gate',zone:g.zone,label:'문 열기'}}
   if(P.sit)return{type:'stand',label:'일어나기'};
   for(const id in W.doors){const d=W.doors[id];if(tx>=d.x0&&tx<=d.x1&&ty===d.y)return{type:id,label:{shop:'상점',lib:'도감관',boutique:'치장<br>상점',trade:'교환소',forge:'강화소',ebland:'은비<br>랜드',aqua:'수족관'}[id]}}
@@ -2582,6 +2592,7 @@ function pressAct(){
     else if(a.type==='boat'){if(boatReady())boardBoat(true);else openBoat()}
     else if(a.type==='home')boardBoat(false);
     else if(a.type==='pet')petPet(a.pet);
+    else if(a.type==='wow')sendWow(a.o);
     else if(a.type==='walk')startWalk();
     else if(a.type==='wish'){const w=wishToday();if(hasDex(w.id))doWish(true);else openPetSheet('ruby')}
     else if(a.type.indexOf('wk_')===0)walkPress(a.type);
@@ -2706,6 +2717,70 @@ function aqClick(t){
   else if(k==='list'){Net.send({t:'aq_list'});toast('아래 목록에서 친구 수족관을 골라요')}
   return true}
 
+/* ========== 잡는 순간 (동물의 숲처럼): 머리 위로 번쩍 + 말풍선 한 줄. 가격은 상점에서, 나머지는 끝난 뒤 하나씩 ========== */
+const HOLD_LINES={
+ small:['에게, 귀엽다','작아도 손맛은 최고!','아기 물고기인가 봐','쪼꼬미 발견!','다음엔 엄마를 데려와~'],
+ mid:['오, 제법인데?','좋았어!','오늘 저녁은 너로 정했다','손맛 좋다~','딱 좋은 크기!'],
+ big:['우와, 크다!','팔이 후들후들…','이건 자랑해야 해!','무거워어…!','친구들한테 보여 줘야지'],
+ giant:['내 키보다 커…!!','으아아 넘어진다!','이게 물고기라고?!','마을에 소문나겠다!']};
+const TPL_LINE={eel:'꿈틀꿈틀, 미끄러워!',needle:'가늘고 길쭉해!',puff:'빵빵하게 화났어…',flat:'납작해서 귀여워',ray:'날개처럼 펄럭!',angler:'머리에 불이 켜졌어',seahorse:'꼬리가 돌돌~',shark:'이빨 조심…!',whale:'바다가 통째로 올라온 기분!',sturgeon:'공룡 시절부터 살았대',lion:'갈기가 멋있어',box:'네모네모 귀여워',disc:'동글납작~',angel:'지느러미가 하늘하늘',sail:'돛이 활짝 펼쳐졌다!',cat:'수염이 나보다 멋있어',fancy:'꼬리가 드레스 같아',tiny:'쪼끄매!'};
+const LEG_LINE={'황금잉어':'눈부셔서 앞이 안 보여!','구름송어':'구름을 한 조각 낚았다!','노을돔':'노을을 통째로 들고 있는 기분','실러캔스':'살아 있는 화석이 내 손에…!','은하수 송어':'별가루가 손에 묻었어','은하룡어':'은하수에서 용이 올라왔다!','연못주인 메기왕':'연못 주인님, 실례했습니다…!','폭포잉어왕':'폭포를 거슬러 온 왕이다!','용궁해마':'용궁에서 놀러 왔대','푸른바다용':'바다가 나를 인정했다!','달빛선녀어':'선녀님이 날개옷을 두고 갔어','안개용왕':'안개가 걷히고 왕이 나타났다','황금방어':'온몸이 금이야, 금!','거대 참다랑어':'다 같이 해냈다!!',
+ '연못의 수호 잉어':'천 년 만에 처음 만났대…','노을 고래':'고래가 노래를 불러 줬어','심연의 왕오징어':'저 눈… 날 보고 있어…','달의 정령어':'소원… 빌어도 되나?','태초의 해룡':'이 섬보다 오래 살았대…!'};
+const pick=a=>a[(Math.random()*a.length)|0];
+function holdClass(f,len,giant){const r=len/(f.len||1);return giant?'giant':(r>=1.15||f.len>=150)?'big':(r<.85&&f.len<60)?'small':'mid'}
+function holdLine(f,c){if(LEG_LINE[f.name])return LEG_LINE[f.name];const t=TPL_LINE[f.spec&&f.spec.tpl];if(t&&f.rar>=1&&Math.random()<.5)return t;return pick(HOLD_LINES[c])}
+function holdHtml(h){const f=FISH[h.f];if(!f)return'';return(h.sh?'✨ ':'')+'<b>'+esc(f.name)+'</b> '+h.len+'cm'+(h.x2?' ×2':'')+(h.nw?' <i class="nw">NEW</i>':'')+(h.bt?' <i class="rb">최고 기록!</i>':'')+'<br><small>'+esc(h.ln||'')+'</small>'}
+const holdCls=h=>{const f=FISH[h.f];return'bub cb'+(f&&f.myth?' myth':f&&f.rar>=4?' leg':'')+(h.sh?' sh':'')};
+function showCatchBub(a,html,cls,ms){if(a.bub)a.bub.remove();const el=document.createElement('div');el.className=cls||'bub cb';el.innerHTML=html;$('tags').appendChild(el);a.bub=el;a.say={until:performance.now()+(ms||4000)}}
+let HOLD=null;
+function startHold(){const f=F.fish,c=holdClass(f,F.len,F.giant);
+  HOLD={f:f.id,len:F.len,c,sh:!!F.shinyNow,nw:!!F.isNew,pf:!!F.perfect,bt:!!F.best,x2:!!F.double,ln:holdLine(f,c),at:performance.now()};
+  P.dir='down';showCatchBub(ME,holdHtml(HOLD),holdCls(HOLD),600000);
+  const lg=f.rar>=4||f.myth;sparkFx(P.x,P.y-30,lg?30:f.rar>=2?16:8,lg?['#ffe28a','#ffb3c8','#b9a6ee','#a9e8cf']:['#ffffff','#cfe8ff']);
+  if(F.perfect)setTimeout(()=>sparkFx(P.x,P.y-34,14,['#ffffff','#fff6c8']),150);
+  if(f.myth)DARK={t:2.4};
+  pets.forEach(a=>{if(Math.hypot(a.x-P.x,a.y-P.y)<90){a.react=c==='small'?.5:1.2;if(c!=='small')parts.push({x:a.x-3,y:a.y-14,vx:0,vy:-14,life:1,t:0,heart:true,g:0})}});
+  if(ONLINE&&Net.me)Net.send({t:'hold',f:HOLD.f,len:HOLD.len,c,sh:HOLD.sh,nw:HOLD.nw,pf:HOLD.pf,bt:HOLD.bt,ln:HOLD.ln});
+  $('result').hidden=false}
+/* 붙잡고 있는 모습 그리기 (나 · 친구 같이 씀) */
+function drawHoldAt(x,y,spr,h,t,skin){
+  const f=FISH[h.f];if(!f)return;const cv=h.sh?shinyCan(h.f):fishCan(h.f),tw={small:13,mid:20,big:30,giant:46}[h.c]||20,k=Math.max(1,Math.round(tw/cv.width)),w=cv.width*k,hh=cv.height*k;h.dh=hh+(h.c==='giant'?0:2);
+  const sit=h.c==='giant'&&t>1.2,py=Math.round(y+(sit?3:0)),lift=Math.min(1,t/.22);
+  if(f.myth){const a=.18+Math.sin(t*3)*.06;cx.fillStyle='rgba(255,246,200,'+a+')';cx.fillRect(Math.round(x-14),py-200,28,200)}
+  if(f.rar>=4||f.myth){const g=cx.createRadialGradient(x,py-24-hh/2,2,x,py-24-hh/2,26+w/2);g.addColorStop(0,'rgba(255,240,170,.55)');g.addColorStop(1,'rgba(255,240,170,0)');cx.fillStyle=g;cx.fillRect(x-60,py-90,120,100)}
+  cx.fillStyle='rgba(60,50,100,.16)';cx.beginPath();cx.ellipse(Math.round(x),Math.round(y)-1,6,2.5,0,0,6.28);cx.fill();
+  const jx=h.c==='giant'&&!sit?Math.round(Math.sin(t*14)*1.5):0;
+  if(sit)cx.drawImage(spr,0,0,spr.width,spr.height,Math.round(x-8)+jx,py-18,16,18);else cx.drawImage(spr,Math.round(x-8)+jx,py-21);
+  const wob=h.c==='big'?Math.sin(t*22):h.c==='giant'?Math.sin(t*12)*2:0,hx=h.c==='small'?4:0;
+  const top=(sit?py-18:py-21)-hh+3,fy=Math.round(top+(1-lift)*10+(h.c==='big'?Math.abs(Math.sin(t*9)):0)),fx=Math.round(x-w/2+wob+hx+jx);
+  const sk='rgb('+(SKINS[skin|0]||SKINS[0]).join(',')+')',armTop=fy+hh-2,armBot=(sit?py-9:py-12);
+  cx.fillStyle=sk;if(h.c!=='small')cx.fillRect(Math.round(x-6)+jx,armTop,2,Math.max(1,armBot-armTop));cx.fillRect(Math.round(x+4)+jx,armTop,2,Math.max(1,armBot-armTop));
+  cx.drawImage(cv,fx,fy,w,hh);
+  if(h.sh&&Math.random()<.25)parts.push({x:fx+Math.random()*w,y:fy+Math.random()*hh,vx:0,vy:-6,life:.5,t:0,c:'#fff6b0',g:0,s:1});
+  if((h.c==='big'||h.c==='giant')&&Math.random()<.06)parts.push({x:x+(Math.random()<.5?-6:6),y:py-20,vx:(Math.random()-.5)*20,vy:-18,life:.6,t:0,c:'#8fd0ff',g:60,s:1});
+  if(sit&&t<1.35&&Math.random()<.5)parts.push({x:x+(Math.random()-.5)*14,y:py,vx:(Math.random()-.5)*30,vy:-10,life:.4,t:0,c:'#e8dcc0',g:40,s:1});
+}
+/* 놓쳤을 때: 털썩 + '아…' */
+let FLOP=null;
+function startFlop(){FLOP={at:performance.now()};showCatchBub(ME,'아…','bub cb',1800);if(F.target){const b=bobberPos();sparkFx(b[0],b[1],14,['#8fd0ff','#ffffff','#bfe6ff'])}
+  if(ONLINE&&Net.me)Net.send({t:'hold',miss:1})}
+function drawFlopAt(x,y,spr,t){const a=Math.min(1,t/.18)*-.5;cx.save();cx.translate(Math.round(x),Math.round(y));cx.rotate(a);cx.drawImage(spr,-8,-21+Math.round(Math.min(1,t/.18)*3));cx.restore();
+  if(Math.random()<.08)parts.push({x:x+6,y:y-22,vx:8,vy:-10,life:.5,t:0,c:'#8fd0ff',g:50,s:1})}
+/* 잡는 동안 생긴 알림은 모아 두었다가, 들기가 끝나면 하나씩 */
+const TQ=[];let tqT=0;
+function tqFlush(){clearTimeout(tqT);if(!TQ.length)return;const m=TQ.shift();toastNow(m);if(TQ.length)tqT=setTimeout(tqFlush,1700)}
+/* 친구가 물고기를 들고 있으면 옆에서 '우와!' */
+function wowTarget(){let best=null,bd=30;others.forEach(o=>{if(!o.seen||!o.hold||o.hold.miss||performance.now()-o.hold.at>4200)return;const d=Math.hypot(o.x-P.x,o.y-P.y);if(d<bd){bd=d;best=o}});return best}
+function sendWow(o){if(o.wowed===o.hold.at)return toast('이미 우와! 했어요');o.wowed=o.hold.at;showSay(ME,pick(['우와!','부럽다~','대박!','멋지다!']));heartsAt(o.x,o.y-30,4);Snd.sfx('tap');if(ONLINE)Net.send({t:'wow',id:o.id})}
+function heartsAt(x,y,n){for(let i=0;i<n;i++)setTimeout(()=>parts.push({x:x+(Math.random()-.5)*12,y:y,vx:(Math.random()-.5)*8,vy:-16,life:1,t:0,heart:true,g:0}),i*120)}
+function onHoldMsg(m){
+  if(m.t==='hold'){const o=others.get(m.id);if(!o)return true;if(m.miss){o.hold={miss:1,at:performance.now()};showCatchBub(o,'아…','bub cb',1800);return true}
+    if(!FISH[m.f])return true;o.hold={f:m.f,len:m.len|0,c:m.c,sh:!!m.sh,nw:!!m.nw,pf:!!m.pf,bt:!!m.bt,ln:String(m.ln||'').slice(0,40),at:performance.now()};showCatchBub(o,holdHtml(o.hold),holdCls(o.hold),4200);
+    if(FISH[m.f].myth&&Math.hypot(o.x-P.x,o.y-P.y)<400)DARK={t:1.6};return true}
+  if(m.t==='wow'){const to=Net.me&&m.to===Net.me.id;const o=others.get(m.id);if(o)showSay(o,'우와!');
+    if(to){heartsAt(P.x,P.y-30,5);toastNow('💕 '+m.name+' 님: 우와!');Snd.sfx('page')}else{const t=others.get(m.to);if(t)heartsAt(t.x,t.y-30,3)}return true}
+  return false}
+
 const TPL_TYPE={shark:'dash',whale:'dash',sturgeon:'dash',sail:'jump',eel:'zig',needle:'zig',flat:'dive',ray:'dive',angler:'dive',puff:'stay',box:'stay',disc:'stay',seahorse:'stay'};
 const TYPE_NAME={dash:'돌진형',jump:'점프형',zig:'지그재그형',dive:'잠수형',stay:'버티기형',norm:'보통'};
 const fishType=f=>{const t=f.spec&&f.spec.tpl;if(TPL_TYPE[t])return TPL_TYPE[t];if(t==='long'&&f.rar>=2)return'jump';return'norm'};
@@ -2765,7 +2840,7 @@ function stepReel(dt){
   else if(r.prog<=0){reelLost(r)}
   else updateReelUI(inBar);
 }
-function reelLost(r){F.mode='idle';showReel(false);Snd.setIntense(false);Snd.sfx('escape');inp.hold=false;S.combo=0;
+function reelLost(r){F.mode='idle';showReel(false);startFlop();Snd.setIntense(false);Snd.sfx('escape');inp.hold=false;S.combo=0;
   if(F.fish.rar>=2)F.mpity={rar:F.fish.rar,n:2};   // 놓친 만큼 다음 입질에서 다시 만날 확률 ↑
   toast(r.snap?'줄이 끊어졌어요! 물고기가 당길 때는 손을 살짝 풀어요':r.gap?'앗, 놓쳤어요… 「'+zoneNm(F.zone)+'」 권장 강화 +'+REC_ENH[F.zone]+' (지금 +'+S.enh.lv+')':'앗, 놓쳤어요… '+(F.fish.rar>=2?'다음엔 또 만날 거예요':'다시 던져 봐요'))}
 
@@ -2773,13 +2848,13 @@ function finishCatch(){
   const f=F.fish,id=f.id;
   F.len=Math.max(1,Math.round(f.len*(.7+Math.random()*.6)));
   if(F.perfect){F.len=Math.round(F.len*1.1);S.combo=Math.min(5,(S.combo|0)+1)}else if(F.reeled)S.combo=0;
-  const had=!!S.dex[id],wasT=tierOf(id),oldBest=S.dex[id]?S.dex[id].best|0:0;
+  const had=!!S.dex[id],wasT=tierOf(id),oldBest=S.dex[id]?S.dex[id].best|0:0;F.best=false;
   F.big=f.rar>=4&&rk('fish','cap')||Math.random()<.04*rk('fish','big');if(F.big){F.len=Math.round(f.len*(1.5+Math.random()*.5));itAdd('scale',f.rar>=4?5:1)}const wasDone=[];for(let p=0;p<PAGES;p++)wasDone[p]=pageDone(p);
   F.giant=!f.boss&&Math.random()<giantP(S.enh.lv);if(F.giant)F.len=Math.round(f.len*(2+Math.random()*.6));   // 👑 거대 개체 (+5부터)
-  S.inv[id]=(S.inv[id]||0)+1+(F.giant?2:0);sdAdd(id,1);
+  S.inv[id]=(S.inv[id]||0)+1+(F.giant?2:0);sdAdd(id,1);if((S.rest|0)>0){S.rest--;if(!S.rest)setTimeout(()=>toast('🌙 휴식 행운을 다 썼어요'),2500);vilHud()}
   const e=S.dex[id]||(S.dex[id]={n:0,best:0});e.n++;e.best=Math.max(e.best,F.len);
   if(F.giant){e.n+=2;S.stats.catches+=2;const gg=giantS();gg[id]=Math.max(gg[id]|0,F.len);if(ONLINE&&Net.me)Net.send({t:'giant',name:f.name,len:F.len})}
-  S.stats.catches++;F.isNew=!had;F.pageUp=-1;F.masterUp=tierOf(id)>wasT?tierOf(id):0;
+  S.stats.catches++;F.isNew=!had;F.best=had&&F.len>oldBest;F.pageUp=-1;F.masterUp=tierOf(id)>wasT?tierOf(id):0;
   for(let p=0;p<PAGES;p++)if(!wasDone[p]&&pageDone(p))F.pageUp=p;
   F.gift=grantRewards().join(', ');enhOnCatch(id,1);
   recalc();F.t=0;
@@ -2789,22 +2864,23 @@ function finishCatch(){
   F.double=false;if(f.mk)mkS().n++;ptCatch(f);jobCatch(f);evCatchHook(f);shardDrop(f);
   vxp(([3,5,12,30,80][f.rar]+(f.isl?6:0))*(pathed(f.zone)?1.3:1)+(F.isNew?20+25*rk('sch','dexrw'):0)+(had&&F.len>oldBest?15*rk('sch','size'):0));if(F.isNew&&rk('sch','dexrw'))addXp(partnerId(),20*rk('sch','dexrw'));
   if(!F.isNew&&f.rar<=(rk('fish','dbl')?2:1)&&Math.random()<(gearEff.bob2(gl('bob'))+.05*rk('fish','dbl'))*(S.enh.lv>=5?2:1)){S.inv[id]++;e.n++;sdAdd(id,1);S.stats.catches++;F.double=true;enhOnCatch(id,1);recalc()}
-  F.shinyNow=false;shinyLocal(f);F.mode='result';showResult();giftLocal(f);
+  F.shinyNow=false;F.mode='result';F.t=0;startHold();holdNotes(f);shinyLocal(f);giftLocal(f);
   saveState();
 }
 /* 장소마다 하루 한 번: 그날 처음 낚으면 랜덤 선물 (server.js giftRoll과 같은 규칙). 낮은 낚시터도 선물 가치는 같아요 */
 const GIFT_PLACES=[1,2,3,4,5,6,8];   // 배낚시(7)는 귀항 보상이 따로
 const GIFT_COS=['cap','bucket','beanie','ribbon','flower','catear','frog','stripe','apron','overall','raincoat','hoodie','star'];
 const giftS=()=>{const d=kstDay();if(!S.gift||typeof S.gift!=='object'||S.gift.d!==d||!Array.isArray(S.gift.z))S.gift={d:d,z:[]};return S.gift};
-const giftGot=z=>giftS().z.indexOf(z)>=0;
-const giftLeft=()=>GIFT_PLACES.filter(z=>(z===8?hasZone(3):z===1||hasZone(z))&&!giftGot(z));
+const GIFT_DAY=3;   // 아무 낚시터에서나 하루 3번 (server.js와 같아요)
+const giftGot=z=>giftS().z.indexOf(z)>=0||giftS().z.length>=GIFT_DAY;
+const giftLeft=()=>Math.max(0,GIFT_DAY-giftS().z.length);
 let giftHinted='';
-function giftHint(z){const k=kstDay()+':'+z;if(!GIFT_PLACES.includes(z)||giftGot(z)||giftHinted===k)return;giftHinted=k;setTimeout(()=>toast('🎁 「'+zoneNm(z)+'」 오늘 첫 낚시엔 선물이 있어요'),400)}
+function giftHint(z){const k=kstDay()+':'+z;if(!GIFT_PLACES.includes(z)||giftGot(z)||giftHinted===k)return;giftHinted=k;if(giftS().z.length===0)setTimeout(()=>toast('🎁 오늘 처음 낚으면 선물이 있어요'),400)}
 function giftShow(places,d,note,cos){
   const got=[];Object.keys(d||{}).forEach(k=>{if(k.indexOf('i:')===0&&ITEMS[k.slice(2)])got.push(itName(k.slice(2))+' ×'+d[k])});
   (note||[]).forEach(t=>{if(t!=='새 옷!')got.push(t)});(cos||[]).forEach(id=>{if(COS_BY[id])got.push('새 옷 「'+COS_BY[id].name+'」')});
-  const left=giftLeft().length;
-  setTimeout(()=>{toast('🎁 「'+places.map(zoneNm).join(', ')+'」 오늘의 첫 낚시 선물! '+got.join(' · ')+(left?' · 오늘 선물이 남은 곳 '+left+'곳':' · 오늘 선물은 다 받았어요'));Snd.sfx('page')},1200);
+  const left=giftLeft();
+  setTimeout(()=>{toast('🎁 낚시 선물! '+got.join(' · ')+(left?' (오늘 '+left+'번 더)':''));Snd.sfx('page')},1200);
 }
 /* 서버가 보낸 선물 (온라인) */
 function onGift(m){
@@ -2851,14 +2927,14 @@ function quickCatch(f){
   sparkFx(P.x,P.y-24,6,['#ffffff','#cfe8ff']);
   const n=dexN(f.id),need=needOf(f.id);
   if(F.double)floats.push({x:P.x+10,y:P.y-22,t:-.12,img:fishCan(f.id)});
-  toast((F.double?'두 마리! ':F.familiar?'익숙한 손맛! ':'')+f.name+' '+F.len+'cm · '+fmt(sellPrice(f)*(F.double?2:1))+'골드'+(!maxed(f.id)?' · 도감 '+n+'/'+need+(tierOf(f.id)?' ★'+tierOf(f.id):''):''));
+  toast((F.double?'두 마리! ':F.familiar?'익숙한 손맛! ':'')+f.name+' '+F.len+'cm');
 }
 const floats=[];
 function drawFloats(dt){
   for(let i=floats.length-1;i>=0;i--){const o=floats[i];o.t+=dt;if(o.t>1.1){floats.splice(i,1);continue}if(o.t<0)continue;
     cx.globalAlpha=o.t>.75?(1.1-o.t)/.35:1;cx.drawImage(o.img,Math.round(o.x-o.img.width/2),Math.round(o.y-o.img.height-o.t*14));cx.globalAlpha=1}
 }
-function closeResult(){if(F.mode!=='result'||F.t<.5)return;F.mode='idle';$('result').hidden=true;Snd.sfx('tap')}
+function closeResult(){if(F.mode!=='result'||F.t<.5)return;F.mode='idle';$('result').hidden=true;HOLD=null;if(ME.say)ME.say.until=performance.now()+900;Snd.sfx('tap');setTimeout(tqFlush,500)}
 function updateFishing(dt){
   F.t+=dt;
   switch(F.mode){
@@ -2908,7 +2984,7 @@ function petStuck(a,dt){const ok=isFollower(a)?(x,y)=>!blockedAt(x,y):petWalkabl
 function petWalkable(x,y){return!blockedAt(x,y)&&x>YARD.x0*TS&&x<(YARD.x1+1)*TS&&y>YARD.y0*TS&&y<(YARD.y1+1)*TS}
 function updatePets(dt){
   pets.forEach(a=>{
-    const p=a.p;a.t-=dt;a.heartT-=dt;
+    const p=a.p;a.t-=dt;a.heartT-=dt;if(a.react>0)a.react-=dt;
     if(a.forced)return; // 산책 이벤트가 직접 움직여요
     if(petStuck(a,dt))return; // 벤치 · 통 같은 데 끼면 가까운 빈자리로 폴짝
     if(isFollower(a)){followStep(a,dt);return} // 루비 · Lv10 이상 짝꿍: 나를 따라와요
@@ -2931,7 +3007,8 @@ function drawPet(a){
   if(a.state==='walk')img=(L?s.walkL:s.walk)[((a.anim*6)|0)%2];else if(a.state==='sleep')img=L?s.sleepL:s.sleep;else img=s.sit;
   cx.fillStyle='rgba(60,50,100,.14)';cx.beginPath();cx.ellipse(Math.round(a.x),Math.round(a.y)-1,img.width*.38,2,0,0,6.28);cx.fill();
   const sk=a.shake>0?Math.round((Math.random()-.5)*3):0;
-  cx.drawImage(img,Math.round(a.x-img.width/2)+sk,Math.round(a.y-img.height)-(sk?Math.abs(sk):0));
+  const hop=a.react>0?Math.round(Math.abs(Math.sin(a.react*11))*4):0;
+  cx.drawImage(img,Math.round(a.x-img.width/2)+sk,Math.round(a.y-img.height)-(sk?Math.abs(sk):0)-hop);
   if(a.p.id==='ruby')drawWishBubble(a,img);
   if(a.state==='sleep'&&((wt*1.2)|0)%2===0){cx.fillStyle='rgba(150,140,230,.9)';cx.fillRect(Math.round(a.x+img.width/2-2),Math.round(a.y-img.height-3),3,1);cx.fillRect(Math.round(a.x+img.width/2-1),Math.round(a.y-img.height-4),1,1)}
 }
@@ -3774,8 +3851,12 @@ function buildBoat(){
   if(!b.solo&&b.donors.length<DONORS_NEED){toast('서로 다른 친구 '+DONORS_NEED+'명이 기부해야 해요 (지금 '+b.donors.length+'명)');return}
   if(ONLINE){Net.send({t:'boat_build'});return}
   S.boat=1;S.box={tot:{},donors:[]};vxp(300);saveState(true);Snd.sfx('page');toast('⛵ 물결호 완성! 먼바다 부두 끝에서 탈 수 있어요');openBoat()}
+/* 물결호가 조금씩 완성되는 모습 (중간중간 축하) */
+const BOAT_STG=[[0,'설계도를 펼쳤어요','설계도','📜'],[20,'용골을 놓았어요','용골','🪵'],[45,'선체가 생겼어요','선체','🛶'],[70,'돛대를 세웠어요','돛대','🎏'],[90,'돛을 달았어요','돛','⛵'],[100,'출항 준비 완료','깃발','🚩']];let BOAT_PC=-1;
 function boxHtml(){const b=boxNow(),full=boxFull(b),dn=b.donors.length;
-  let h='<div class="wishc"><div style="font-size:16px">마을 기부함 · 물결호 만들기</div><div class="muted" style="font-size:12px;margin:4px 0 8px">재료가 다 모이고, <b>서로 다른 친구 '+DONORS_NEED+'명 이상</b>이 기부하면 공방 장인이 조립해요. 아이템 1개나 '+fmt(DON_MIN_G)+'골드 이상이면 기부한 친구로 쳐요. 한 사람은 재료마다 절반까지, 골드는 500만까지 넣을 수 있어요.</div>';
+  const ks=Object.keys(BOAT_NEED),pc=Math.floor(ks.reduce((a,k)=>a+Math.min(1,(b.tot[k]|0)/BOAT_NEED[k]),0)/ks.length*100),stg=BOAT_STG.filter(x=>pc>=x[0]).length-1;
+  if(BOAT_PC>=0&&pc>BOAT_PC&&BOAT_STG.some(x=>x[0]>BOAT_PC&&x[0]<=pc))setTimeout(()=>showBanner('⛵ 물결호 '+BOAT_STG[stg][1]+'! ('+pc+'%)'),300);BOAT_PC=pc;
+  let h='<div class="wishc"><div class="boatst"><div class="bs-top"><b>⛵ 물결호 '+pc+'%</b><span>'+BOAT_STG[stg][1]+(stg<BOAT_STG.length-1?' · 다음은 '+BOAT_STG[stg+1][2]:'')+'</span></div><div class="bs-row">'+BOAT_STG.slice(1).map((x,i)=>'<i class="'+(stg>i?'on':'')+'">'+x[3]+'<small>'+x[2]+'</small></i>').join('')+'</div></div><div style="font-size:16px">마을 기부함 · 물결호 만들기</div><div class="muted" style="font-size:12px;margin:4px 0 8px">재료가 다 모이고, <b>서로 다른 친구 '+DONORS_NEED+'명 이상</b>이 기부하면 공방 장인이 조립해요. 아이템 1개나 '+fmt(DON_MIN_G)+'골드 이상이면 기부한 친구로 쳐요. 한 사람은 재료마다 절반까지, 골드는 500만까지 넣을 수 있어요.</div>';
   Object.keys(BOAT_NEED).forEach(k=>{const t=b.tot[k]|0,nd=BOAT_NEED[k],g=k==='g',ok=t>=nd;
     h+='<div class="row"><span style="font-size:20px;width:28px;text-align:center">'+(g?'🪙':ITEMS[k].ic)+'</span><div class="nm"><div>'+(g?'골드':ITEMS[k].n)+' <b>'+fmt(t)+'</b> / '+fmt(nd)+(ok?' ✓':'')+'</div><div class="bar" style="margin-top:4px"><i style="width:'+Math.min(100,t/nd*100)+'%"></i></div></div><div class="go">'+
       (donLeft(b,k)<=0?'<span class="muted" style="font-size:12px">'+(ok?'':'내 몫 끝')+'</span>':g?'<button class="btn sm ghost" data-don="g:10000">+1만</button><button class="btn sm ghost" data-don="g:100000">+10만</button><button class="btn sm ghost" data-don="g:1000000">+100만</button>':'<button class="btn sm ghost" data-don="'+k+':1"'+(itN(k)?'':' disabled')+'>+1 (가진 '+itN(k)+')</button>')+'</div></div>'});
@@ -3925,7 +4006,8 @@ const isNight=ph=>ph>.74&&ph<.95;
 
 /* ----- 토스트 · 힌트 ----- */
 let toastT=0;
-function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),2200)}
+function toast(msg){if(typeof F!=='undefined'&&F.mode==='result'&&HOLD){TQ.push(msg);return}toastNow(msg)}
+function toastNow(msg){const el=$('toast');el.textContent=msg;el.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),2200)}
 function hideHint(){const h=$('hint');if(h&&!h.hidden){h.hidden=true;S.hinted=true}}
 
 /* ---------- 렌더링 · 메인 루프 ---------- */
@@ -3992,7 +4074,7 @@ function drawStatue(){
 function openHall(refresh){
   const c=champ();if(!refresh){Snd.sfx('page');if(ONLINE&&Net.me)Net.send({t:'enh_rank'})}
   let h='<div class="forge-top"><div class="muted" style="font-size:12px">지금 마을 광장 동상의 주인</div>'+(c?'<span class="lv">👑 '+esc(c.name)+'</span><div>낚싯대 <b style="color:#e07a2c">+'+c.lv+'</b> · 최고 기록 +'+c.max+'</div>':'<div style="padding:8px 0">아직 비어 있어요. 낚싯대를 강화해서 첫 주인이 돼 보세요!</div>')+'</div>';
-  h+='<div class="muted" style="font-size:12px;margin-bottom:8px">동상은 <b>지금 강화 단계</b> 1등의 모습으로 바로바로 바뀌어요. 같은 단계면 먼저 오른 사람이 지켜요. 파괴되면 자리를 내줘야 해요!</div>';
+  h+='<div class="muted" style="font-size:12px;margin-bottom:8px">동상은 <b>지금 강화 단계</b> 1등의 모습으로 바로바로 바뀌어요. 같은 단계면 먼저 오른 사람이 지켜요. 더 높은 단계가 나오면 자리를 내줘요!</div>';
   if(ONLINE&&Net.me){const L=(forgeRank||[]).slice().sort((a,b)=>b.lv-a.lv||b.max-a.max);
     h+='<div class="sec">마을 강화 순위 (지금 단계)</div>'+(L.length?L.map((r,i)=>'<div class="rank"><span class="r">'+(i===0?'👑':i+1)+'</span><span class="n">'+esc(r.name)+'</span><span class="v">+'+r.lv+'</span><span class="muted" style="font-size:11px">최고 +'+r.max+'</span></div>').join(''):'<div class="muted">불러오는 중…</div>')}
   else h+='<div class="muted" style="font-size:12px">친구들과 함께하면 마을에서 가장 높은 사람이 동상이 돼요.</div>';
@@ -4034,6 +4116,8 @@ function rodGlow(x0,y0,tip,lv){
 }
 function drawPlayer(){
   lookFx(P.x,P.y,S.cos.look,P.moving);
+  if(F.mode==='result'&&HOLD){auraUnder(ME,P.x,P.y,S.enh.lv);drawHoldAt(P.x,P.y,SP.pl.down[0],HOLD,(performance.now()-HOLD.at)/1000,S.cos.look.k);return}
+  if(FLOP&&F.mode==='idle'&&!P.moving&&performance.now()-FLOP.at<1500){drawFlopAt(P.x,P.y,SP.pl[P.dir][0],(performance.now()-FLOP.at)/1000);return}
   const d=P.dir,fr=P.moving?[0,1,0,2][((P.anim*8)|0)%4]:0;
   let bob=0;
   const spr=SP.pl[d][fr];
@@ -4318,25 +4402,14 @@ function updateReelUI(inBar){
 }
 
 /* ----- 결과 카드 ----- */
-function showResult(){
-  const f=F.fish;
-  {const fc=fishCan(f.id),k=Math.max(2,Math.min(8,Math.floor(Math.min(220/fc.width,88/fc.height))));
-   $('rimg').innerHTML='<img src="'+(F.shinyNow?shinyURL(f.id):fishURL(f.id))+'" alt="'+esc(f.name)+'" style="width:'+fc.width*k+'px;height:'+fc.height*k+'px;max-width:none;max-height:none">'}
-  $('rname').textContent=f.name;
-  const t=$('rrar');t.textContent=f.myth?'신화':RARITY[f.rar].name;t.style.background=f.myth?'linear-gradient(90deg,#7a5cff,#ff6ec8,#ffd34d)':RARITY[f.rar].color;
-  $('rdesc').textContent=f.desc+(f.when||f.need?' ('+condText(f)+')':'')+(f.season?' · '+seasonById(f.season).name+' 한정':'');
-  const extra=(F.shinyNow?'<div style="color:#d08a00;margin-bottom:2px">✨ 반짝 개체! 반짝 도감에 기록됐어요</div>':'')+(f.myth?'<div style="color:#7a5cff;margin-bottom:2px">🌌 신화의 물고기를 낚았어요!</div>':'')+(F.perfect?'<div style="color:#e07a2c;margin-bottom:2px">✨ 완벽한 손맛! 크기 +10%'+((S.combo|0)>1?' · '+S.combo+'연속 (행운 +'+S.combo*2+'%)':'')+'</div>':'')+(F.giant?'<div style="color:#e0a83a;margin-bottom:2px">👑 거대 개체!! '+F.len+'cm · 가방에 3마리 몫</div>':F.big?'<div style="color:#5d9be8;margin-bottom:2px">대물이다!! 대물 비늘 +'+(f.rar>=4?5:1)+'</div>':F.double?'<div style="color:#e07a2c;margin-bottom:2px">두 마리가 한꺼번에! ×2</div>':F.familiar?'<div style="color:#2f7a63;margin-bottom:2px">익숙한 손맛!</div>':'');
-  $('rinfo').innerHTML=extra+F.len+' cm · 판매가 <b>'+fmt(sellPrice(f))+'</b> 골드'+(F.double?' ×2':'')+'<div class="muted" style="margin-top:4px">도감 '+stars(tierOf(f.id))+' · '+(maxed(f.id)?dexN(f.id)+'마리 · 단골 (판매가 +'+Math.round(REGULAR_SELL*100)+'%)':dexN(f.id)+' / '+needOf(f.id)+'마리')+'</div>';
-  $('rnew').hidden=!F.isNew;
-  const pg=$('rpage');
-  const msg=[];
-  if(F.masterUp){const t=F.masterUp,ps=PASSIVE_OF[f.page];msg.push(esc(f.name)+' ★'+t+' 달성!'+(ps?' '+ps.name+' +'+pct(TIER_BONUS[t-1]):'')+(t===1&&f.rar<=1?' · 이제 익숙해져서 바로 올라와요':'')+(t===3?' · 단골 물고기! 판매가 +'+Math.round(REGULAR_SELL*100)+'%':''))}
-  if(F.pageUp>=0)msg.push('도감 「'+PAGE_TITLES[F.pageUp]+'」 완성!'+(PASSIVE_OF[F.pageUp]?' '+PASSIVE_OF[F.pageUp].name+' +'+pct(PAGE_BONUS):''));
-  if(F.gift)msg.push('선물 받음: '+esc(F.gift));
-  pg.hidden=!msg.length;pg.innerHTML=msg.join('<br>');
-  $('result').hidden=false;
-  const c=cv.getBoundingClientRect();
-  sparkFx(P.x,P.y-24,f.rar>=2?22:8,f.rar>=3?['#ffe28a','#ffb3c8','#b9a6ee','#a9e8cf']:['#ffffff','#cfe8ff']);
+/* 예전 결과 카드 대신: 반짝 개체처럼 나중에 바뀐 것만 말풍선에 반영해요 */
+function showResult(){if(!HOLD||!F.fish)return;HOLD.sh=!!F.shinyNow;showCatchBub(ME,holdHtml(HOLD),holdCls(HOLD),600000);if(HOLD.sh){sparkFx(P.x,P.y-30,24,['#fff6b0','#ffffff','#c8f0ff','#ffd6e6']);if(ONLINE&&Net.me)Net.send({t:'hold',f:HOLD.f,len:HOLD.len,c:HOLD.c,sh:true,nw:HOLD.nw,pf:HOLD.pf,bt:HOLD.bt,ln:HOLD.ln})}}
+/* 도감 별 · 쪽 완성 · 선물 소식은 들기가 끝난 뒤 하나씩 (짧게) */
+function holdNotes(f){
+  if(F.isNew||F.masterUp||F.pageUp>=0){S.dexDot=true;$('dexDot').hidden=false}
+  if(F.masterUp)toast('⭐ '+f.name+' ★'+F.masterUp+(F.masterUp===3?' · 단골 물고기!':''));
+  if(F.pageUp>=0)toast('📖 도감 「'+PAGE_TITLES[F.pageUp]+'」 완성!');
+  if(F.gift)toast('🎁 '+F.gift);
 }
 $('result').addEventListener('pointerdown',()=>{closeResult()});
 
@@ -4357,7 +4430,7 @@ function invHtml(sellable){
   if(!ids.length)return'<div class="muted" style="padding:18px;text-align:center">아직 잡은 물고기가 없어요.<br>물가에서 오른쪽 버튼을 눌러 보세요.</div>';
   const res=reservedMats();
   return ids.map(id=>{const f=FISH[id],n=S.inv[id],rs=Math.min(n,res[id]||0);
-    return'<div class="row"><img src="'+fishURL(id)+'" alt=""><div class="nm"><div>'+esc(f.name)+' ×'+n+' '+rarTagF(f)+'</div><div class="muted">'+sellPrice(f)+' 골드'+(rs?' · 장비 재료로 '+rs+'마리 필요':'')+'</div></div>'+
+    return'<div class="row"><img src="'+fishURL(id)+'" alt=""><div class="nm"><div>'+esc(f.name)+' ×'+n+' '+rarTagF(f)+'</div><div class="muted">'+(!sellable||soldKnown(id)?sellPrice(f)+' 골드':'??? 골드 · 팔아 봐야 알아요')+(rs?' · 장비 재료로 '+rs+'마리 필요':'')+'</div></div>'+
       (sellable?'<div class="go"><button class="btn sm mint" data-sell="'+id+'">1마리</button></div>':'')+'</div>'}).join('');
 }
 let bagTab='fish';
@@ -4427,12 +4500,21 @@ function buyCos(id){
 /* ----- 상점 ----- */
 let shopTab='sell';
 function openShop(){openSheet('물결 상점','');renderShop()}
+/* 상점의 설렘: 처음 파는 물고기는 값이 ??? · 팔아 보면 그때 알아요 */
+const soldKnown=id=>{if(!S.soldK||typeof S.soldK!=='object'){S.soldK={};if((S.stats&&S.stats.sold)>0)Object.keys(S.dex).forEach(k=>S.soldK[k]=1)}return!!S.soldK[id]};   // 예전부터 하던 친구는 이미 아는 물고기는 값을 알아요
+function soldMark(id){if(!S.soldK||typeof S.soldK!=='object')S.soldK={};S.soldK[id]=1}
+function coinRain(p){const n=Math.min(30,6+Math.round(Math.log10(Math.max(10,p))*4));for(let i=0;i<n;i++)setTimeout(()=>parts.push({x:P.x+(Math.random()-.5)*30,y:P.y-30,vx:(Math.random()-.5)*50,vy:-40-Math.random()*30,life:.9,t:0,c:i%3?'#ffd34d':'#fff2a0',g:120,s:2}),i*25)}
+function sellWow(f,p,first){coinRain(p);
+  if(f.myth)showBanner('🌌 와아아!! '+f.name+' → '+fmt(p)+' 골드!!');
+  else if(first)showBanner('💰 처음 팔아 봤어요! '+f.name+' 한 마리에 '+fmt(p)+' 골드'+(f.rar>=3?'!!':''));
+  else if(f.rar>=3)showBanner('💰 '+f.name+' → '+fmt(p)+' 골드!');
+  else toast('+'+fmt(p)+' 골드')}
 function renderShop(){
   const tabs='<div class="tabs"><button class="tab'+(shopTab==='sell'?' on':'')+'" data-tab="sell">물고기 팔기</button><button class="tab'+(shopTab==='gear'?' on':'')+'" data-tab="gear">장비 강화</button></div>';
   let h=tabs;
   if(shopTab==='sell'){
     const res=reservedMats();let all=0,cnt=0;Object.keys(S.inv).forEach(k=>{const n=S.inv[k]-(res[k]||0);if(n>0){all+=n*sellPrice(FISH[k]);cnt+=n}});
-    h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div class="muted" style="flex:1">재료로 쓸 물고기는 남기고 팔아요.</div><button class="btn pink sm" data-sellall="1"'+(cnt?'':' disabled')+'>'+(cnt?cnt+'마리 '+fmt(all)+'골드':'팔 것이 없어요')+'</button></div>'+invHtml(true);
+    h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div class="muted" style="flex:1">재료로 쓸 물고기는 남기고 팔아요.</div><button class="btn pink sm" data-sellall="1"'+(cnt?'':' disabled')+'>'+(cnt?cnt+'마리 다 팔기':'팔 것이 없어요')+'</button></div>'+invHtml(true);
   }else{
     h+=GEAR_KEYS.map(k=>{
       const g=GEAR[k],lv=S.gear[k],u=g.up[lv];
@@ -4477,7 +4559,7 @@ function openGate(zone){
 
 /* ----- 도감 ----- */
 let dexPage=0,dexSel=-1;
-function openDex(){Snd.sfx('ui');dexSel=-1;if(ONLINE&&Net.me&&!VREC)Net.send({t:'rec_list'});openSheet('도감','');renderDex()}
+function openDex(){Snd.sfx('ui');dexSel=-1;S.dexDot=false;$('dexDot').hidden=true;if(ONLINE&&Net.me&&!VREC)Net.send({t:'rec_list'});openSheet('도감','');renderDex()}
 const dexOpen=()=>!$('sheetwrap').hidden&&$('sheettitle').textContent==='도감';
 let DEXM='all';   // 'all' 도감 · 's' 손맛 도감
 const mdText=md=>(+md.slice(0,2))+'월 '+(+md.slice(3))+'일';
@@ -4492,13 +4574,13 @@ function renderDex(){
   h+='<div class="zj">'+zs.map((a,i)=>{const on=p>=a[1]&&(i===zs.length-1||p<zs[i+1][1]);return'<button data-pz="'+a[1]+'"'+(on?' class="on"':'')+'>'+a[0]+'</button>'}).join('')+'</div>';
   const isl=!sea&&!ps;
   const p0=FISH[ids[0]],info=p0.myth?'낚시터마다 1종 · 시간과 날씨가 딱 맞을 때 아주 가끔 · 미끼 없이도 걸려요':p0.pty?'4명이 모여야 나가는 배낚시 · 거대 참다랑어는 다 같이 당겨야 잡혀요':p0.mk?'돈 벌기 좋은 시장 물고기 · 하루 '+MK_DAY+'마리':isl?'2부 · 물결호를 타고 가는 섬'+(hasZone(6)?'':' (아직 못 가 봤어요)'):sea?mdText(sea.from)+' ~ '+mdText(sea.to)+(seasonOn(sea)?' · 지금 축제 중!':' · 축제 기간에만 나와요')
-    :ps.name+' 종마다 최대 +'+pct(SP_BONUS)+' · 다 발견 +'+pct(PAGE_BONUS)+(done?' ✓':'');
+    :'만날수록 '+({bite:'입질이 빨라져요',sell:'상점에서 더 쳐줘요',bar:'조절 바가 넉넉해져요',luck:'행운이 따라와요',reel:'당기는 힘이 세져요'}[ps.k]||'조금씩 좋아져요')+(done?' · 다 모았어요 ✓':'');
   const rc=rw&&COS_BY[rw];
   const szr=szOn?COS.filter(c=>c.sz===pz):[],szGot=szOn&&szrwS().indexOf(pz)>=0;
   h+='<div class="pager" style="margin-top:10px"><button class="btn ghost sm" data-pg="-1"'+(p===0?' disabled':'')+'>◀</button><div class="t"><div style="font-size:17px">'+PAGE_TITLES[p]+'</div>'+
     (SM?'<div class="muted">손맛 '+ids.filter(sdHas).length+' / '+ids.length+(szOn?' · 「'+esc(ZONES[pz-1].name)+'」 '+szCount(pz)+' / '+zoneIds(pz).length:'')+'</div>'+
       (szOn?'<div style="font-size:12px;margin-top:2px;color:'+(szGot?'#2f7a63':'var(--ink-soft)')+'">손맛 정복 보상: 강화권 +'+SZRW.tk[pz-1]+' · '+szr.map(c=>c.k==='title'?'칭호 「'+esc(c.name)+'」':esc(c.name)).join(' · ')+(szGot?' ✓ 받음':'')+'</div>':'<div class="muted" style="font-size:12px">손맛 정복은 1~5번 낚시터와 안개 섬에 있어요</div>')+'</div>'
-    :'<div class="muted">발견 '+got+' / '+ids.length+(sea||isl?'':' · '+ps.name+' +'+pct(pageTierBonus(p)))+'</div><div class="muted" style="font-size:12px">'+info+'</div>'+
+    :'<div class="muted">발견 '+got+' / '+ids.length+''+'</div><div class="muted" style="font-size:12px">'+info+'</div>'+
     (rc?'<div style="font-size:12px;margin-top:2px;color:'+(owns(rw)?'#2f7a63':'var(--ink-soft)')+'">완성 보상: '+(rc.k==='title'?'칭호 「'+esc(rc.name)+'」':esc(rc.name))+(owns(rw)?' ✓ 받음':'')+'</div>':'')+'</div>')+
     '<button class="btn ghost sm" data-pg="1"'+(p===PAGES-1?' disabled':'')+'>▶</button></div>';
   h+='<div class="dexgrid">';
@@ -4509,13 +4591,9 @@ function renderDex(){
     const f=FISH[dexSel],e=S.dex[dexSel],cond=condText(f);
     const chips='<div class="pas" style="justify-content:center">'+(cond?'<span>'+esc(cond)+'</span>':'<span>언제든</span>')+(f.season?'<span>'+esc(seasonById(f.season).name)+' 한정</span>':'')+'</div>';
     h+=e?'<div class="detail"><img src="'+(SH&&shHas(dexSel)?shinyURL(dexSel):fishURL(dexSel))+'" alt="" style="height:'+Math.min(66,fishCan(dexSel).height*3)+'px"><div style="font-size:17px;margin-top:4px">'+esc(f.name)+' '+rarTagF(f)+'</div><div class="muted" style="margin:4px 0">'+esc(f.desc)+'</div><div class="muted">'+ZONES[f.zone-1].name+' · 최대 '+e.best+'cm · 지금까지 '+e.n+'마리 (직접 낚은 것 '+(sdS()[dexSel]|0)+'마리) · '+f.price+'골드'+(giantS()[dexSel]?' · 👑 거대 '+giantS()[dexSel]+'cm':'')+(shHas(dexSel)?' · ✨ 반짝 '+shS()[dexSel]+'마리':'')+(VREC&&VREC.rec&&VREC.rec[dexSel]?'<br>🏆 마을 최고 '+VREC.rec[dexSel][0]+'cm · '+esc(VREC.rec[dexSel][1]):'')+'</div>'+chips+
-      '<div style="margin-top:4px;font-size:14px"><span style="color:#e0a83a">'+stars(tierOf(dexSel))+'</span> '+(maxed(dexSel)?'단골 · 판매가 +'+Math.round(REGULAR_SELL*100)+'%':e.n+' / '+needOf(dexSel)+'마리')+(ps?' · '+ps.name+' +'+pct(tierBonus(dexSel)):'')+'</div><div class="muted" style="font-size:12px">'+NEED[f.rar].map((n,i)=>'★'+(i+1)+' '+n+'마리').join(' · ')+'</div><div class="bar" style="margin:6px 20px 0"><i style="width:'+Math.min(100,e.n/needOf(dexSel)*100)+'%"></i></div></div>'
+      '<div style="margin-top:4px;font-size:14px"><span style="color:#e0a83a">'+stars(tierOf(dexSel))+'</span> '+(maxed(dexSel)?'단골 물고기 · 상점에서 조금 더 쳐줘요':e.n+' / '+needOf(dexSel)+'마리')+''+'</div><div class="muted" style="font-size:12px">'+NEED[f.rar].map((n,i)=>'★'+(i+1)+' '+n+'마리').join(' · ')+'</div><div class="bar" style="margin:6px 20px 0"><i style="width:'+Math.min(100,e.n/needOf(dexSel)*100)+'%"></i></div></div>'
       :'<div class="detail"><div style="font-size:30px;margin:8px 0;color:#c9bedd">?</div><div class="muted">'+ZONES[f.zone-1].name+'에서 만날 수 있어요.'+(hasZone(f.zone)?'':'<br>아직 열리지 않은 낚시터예요.')+'</div>'+chips+'<div class="muted" style="font-size:12px">친구와 교환해도 도감엔 올라요. 손맛 도감은 직접 낚아야 올라요.</div></div>';
   }else h+='<div class="detail"><div class="muted" style="padding-top:36px">물고기를 눌러 보세요.</div></div>';
-  h+='<div style="margin-top:14px" class="muted">지금 받는 보너스</div><div class="pas">';
-  const ac=[];[['bite','입질 속도'],['sell','판매 가격'],['bar','조절 바 크기'],['luck','행운'],['reel','당기는 힘']].forEach(a=>{if(ST.b[a[0]]>0)ac.push('<span class="on">'+a[1]+' +'+pct(ST.b[a[0]])+'</span>')});
-  h+=ac.length?ac.join(''):'<span>아직 없어요</span>';
-  h+='</div>';
   body().innerHTML=h;
 }
 
@@ -4601,8 +4679,8 @@ $('sheetbody').addEventListener('click',e=>{
   if((t.dataset.aq||t.dataset.aqv||t.dataset.aqp)&&aqClick(t))return;
   if(t.dataset.pt2){const m=pm();m.pt2=t.dataset.pt2;saveState(true);toast(petName(m.pt2)+'가 두 번째 짝꿍이 됐어요!');openPetSheet(m.pt2);return}
   if(t.dataset.tab){shopTab=t.dataset.tab;Snd.sfx('tap');renderShop();return}
-  if(t.dataset.sell!==undefined){const p=sell(+t.dataset.sell,1);if(p){Snd.sfx('coin');saveState();renderShop()}return}
-  if(t.dataset.sellall){const res=reservedMats();let p=0;Object.keys(S.inv).forEach(k=>{p+=sell(+k,(S.inv[k]||0)-(res[k]||0))});if(p){Snd.sfx('buy');toast('+'+fmt(p)+' 골드');saveState();renderShop()}return}
+  if(t.dataset.sell!==undefined){const id=+t.dataset.sell,f=FISH[id],first=!soldKnown(id),p=sell(id,1);if(p){soldMark(id);Snd.sfx('coin');saveState();renderShop();sellWow(f,p,first)}return}
+  if(t.dataset.sellall){const res=reservedMats();let p=0,nw=0,top=null;Object.keys(S.inv).forEach(k=>{const q=(S.inv[k]||0)-(res[k]||0);if(q<=0)return;if(!soldKnown(+k))nw++;const f=FISH[k];if(!top||(f.myth?9:f.rar)>(top.myth?9:top.rar))top=f;p+=sell(+k,q);soldMark(+k)});if(p){Snd.sfx('buy');saveState();renderShop();coinRain(p);showBanner('💰 다 팔았어요! +'+fmt(p)+' 골드'+(nw?' · 처음 판 물고기 '+nw+'종':''))}return}
   if(t.dataset.up){upgrade(t.dataset.up);return}
   if(t.dataset.bt){bagTab=t.dataset.bt;Snd.sfx('tap');renderBag();return}
   if(t.dataset.look){const a=t.dataset.look.split(':');setLook(a[0],+a[1]);renderBag();return}
@@ -4813,7 +4891,7 @@ function openMenu(){
   h+='<div class="menu"><button class="mbtn" data-mn="roster">오늘의 마을 일꾼<small>직업 현황 · 예보</small></button><button class="mbtn" data-mn="boat" style="background:linear-gradient(#eef6ff,#fff)">⛵ 물결호 · 안개 섬<small>'+(boatReady()?'출항 가능':'아직 배가 없어요')+'</small></button></div>';
   h+='<div class="menu"><button class="mbtn" data-mn="ev" style="background:linear-gradient(#fff4e4,#ffeef6)">🎪 마을 행사<small>'+(EVS.length?'지금 '+EVS.length+'개 열림':'직업마다 하루 한 번')+'</small></button><button class="mbtn" data-mn="eb" style="background:linear-gradient(#fff0fa,#f3ecff)">🎰 은비랜드<small>축제 광장</small></button><button class="mbtn" data-mn="aq" style="background:linear-gradient(#eef9ff,#e6f2ff)">🐠 수족관<small>축제 광장</small></button></div>';
   h+='<button class="mbtn" data-mn="party" style="width:100%;margin-bottom:8px;background:linear-gradient(#e8f2ff,#f0fbf7)">⚓ 4인 배낚시<small>'+(PTY&&PTY.state==='lobby'?'모집 중 '+PTY.members.length+'명':PTY&&PTY.state==='sea'?'지금 바다 위':'4명이 모이면 출항')+'</small></button>';
-  h+='<button class="mbtn" data-mn="me" style="width:100%;margin-bottom:8px">내 정보<small>인기도 ♥'+((S.pop&&S.pop.n)|0)+' · 동물 친구 레벨</small></button>';
+  h+='<button class="mbtn" data-mn="me" style="width:100%;margin-bottom:8px">내 정보<small>받은 하트 ♥'+((S.pop&&S.pop.up)|0)+' · 동물 친구 레벨</small></button>';
   h+='<div class="menu"><button class="mbtn" data-mn="shop">물결 상점<small>팔기 · 장비 강화</small></button><button class="mbtn" data-mn="boutique">치장 상점<small>모자 · 옷 · 칭호</small></button>'+
     '<button class="mbtn" data-mn="trade">교환소<small>게시판 · 직접 교환</small></button><button class="mbtn" data-mn="set">설정<small>소리 · 기록</small></button></div>';
   h+='<div class="muted" style="font-size:12px">건물까지 걸어가지 않아도 여기서 바로 열 수 있어요.</div>';
@@ -5138,13 +5216,15 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='enh')onEnh(m);
     else if(m.t==='drop'){const k=m.src+':'+(m.id||''),p=dropSrc[k]||[P.x,P.y];delete dropSrc[k];spawnDrop(p[0],p[1],m.n|0||1,m.did)}
     else if(m.t==='prof')onProf(m);
-    else if(m.t==='pop_ok'){if(PF.id===m.id&&PF.data){PF.data.pop=m.pop;body().innerHTML=profileHtml(PF.data,false)}toast(m.v>0?'인기도를 올려 줬어요 ♥':'인기도를 내렸어요');Snd.sfx(m.v>0?'coin':'tap')}
-    else if(m.t==='pop_got'){S.pop=Object.assign({n:0,up:0,dn:0},m.pop||{});toast(m.name+' 님이 인기도를 '+(m.v>0?'올려 줬어요 ♥':'내렸어요')+' (지금 ♥'+S.pop.n+')')}
+    else if(m.t==='pop_ok'){if(PF.id===m.id&&PF.data){PF.data.pop=m.pop;body().innerHTML=profileHtml(PF.data,false)}toast(m.v>0?'하트를 줬어요 ♥':'인기도를 내렸어요');Snd.sfx(m.v>0?'coin':'tap')}
+    else if(m.t==='pop_got'){S.pop=Object.assign({n:0,up:0,dn:0},m.pop||{});toast('♥ '+m.name+' 님이 하트를 줬어요 (받은 하트 '+(S.pop.up|0)+')')}
     else if(m.t==='enh_rank'){forgeRank=m.list||[];if(forgeOpen()&&!FG.busy)renderForge();if(hallOpen())openHall(true)}
     else if(m.t==='champ'){const was=CHAMP;CHAMP=m.c||null;statueC=null;if(hallOpen())openHall(true);if(CHAMP&&was&&was.name!==CHAMP.name)sparkFx(17*TS+8,25*TS-10,24,['#ffe27a','#ffffff','#fff6c8'])}
     else if(onAqMsg(m)){}
+    else if(onHoldMsg(m)){}
+    else if(m.t==='welcome'){S.rest=(S.rest|0)+(m.rest|0);recalc();saveState();setTimeout(()=>{showBanner('🎁 그동안 모아 둔 선물! ('+m.away+'일 치) 골드 +'+fmt(m.g)+' · 강화권 +'+m.tk);Snd.sfx('page')},1500);setTimeout(()=>toast('🌙 휴식 행운: 다음 '+m.rest+'마리는 행운 +30%'+(m.behind?' · 📣 마을이 응원하고 있어요':'')),5000);vilHud()}
     else if(m.t==='news')toast(m.text);
-    else if(m.t==='roster'){RICH=m.rich||null;ROSTER=(m.list||[]).map(p=>Object.assign({},p,{me:Net.me&&p.name===Net.me.name}));if(m.note)VNOTE=m.note;VBOAT=m.boat||null;VPATHS=Array.isArray(m.paths)?m.paths:[];if(Array.isArray(m.vdex))VDEX=m.vdex;if($('sheettitle').textContent==='오늘의 마을 일꾼'&&!$('sheetwrap').hidden)openRoster()}
+    else if(m.t==='roster'){RICH=m.rich||null;ROSTER=(m.list||[]).map(p=>Object.assign({},p,{me:Net.me&&p.name===Net.me.name}));recalc();vilHud();if(m.note)VNOTE=m.note;VBOAT=m.boat||null;VPATHS=Array.isArray(m.paths)?m.paths:[];if(Array.isArray(m.vdex))VDEX=m.vdex;if($('sheettitle').textContent==='오늘의 마을 일꾼'&&!$('sheetwrap').hidden)openRoster()}
     else if(m.t==='vil_note'){VNOTE=m.note;toast('📢 '+m.note.by+' 님의 예보: '+m.note.text)}
     else if(m.t==='pt')onPt(m);
     else if(m.t==='cos_got'){(m.ids||[]).forEach(id=>{if(COS_BY[id]&&!owns(id))S.cos.own.push(id)});if(Array.isArray(m.zrw))S.zrw=m.zrw;if(m.z)conquerMsg(m.z);else if(m.ids&&m.ids.length)toast('새 옷: '+m.ids.map(id=>COS_BY[id]?COS_BY[id].name:id).join(', '));recalc();saveState(true)}
@@ -5198,6 +5278,8 @@ function drawOthers(dt,list){
     const spr=lookSprites(o.look)[o.d][mv?[0,1,0,2][((o.anim*8)|0)%4]:0],olv=o.look&&o.look.e|0;
     auraTick(o,o.x,o.y,olv,mv,spr);
     list.push({y:o.y,fn:()=>{auraUnder(o,o.x,o.y,olv);cx.fillStyle='rgba(60,50,100,.16)';cx.beginPath();cx.ellipse(Math.round(o.x),Math.round(o.y)-1,6,2.5,0,0,6.28);cx.fill();
+      const ht=o.hold&&!mv?(performance.now()-o.hold.at)/1000:99;
+      if(ht<(o.hold&&o.hold.miss?1.5:4.2)){if(o.hold.miss)drawFlopAt(o.x,o.y,spr,ht);else drawHoldAt(o.x,o.y,lookSprites(o.look).down[0],o.hold,ht,o.look&&o.look.k);return}
       cx.drawImage(spr,Math.round(o.x-8),Math.round(o.y-21));auraOver(o,o.x,o.y,olv);
       // 친구가 낚시 중이면 그 친구의 낚싯대 · 찌 스킨으로
       if(o.b>0&&!mv){const bx=((o.b-1)%MW)*TS+8,by=Math.floor((o.b-1)/MW)*TS+8,off={right:[13,-21],left:[-13,-21],up:[6,-25],down:[9,-11]}[o.d]||[9,-11],tip=[o.x+off[0],o.y+off[1]];
@@ -5209,8 +5291,9 @@ function placeTags(cX,cY){
   const ox=(innerWidth-VW*SC)/2,oy=(innerHeight-VH*SC)/2,now=performance.now();
   const put=(a,x,y)=>{
     const sx=ox+(Math.round(x)-cX)*SC,sy=oy+(Math.round(y)-23-cY)*SC,vis=sx>-90&&sx<innerWidth+90&&sy>-60&&sy<innerHeight+60;
-    let top=sy;
-    if(a.tag){const on=vis&&a.tagOn;if(a.tag.hidden===on)a.tag.hidden=!on;
+    let top=sy;const hd=a===ME?(F.mode==='result'&&HOLD?HOLD:null):(a.hold&&!a.hold.miss&&now-a.hold.at<4200?a.hold:null);
+    if(hd){if(a.tag&&!a.tag.hidden)a.tag.hidden=true;top=sy-((hd.dh||18)-4)*SC}
+    else if(a.tag){const on=vis&&a.tagOn;if(a.tag.hidden===on)a.tag.hidden=!on;
       if(on){a.tag.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,-100%)';if(!a.tagH)a.tagH=a.tag.offsetHeight;top=sy-a.tagH-2}}
     if(a.say&&now>a.say.until){a.say=null;if(a.bub){a.bub.remove();a.bub=null}}
     if(a.bub){a.bub.hidden=!vis;if(vis)a.bub.style.transform='translate('+Math.round(sx)+'px,'+Math.round(top-8)+'px) translate(-50%,-100%)'}
@@ -5221,7 +5304,7 @@ function placeTags(cX,cY){
    if(show){const k=c.name+c.lv;if(STAG.k!==k){STAG.k=k;STAG.el.innerHTML='<span class="ti">명예의 전당 · 1등</span>👑 '+esc(c.name)+' <span class="en">+'+c.lv+'</span>'}
      const sx=ox+(17*TS+8-cX)*SC,sy=oy+(25*TS-44-cY)*SC;STAG.el.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,-100%)'}}
   pets.forEach(a=>{if(!a.tag){a.tag=document.createElement('div');a.tag.className='ptag';a.tag.textContent=a.p.name;$('tags').appendChild(a.tag)}
-    const near=Math.hypot(a.x-P.x,a.y-P.y)<44,sx=ox+(Math.round(a.x)-cX)*SC,sy=oy+(Math.round(a.y)-15-cY)*SC;
+    const near=Math.hypot(a.x-P.x,a.y-P.y)<44&&!(F.mode==='result'&&HOLD),sx=ox+(Math.round(a.x)-cX)*SC,sy=oy+(Math.round(a.y)-15-cY)*SC;
     if(a.tag.hidden===near)a.tag.hidden=!near;if(near)a.tag.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,-100%)'});
   others.forEach(o=>{if(!o.seen){o.tag.hidden=true;if(o.bub)o.bub.hidden=true;return}put(o,o.x,o.y)});
 }
@@ -5264,8 +5347,8 @@ function petRows(p){const pt0=p&&p._&&p._.pt||'ruby';return PETS.map(pt=>{const 
 function profileHtml(d,mine){
   const t=COS_BY[d.ti],pop=d.pop||{n:0,up:0,dn:0};
   let h='<div class="pf-top">'+(t?'<div class="ti">「'+esc(t.name)+'」</div>':'')+'<div class="nm">'+esc(d.name||'나')+(d.e>0?' <span style="color:#e07a2c">+'+d.e+'</span>':'')+'</div>'+
-    '<div class="pop">'+(mine||!ONLINE?'':'<button class="btn ghost sm" data-pop="-1" aria-label="인기도 내리기">▼ 내리기</button>')+'<div><div class="muted" style="font-size:11px">인기도</div><b>♥'+(pop.n|0)+'</b></div>'+(mine||!ONLINE?'':'<button class="btn pink sm" data-pop="1" aria-label="인기도 올리기">▲ 올리기</button>')+'</div>'+
-    '<div class="muted" style="font-size:11px">받은 ▲'+(pop.up|0)+' · ▼'+(pop.dn|0)+(mine?'':' · 한 사람에게 하루 한 번')+'</div></div>';
+    '<div class="pop"><div><div class="muted" style="font-size:11px">받은 하트</div><b>♥'+(pop.up|0)+'</b></div>'+(mine||!ONLINE?'':'<button class="btn pink sm" data-pop="1" aria-label="하트 주기">♥ 하트 주기</button>')+'</div>'+
+    '<div class="muted" style="font-size:11px">'+(mine?'친구들이 준 하트예요':'한 사람에게 하루 한 번 하트를 줄 수 있어요')+'</div></div>';
   if(d.job&&JOBS[d.job.id]){const J=JOBS[d.job.id],st=evStatus(d.name);
     h+='<div class="pf-job" style="border-color:'+J.col+'"><div class="hd"><span class="jic">'+J.ic+'</span><div><b>'+JR[d.job.r|0].n+' '+J.name+'</b> <span style="color:'+J.col+'">'+'★'.repeat(d.job.r|0)+'</span><small>'+esc(J.who)+'</small></div></div>'+
       (st?'<div class="now">지금 · '+esc(st)+'</div>':'')+'<ul>'+JOB_CAN[d.job.id].map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul></div>'}
@@ -5417,7 +5500,7 @@ function onVilMsg(m){
   return false}
 /* 화면 위 작은 알림판: 축제 시간 · 함께 접속 · 메달 */
 function vilHud(){const el=$('vibe');if(!el)return;if(!ONLINE||!Net.me||!VIL){el.hidden=true;return}
-  const a=[];if(VIL.fest)a.push('🎉 축제');if(VIL.tog&&VIL.tog.on)a.push('👥 '+VIL.tog.n+'명 +'+Math.round(VIL.tog.p*100)+'%');a.push('🎖️ '+MED.n);
+  const a=[];if(VIL.fest)a.push('🎉 축제');if(VIL.tog&&VIL.tog.on)a.push('👥 '+VIL.tog.n+'명 +'+Math.round(VIL.tog.p*100)+'%');if(cheerLuck())a.push('📣 응원 +'+Math.round(cheerLuck()*100)+'%');if((S.rest|0)>0)a.push('🌙 휴식 '+S.rest);a.push('🎖️ '+MED.n);
   el.textContent=a.join(' · ');el.hidden=false;el.classList.toggle('fest',!!VIL.fest)}
 function showBanner(t){const b=$('banner');if(!b)return toast(t);b.textContent=t;b.classList.remove('on');void b.offsetWidth;b.classList.add('on');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>b.classList.remove('on'),5200)}
 /* 발전 기금 시설: 다 지으면 축제 광장에 생겨요 */
