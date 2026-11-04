@@ -290,7 +290,8 @@ function enhRoll(e, mode, gold, disc) {
   const cat = (e.cat | 0) > 0 ? .15 + .1 * (e.catk | 0) : 0; if (cat) e.cat--;   // 공방 장인 강화 촉매
   const sure = ticket || (mode === 'safe' && e.fl >= ENH.K[L]), ok = sure || Math.random() < ENH.P[L] + cat;
   let k, ds = 0;
-  if (ok) { ds = mode === 'safe' ? 1 : (Math.random() < .1 ? 6 : 3); k = ds >= 6 ? 'jack' : 'up'; e.fl = 0; }
+  if (ticket) { ds = Math.max(1, ENH.S[L] - (e.star | 0)); k = 'sure'; e.fl = 0; }   // 메달 확정권: 별을 다 채워서 바로 다음 단계
+  else if (ok) { ds = mode === 'safe' ? 1 : (Math.random() < .1 ? 6 : 3); k = ds >= 6 ? 'jack' : 'up'; e.fl = 0; }
   else { k = 'keep'; if (mode === 'safe') e.fl++; else if (L >= 5 && e.star > 0) { ds = -1; k = 'down'; } }
   e.star = Math.max(0, e.star + ds);
   while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; e.fl = 0; if (e.lv < ENH.MAX) e.star = Math.min(e.star, ENH.S[e.lv] - 1); else e.star = 0; }
@@ -318,11 +319,11 @@ function tradeRule(a, b) {
   if (!all.some(o => Object.keys(o).some(k => o[k] > 0))) return '올린 것이 없어요';
   return null;
 }
-const ITEM_NPC = { flesh: 80, scale: 2500, note: 3000, shell: 300, weed: 300, pearl: 4000, feather: 3000, thread: 6000, sail: 30000, toy: 4000, map: 40000, b_dough: 150, b_shine: 1500, b_legend_n: 150000, b_legend: 150000, soup: 900, grill: 900, snack: 600, charm: 5000 };   // index.html ITEMS의 npc와 같아야 해요
+const ITEM_NPC = { flesh: 80, scale: 2500, note: 3000, shell: 300, weed: 300, pearl: 4000, feather: 3000, thread: 6000, sail: 30000, toy: 4000, map: 40000, b_dough: 150, b_shine: 1500, b_legend_n: 150000, b_legend: 150000, soup: 900, grill: 900, snack: 600, charm: 5000, b_shine_p: 6000, charm_p: 15000, b_legend_p: 400000 };   // index.html ITEMS의 npc와 같아야 해요
 const postOk = p => !!(p.give || p.want);
 /* ---------- 직업 2.0: 의뢰판 · 이름 붙은 생산물 · 오늘의 일 · 명장 축복 ---------- */
-const MAKER = { flesh: 'cra', b_dough: 'cra', soup: 'cra', grill: 'cra', b_shine: 'cra', snack: 'cra', charm: 'cra', b_legend: 'cra', note: 'sch', map: 'sch', shell: 'tam', weed: 'tam', pearl: 'tam', feather: 'tam', scale: 'fish', thread: 'mer', sail: 'mer', toy: 'mer' };   // index.html MAKER와 같아야 해요
-const ITEM_NAME = { flesh: '생선살', b_dough: '반죽 미끼', soup: '생선 수프', grill: '소금구이', b_shine: '반짝 미끼', snack: '펫 간식', charm: '행운 부적', b_legend: '전설 미끼', note: '연구 노트', map: '항로 지도', shell: '조개껍데기', weed: '해초', pearl: '진주', feather: '반짝 깃털', scale: '대물 비늘', thread: '반짝 실', sail: '수입 돛', toy: '펫 장난감' };
+const MAKER = { b_shine_p: 'cra', charm_p: 'cra', b_legend_p: 'cra', flesh: 'cra', b_dough: 'cra', soup: 'cra', grill: 'cra', b_shine: 'cra', snack: 'cra', charm: 'cra', b_legend: 'cra', note: 'sch', map: 'sch', shell: 'tam', weed: 'tam', pearl: 'tam', feather: 'tam', scale: 'fish', thread: 'mer', sail: 'mer', toy: 'mer' };   // index.html MAKER와 같아야 해요
+const ITEM_NAME = { b_shine_p: '명품 반짝 미끼', charm_p: '명품 행운 부적', b_legend_p: '명품 전설 미끼', flesh: '생선살', b_dough: '반죽 미끼', soup: '생선 수프', grill: '소금구이', b_shine: '반짝 미끼', snack: '펫 간식', charm: '행운 부적', b_legend: '전설 미끼', note: '연구 노트', map: '항로 지도', shell: '조개껍데기', weed: '해초', pearl: '진주', feather: '반짝 깃털', scale: '대물 비늘', thread: '반짝 실', sail: '수입 돛', toy: '펫 장난감' };
 const JOB_NAME = { fish: '물결 낚시꾼', sch: '도감 박사', cra: '공방 장인', tam: '동물 친구', mer: '떠돌이 상인' };
 const jobOf = s => (s && s.job && MAKER_JOBS.includes(s.job.id)) ? s.job.id : '';
 const MAKER_JOBS = ['fish', 'sch', 'cra', 'tam', 'mer'];
@@ -1508,7 +1509,7 @@ function vilMsg(ws, me, m) {
     const md = s.med || (s.med = { n: 0, tot: 0, d: kstDay(), t: 0 }); if ((md.n | 0) < it[1]) return err('메달이 모자라요');
     if (it[0] === 'sure') {
       const w = s.medw && s.medw.id === wkId() ? s.medw : (s.medw = { id: wkId(), sure: 0 }); if (w.sure >= 1) return err('확정권은 일주일에 1장이에요');
-      w.sure++; md.n -= it[1]; const en = enhOf(s); en.sure = (en.sure | 0) + 1; sendEnh(ws, me, { note: ['🎖️ 강화 확정권 +1 · 다음 강화는 무조건 성공!'] });
+      w.sure++; md.n -= it[1]; const en = enhOf(s); en.sure = (en.sure | 0) + 1; sendEnh(ws, me, { note: ['🎖️ 강화 확정권 +1 · 다음 강화 한 번이면 바로 다음 단계!'] });
     } else { const own = (s.cos && s.cos.own) || []; if (own.includes(it[0])) return err('이미 가지고 있어요'); md.n -= it[1]; const got = giveCos(s, [it[0]]); send(ws, { t: 'cos_got', ids: got }); }
     queueSave(me.key, s); send(ws, { t: 'med', med: medPub(s), why: '🎖️ 메달 교환 완료!', medw: s.medw || null });
   }).catch(er => console.error('med_buy', er.message));
