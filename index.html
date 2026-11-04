@@ -2565,6 +2565,8 @@ function findCast(){
 function nearAction(){
   const tx=Math.floor(P.x/TS),ty=Math.floor((P.y-2)/TS);
   if(WK){const w=walkAct();if(w)return w;const pt=nearPet();if(pt&&pt.p.id==='ruby'&&wishReady())return{type:'wish',label:'냄새<br>맡게 하기'};if(pt)return{type:'pet',pet:pt,label:'쓰다듬기'};return null}
+  if(P.aboard!=null){if(SAIL&&SAIL.me)return null;return PTY&&PTY.isLeader&&PTY.state==='lobby'&&PTY.members.length>=PT_MIN?{type:'sail',label:'출항!'}:{type:'unboard',label:'내리기'}}
+  if(hbNear(tx,ty))return boatAway()?{type:'boatinfo',label:'배낚시<br>나감'}:{type:'board',label:'어선<br>타기'};
   {const wo=wowTarget();if(wo&&wo.wowed!==wo.hold.at)return{type:'wow',o:wo,label:'우와!'}}
   for(const g of W.gates){if(!hasZone(g.zone)&&Math.abs(g.x-tx)+Math.abs(g.y-ty)<=1)return{type:'gate',zone:g.zone,label:'문 열기'}}
   if(P.sit)return{type:'stand',label:'일어나기'};
@@ -2620,6 +2622,10 @@ function pressAct(){
     else if(a.type==='home')boardBoat(false);
     else if(a.type==='pet')petPet(a.pet);
     else if(a.type==='wow')sendWow(a.o);
+    else if(a.type==='board')hbBoard();
+    else if(a.type==='unboard')hbLeave();
+    else if(a.type==='sail'){Net.send({t:'pt_go'});Snd.sfx('tap')}
+    else if(a.type==='boatinfo')openParty();
     else if(a.type==='walk')startWalk();
     else if(a.type==='wish'){const w=wishToday();if(hasDex(w.id))doWish(true);else openPetSheet('ruby')}
     else if(a.type.indexOf('wk_')===0)walkPress(a.type);
@@ -4025,19 +4031,49 @@ function openMarket(){Snd.sfx('ui');const sp=mkSpecial();
   h+='<div>오늘 남은 시장 물고기 <b>'+mkLeft()+'</b> / '+MK_DAY+'마리</div>';
   openSheet('물결 시장 선착장',h)}
 
+/* ========== 배낚시 2.0: 항구의 '물결 어선'에 직접 타요 ==========
+   부두(16~17, 45~48) 옆 물 위에 어선이 떠 있어요. 걸어가서 '어선 타기' → 갑판에 서요 → 4명이 타면 20초 뒤 출항 (선장은 바로)
+   출항하면 어선이 남쪽으로 떠나는 모습을 모두가 보고, 끝나면 다시 항구로 들어와요 */
+const HB={x:18,y:44},HB_SLOTS=[[18.6,45.8],[19.3,45.8],[20,45.8],[20.7,45.8],[21.4,45.8]];   // 어선 왼쪽 위 칸 · 갑판 자리 (칸)
+let SAIL=null;   // {dir:'out'|'in', t0}
+const SAIL_MS=2600;
+const hbNear=(tx,ty)=>tx>=16&&tx<=17&&ty>=44&&ty<=48;
+function boatOff(){if(!SAIL)return 0;const k=Math.min(1,(performance.now()-SAIL.t0)/SAIL_MS);return SAIL.dir==='out'?k*k*180:(1-k)*(1-k)*180}
+const boatAway=()=>!SAIL&&PTY&&PTY.state==='sea'&&!PTY.practice;
+function boatSprite(){if(SP.fboat)return SP.fboat;const c=document.createElement('canvas');c.width=72;c.height=52;const x=c.getContext('2d'),r=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h)};
+  r('#8a6a4a',14,2,2,34);r('#ff6b6b',16,3,12,7);r('#ffd34d',16,6,12,2);r('#6a5040',8,10,20,1);   // 돛대 · 깃발
+  r('#fffaf0',40,14,24,18);r('#5d9be8',38,11,28,4);r('#3d6fb0',38,14,28,1);r('#bfe6ff',44,18,6,6);r('#bfe6ff',54,18,6,6);r('#8a6a4a',46,26,0,0);   // 선실
+  r('#c89a6a',4,32,64,4);r('#a87a4a',4,35,64,1);   // 갑판
+  for(let i=0;i<14;i++){const w=68-i*2.2;r(i<3?'#ffffff':i<5?'#e05a5a':'#3d6fb0',36-w/2,36+i,w,1)}   // 선체 (흰 줄 · 빨간 줄)
+  x.fillStyle='#2a4a80';x.font='bold 6px sans-serif';x.fillText('물결 어선',20,47);
+  r('#ffffff',6,30,1,2);r('#ffffff',66,30,1,2);for(let i=8;i<66;i+=6)r('#e8dcc8',i,29,1,3);   // 난간
+  return SP.fboat=c}
+function drawFishBoat(list){if(boatAway())return;const off=boatOff(),bx=HB.x*TS-4,by=HB.y*TS-14+off+Math.round(Math.sin(wt*1.6)*1);
+  list.push({y:HB.y*TS,fn:()=>{const b=boatSprite();cx.fillStyle='rgba(40,80,140,.25)';cx.beginPath();cx.ellipse(bx+36,by+50,34,4,0,0,6.28);cx.fill();cx.drawImage(b,Math.round(bx),Math.round(by));
+    if(!SAIL&&PTY&&PTY.state==='lobby'&&PTY.goAt){const s=Math.max(0,Math.ceil((PTY.goAt-Date.now())/1000));cx.fillStyle='rgba(74,61,107,.8)';cx.fillRect(bx+20,by-10,32,9);cx.fillStyle='#fff';cx.font='bold 7px sans-serif';cx.fillText('출항 '+s+'초',bx+23,by-3)}}})}
+function mySlot(){if(!PTY||!PTY.me||!Net.me)return 0;return Math.max(0,PTY.members.indexOf(Net.me.name))}
+function boardPos(slot){const d=HB_SLOTS[slot%HB_SLOTS.length];return[d[0]*TS,d[1]*TS+boatOff()]}
+function hbBoard(){if(!ONLINE){P.aboard=0;const d=boardPos(0);P.x=d[0];P.y=d[1];P.dir='down';toast('⚓ 혼자 모드: 봇 선원 셋과 연습 출항!');setTimeout(()=>{SAIL={dir:'out',t0:performance.now(),me:true}},800);return}
+  Net.send({t:'pt_board'});Snd.sfx('tap')}
+function hbStep(){if(P.aboard==null||!P)return;const d=boardPos(P.aboard);P.x=d[0];P.y=d[1];
+  if(SAIL&&SAIL.dir==='out'&&SAIL.me&&performance.now()-SAIL.t0>SAIL_MS){const sl=P.aboard;SAIL=null;P.aboard=null;if(!ONLINE)practiceGo();else seaGo(sl)}}
+function hbLeave(){if(P.aboard==null)return;P.aboard=null;P.x=17*TS+8;P.y=46*TS+12;P.dir='left';if(ONLINE&&PTY&&PTY.me&&PTY.state==='lobby')Net.send({t:'pt_leave'});toast('어선에서 내렸어요')}
+setInterval(()=>{if(SAIL&&!SAIL.me&&performance.now()-SAIL.t0>SAIL_MS)SAIL=null},300);
+
 /* ----- 4인 배낚시: 마을 표지판에서 모집 → 4명 이상이면 출항. 10분 동안 어창을 같이 채우고, 거대 참다랑어는 다 같이 당겨요 ----- */
-const DECK=[[13,111],[21,111],[13,117],[21,117],[17,119]],DOCK_BACK=[17*TS+8,24*TS+12],PT_MIN=4,PT_DAY=2; // server.js와 같아요
+const DECK=[[13,111],[21,111],[13,117],[21,117],[17,119]],DOCK_BACK=[17*TS+8,46*TS+12],PT_MIN=4,PT_DAY=2; // server.js와 같아요
 let PTY=null,bossTaps=0;
 const inSea=()=>!!(PTY&&PTY.state==='sea'&&PTY.me);
 const zoneOk=z=>z===7?inSea():z===8?hasZone(3):hasZone(z);
 function openParty(){
   Snd.sfx('ui');const p=PTY;let h='<div class="muted" style="font-size:12px;margin-bottom:8px">먼바다로 나가는 진짜 배낚시예요. <b>'+PT_MIN+'명이 모여야만</b> 출항하고, 10분 동안 같이 낚은 물고기로 어창을 채워요. 거대 참다랑어가 나타나면 <b>모두가 같이</b> 당겨야 잡혀요. 하루 '+PT_DAY+'번까지.</div>';
   h+='<div class="wishc" style="background:#eef6ff;border-color:#bcd8f0"><div class="sec" style="margin:0 0 4px">만선 보상 (어창을 가득 채우면)</div><div style="font-size:13px">강화권 +2 · 골드 3,000 · 귀한 재료 · 낮은 확률로 배낚시 전용 옷</div><div class="muted" style="font-size:12px">못 채워도 강화권 +1 · 골드 1,000 · 거대 참다랑어를 잡으면 모두에게 한 마리씩</div></div>';
-  if(!ONLINE){h+='<div class="muted" style="font-size:12px;margin:6px 0">혼자 모드예요. 친구들과 하면 진짜로 모여서 나가요. 여기선 봇 선원 셋과 3분짜리 연습 출항만 할 수 있어요 (보상 없음).</div><button class="btn mint" data-pty="practice"'+(inSea()?' disabled':'')+'>연습 출항</button>';openSheet('배낚시',h);return}
-  if(!p||p.state==='none'){h+='<button class="btn pink" data-pty="open">배낚시 모집하기</button>'}
+  h+='<div class="wishc" style="background:#fff8e6;border-color:#ffe0a0">⚓ <b>항구 부두 가운데에 떠 있는 「물결 어선」에 직접 걸어가서 타요.</b> 먼저 탄 사람이 선장이에요. '+PT_MIN+'명이 타면 20초 뒤 출항하고, 선장은 바로 출항할 수도 있어요. 내리려면 움직이면 돼요.</div>';
+  if(!ONLINE){h+='<div class="muted" style="font-size:12px;margin:6px 0">혼자 모드예요. 어선에 타면 봇 선원 셋과 3분짜리 연습 출항을 해요 (보상 없음).</div>';openSheet('배낚시',h);return}
+  if(!p||p.state==='none'){h+='<div class="muted" style="text-align:center;padding:6px">지금 어선이 비어 있어요. 항구로 가서 먼저 타 보세요!</div>'}
   else{h+='<div class="sec">'+(p.state==='sea'?'지금 바다 위':'모집 중')+' · '+p.members.length+'명'+(p.state==='lobby'?' (출항까지 '+Math.max(0,PT_MIN-p.members.length)+'명 더)':'')+'</div>'+
       p.members.map(n=>'<div class="trow"><span style="font-size:16px">'+(n===p.leader?'⚓':'🎣')+'</span><span class="nm">'+esc(n)+'</span></div>').join('');
-    if(p.state==='lobby'){h+='<div style="display:flex;gap:8px;margin-top:8px">'+(p.me?'<button class="btn ghost" data-pty="leave" style="flex:1">빠지기</button>':'<button class="btn mint" data-pty="join" style="flex:1"'+(p.members.length>=5?' disabled':'')+'>같이 가기</button>')+
+    if(p.state==='lobby'){h+='<div style="display:flex;gap:8px;margin-top:8px">'+(p.me?'<button class="btn ghost" data-pty="leave" style="flex:1">내리기</button>':'<div class="muted" style="flex:1;font-size:12px">항구의 어선에 타면 같이 가요</div>')+
       (p.me&&p.isLeader?'<button class="btn pink" data-pty="go" style="flex:1"'+(p.members.length<PT_MIN?' disabled':'')+'>'+(p.members.length<PT_MIN?PT_MIN+'명부터 출항':'출항!')+'</button>':'')+'</div>'}
     else if(p.me)h+='<button class="btn ghost sm" style="margin-top:8px" data-pty="leave">먼저 돌아가기 (보상 없음)</button>'}
   h+='<div class="muted" style="font-size:12px;margin-top:8px">오늘 '+((PTY&&PTY.today)|0)+' / '+PT_DAY+'번 나갔어요</div>';
@@ -4051,9 +4087,13 @@ function seaGo(slot){const d=DECK[slot%DECK.length];if(F.afk)stopAfk();if(WK)sto
   if(!$('sheetwrap').hidden)closeSheet();toast('⚓ 출항! 10분 동안 같이 어창을 채워요');ptBar()}
 function seaHome(msg){if(P.y>=100*TS){P.x=DOCK_BACK[0];P.y=DOCK_BACK[1];camX=P.x-VW/2;camY=P.y-VH/2;F.mode='idle';$('result').hidden=true}$('bossbtn').hidden=true;ptBar();if(msg)setTimeout(()=>toast(msg),300);saveState(true)}
 function onPt(m){
-  const was=inSea();const p=m.p;
+  const was=inSea(),wasSt=PTY&&PTY.state;const p=m.p;
   if(!p){PTY=null}else{const me=Net.me&&p.members.indexOf(Net.me.name)>=0;PTY=Object.assign({},p,{me:me,isLeader:Net.me&&p.leader===Net.me.name,today:m.today!=null?m.today:(PTY&&PTY.today)})}
-  if(m.go!==undefined&&inSea())seaGo(m.go);
+  if(m.go!==undefined&&inSea()){P.aboard=m.go;SAIL={dir:'out',t0:performance.now(),me:true};Snd.sfx('gate');toast('⚓ 출항! 물결 어선이 먼바다로 떠나요')}
+  else if(m.sail){SAIL={dir:'out',t0:performance.now(),me:false}}
+  if(PTY&&PTY.me&&PTY.state==='lobby'&&P.aboard==null){P.aboard=mySlot();P.dir='down';Snd.sfx('splash');sparkFx(P.x,P.y-10,10,['#ffffff','#a9d8f2']);toast('⚓ 물결 어선에 탔어요! ('+PTY.members.length+'/'+PT_MIN+'명 · '+PT_MIN+'명이면 출항)')}
+  else if(P.aboard!=null&&!(SAIL&&SAIL.me)&&!(PTY&&PTY.me))hbLeave();
+  if(wasSt==='sea'&&!p&&!SAIL)SAIL={dir:'in',t0:performance.now(),me:false};
   if(m.boss){bossTaps=0;$('bossbtn').hidden=!inSea();if(inSea()){Snd.sfx('bite');toast('🐟 거대 참다랑어다!! 모두 같이 연타해요!');if(navigator.vibrate)try{navigator.vibrate([60,40,60])}catch(e){}}}
   if(PTY&&!PTY.boss)$('bossbtn').hidden=true;
   if(m.end){seaHome(m.end)}else if(was&&!inSea())seaHome('배낚시에서 돌아왔어요');
@@ -4303,6 +4343,7 @@ function render(dt){
     else drawables.push({y:d.y*TS+12,fn:()=>cx.drawImage(SP.reed[d.v],d.x*TS+Math.round(Math.sin(wt*1.5+d.x)*.8),d.y*TS)})});
   if(shaking){shaking.time+=dt;if(shaking.time>.6)shaking=null}
   W.trees.forEach(t=>{if(t.x>=x0-2&&t.x<=x1+2&&t.y>=y0-2&&t.y<=y1+3){const s=treeSpr(t),wob=shaking&&shaking.t===t?Math.round(Math.sin(shaking.time*40)*1.5):0;drawables.push({y:t.y*TS+15,fn:()=>cx.drawImage(s,t.x*TS+8-13+wob,t.y*TS+16-33)})}});
+  drawFishBoat(drawables);
   W.buildings.forEach(b=>drawables.push({y:(b.y+1)*TS,fn:()=>cx.drawImage(SP.house[b.id],b.x*TS+(b.w*TS-48)/2,(b.y+1)*TS-50)}));
   W.props.forEach(p=>{const s=p.kind==='litter'?SP.litter[litterDirty()?1:0]:SP[p.kind];if(!s)return;drawables.push({y:p.y*TS+15,fn:()=>cx.drawImage(s,p.x*TS+(TS-s.width)/2,p.y*TS+16-s.height)})});
   evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
@@ -4377,7 +4418,8 @@ function update(dt){
     if(P.sit&&mm>.4&&!uiOpen){P.sit=null;P.y+=10;if(blockedAt(P.x,P.y))P.y-=10}
     if(P.sit){P.sit.t+=dt;if(P.sit.t>=15*60){P.sit.t=0;lifeEvent('sit',undefined,P.x+12,P.y)}}}
   enhLocalIdle(dt);
-  if(F.mode==='idle'&&!uiOpen&&!P.sit){
+  if(P.aboard!=null){hbStep();const k=kbVec(),mm=Math.hypot(k[0]||inp.x,k[1]||inp.y);if(mm>.5&&!uiOpen&&!(SAIL&&SAIL.me))hbLeave()}
+  if(F.mode==='idle'&&!uiOpen&&!P.sit&&P.aboard==null){
     let mx=inp.x,my=inp.y;const k=kbVec();if(k[0]||k[1]){mx=k[0];my=k[1]}
     const m=Math.hypot(mx,my);P.moving=false;
     if(m>.12){

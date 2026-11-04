@@ -1019,7 +1019,7 @@ function onMsg(ws, me, m) {
       rosterSoon();
     }); break;
     /* ----- 4인 배낚시 ----- */
-    case 'pt_open': case 'pt_join': case 'pt_leave': case 'pt_go': case 'pt_catch': case 'pt_tap': ptMsg(ws, me, m); break;
+    case 'pt_open': case 'pt_join': case 'pt_board': case 'pt_leave': case 'pt_go': case 'pt_catch': case 'pt_tap': ptMsg(ws, me, m); break;
     /* ----- 도감 박사의 예보: 마을 모두에게 ----- */
     case 'vil_note': {
       if (!jobRank(me.save, 'sch', 'fc') && !jobRank(me.save, 'sch', 'cap')) return;
@@ -1665,37 +1665,30 @@ function giveCos(s, ids) { const c = s.cos && typeof s.cos === 'object' ? s.cos 
 const PT_MIN = 4, PT_MAX = 5, PT_MS = 10 * 60e3, PT_DAY = 2, PT_BOSS_AT = 4 * 60e3, PT_BOSS_MS = 25e3, PT_LOBBY_MS = 15 * 60e3, PT_TAP_MIN = 15;
 let party = null, ptSendT = 0;
 const ptToday = s => { const r = s && s.ptd; return r && r.d === kstDay() ? r.n | 0 : 0; };
-function ptPub() { if (!party) return null; return { state: party.state, leader: party.names[party.leader], members: party.members.map(k => party.names[k]), hold: party.hold, need: party.need, end: party.end, boss: party.boss ? { got: party.boss.got, need: party.boss.need, until: party.boss.until } : null }; }
+function ptPub() { if (!party) return null; return { state: party.state, leader: party.names[party.leader], members: party.members.map(k => party.names[k]), hold: party.hold, need: party.need, end: party.end, goAt: party.goAt || 0, boss: party.boss ? { got: party.boss.got, need: party.boss.need, until: party.boss.until } : null }; }
 function ptSend(extra) { for (const [ws, p] of players) send(ws, Object.assign({ t: 'pt', p: ptPub(), today: ptToday(p.save) }, extra ? extra(p) : {})); }
 function ptSoon() { if (ptSendT) return; ptSendT = setTimeout(() => { ptSendT = 0; ptSend(); }, 300); }
 function ptClear() { if (party) for (const t of party.timers || []) clearTimeout(t); }
 function ptMsg(ws, me, m) {
   const now = Date.now(), isMem = party && party.members.includes(me.key);
-  if (m.t === 'pt_open') {
-    if (party) return send(ws, { t: 'news', text: '이미 배낚시 모집 중이에요' });
+  /* 배낚시 2.0: 항구의 '물결 어선'에 직접 걸어가서 타요 (부두 근처에 있어야 해요). 첫 사람이 타면 모집 시작 · 4명이 타면 20초 뒤 자동 출항 (선장은 바로 출항) */
+  if (m.t === 'pt_open' || m.t === 'pt_join' || m.t === 'pt_board') {
+    const tx = (me.x | 0) / 16, ty = (me.y | 0) / 16; if (tx < 14 || tx > 23 || ty < 43 || ty > 50) return send(ws, { t: 'news', text: '⚓ 항구 부두의 물결 어선 앞에서 탈 수 있어요' });
     if (ptToday(me.save) >= PT_DAY) return send(ws, { t: 'news', text: '오늘 배낚시는 ' + PT_DAY + '번 다 나갔어요' });
-    party = { leader: me.key, members: [me.key], names: { [me.key]: me.name }, state: 'lobby', hold: 0, need: 0, end: 0, boss: null, timers: [], last: {} };
-    party.timers.push(setTimeout(() => { if (party && party.state === 'lobby') { ptClear(); party = null; ptSend(); } }, PT_LOBBY_MS));
-    broadcast({ t: 'news', text: '⚓ ' + me.name + ' 님이 배낚시 모집을 시작했어요! 마을 오른쪽 표지판에서 같이 가요 (' + PT_MIN + '명부터 출항)' }, ws);
+    if (!party) {
+      party = { leader: me.key, members: [me.key], names: { [me.key]: me.name }, state: 'lobby', hold: 0, need: 0, end: 0, boss: null, timers: [], last: {}, goAt: 0 };
+      party.timers.push(setTimeout(() => { if (party && party.state === 'lobby') { ptClear(); party = null; ptSend(); } }, PT_LOBBY_MS));
+      broadcast({ t: 'news', text: '⚓ ' + me.name + ' 님이 물결 어선에 탔어요! 항구로 와서 같이 타요 (' + PT_MIN + '명부터 출항)' }, ws);
+      return ptSend();
+    }
+    if (party.state !== 'lobby' || isMem) return; if (party.members.length >= PT_MAX) return send(ws, { t: 'news', text: '어선이 꽉 찼어요 (' + PT_MAX + '명)' });
+    party.members.push(me.key); party.names[me.key] = me.name;
+    if (party.members.length >= PT_MIN && !party.goAt) { party.goAt = now + 20e3; party.timers.push(setTimeout(() => { if (party && party.state === 'lobby' && party.goAt) ptGo(); }, 20e3)); broadcast({ t: 'news', text: '⚓ 물결 어선 ' + party.members.length + '명! 20초 뒤 출항해요 (더 탈 사람은 서둘러요)' }); }
     return ptSend();
   }
   if (!party) return;
-  if (m.t === 'pt_join') {
-    if (party.state !== 'lobby' || isMem || party.members.length >= PT_MAX) return;
-    if (ptToday(me.save) >= PT_DAY) return send(ws, { t: 'news', text: '오늘 배낚시는 ' + PT_DAY + '번 다 나갔어요' });
-    party.members.push(me.key); party.names[me.key] = me.name; return ptSend();
-  }
   if (m.t === 'pt_leave') { if (isMem) ptRemove(me.key); return; }
-  if (m.t === 'pt_go') {
-    if (party.state !== 'lobby' || party.leader !== me.key) return;
-    party.members = party.members.filter(k => liveByKey(k));
-    if (party.members.length < PT_MIN) { ptSend(); return send(ws, { t: 'news', text: PT_MIN + '명이 모여야 출항할 수 있어요' }); }
-    ptClear(); party.timers = []; party.state = 'sea'; party.end = now + PT_MS; party.need = 40 * party.members.length; party.hold = 0;
-    for (const k of party.members) { const l = liveByKey(k); if (l && l[1].save) { const s = l[1].save; s.ptd = { d: kstDay(), n: ptToday(s) + 1 }; queueSave(k, s); } }
-    party.timers.push(setTimeout(ptBoss, PT_BOSS_AT), setTimeout(ptEnd, PT_MS));
-    broadcast({ t: 'news', text: '⚓ ' + party.members.map(k => party.names[k]).join(', ') + ' 님이 배낚시를 떠났어요!' });
-    return ptSend(p => party.members.includes(p.key) ? { go: party.members.indexOf(p.key) } : {});
-  }
+  if (m.t === 'pt_go') { if (party.state !== 'lobby' || party.leader !== me.key) return; return ptGo(ws); }
   if (!isMem || party.state !== 'sea') return;
   if (m.t === 'pt_catch') {
     if (now - (party.last[me.key] || 0) < 1200) return; party.last[me.key] = now;
@@ -1706,6 +1699,16 @@ function ptMsg(ws, me, m) {
     b.got++; b.taps[me.key] = (b.taps[me.key] | 0) + 1;
     if (b.got >= b.need && party.members.every(k => (b.taps[k] | 0) >= PT_TAP_MIN)) ptBossWin(); else ptSoon();
   }
+}
+function ptGo(ws) {
+  if (!party || party.state !== 'lobby') return; const now = Date.now();
+  party.members = party.members.filter(k => liveByKey(k));
+  if (party.members.length < PT_MIN) { party.goAt = 0; ptSend(); if (ws) send(ws, { t: 'news', text: PT_MIN + '명이 타야 출항할 수 있어요' }); return; }
+  ptClear(); party.timers = []; party.state = 'sea'; party.goAt = 0; party.end = now + PT_MS + 3000; party.need = 40 * party.members.length; party.hold = 0;
+  for (const k of party.members) { const l = liveByKey(k); if (l && l[1].save) { const s = l[1].save; s.ptd = { d: kstDay(), n: ptToday(s) + 1 }; queueSave(k, s); } }
+  party.timers.push(setTimeout(ptBoss, PT_BOSS_AT), setTimeout(ptEnd, PT_MS + 3000));
+  broadcast({ t: 'news', text: '⚓ ' + party.members.map(k => party.names[k]).join(', ') + ' 님이 물결 어선을 타고 먼바다로 떠났어요!' });
+  ptSend(p => party.members.includes(p.key) ? { go: party.members.indexOf(p.key) } : { sail: 1 });
 }
 function ptBoss() { if (!party || party.state !== 'sea') return; party.boss = { got: 0, need: 50 * party.members.length, until: Date.now() + PT_BOSS_MS, taps: {}, tc: {} };
   party.timers.push(setTimeout(() => { if (party && party.boss) { const lazy = party.members.filter(k => (party.boss.taps[k] | 0) < PT_TAP_MIN).map(k => party.names[k]); party.boss = null;
@@ -1722,6 +1725,7 @@ function ptRemove(key) {
   const l = liveByKey(key); if (l && party.state === 'sea') send(l[0], { t: 'pt', p: ptPub(), end: '먼저 돌아왔어요 (보상 없음)' });
   if (!party.members.length) { ptClear(); party = null; return ptSend(); }
   if (party.leader === key) party.leader = party.members[0];
+  if (party.state === 'lobby' && party.members.length < PT_MIN) party.goAt = 0;
   ptSend();
 }
 async function ptEnd() {
