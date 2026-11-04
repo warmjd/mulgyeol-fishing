@@ -154,7 +154,7 @@ const LOOK_IDS = {
   tf: ['', 'tf_silver', 'tf_gold', 'tf_rainbow'],
   ft: ['', 'ft_petal', 'ft_star', 'ft_drop'],
   rod: ['bamboo', 'mintrod', 'sakura', 'rainbowrod', 'goldrod', 'lotusrod', 'coral', 'galaxy', 's_rod1', 's_rod2', 's_rod3', 's_rod4', 's_rod5'],
-  bob: ['basicbob', 'heartbob', 'mushbob', 'catbob', 'goldbob', 'duck', 'leafbob', 'starfish', 'starbob'],
+  bob: ['basicbob', 'heartbob', 'mushbob', 'catbob', 'goldbob', 'duck', 'leafbob', 'starfish', 'starbob', 'sb_pearl', 'sb_prism', 'sb_rainbow', 'sb_star'],
   ti: ['', 't_new', 't_villager', 't_nap', 't_cat', 't_big', 't_luck', 't_rich', 't_pond', 't_stream', 't_beach', 't_sea', 't_moon', 't_master', 't_enh10', 't_enh15', 't_enh20', 't_pet_ruby', 't_pet_dot', 't_pet_nurung', 't_pet_kkam', 't_pet_churi', 't_s1', 't_s2', 't_s3', 't_s4', 't_s5', 't_s6', 't_smaster', 't_ebvip', 't_jackpot', 't_cup', 't_bounty', 't_host', 't_a_pearl', 't_a_moon', 't_a_tea', 't_a_star', 't_a_cloud', 't_a_sea', 't_fest', 't_medal', 't_regular', 't_vf1', 't_vf2',
     't_sh1', 't_sh10', 't_sh30', 't_myth',
     ...['fish', 'sch', 'cra', 'tam', 'mer'].flatMap(j => [1, 2, 3].map(r => 't_j' + j + r))]
@@ -228,7 +228,7 @@ function checkSave(old, neu, elapsedMs) {
   if (!Number.isFinite(g1) || g1 < 0) return '골드가 이상해요';
   // 판매가 보너스(도감 · 단골 2배 · 상인 · 요리 · 정복 · 시세)를 다 겹쳐도 넘지 않게 넉넉히 4배
   // (예전엔 return이 주석 안에 들어가 있어서 이 검사가 꺼져 있었어요)
-  if (g1 - g0 + gateCost > soldValue * 4 + 50) return gateCost ? '문 값을 내지 않고 낚시터가 열렸어요' : '판 것보다 골드가 많이 늘었어요';
+  if (g1 - g0 + gateCost > soldValue * 4 * enhSell(old.enh && old.enh.lv) + 50) return gateCost ? '문 값을 내지 않고 낚시터가 열렸어요' : '판 것보다 골드가 많이 늘었어요';
   const nav = navCost(old.nav, neu.nav); if (nav < 0) return '섬 장비 기록이 이상해요';
   const sh0 = itemsOf(old).shard | 0, sh1 = itemsOf(neu).shard | 0;
   if (sh1 > sh0 - nav) return nav ? '안개 조각이 모자란데 섬 장비가 올랐어요' : '안개 조각이 저절로 늘었어요';
@@ -240,9 +240,9 @@ const ENH = {
   // 강화 2.0 (2026-11-04): 확률은 높게, 대신 단계마다 별을 여러 개 모아야 올라가요. 안전은 실패해도 별을 안 잃고 K번 연속 실패하면 다음은 확정.
   // 도전은 골드 없이 성공 시 별 3개(대성공 6개), +5부터 실패하면 별 1개를 잃어요. index.html ENH와 같아야 해요
   P: [.95, .90, .85, .80, .75, .70, .65, .60, .55, .50, .46, .43, .40, .37, .34, .31, .29, .27, .25, .23],
-  S: [1, 1, 2, 3, 4, 6, 9, 13, 18, 24, 32, 40, 50, 62, 75, 90, 106, 124, 144, 168],
+  S: [1, 1, 2, 3, 4, 6, 9, 13, 18, 24, 16, 20, 25, 31, 38, 61, 72, 84, 98, 114],   // 강화 3.0 (2026-11-04): +11부터 별을 줄였어요
   cost: L => L < 10 ? Math.round(50 * Math.pow(1.28, L) / 10) * 10 : Math.round(3000 * Math.pow(1.32, L - 10) / 100) * 100,   // +10부터는 골드를 꽤 써요
-  DAILY: 3, FISH_CAP: 15, FISH_PER: 40, IDLE_MIN: 30, IDLE_CAP: 6, PIECE_CAP: 20, PIECE_PER: 5, TK_MAX: 99,
+  DAILY: 3, FISH_CAP: 40, FISH_PER: 25, IDLE_MIN: 30, IDLE_CAP: 6, PIECE_CAP: 20, PIECE_PER: 5, TK_MAX: 999,
   PTS: [1, 2, 5, 15, 40]
 };
 ENH.K = ENH.P.map(p => Math.max(2, Math.round(1.8 / p)));   // 안전: 이만큼 연속 실패하면 다음은 확정
@@ -250,8 +250,8 @@ const fishRar = id => id < 100 ? rarOf(id % 20) : id < FISH_N ? rarOf((id - 100)
 /* 전설을 잡은 낚시터 (길잡이 보너스) */
 function legZones(save) { const d = (save && save.dex) || {}, out = []; for (const k in d) { const id = +k; if (!(d[k] && d[k].n > 0) || fishRar(id) !== 4) continue; const z = id < FISH_N ? (id < 100 ? Math.floor(id / 20) : Math.floor((id - 100) / 20)) + 1 : id >= ISLE_FIRST && id < PTY_FIRST ? 6 : 0; if (z && out.indexOf(z) < 0) out.push(z); } return out; }
 const enhDefault = () => ({ lv: 0, max: 0, tk: 0, star: 0, fl: 0, sure: 0, day: '', fp: 0, ft: 0, it: 0, idle: 0, pc: 0, pcd: 0, lit: 0, st: 0 });
-const streakBonus = st => st >= 7 ? 2 : st >= 3 ? 1 : 0;   // 연속 출석: 3일째부터 +1, 7일째부터 +2
-const CATCH_GAP = 5, CATCH_TK = 2;   // 따라잡기: 광장 동상 주인보다 5단계 이상 낮으면 출석 강화권 +2
+const streakBonus = st => st >= 7 ? 3 : st >= 3 ? 1 : 0;   // 연속 출석: 3일째부터 +1, 7일째부터 +3
+const CATCH_GAP = 5, CATCH_TK = 3;   // 따라잡기: 광장 동상 주인보다 5단계 이상 낮으면 출석 강화권 +2
 const kstDay = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
 function enhOf(save) { if (!save) return null; save.enh = Object.assign(enhDefault(), save.enh && typeof save.enh === 'object' ? save.enh : {}); return save.enh; }
 function enhDaily(e, out) {
@@ -259,7 +259,7 @@ function enhDaily(e, out) {
   const y = new Date(Date.now() + 9 * 3600e3 - 864e5).toISOString().slice(0, 10);
   e.st = e.day === y ? Math.min(999, (e.st | 0) + 1) : 1;
   e.day = d; e.ft = 0; e.it = 0; e.idle = 0; e.pcd = 0;
-  const cu = champ && (champ.lv | 0) - (e.lv | 0) >= CATCH_GAP ? CATCH_TK : 0;
+  const gap = champ ? (champ.lv | 0) - (e.lv | 0) : 0, cu = gap >= 10 ? 6 : gap >= CATCH_GAP ? CATCH_TK : 0;   // 따라잡기: 5단계 뒤 +3 · 10단계 뒤 +6
   const n = ENH.DAILY + streakBonus(e.st) + cu; e.tk = Math.min(ENH.TK_MAX, e.tk + n);
   out.push('오늘의 출석 강화권 ' + n + '장!' + (e.st > 1 ? ' (연속 ' + e.st + '일째)' : '') + (cu ? ' · 따라잡기 +' + cu : ''));
 }
@@ -274,6 +274,12 @@ function enhAddPiece(e, n, out) {
   e.pcd += n; e.pc += n; out.push('반짝 조각 +' + n);
   while (e.pc >= ENH.PIECE_PER) { e.pc -= ENH.PIECE_PER; e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.push('조각 ' + ENH.PIECE_PER + '개로 강화권 +1!'); }
 }
+/* 강화 3.0: 판매가 단계마다 +25% (index.html enhSell과 같아요) · 안전 강화 골드는 가 본 가장 먼 낚시터가 가까울수록 싸게 */
+const enhSell = lv => 1 + .25 * (lv | 0);
+const zoneDisc = s => { const z = Math.max(1, ...zonesOf(s).filter(x => x <= 5)); return { 1: .2, 2: .35, 3: .5, 4: .7 }[z] || 1; };
+/* 다시 왔어요: 마지막 접속에서 3시간 넘게 지나 다시 오면 강화권 +2 (하루 3번) */
+function enhSession(e, out) { const now = Date.now(), d = kstDay(); if (!e.ses || e.ses.d !== d) e.ses = { d, n: 0 };
+  if (e.lg && now - e.lg >= 3 * 3600e3 && e.ses.n < 3) { e.ses.n++; e.tk = Math.min(ENH.TK_MAX, e.tk + 2); out.push('다시 왔어요! 강화권 +2 (오늘 ' + e.ses.n + '/3)'); } e.lg = now; }
 function enhRoll(e, mode, gold, disc) {
   const L = e.lv; if (L >= ENH.MAX) return { err: '이미 최고 단계예요' };
   if (e.tk < 1) return { err: '강화권이 없어요' };
@@ -360,9 +366,9 @@ async function reqList(me) {
 }
 async function findReq(id) { for (const key of rosterCache.keys()) { const sv = await loadSave(key); if (sv && Array.isArray(sv.req) && sv.req.some(q => q.id === id)) return key; } return null; }
 /* 손맛 도감: 내가 직접 낚은 물고기만 (교환 · 선물로 받은 건 안 올라가요). 저장에서 늘어난 도감 마릿수만큼만 늘 수 있어요 */
-const SZRW_TK = [3, 4, 5, 6, 8, 6];   // index.html SZRW와 같아야 해요
+const SZRW_TK = [15, 20, 25, 30, 40, 30];   // 강화 3.0 기준 (예전 3~8)   // index.html SZRW와 같아야 해요
 const SZ_COS = { 1: ['t_s1', 's_rod1'], 2: ['t_s2', 's_rod2'], 3: ['t_s3', 's_rod3'], 4: ['t_s4', 's_rod4'], 5: ['t_s5', 's_rod5'], 6: ['t_s6', 'fogcoat'] };
-const SZ_ALL = ['t_smaster', 'masterjacket'], SZ_ALL_TK = 10;
+const SZ_ALL = ['t_smaster', 'masterjacket'], SZ_ALL_TK = 50;
 const sdexOf = s => (s.sdex && typeof s.sdex === 'object') ? s.sdex : (s.sdex = {});
 const sdN = s => { const d = (s && s.sdex) || {}; let n = 0; for (const k in d) if ((d[k] | 0) > 0) n++; return n; };
 function checkSdex(oldS, neu, oldDex, newDex) {
@@ -521,10 +527,10 @@ wss.on('connection', (ws) => {
         // 지금 있는 친구들 알려 주기 / 내가 왔다고 알리기 (외형 포함)
         for (const [ows, op] of players) if (ows !== ws) send(ws, { t: 'join', id: op.id, name: op.name, color: op.color, x: op.x, y: op.y, d: op.d, here: op.here, look: op.look });
         broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
-        if (p.save) { const e = enhOf(p.save), out = []; enhDaily(e, out); rankSet(key, p.name, e, p.look); sendEnh(ws, p, { note: out }); if (out.length) queueSave(key, p.save); }
+        if (p.save) { const e = enhOf(p.save), out = []; enhDaily(e, out); enhSession(e, out); { const l0 = e.lv | 0; e.star = e.star | 0; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv); if (e.lv > l0) out.push('🎉 강화 3.0! 모아 둔 별로 +' + l0 + ' → +' + e.lv); } rankSet(key, p.name, e, p.look); sendEnh(ws, p, { note: out }); if (out.length) queueSave(key, p.save); }
         send(ws, { t: 'champ', c: champPub() });
         rosterSet(key, p.name, p.save); rosterSend(true);
-        if (p.save) withLock(key, () => welcomeBack(ws, p)).catch(e => console.error('welcome', e.message));
+        if (p.save) withLock(key, async () => { stampMigrate(ws, p.save); queueSave(key, p.save); await welcomeBack(ws, p); }).catch(e => console.error('welcome', e.message));
         send(ws, { t: 'pt', p: ptPub(), today: ptToday(p.save) });
         send(ws, { t: 'ev', list: evList() }); send(ws, vPub()); if (p.save) send(ws, { t: 'med', med: medPub(p.save), wkc: p.save.wkc || null, medw: p.save.medw || null }); togCheck();
         if (p.save && Array.isArray(p.save.auh) && p.save.auh.length) withLock(key, () => holdRefund(key)).catch(e => console.error('hold', e.message));
@@ -576,8 +582,9 @@ wss.on('connection', (ws) => {
         m.data.auh = me.save && Array.isArray(me.save.auh) ? me.save.auh : [];   // 반짝 장터에 맡긴 골드
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 코인 (서버만)
-        for (const k of ['med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 메달 · 행사 강화권 · 주간 보상 받은 기록
-        if (!m.data.lsd) m.data.lsd = kstDay();   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
+        for (const k of ['med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 메달 · 행사 강화권 · 주간 보상 받은 기록
+        if (!m.data.lsd) m.data.lsd = kstDay();
+        if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {};
         const sFixed = checkSdex(me.save, m.data, oldDex, newDex);   // 손맛 도감은 실제로 낚은 만큼만
         m.data.cosg = me.save && Array.isArray(me.save.cosg) ? me.save.cosg : [];   // 서버가 준 옷: 화면 저장에서 빠져도 다시 넣어요
@@ -588,7 +595,7 @@ wss.on('connection', (ws) => {
         me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data);
         if (first) togCheck();
         if (sFixed) send(ws, { t: 'sdex', sdex: m.data.sdex });   // 손맛 도감을 서버 기록에 맞춰요
-        if (!first) { shinyRoll(ws, me, m.data, oldSd); mythCheck(me, m.data, oldSd); dayStar(me, m.data, oldSd); mentorCheck(me, m.data, oldSd); }
+        if (!first) { shinyRoll(ws, me, m.data, oldSd); mythCheck(me, m.data, oldSd); dayStar(me, m.data, oldSd); mentorCheck(me, m.data, oldSd); stampCheck(ws, m.data, oldSd); }
         if (!first) {   // 섬 물고기를 직접 낚았으면 안개 조각
           const sh = shardRoll(m.data, oldSd);
           if (sh) { const rev = applyInv(m.data, { 'i:shard': sh }); send(ws, { t: 'delta', d: { 'i:shard': sh }, rev, shd: m.data.shd, why: '🔹 섬 물고기를 직접 낚았어요 (오늘 ' + m.data.shd.n + '/' + SHARD_DAY + ')' }); }
@@ -646,11 +653,15 @@ function onMsg(ws, me, m) {
       if (!text || now - me.sayT < 600) return; me.sayT = now;
       broadcast({ t: 'say', id: me.id, text }, ws); break;
     }
+    case 'sh_sell': withLock(me.key, async () => {   // 가방 반짝 칸의 반짝 물고기 팔기: 보통의 10배 × 낚싯대 판매가
+      const s = me.save, id = m.id | 0; if (!s || !validFish(id)) return; const b = objOf(s, 'shb'); if (!((b[id] | 0) > 0)) return send(ws, { t: 'news', text: '가방에 그 반짝 물고기가 없어요' });
+      b[id]--; const g = Math.round(fishPrice(id) * 10 * enhSell(s.enh && s.enh.lv)); await changeBag(me.key, { g }, null); send(ws, { t: 'shb', shb: b, sold: id, g });
+    }).catch(e => console.error('sh_sell', e.message)); break;
     case 'hold': {   // 잡은 물고기를 머리 위로 번쩍 (친구들 화면에도) · 놓치면 털썩
       const now = Date.now(); if (now - (me.holdT || 0) < 700) return; me.holdT = now;
       if (m.miss) { broadcast({ t: 'hold', id: me.id, miss: 1 }, ws); break; }
       const f = m.f | 0; if (!validFish(f)) return; const c = ['small', 'mid', 'big', 'giant'].includes(m.c) ? m.c : 'mid';
-      broadcast({ t: 'hold', id: me.id, f, len: Math.max(1, Math.min(9999, m.len | 0)), c, sh: !!m.sh, nw: !!m.nw, pf: !!m.pf, bt: !!m.bt, ln: String(m.ln || '').replace(/[<>]/g, '').slice(0, 40) }, ws); break;
+      broadcast({ t: 'hold', id: me.id, f, len: Math.max(1, Math.min(9999, m.len | 0)), c, sh: !!m.sh, nw: !!m.nw, pf: !!m.pf, bt: !!m.bt, x2: Math.min(3, m.x2 | 0), wl: !!m.wl, ln: String(m.ln || '').replace(/[<>]/g, '').slice(0, 40) }, ws); break;
     }
     case 'wow': {   // 친구가 든 물고기에 '우와!'
       const now = Date.now(); if (now - (me.wowT || 0) < 1200) return; me.wowT = now; const l = liveById(m.id); if (!l || l[1].key === me.key) return;
@@ -762,7 +773,7 @@ function onMsg(ws, me, m) {
       const e = enhOf(me.save), out = []; enhDaily(e, out); if (!e.star) e.star = 0; if (!e.fl) e.fl = 0;
       const mode = m.mode === 'gamble' ? 'gamble' : 'safe', n = Math.max(1, Math.min(10, m.n | 0)), rolls = [], from = e.lv; let gold = 0, err = '';
       for (let i = 0; i < n; i++) {
-        const r = enhRoll(e, mode, (Number(me.save.gold) || 0), .1 * jobRank(me.save, 'mer', 'enh'));
+        const r = enhRoll(e, mode, (Number(me.save.gold) || 0), 1 - (1 - .1 * jobRank(me.save, 'mer', 'enh')) * zoneDisc(me.save));
         if (r.err) { err = r.err; break; }
         if (r.cost) { me.save.gold = (Number(me.save.gold) || 0) - r.cost; gold += r.cost; }
         rolls.push({ k: r.k, ds: r.ds, sure: r.sure, to: r.to });
@@ -861,7 +872,7 @@ function onMsg(ws, me, m) {
     /* ----- 오늘의 일 세 가지 다 하면 강화권 1장 (하루 한 번) ----- */
     case 'jtask_all': withLock(me.key, () => {
       const s = me.save; if (!s || !jobOf(s) || s.jtd === kstDay()) return; s.jtd = kstDay();
-      const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.push('오늘의 일 세 가지 완료! 강화권 +1'); queueSave(me.key, s); sendEnh(ws, me, { note: out });
+      const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + 3); out.push('오늘의 일 세 가지 완료! 강화권 +3'); queueSave(me.key, s); sendEnh(ws, me, { note: out });
     }); break;
     /* ----- 명장 축복: 하루 한 번, 마을 모두에게 20분 행운 ----- */
     case 'bless': withLock(me.key, () => {
@@ -1145,7 +1156,7 @@ async function helpAdd(key, fromName, text) {
 }
 /* ---------- 축제 메달 · 행사 강화권: 보상은 골드 대신 '하루 상한이 있는 것'으로 ----------
    메달은 행사에 참여해야만 생겨요 (하루 MED_DAY개, 축제 시간엔 2배). 행사 강화권은 하루 EVTK_DAY장까지 */
-const MED_DAY = 10, EVTK_DAY = 3, FEST_H = 21;   // 축제 시간: 밤 9시~10시 (한국 시간)
+const MED_DAY = 10, EVTK_DAY = 6, FEST_H = 21;   // 축제 시간: 밤 9시~10시 (한국 시간)
 const kstH = () => new Date(Date.now() + 9 * 3600e3).getUTCHours();
 const isFest = () => kstH() === FEST_H;
 const medCap = () => MED_DAY + (vSt() >= 1 ? 2 : 0);
@@ -1507,13 +1518,37 @@ function vilMsg(ws, me, m) {
 
 /* ---------- 반짝 개체 · 신화 · 마을 기록 · 수족관 (2026-11-04) ---------- */
 /* 반짝 개체: 직접 낚은(손맛) 물고기마다 서버가 굴려요. 반짝 도감은 끝이 없는 꿈 (누가 먼저 잡아도 내 반짝은 내 것) */
-const SHINY_P = r => r >= 4 ? 1 / 150 : 1 / 300, SHINY_TI = [[1, 't_sh1'], [10, 't_sh10'], [30, 't_sh30']];
+const SHINY_P = r => r >= 4 ? 1 / 150 : 1 / 300, SHINY_TI = [[1, 't_sh1'], [5, 'sb_pearl'], [10, 't_sh10'], [10, 'sb_prism'], [20, 'sb_rainbow'], [30, 't_sh30'], [30, 'sb_star']];
+/* 도장 보상 (index.html STAMP_TK와 같아요): 🎣 손맛 · ✨ 반짝 도장을 그 물고기에서 처음 찍으면 강화권 */
+const STAMP_TK = { sd: [1, 2, 3, 5, 5], sh: [5, 10, 20, 40, 40] }, STAMP_MYTH = { sd: 10, sh: 80 };
+const stampTk = (id, k) => isMyth(id) ? STAMP_MYTH[k] : STAMP_TK[k][fishRar(id)] | 0;
+const objOf = (s, k) => s[k] && typeof s[k] === 'object' ? s[k] : (s[k] = {});
+function stampGive(ws, s, k, ids, rate, label) {   // 아직 보상 안 받은 도장만 · rate: 예전 기록 정산은 절반
+  const done = objOf(s, k === 'sd' ? 'sdtk' : 'shtk'); let n = 0, cnt = 0;
+  for (const id of ids) { if (done[id] || !validFish(id)) continue; done[id] = 1; n += Math.ceil(stampTk(id, k) * rate); cnt++; }
+  if (!n) return 0; const e = enhOf(s); e.tk = Math.min(ENH.TK_MAX, e.tk + n);
+  if (ws) send(ws, { t: 'enh', enh: e, note: [label.replace('{c}', cnt).replace('{n}', n)] }); return n;
+}
+function stampCheck(ws, s, oldSd) {
+  const nsd = s.sdex || {}, fresh = []; for (const k in nsd) if ((nsd[k] | 0) > 0 && !((oldSd[k] | 0) > 0)) fresh.push(+k);
+  if (fresh.length) stampGive(ws, s, 'sd', fresh, 1, fresh.length === 1 ? '🎣 손맛 도장! 강화권 +{n}' : '🎣 손맛 도장 {c}개! 강화권 +{n}');
+}
+/* 도장 정산 (한 번): 예전 손맛 기록은 절반, 반짝은 전부. 반짝 물고기도 가방 반짝 칸에 넣어 줘요 */
+function stampMigrate(ws, s) {
+  if (s.stv) return; s.stv = 1; const sd = Object.keys(s.sdex || {}).filter(k => (s.sdex[k] | 0) > 0).map(Number), sh = Object.keys(s.shiny || {}).filter(k => (s.shiny[k] | 0) > 0).map(Number);
+  const b = objOf(s, 'shb'); for (const id of sh) if (!b[id]) b[id] = s.shiny[id] | 0;
+  const a = stampGive(null, s, 'sd', sd, .5, ''), c = stampGive(null, s, 'sh', sh, 1, '');
+  if (a + c) send(ws, { t: 'enh', enh: enhOf(s), note: ['📖 도감이 도장 3개로 바뀌었어요! 지금까지 찍은 도장 보상: 강화권 +' + (a + c) + (a ? ' (예전 손맛은 절반)' : '')] });
+  if (sh.length) send(ws, { t: 'shb', shb: b });
+}
 function shinyRoll(ws, me, s, oldSd) {
-  const nsd = s.sdex || {}, sh = s.shiny && typeof s.shiny === 'object' ? s.shiny : (s.shiny = {}), got = [];
-  for (const k in nsd) { const id = +k; let dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); const p = isMyth(id) ? 1 / 60 : SHINY_P(fishRar(id)); while (dn-- > 0) if (Math.random() < p) { sh[id] = (sh[id] | 0) + 1; got.push(id); } }
+  const nsd = s.sdex || {}, sh = s.shiny && typeof s.shiny === 'object' ? s.shiny : (s.shiny = {}), got = [], first = [];
+  for (const k in nsd) { const id = +k; let dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); const p = (isMyth(id) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1); while (dn-- > 0) if (Math.random() < p) { if (!(sh[id] | 0)) first.push(id); sh[id] = (sh[id] | 0) + 1; got.push(id); } }
   if (!got.length) return;
+  const b = objOf(s, 'shb'); for (const id of got) b[id] = (b[id] | 0) + 1;
+  const tk = first.length ? stampGive(null, s, 'sh', first, 1, '') : 0;
   const kinds = Object.keys(sh).filter(k => sh[k] > 0).length, ti = SHINY_TI.filter(t => kinds >= t[0]).map(t => t[1]), cos = giveCos(s, ti);
-  for (const id of got) { send(ws, { t: 'shiny', id, n: sh[id], kinds, cos }); broadcast({ t: 'shiny_news', who: me.name, id }, ws); }
+  for (const id of got) { send(ws, { t: 'shiny', id, n: sh[id], kinds, cos, shb: b, tk: first.includes(id) ? stampTk(id, 'sh') : 0, enh: s.enh }); broadcast({ t: 'shiny_news', who: me.name, id }, ws); }
   const r = rosterCache.get(me.key); if (r) { r.sh = kinds; rosterSoon(); }
 }
 /* ---------- 헤비 · 라이트 격차 줄이기 ----------
@@ -1563,7 +1598,7 @@ async function recList() {
 const AQ_MAX = 8;
 function aqClean(s, slots) {
   const dex = s.dex || {}, sh = s.shiny || {}, out = [];
-  for (const x of Array.isArray(slots) ? slots.slice(0, AQ_MAX) : []) { const id = x && x.id; if (!validFish(id) || !(dex[id] && dex[id].n > 0)) continue; out.push({ id, sh: !!(x.sh && sh[id] > 0), len: Math.max(1, Math.min(dex[id].best | 0 || 1, x.len | 0 || dex[id].best | 0)) }); }
+  for (const x of Array.isArray(slots) ? slots.slice(0, AQ_MAX) : []) { const id = x && x.id; if (!validFish(id) || !(dex[id] && dex[id].n > 0)) continue; out.push({ id, sh: !!(x.sh && sh[id] > 0 && ((s.shb || {})[id] | 0) > 0), len: Math.max(1, Math.min(dex[id].best | 0 || 1, x.len | 0 || dex[id].best | 0)) }); }
   return out;
 }
 function aqMsg(ws, me, m) {
@@ -1580,7 +1615,7 @@ function aqMsg(ws, me, m) {
 }
 
 /* ---------- 낚시터 정복 ---------- */
-const ZRW = { tk: [3, 4, 5, 6, 8, 6], g: [5000, 15000, 40000, 100000, 200000, 150000] };   // index.html ZRW와 같아야 해요
+const ZRW = { tk: [10, 12, 15, 20, 25, 20], g: [5000, 15000, 40000, 100000, 200000, 150000] };   // index.html ZRW와 같아야 해요
 const ZONE_COS = { 1: ['lotus', 'pondrobe'], 2: ['leaf', 'streamsuit'], 3: ['whalehat', 'sunset'], 4: ['jelly', 'deepsea'], 5: ['mooncrown', 'starcloak'] };
 const ZONE_NAMES = ['잔잔한 연못', '속삭이는 시냇가', '노을 바닷가', '푸른 먼바다', '달빛 호수', '안개 섬'];
 function zoneFishIds(z) { if (z === 6) return Array.from({ length: ISLE_N }, (_, i) => ISLE_FIRST + i); const a = []; for (let i = 0; i < 20; i++) { a.push((z - 1) * 20 + i); a.push(100 + (z - 1) * 20 + i); } return a; }
