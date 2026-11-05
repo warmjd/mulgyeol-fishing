@@ -157,7 +157,6 @@ input[type=range]{width:100%;accent-color:var(--lav);height:32px}
 .rank.me{background:#efe7ff}
 .fxrow{background:var(--paper-2);border-radius:12px;padding:6px 10px;margin:4px 0}.fxrow b{display:block;font-weight:600;font-size:13px}.fxrow small{display:block;color:var(--ink-soft);font-size:11.5px;line-height:1.4}
 #trapbtn{position:fixed;left:12px;top:calc(158px + env(safe-area-inset-top,0px));background:#eaf7ff;border:2px solid #9cc4ec;border-radius:999px;padding:4px 11px;font-size:13px;z-index:6;color:#2a5a8a;font-weight:700}#trapbtn.full{background:#ffe9a8;border-color:#f0b030;color:#7a5410;animation:bosspulse2 .8s infinite alternate}
-.ntag .cf{display:block;font-size:8px;line-height:10px;text-align:center;font-weight:700}
 .ntag .kg{display:block;font-size:8px;line-height:10px;color:#b06a00;text-align:center;letter-spacing:.5px}
 @keyframes kingglow{to{box-shadow:0 0 16px rgba(255,220,90,1)}}
 .ntag .jb{font-size:9px;margin-right:2px}
@@ -4206,7 +4205,7 @@ const REC=[
  {id:'note',job:'sch',node:'note',out:{note:()=>1+(typeof topB==='function'?topB('sch'):0)},inF:{same:true},d:'같은 물고기 여러 마리 → 솜씨 재료'},
  {id:'map',job:'sch',node:'cap',out:{map:1},in:{note:5,feather:1}}
 ];
-/* --- 직업 4.0: 제작 · 직업 전용 찌/낚싯대 · 숨은 조건 · 명장★ · 수석 · 신뢰 --- */
+/* --- 직업 4.0: 제작 · 직업 전용 찌/낚싯대 · 숨은 조건 · 명장★ · 신뢰 --- */
 const topB=j=>Math.max(0,jRank(j)-3);   // 대명장 1 · 전설 2 · 신화 3
 const needIn=(r,k)=>r.g&&r.job==='cra'?Math.ceil(r.in[k]*(1-.1*topB('cra'))):r.in[k];
 CRAFT_COS.forEach(id=>{const c=COS_BY[id],m=c.tier>=4?2:1;REC.push({id:'mp_'+id,job:'cra',node:'bait1',jr:c.tier>=4?2:1,g:c.mpG,out:{['mp_'+id]:1},in:{scale:6*m,pearl:4*m,feather:3*m,note:4*m,thread:3*m}})});
@@ -4264,9 +4263,6 @@ const mStars=j=>{const x=jxpOf(j);return x>=4000?Math.floor((x-4000)/2000):0};
 let mstarSent=0;function mstarCheck(){const j=jobId();if(!j||mStars(j)<1)return;const got=(S.mst&&S.mst[j])|0;if(mStars(j)<=got)return;
   if(ONLINE){if(Date.now()-mstarSent>5000){mstarSent=Date.now();Net.flushSave(true);setTimeout(()=>Net.send({t:'mstar'}),400)}return}
   S.mst=S.mst||{};const n=mStars(j)-got;S.mst[j]=mStars(j);S.enh.tk+=3*n;itAdd('shard',2*n);toast('⭐ 명장 ★'+mStars(j)+'! 강화권 +'+3*n+' · 안개 조각 +'+2*n);saveState()}
-/* 🏅 수석: 직업마다 숙련도 1등 (서버가 정해요 · 같으면 지금 수석이 지켜요) */
-let CHIEFS={};
-const chiefOf=name=>{for(const j in CHIEFS)if(CHIEFS[j]&&CHIEFS[j].name===name)return j;return''};
 /* 내 직업이 마을에 필요한 이유 */
 const JOB_NEEDED={
  fish:['🎣 <b>대물</b>을 잘 낚아요 · 대물이면 ✨ 솜씨 재료','명품 · 전설 미끼에 쓰는 솜씨 재료를 모아 마을과 나눠요'],
@@ -4274,10 +4270,9 @@ const JOB_NEEDED={
  cra:['🎁 <b>레전더리 · 미스틱 찌/낚싯대를 만들어요</b> (상점에 없어요)','명품 상자 · 전설 미끼 · 반짝 미끼 · 요리'],
  tam:['🐾 <b>짝꿍 보물찾기</b>로 조개 · 해초 · ✨ 솜씨 재료','펫 놀이터 · 동물 친구 보상'],
  mer:['🧵 <b>떠돌이 상인 수입품</b>: 솜씨 재료 · 돛 · 장난감','물고기를 비싸게 팔고 위탁 판매']};
-function jobNeedHtml(id){const N=JOB_NEEDED[id];if(!N)return'';const mine=Object.keys(MAKER).filter(k=>MAKER[k]===id),want=RQ.list?RQ.list.filter(q=>!q.mine&&mine.indexOf(q.item)>=0):[],pay=want.reduce((a,q)=>a+(q.pay|0),0),ch=CHIEFS[id];
+function jobNeedHtml(id){const N=JOB_NEEDED[id];if(!N)return'';const mine=Object.keys(MAKER).filter(k=>MAKER[k]===id),want=RQ.list?RQ.list.filter(q=>!q.mine&&mine.indexOf(q.item)>=0):[],pay=want.reduce((a,q)=>a+(q.pay|0),0);
   return'<div class="wishc" style="background:#fff3ee;border-color:#ffc8b0;margin-top:8px"><div class="sec" style="margin:0 0 4px">💝 내 직업으로 친구에게 해 줄 수 있는 것</div><div style="font-size:12.5px;line-height:1.6">'+N[0]+'<br><span class="muted">'+N[1]+'</span>'+
-    (ONLINE?'<br>📜 지금 내 물건을 찾는 부탁 <b>'+want.length+'개</b>'+(pay?' · 걸린 골드 <b>'+fmt(pay)+'</b>':''):'')+'</div>'+
-    (ch?'<div style="font-size:12px;margin-top:4px">🏅 지금 수석 '+JOBS[id].name+': <b>'+esc(ch.name)+'</b> (숙련 '+fmt(ch.x)+')'+(Net.me&&ch.name===Net.me.name?' — 나예요!':' · 더 올리면 빼앗을 수 있어요')+'</div>':'')+'</div>'}
+    (ONLINE?'<br>📜 지금 내 물건을 찾는 부탁 <b>'+want.length+'개</b>'+(pay?' · 걸린 골드 <b>'+fmt(pay)+'</b>':''):'')+'</div></div>'}
 const recIn=(r,R)=>r.in||{};
 const outN=(r,id)=>{const v=r.out[id];return typeof v==='function'?v(rk(r.job,r.node)):v};
 const noteNeed=()=>[10,8,6,5][rk('sch','note')];
@@ -6622,8 +6617,7 @@ function setTag(a,name,ti,e){
   const st=typeof evStatus==='function'?evStatus(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name):'';
   const kg=isKingName(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name);
   {const tf=a===ME?S.cos.look.tf:(a.look&&a.look.tf);a.tag.className='ntag'+(tf?' '+tf:'')+(kg?' king':'')}
-  const cf=chiefOf(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name);
-  a.tag.innerHTML=(kg?'<span class="kg">👑 손맛 왕 · '+KING.n+'종</span>':'')+(cf?'<span class="cf" style="color:'+JOBS[cf].col+'">🏅 수석 '+JOBS[cf].name+'</span>':'')+(t?'<span class="ti">「'+esc(t.name)+'」</span>':'')+jb+esc(name||'')+(e>0?'<span class="en'+(e>=30?' e30':e>=21?' e21':'')+'">+'+e+'</span>':'')+(st?'<span class="st">'+esc(st)+'</span>':'');a.tagOn=!!(name||t||e>0||jb||st);a.tagH=0;
+  a.tag.innerHTML=(kg?'<span class="kg">👑 손맛 왕 · '+KING.n+'종</span>':'')+(t?'<span class="ti">「'+esc(t.name)+'」</span>':'')+jb+esc(name||'')+(e>0?'<span class="en'+(e>=30?' e30':e>=21?' e21':'')+'">+'+e+'</span>':'')+(st?'<span class="st">'+esc(st)+'</span>':'');a.tagOn=!!(name||t||e>0||jb||st);a.tagH=0;
 }
 function showSay(a,text){
   if(a.bub)a.bub.remove();const el=document.createElement('div');el.className='bub';el.textContent=text;$('tags').appendChild(el);
@@ -6925,7 +6919,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='skill_err')skErr(m);
     else if(m.t==='welcome'){S.rest=(S.rest|0)+(m.rest|0);recalc();saveState();setTimeout(()=>{showBanner('🎁 그동안 모아 둔 선물! ('+m.away+'일 치) 골드 +'+fmt(m.g)+' · 강화권 +'+m.tk);Snd.sfx('page')},1500);setTimeout(()=>toast('🌙 휴식 행운: 다음 '+m.rest+'마리는 행운 +30%'+(m.behind?' · 📣 마을이 응원하고 있어요':'')),5000);vilHud()}
     else if(m.t==='news')toast(m.text);
-    else if(m.t==='roster'){const pk=KING&&KING.name,pc=JSON.stringify(CHIEFS);KING=m.king||null;CHIEFS=m.chiefs||{};if(JSON.stringify(CHIEFS)!==pc)refreshTagsAll();if((KING&&KING.name)!==pk){refreshTagsAll();if(KING&&Net.me&&KING.name===Net.me.name&&pk!==undefined)setTimeout(()=>{toast('👑 당신이 손맛 왕이에요! 왕관 · 황금 물고기 오라 · 행운 +10%');Snd.sfx('page')},600)}RICH=m.rich||null;ROSTER=(m.list||[]).map(p=>Object.assign({},p,{me:Net.me&&p.name===Net.me.name}));recalc();vilHud();if(m.note)VNOTE=m.note;VBOAT=m.boat||null;VPATHS=Array.isArray(m.paths)?m.paths:[];if(Array.isArray(m.vdex))VDEX=m.vdex;if($('sheettitle').textContent==='오늘의 마을 일꾼'&&!$('sheetwrap').hidden)openRoster()}
+    else if(m.t==='roster'){const pk=KING&&KING.name;KING=m.king||null;if((KING&&KING.name)!==pk){refreshTagsAll();if(KING&&Net.me&&KING.name===Net.me.name&&pk!==undefined)setTimeout(()=>{toast('👑 당신이 손맛 왕이에요! 왕관 · 황금 물고기 오라 · 행운 +10%');Snd.sfx('page')},600)}RICH=m.rich||null;ROSTER=(m.list||[]).map(p=>Object.assign({},p,{me:Net.me&&p.name===Net.me.name}));recalc();vilHud();if(m.note)VNOTE=m.note;VBOAT=m.boat||null;VPATHS=Array.isArray(m.paths)?m.paths:[];if(Array.isArray(m.vdex))VDEX=m.vdex;if($('sheettitle').textContent==='오늘의 마을 일꾼'&&!$('sheetwrap').hidden)openRoster()}
     else if(m.t==='vil_note'){VNOTE=m.note;toast('📢 '+m.note.by+' 님의 예보: '+m.note.text)}
     else if(m.t==='pt')onPt(m);
     else if(m.t==='cos_got'){(m.ids||[]).forEach(id=>{if(COS_BY[id]&&!owns(id))S.cos.own.push(id)});if(Array.isArray(m.zrw))S.zrw=m.zrw;if(m.z)conquerMsg(m.z);else if(m.ids&&m.ids.length)toast('새 옷: '+m.ids.map(id=>COS_BY[id]?COS_BY[id].name:id).join(', '));recalc();saveState(true)}
@@ -7075,7 +7069,6 @@ function fxGuideHtml(L,name,e,gs){const rows=[],row=(ic,src,what)=>rows.push('<d
   if(L.ft&&COS_BY[L.ft])row('👣',esc(COS_BY[L.ft].name),'걸을 때 발자국');
   if(L.tf&&COS_BY[L.tf])row('🏷️',esc(COS_BY[L.tf].name),'이름표 테두리');
   if(isKingName(name))row('👑','손맛 왕 (손맛 1등)','금빛 이름표 · 황금 물고기 오라');
-  {const cf=chiefOf(name);if(cf)row('🏅','수석 '+JOBS[cf].name,'이름표에 수석 표시')}
   return'<div class="sec" style="margin-top:10px">✨ 보이는 효과는 어디서?</div>'+(rows.length?rows.join(''):'<div class="muted" style="font-size:12px;padding:6px">아직 특별한 효과가 없어요</div>')}
 function myProfile(){const j=jobId();return{name:ONLINE&&Net.me?Net.me.name:'나',ti:S.cos.look.ti,e:S.enh.lv,max:S.enh.max,pop:S.pop,pets:S.pets,catches:S.stats.catches,dex:Object.keys(S.dex).filter(k=>S.dex[k].n>0).length,job:j?{id:j,r:jRank(j)}:null,help:S.help||{n:0},evn:S.evn|0}}
 function openProfile(o){

@@ -2115,18 +2115,6 @@ function sdKingCheck(init) {
   broadcast({ t: 'news', text: prev ? '👑 손맛 왕좌가 바뀌었어요! ' + best.name + ' 님이 ' + prev.name + ' 님에게서 왕관을 빼앗았어요 (' + best.n + '종)' : '👑 첫 손맛 왕 탄생! ' + best.name + ' 님 (' + best.n + '종)' });
   console.log('손맛 왕', best.name, best.n);
 }
-/* 🏅 수석: 직업마다 지금 그 직업인 사람 중 숙련도 1등 (300 이상). 같으면 지금 수석이 지켜요 · 직업을 바꾸면 내려놔요 */
-const chiefs = {};
-function chiefCheck(init) {
-  for (const job of MAKER_JOBS) {
-    let best = null; for (const [k, r] of rosterCache) if (r.job === job && (r.jx | 0) >= 300 && (!best || r.jx > best.x)) best = { key: k, name: r.name, x: r.jx | 0 };
-    const cur = chiefs[job], rc = cur && rosterCache.get(cur.key), ok = rc && rc.job === job;
-    if (ok) { cur.x = rc.jx | 0; cur.name = rc.name; if (!best || best.key === cur.key || best.x <= cur.x) continue; }
-    if (!best) { delete chiefs[job]; continue; }
-    chiefs[job] = best; if (!init) broadcast({ t: 'news', text: '🏅 ' + best.name + ' 님이 「수석 ' + JOB_NAME[job] + '」 자리에 올랐어요! (숙련 ' + best.x.toLocaleString() + ')' + (cur && ok ? ' · ' + cur.name + ' 님에게서 빼앗았어요' : '') });
-  }
-}
-const chiefsPub = () => { const o = {}; for (const j in chiefs) o[j] = { name: chiefs[j].name, x: chiefs[j].x }; return o; };
 const kingPub = () => sdKing ? { name: sdKing.name, n: sdKing.n, since: sdKing.since } : null;
 function rosterSoon() { clearTimeout(rosterT); rosterT = setTimeout(rosterSend, 500); }
 function rosterSend(force) {
@@ -2137,10 +2125,10 @@ function rosterSend(force) {
   // 누릉이가 따라다니는 '오늘의 주인공': 오늘 직접 제일 많이 낚은 친구. 아직 아무도 안 낚았으면 30분마다 접속한 친구를 돌아가며
   let rich = null, rn = 0; const on = []; for (const p of players.values()) { if (!p.save) continue; on.push(p.name); const n = p.tday && p.tday.d === kstDay() ? p.tday.n : 0; if (n > rn) { rn = n; rich = p.name; } }
   if (!rich && on.length) { on.sort(); rich = on[Math.floor(Date.now() / 1800e3) % on.length]; }
-  sdKingCheck(); chiefCheck(); const king = kingPub(), cf = chiefsPub();
-  const sig = JSON.stringify([list, note, vBoat, paths, vdex, rich, king && king.name, king && king.n, cf]);
+  sdKingCheck(); const king = kingPub();
+  const sig = JSON.stringify([list, note, vBoat, paths, vdex, rich, king && king.name, king && king.n]);
   if (!force && sig === rosterSig) return; rosterSig = sig;
-  broadcast({ t: 'roster', list, note, boat: vBoat, paths, vdex, rich, king, chiefs: cf });
+  broadcast({ t: 'roster', list, note, boat: vBoat, paths, vdex, rich, king });
 }
 /* 마을 기부함: 모두의 저장에 흩어진 기부를 모아서 봐요 */
 const BOAT_NEED = { 'i:knack': 13, 'i:map': 1, 'i:sail': 1, g: 10000000 }, DONORS_NEED = 4, DON_MIN_G = 10000;   // index.html BOAT_NEED와 같아야 해요
@@ -2207,7 +2195,7 @@ setInterval(() => {
     });
   }
 }, 60000);
-db.roster().then(rows => { for (const r of rows || []) { if (String(r.key).startsWith('__')) continue; if (r.boat && !vBoat) vBoat = { by: r.name }; if (!rosterCache.has(r.key)) rosterCache.set(r.key, { name: r.name, job: r.job && r.job.id || '', lv: vlOf(r.vl), sit: false, legs: legZones({ dex: r.dex }), sd: sdN({ sdex: r.sdex }), gt: gtN({ giant: r.giant }), dex: dexIds(r.dex), help: r.help ? r.help.n | 0 : 0, jr: jrOf({ job: r.job }, r.job && r.job.id), jx: (r.job && r.job.xp && r.job.id && r.job.xp[r.job.id]) | 0 }); } sdKingCheck(true); chiefCheck(true); console.log('현황판', rosterCache.size, '명'); }).catch(e => console.error('현황판을 읽지 못했어요', e.message));
+db.roster().then(rows => { for (const r of rows || []) { if (String(r.key).startsWith('__')) continue; if (r.boat && !vBoat) vBoat = { by: r.name }; if (!rosterCache.has(r.key)) rosterCache.set(r.key, { name: r.name, job: r.job && r.job.id || '', lv: vlOf(r.vl), sit: false, legs: legZones({ dex: r.dex }), sd: sdN({ sdex: r.sdex }), gt: gtN({ giant: r.giant }), dex: dexIds(r.dex), help: r.help ? r.help.n | 0 : 0, jr: jrOf({ job: r.job }, r.job && r.job.id), jx: (r.job && r.job.xp && r.job.id && r.job.xp[r.job.id]) | 0 }); } sdKingCheck(true); console.log('현황판', rosterCache.size, '명'); }).catch(e => console.error('현황판을 읽지 못했어요', e.message));
 db.ranks().then(rows => { for (const r of (rows || []).filter(r => !String(r.key).startsWith('__'))) rankSet(r.key, r.name, r.enh, cleanLook(r.look, { cos: { own: Array.isArray(r.own) ? r.own : [] }, enh: r.enh }, colorOf(r.key))); champBoot = true; console.log('강화 순위', rankCache.size, '명 · 동상', champ ? champ.name + ' +' + champ.lv : '없음'); }).catch(e => { champBoot = true; console.error('강화 순위를 읽지 못했어요', e.message); });
 
 // 친구 위치 묶어서 보내기
