@@ -144,11 +144,16 @@ function fishPrice(id) {
 }
 const validFish = id => Number.isInteger(id) && id >= 0 && id < FISH_MAX;
 const invOf = s => (s && s.inv) || {};
-const ITEM_IDS = ['flesh', 'scale', 'note', 'shell', 'weed', 'pearl', 'feather', 'thread', 'sail', 'toy', 'map', 'b_dough', 'b_shine', 'b_legend_n', 'b_legend', 'shard', 'soup', 'grill', 'snack', 'charm'];   // index.html ITEMS와 같아야 해요
+const ITEM_IDS = ['flesh', 'scale', 'note', 'shell', 'weed', 'pearl', 'feather', 'thread', 'sail', 'toy', 'map', 'b_dough', 'b_shine', 'b_legend_n', 'b_legend', 'shard', 'soup', 'grill', 'snack', 'charm', 'knack'];   // index.html ITEMS와 같아야 해요
+/* 2026-11-05 재료 정리: 직업 재료 다섯 가지는 「✨ 솜씨 재료」 하나로, 방수 판자 → 판자, 꽃 염료 → 꽃잎 돛천, 라벤더꿀 → 들꽃꿀 (index.html MERGE와 같아요) */
+const MERGE = { scale: 'knack', pearl: 'knack', feather: 'knack', note: 'knack', thread: 'knack', wplank: 'plank', dye: 'cloth', honey_lav: 'honey' };
+const mk = k => MERGE[k] || k;
+const mkKey = k => typeof k === 'string' && k.startsWith('i:') ? 'i:' + mk(k.slice(2)) : k;
+function foldItems(s) { const it = s && s.items; if (!it || typeof it !== 'object') return; for (const k in MERGE) if (it[k]) { it[MERGE[k]] = (it[MERGE[k]] | 0) + (it[k] | 0); delete it[k]; } }
 const itemsOf = s => (s && s.items && typeof s.items === 'object') ? s.items : {};
 /* 교환 열쇠: 물고기 번호 · 'i:아이템' · 'g'(골드) */
 const keyKind = k => k === 'g' ? 'g' : (typeof k === 'string' && k.startsWith('i:') && ITEM_IDS.includes(k.slice(2))) ? 'i' : validFish(+k) && String(+k) === String(k) ? 'f' : null;
-function hasKey(s, k, n) { const t = keyKind(k); if (t === 'g') return (Number(s && s.gold) || 0) >= n; if (t === 'i') return (itemsOf(s)[k.slice(2)] | 0) >= n; if (t === 'f') return has(s, +k, n); return false; }
+function hasKey(s, k, n) { k = mkKey(k); const t = keyKind(k); if (t === 'g') return (Number(s && s.gold) || 0) >= n; if (t === 'i') return (itemsOf(s)[k.slice(2)] | 0) >= n; if (t === 'f') return has(s, +k, n); return false; }
 const has = (s, id, n) => (invOf(s)[id] | 0) >= n;
 /* 직업 노드 단계 (index.html의 rk와 같아요) */
 const JOB_LOCK_MS = 0;   // 직업 3.0: 바꿔도 마지막 스킬이 꺼지지 않아요
@@ -308,11 +313,11 @@ function enhRoll(e, mode, gold, disc) {
   if (e.tk < 1) return { err: '강화권이 없어요' };
   const cost = mode === 'safe' ? Math.round(ENH.cost(L) * (1 - (disc || 0))) : 0; if ((Number(gold) || 0) < cost) return { err: '골드가 모자라요' };
   e.tk--; e.star = e.star | 0; e.fl = e.fl | 0;
-  const ticket = (e.sure | 0) > 0; if (ticket) e.sure--;   // 메달 확정권
+  const ticket = (e.sure | 0) > 0; if (ticket) e.sure--;   // 도토리 확정권
   const cat = (e.cat | 0) > 0 ? .15 + .1 * (e.catk | 0) : 0; if (cat) e.cat--;   // 공방 장인 강화 촉매
   const sure = ticket || (mode === 'safe' && e.fl >= ENH.K[L]), ok = sure || Math.random() < ENH.P[L] + cat;
   let k, ds = 0;
-  if (ticket) { ds = Math.max(1, ENH.S[L] - (e.star | 0)); k = 'sure'; e.fl = 0; }   // 메달 확정권: 별을 다 채워서 바로 다음 단계
+  if (ticket) { ds = Math.max(1, ENH.S[L] - (e.star | 0)); k = 'sure'; e.fl = 0; }   // 도토리 확정권: 별을 다 채워서 바로 다음 단계
   else if (ok) { ds = mode === 'safe' ? 1 : (Math.random() < .1 ? 6 : 3); k = ds >= 6 ? 'jack' : 'up'; e.fl = 0; }
   else { k = 'keep'; if (mode === 'safe') e.fl++; else if (L >= 5 && e.star > 0) { ds = -1; k = 'down'; } }
   e.star = Math.max(0, e.star + ds);
@@ -341,18 +346,18 @@ function tradeRule(a, b) {
   if (!all.some(o => Object.keys(o).some(k => o[k] > 0))) return '올린 것이 없어요';
   return null;
 }
-const ITEM_NPC = { flesh: 80, scale: 2500, note: 3000, shell: 300, weed: 300, pearl: 4000, feather: 3000, thread: 6000, sail: 30000, toy: 4000, map: 40000, b_dough: 150, b_shine: 1500, b_legend_n: 150000, b_legend: 150000, soup: 900, grill: 900, snack: 600, charm: 5000, b_shine_p: 6000, charm_p: 15000, b_legend_p: 400000 };   // index.html ITEMS의 npc와 같아야 해요
+const ITEM_NPC = { knack: 3000, flesh: 80, scale: 2500, note: 3000, shell: 300, weed: 300, pearl: 4000, feather: 3000, thread: 6000, sail: 30000, toy: 4000, map: 40000, b_dough: 150, b_shine: 1500, b_legend_n: 150000, b_legend: 150000, soup: 900, grill: 900, snack: 600, charm: 5000, b_shine_p: 6000, charm_p: 15000, b_legend_p: 400000 };   // index.html ITEMS의 npc와 같아야 해요
 const postOk = p => !!(p.give || p.want);
 /* ---------- 직업 2.0: 의뢰판 · 이름 붙은 생산물 · 오늘의 일 · 명장 축복 ---------- */
-const MAKER = { b_shine_p: 'cra', charm_p: 'cra', b_legend_p: 'cra', flesh: 'cra', b_dough: 'cra', soup: 'cra', grill: 'cra', b_shine: 'cra', snack: 'cra', charm: 'cra', b_legend: 'cra', note: 'sch', map: 'sch', shell: 'tam', weed: 'tam', pearl: 'tam', feather: 'tam', scale: 'fish', thread: 'mer', sail: 'mer', toy: 'mer' };   // index.html MAKER와 같아야 해요
-const ITEM_NAME = { b_shine_p: '명품 반짝 미끼', charm_p: '명품 행운 부적', b_legend_p: '명품 전설 미끼', flesh: '생선살', b_dough: '반죽 미끼', soup: '생선 수프', grill: '소금구이', b_shine: '반짝 미끼', snack: '펫 간식', charm: '행운 부적', b_legend: '전설 미끼', note: '연구 노트', map: '항로 지도', shell: '조개껍데기', weed: '해초', pearl: '진주', feather: '반짝 깃털', scale: '대물 비늘', thread: '반짝 실', sail: '수입 돛', toy: '펫 장난감' };
+const MAKER = { knack: 'any', b_shine_p: 'cra', charm_p: 'cra', b_legend_p: 'cra', flesh: 'cra', b_dough: 'cra', soup: 'cra', grill: 'cra', b_shine: 'cra', snack: 'cra', charm: 'cra', b_legend: 'cra', note: 'sch', map: 'sch', shell: 'tam', weed: 'tam', pearl: 'tam', feather: 'tam', scale: 'fish', thread: 'mer', sail: 'mer', toy: 'mer' };   // index.html MAKER와 같아야 해요
+const ITEM_NAME = { knack: '솜씨 재료', b_shine_p: '명품 반짝 미끼', charm_p: '명품 행운 부적', b_legend_p: '명품 전설 미끼', flesh: '생선살', b_dough: '반죽 미끼', soup: '생선 수프', grill: '소금구이', b_shine: '반짝 미끼', snack: '펫 간식', charm: '행운 부적', b_legend: '전설 미끼', note: '연구 노트', map: '항로 지도', shell: '조개껍데기', weed: '해초', pearl: '진주', feather: '반짝 깃털', scale: '대물 비늘', thread: '반짝 실', sail: '수입 돛', toy: '펫 장난감' };
 const JOB_NAME = { fish: '물결 낚시꾼', sch: '도감 박사', cra: '공방 장인', tam: '동물 친구', mer: '떠돌이 상인' };
 const jobOf = s => (s && s.job && MAKER_JOBS.includes(s.job.id)) ? s.job.id : '';
 const MAKER_JOBS = ['fish', 'sch', 'cra', 'tam', 'mer'];
 const REQ_DAYS = 3, REQ_MAX = 3, JR_MASTER = 4000;
 const reqsOf = s => Array.isArray(s.req) ? s.req : (s.req = []);
 /* 마을(NPC) 의뢰: 날짜로 정해져요. 직업마다 2개, 사람마다 하루 한 번씩 해결 */
-const NPC_POOL = { cra: [['b_dough', 3], ['soup', 2], ['grill', 2], ['b_shine', 2], ['snack', 2]], sch: [['note', 1], ['note', 2]], tam: [['shell', 3], ['weed', 3], ['pearl', 1], ['feather', 1]], mer: [['thread', 1], ['toy', 1]], fish: [['scale', 1], ['f', 2]] };
+const NPC_POOL = { cra: [['b_dough', 3], ['soup', 2], ['grill', 2], ['b_shine', 2], ['snack', 2]], sch: [['knack', 2], ['map', 1]], tam: [['shell', 3], ['weed', 3], ['knack', 2]], mer: [['knack', 2], ['toy', 1]], fish: [['knack', 2], ['f', 2]] };
 const NPC_WHO = ['잡화점 할머니', '도감관 사서', '조선소 할아버지', '시장 아주머니', '등대지기', '꼬마 낚시꾼'];
 function npcReqs() {
   const d = kstDay(), seed = +d.replace(/-/g, ''), rnd = i => { const x = Math.sin(seed * 9301 + i * 49297) * 233280; return x - Math.floor(x); }, out = [];
@@ -363,7 +368,7 @@ function npcReqs() {
   } });
   return out;
 }
-const hasReqItem = (s, item, n) => item.startsWith('f:') ? has(s, +item.slice(2), n) : (itemsOf(s)[item] | 0) >= n;
+const hasReqItem = (s, item, n) => item.startsWith('f:') ? has(s, +item.slice(2), n) : (itemsOf(s)[mk(item)] | 0) >= n;
 /* 직업 4.0 (2026-11-05): 조사 쪽지 · 장인 명품 상자 — index.html ITEMS와 같아요 */
 const MP_IDS = ["mp_b_dragon", "mp_b_angel", "mp_b_sun", "mp_b_galaxy", "mp_b_crown", "mp_b_rainbowp", "mp_b_hourglass", "mp_b_starheart", "mp_r_aurora", "mp_r_dragon", "mp_r_gold2", "mp_r_cosmos"];
 ITEM_IDS.push('clue', ...MP_IDS);
@@ -374,7 +379,7 @@ Object.assign(MAKER, { clue: 'sch' }, {"mp_b_dragon": "cra", "mp_b_angel": "cra"
 Object.assign(ITEM_NAME, { clue: '조사 쪽지' }, {"mp_b_dragon": "용의 알 찌 상자", "mp_b_angel": "천사 찌 상자", "mp_b_sun": "태양 찌 상자", "mp_b_galaxy": "은하수 찌 상자", "mp_b_crown": "왕관 찌 상자", "mp_b_rainbowp": "무지개 진주 찌 상자", "mp_b_hourglass": "시간의 모래시계 찌 상자", "mp_b_starheart": "별의 심장 찌 상자", "mp_r_aurora": "오로라 낚싯대 상자", "mp_r_dragon": "용염 낚싯대 상자", "mp_r_gold2": "순금 용왕 낚싯대 상자", "mp_r_cosmos": "우주의 낚싯대 상자"});
 LOOK_IDS.bob.push('jb_fish1','jb_fish3','jb_sch1','jb_sch3','jb_cra1','jb_cra3','jb_tam1','jb_tam3','jb_mer1','jb_mer3','b_trust'); LOOK_IDS.rod.push('jr_fish','jr_sch','jr_cra','jr_tam','jr_mer'); LOOK_IDS.bk.push('k_trust'); LOOK_IDS.ti.push('t_trust1','t_trust2');
 const TRUST_SHOP = { t_trust1: 10, t_trust2: 30, b_trust: 40, k_trust: 80 };   // index.html TRUST_SHOP과 같아요
-const reqDelta = (item, n) => item.startsWith('f:') ? { [+item.slice(2)]: n } : { ['i:' + item]: n };
+const reqDelta = (item, n) => item.startsWith('f:') ? { [+item.slice(2)]: n } : { ['i:' + mk(item)]: n };
 /* 내가 만든 물건이 친구에게 가면 이름표를 붙여 둬요 (그걸로 대박이 나면 고맙다는 소식이 와요) */
 function tagMaker(key, item, by, n) {
   return loadSave(key).then(s => { if (!s) return; const mk = s.mk && typeof s.mk === 'object' ? s.mk : (s.mk = {}); const q = Array.isArray(mk[item]) ? mk[item] : (mk[item] = []);
@@ -397,7 +402,7 @@ async function reqList(me) {
     for (const q of sv.req) if (now - q.at <= REQ_DAYS * 864e5) list.push({ id: q.id, by: (rosterCache.get(key) || {}).name || key, item: q.item, n: q.n, pay: q.pay, at: q.at, mine: key === me.key });
   }
   const nr = me.save && me.save.nrq && me.save.nrq.d === kstDay() ? me.save.nrq.done : [];
-  return { t: 'rq_list', list: list.sort((a, b) => b.at - a.at), npc: npcReqs(), ndone: nr, trust: (me.save && me.save.trust) | 0 };
+  return { t: 'rq_list', list: list.sort((a, b) => b.at - a.at), npc: npcReqs(), ndone: nr, trust: (me.save && me.save.med && me.save.med.n) | 0 };
 }
 async function findReq(id) { for (const key of rosterCache.keys()) { const sv = await loadSave(key); if (sv && Array.isArray(sv.req) && sv.req.some(q => q.id === id)) return key; } return null; }
 /* 손맛 도감: 내가 직접 낚은 물고기만 (교환 · 선물로 받은 건 안 올라가요). 저장에서 늘어난 도감 마릿수만큼만 늘 수 있어요 */
@@ -421,7 +426,7 @@ function checkSdex(oldS, neu, oldDex, newDex) {
 const GIFT_PLACES = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11];   // 배낚시(7)는 귀항 보상이 따로 있어요
 const GIFT_COS = ['cap', 'bucket', 'beanie', 'ribbon', 'flower', 'catear', 'frog', 'stripe', 'apron', 'overall', 'raincoat', 'hoodie', 'star'];
 function giftOf(s) { const d = kstDay(); let g = s.gift; if (!g || typeof g !== 'object' || g.d !== d || !Array.isArray(g.z)) g = s.gift = { d, z: [] }; return g; }
-const GIFT_DAY = 3;   // 하루 선물은 아무 낚시터에서나 3번 (7곳을 매일 도는 숙제가 되지 않게) · index.html GIFT_DAY와 같아요
+const GIFT_DAY = 0;   // 2026-11-05: 선물은 「오늘의 마을 일」 보상으로 옮겼어요 · 예전 값 3   // 하루 선물은 아무 낚시터에서나 3번 (7곳을 매일 도는 숙제가 되지 않게) · index.html GIFT_DAY와 같아요
 function giftRoll(s, e, delta, cos, out, z) {
   const r = Math.random();
   if (r < .04) {   // 옷 (다 가졌으면 강화권)
@@ -430,14 +435,14 @@ function giftRoll(s, e, delta, cos, out, z) {
   }
   if (r < .12) { e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.push('강화권 +1'); return; }
   if (r < .45) { e.pc += 2; out.push('반짝 조각 +2'); while (e.pc >= ENH.PIECE_PER) { e.pc -= ENH.PIECE_PER; e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.push('조각으로 강화권 +1'); } return; }
-  const m = z === 6 ? ['shard', 2] : Math.random() < .06 ? [['pearl', 1], ['feather', 1], ['scale', 1]][(Math.random() * 3) | 0] : [['flesh', 4], ['shell', 2], ['weed', 2]][(Math.random() * 3) | 0];
+  const m = z === 6 ? ['shard', 2] : Math.random() < .06 ? ['knack', 2] : [['flesh', 4], ['shell', 2], ['weed', 2]][(Math.random() * 3) | 0];
   delta['i:' + m[0]] = (delta['i:' + m[0]] | 0) + m[1];   // 재료 이름은 화면이 delta로 보여 줘요
 }
 /* 안개 조각: 섬 물고기를 직접 낚으면 (손맛 도감이 늘어난 만큼) 희귀할수록 잘. 하루 SHARD_DAY개까지 — index.html shardDrop과 같은 규칙 */
-const SHARD_DAY = 20, SHARD_CH = [.15, .25, .6, 1, 1];
-const shardDay = () => SHARD_DAY + (arkSt() >= 3 ? 3 : 0);   // ⛵ 돛단 물결호: +3
+const SHARD_DAY = 120, SHARD_CH = [.15, .25, .6, 1, 1];   // 2026-11-05: 한 주 상한 (몰아서 낚아도 돼요)
+const shardDay = () => SHARD_DAY + (arkSt() >= 3 ? 20 : 0);   // ⛵ 돛단 물결호: +20
 function shardRoll(s, oldSd) {
-  const d = kstDay(); if (!s.shd || typeof s.shd !== 'object' || s.shd.d !== d) s.shd = { d, n: 0 };
+  const w = wkId(); if (!s.shd || typeof s.shd !== 'object' || s.shd.w !== w) s.shd = { w, n: 0 };
   const nsd = (s.sdex && typeof s.sdex === 'object') ? s.sdex : {}; let got = 0;
   for (let id of [...Array(PTY_FIRST - ISLE_FIRST).keys()].map(i => ISLE_FIRST + i).concat([...Array(120).keys()].map(i => ISX_FIRST + i))) {   // 섬 새 낚시터 물고기도 조각을 줘요
     let dn = Math.max(0, (nsd[id] | 0) - (oldSd[id] | 0)); const r = fishRar(id);
@@ -445,6 +450,8 @@ function shardRoll(s, oldSd) {
   }
   return got;
 }
+const dayNum = d => Math.floor(Date.parse(d) / 864e5);
+function vdayOf(s) { const t = kstDay(); let v = s.vday; if (!v || typeof v !== 'object' || !v.d) v = s.vday = { d: t, b: 1 }; const dd = dayNum(t) - dayNum(v.d); if (dd > 0) { v.b = Math.min(3, (v.b | 0) + dd); v.d = t; } return v; }
 function petRwOf(save) { const d = kstDay(); let r = save.petrw; if (!r || typeof r !== 'object' || r.d !== d) r = save.petrw = { d, walk: 0, wish: 0, fetch: 0 }; return r; }
 const popOf = s => Object.assign({ n: 0, up: 0, dn: 0 }, s && s.pop && typeof s.pop === 'object' ? s.pop : {});
 const lifeCd = new Map();     // key -> {src[:id]: 시각}
@@ -475,6 +482,7 @@ function lookChanged(ws, me) { me.look = cleanLook(me.look, me.save, me.color); 
 /* 서버가 가방을 바꾸는 유일한 방법 (교환). rev를 1 올려요 */
 function applyInv(save, delta) {
   save.inv = save.inv || {}; save.dex = save.dex || {};
+  for (const k of Object.keys(delta)) { const nk = mkKey(k); if (nk !== k) { delta[nk] = (delta[nk] | 0) + (delta[k] | 0); delete delta[k]; } }   // 옛 재료 이름 → 새 이름 (화면에도 새 이름으로 가요)
   for (const k in delta) {
     const n = delta[k] | 0; if (!n) continue;
     const t = keyKind(k);
@@ -563,11 +571,12 @@ wss.on('connection', (ws) => {
         // 지금 있는 친구들 알려 주기 / 내가 왔다고 알리기 (외형 포함)
         for (const [ows, op] of players) if (ows !== ws) send(ws, { t: 'join', id: op.id, name: op.name, color: op.color, x: op.x, y: op.y, d: op.d, here: op.here, look: op.look });
         broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
+        if (p.save) curMigrate(p.save);
         if (p.save) { const e = enhOf(p.save), out = []; enhDaily(e, out); enhSession(e, out); { const l0 = e.lv | 0; e.star = e.star | 0; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv); if (e.lv > l0) out.push('🎉 강화 3.0! 모아 둔 별로 +' + l0 + ' → +' + e.lv); } rankSet(key, p.name, e, p.look); sendEnh(ws, p, { note: out }); if (out.length) queueSave(key, p.save); }
         send(ws, { t: 'champ', c: champPub() });
         rosterSet(key, p.name, p.save); rosterSend(true);
         if (p.save) withLock(key, async () => { stampMigrate(ws, p.save); queueSave(key, p.save); await welcomeBack(ws, p); }).catch(e => console.error('welcome', e.message));
-        send(ws, { t: 'pt', p: ptPub(), today: ptToday(p.save) });
+        send(ws, { t: 'pt', p: ptPub(), today: ptToday(p.save) }); if (p.save) send(ws, { t: 'vday', b: vdayOf(p.save).b });
         send(ws, { t: 'ev', list: evList() }); send(ws, vPub()); if (p.save) send(ws, { t: 'med', med: medPub(p.save), wkc: p.save.wkc || null, medw: p.save.medw || null }); togCheck();
         if (p.save && Array.isArray(p.save.auh) && p.save.auh.length) withLock(key, () => holdRefund(key)).catch(e => console.error('hold', e.message));
         console.log('접속', p.name, '현재', players.size, '명');
@@ -618,8 +627,9 @@ wss.on('connection', (ws) => {
         m.data.evn = me.save ? me.save.evn | 0 : 0;   // 행사를 연 횟수
         m.data.auh = me.save && Array.isArray(me.save.auh) ? me.save.auh : [];   // 반짝 장터에 맡긴 골드
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
-        m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 코인 (서버만)
-        for (const k of ['med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 메달 · 행사 강화권 · 주간 보상 받은 기록
+        m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
+        m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
+        for (const k of ['acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {};
@@ -629,13 +639,13 @@ wss.on('connection', (ws) => {
         const e = enhOf(m.data), out = [];
         enhDaily(e, out);
         if (!first) { let pts = 0, cnt = 0; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) { pts += dn * ENH.PTS[fishRar(+k)]; cnt += dn; } } if (pts) enhAddPoints(e, pts, out); if (cnt) wkAdd('fish', cnt); }
-        me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data); shipSnap(me, m.data);
+        foldItems(m.data); me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data); shipSnap(me, m.data);
         if (first) togCheck();
         if (sFixed) send(ws, { t: 'sdex', sdex: m.data.sdex });   // 손맛 도감을 서버 기록에 맞춰요
         if (!first) { shinyRoll(ws, me, m.data, oldSd); mythCheck(me, m.data, oldSd); dayStar(me, m.data, oldSd); mentorCheck(me, m.data, oldSd); starCatch(ws, m.data, oldSd); stampCheck(ws, m.data, oldSd); recCheck(ws, me, oldDex, m.data, oldSd); }
         if (!first) {   // 섬 물고기를 직접 낚았으면 안개 조각
           const sh = shardRoll(m.data, oldSd);
-          if (sh) { const rev = applyInv(m.data, { 'i:shard': sh }); send(ws, { t: 'delta', d: { 'i:shard': sh }, rev, shd: m.data.shd, why: '🔹 섬 물고기를 직접 낚았어요 (오늘 ' + m.data.shd.n + '/' + SHARD_DAY + ')' }); }
+          if (sh) { const rev = applyInv(m.data, { 'i:shard': sh }); send(ws, { t: 'delta', d: { 'i:shard': sh }, rev, shd: m.data.shd, why: '🔹 섬 물고기를 직접 낚았어요 (이번 주 ' + m.data.shd.n + '/' + shardDay() + ')' }); }
         }
         if (!first) {   // 장소마다 오늘 첫 낚시 선물
           const g = giftOf(m.data), places = [];
@@ -700,7 +710,7 @@ function onMsg(ws, me, m) {
       const until = now + (D.dur ? D.dur(s) * 60e3 : 0), out = { t: 'skill_ok', k, until, next: D.daily ? 0 : c[k] };
       if (k === 'boom') { V.boom = { by: me.name, until }; vMark(); vSend(); broadcast({ t: 'news', text: '🔮 ' + me.name + ' 님의 대박 예보! ' + Math.round((until - now) / 60000) + '분 동안 마을 모두 희귀 이상 2배!' }); }
       if (k === 'shx') me.shx = until;
-      if (k === 'cat') { const e = enhOf(s); e.cat = Math.min(3, (e.cat | 0) + 1); e.catk = jobRank(s, 'cra', 'cat2'); out.enh = e; }
+      if (k === 'cat') { const e = enhOf(s); e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.enh = e; out.note = '🔨 장인의 손길: 강화권 +1'; }   // 2026-11-05: 촉매 대신 강화권
       queueSave(me.key, s); send(ws, out);
     }).catch(e => console.error('skill', e.message)); break;
     case 'ark_put': withLocks([me.key, '__ark'], async () => {
@@ -739,10 +749,10 @@ function onMsg(ws, me, m) {
     }
     case 'rank_get': { const k = String(m.k || ''), r = rankOf(k, me); if (r) send(ws, Object.assign({ t: 'rank', k }, r)); break; }
     case 'trust_buy': withLock(me.key, async () => {
-      const s = me.save, id = String(m.id || ''), cost = TRUST_SHOP[id]; if (!s || !cost) return;
+      const s = me.save, id = String(m.id || ''), cost = TRUST_SHOP[id]; if (!s || !cost) return;   // 옛 화면용: 이제 도토리로 사요
       const own = (s.cos && s.cos.own) || []; if (own.includes(id)) return send(ws, { t: 'rq_err', msg: '이미 가지고 있어요' });
-      if ((s.trust | 0) < cost) return send(ws, { t: 'rq_err', msg: '신뢰가 모자라요 (' + cost + ')' });
-      s.trust = (s.trust | 0) - cost; giveCos(s, [id]); queueSave(me.key, s); send(ws, { t: 'trust', n: s.trust, got: id });
+      const md = s.med || (s.med = { n: 0, tot: 0, d: kstDay(), t: 0 }); if ((md.n | 0) < cost) return send(ws, { t: 'rq_err', msg: '도토리가 모자라요 (' + cost + ')' });
+      md.n -= cost; const got = giveCos(s, [id]); queueSave(me.key, s); send(ws, { t: 'cos_got', ids: got }); send(ws, { t: 'med', med: medPub(s), why: '🌰 도토리 교환 완료!' });
     }).catch(e => console.error('trust_buy', e.message)); break;
     case 'mstar': withLock(me.key, async () => {   // 명장 ★: 명장(4000) 다음부터 2000마다 · 강화권 +3 · 안개 조각 +2
       const s = me.save, job = jobOf(s); if (!s || !job) return; const x = s.job.xp && s.job.xp[job] | 0, st = x >= 4000 ? Math.floor((x - 4000) / 2000) : 0;
@@ -926,9 +936,8 @@ function onMsg(ws, me, m) {
         await changeBag(owner, reqDelta(q.item, q.n), '📜 ' + me.name + ' 님이 의뢰한 ' + ITEM_NAME[q.item] + ' ×' + q.n + '을(를) 보내 줬어요!');
         if (!liveByKey(owner)) addMail(owner, me.name + ' 님이 의뢰한 ' + ITEM_NAME[q.item] + ' ×' + q.n + '을(를) 보내 줬어요!');
         await tagMaker(owner, q.item, me.name, q.n);
-        const ms = me.save; ms.trust = (ms.trust | 0) + (pro ? 2 : 1) * Math.max(1, Math.min(5, Math.ceil(q.n / 2))); queueSave(me.key, ms);
-        send(ws, { t: 'rq_ok', solved: true, text: '📜 ' + ((rosterCache.get(owner) || {}).name || '') + ' 님의 부탁을 해결했어요! 🤝 신뢰 ' + ms.trust + (pro ? ' · 숙련도 +60' : '') });
-        send(ws, { t: 'trust', n: ms.trust });
+        const ms = me.save, ac = (pro ? 2 : 1) * Math.max(1, Math.min(5, Math.ceil(q.n / 2))); await medAdd(me.key, ac, null, true); queueSave(me.key, ms);
+        send(ws, { t: 'rq_ok', solved: true, text: '📜 ' + ((rosterCache.get(owner) || {}).name || '') + ' 님의 부탁을 해결했어요! 🌰 도토리 +' + ac + (pro ? ' · 숙련도 +60' : '') });
         if (pro) send(ws, { t: 'jxp', job: MAKER[q.item], n: jrOf(me.save, MAKER[q.item]) >= 4 ? 120 : 60 });
       });
     })().catch(e => { console.error('rq_take', e.message); send(ws, { t: 'rq_err', msg: '처리하지 못했어요' }); }); break;
@@ -977,16 +986,23 @@ function onMsg(ws, me, m) {
     /* ----- 은비랜드 ----- */
     case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'eb_hilo': case 'eb_vip': ebMsg(ws, me, m); break;
     /* ----- 오늘의 일 세 가지 다 하면 강화권 1장 (하루 한 번) ----- */
-    case 'jtask_all': withLock(me.key, () => {
-      const s = me.save; if (!s || !jobOf(s) || s.jtd === kstDay()) return; s.jtd = kstDay();
-      const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + 3); out.push('오늘의 일 세 가지 완료! 강화권 +3'); queueSave(me.key, s); sendEnh(ws, me, { note: out });
-    }); break;
+    case 'jtask_all': case 'vday_claim': withLock(me.key, async () => {   // 🏘️ 오늘의 마을 일 (2026-11-05): 세 가지 중 두 가지 → 강화권 3 · 도토리 3 · 선물 하나 · 하루 한 몫, 3일치까지 쌓여요
+      const s = me.save; if (!s) return; const v = vdayOf(s);
+      if (v.b < 1) return send(ws, { t: 'vday', ok: 0, b: 0, msg: '오늘 몫은 이미 받았어요 · 내일 또 한 몫이 쌓여요 (3일치까지)' });
+      v.b--; const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + 3); out.push('🏘️ 오늘의 마을 일 완료! 강화권 +3 · 🌰 도토리 +3');
+      const delta = {}, cos = [], gout = []; giftRoll(s, e, delta, cos, gout, 0); const got = giveCos(s, cos);
+      gout.forEach(t => { if (t !== '새 옷!') out.push('🎁 선물: ' + t); }); for (const k in delta) out.push('🎁 선물: ' + (ITEM_NAME[k.slice(2)] || k.slice(2)) + ' ×' + delta[k]);
+      if (Object.keys(delta).length) await changeBag(me.key, delta, null);
+      await medAdd(me.key, 3, null, true); queueSave(me.key, s); sendEnh(ws, me, { note: out }); if (got.length) send(ws, { t: 'cos_got', ids: got });
+      send(ws, { t: 'vday', ok: 1, b: v.b });
+    }).catch(e => console.error('vday', e.message)); break;
+    case 'vday_get': if (me.save) send(ws, { t: 'vday', b: vdayOf(me.save).b }); break;
     /* ----- 명장 축복: 하루 한 번, 마을 모두에게 20분 행운 ----- */
     case 'bless': withLock(me.key, () => {
       const s = me.save, job = jobOf(s); if (!job) return; const x = (s.job.xp && s.job.xp[job]) | 0;
       if (x < JR_MASTER) return send(ws, { t: 'news', text: '명장 등급부터 할 수 있어요' });
-      if (s.blessd === kstDay()) return send(ws, { t: 'news', text: '오늘 축복은 이미 했어요' });
-      s.blessd = kstDay(); queueSave(me.key, s);
+      if (Date.now() - (s.blessT || 0) < 6 * 3600e3) return send(ws, { t: 'news', text: '축복은 6시간마다 할 수 있어요 (' + Math.ceil((6 * 3600e3 - (Date.now() - s.blessT)) / 60000) + '분 남음)' });
+      s.blessT = Date.now(); s.blessd = kstDay(); queueSave(me.key, s);
       for (const [w, p] of players) send(w, { t: 'bless', by: me.name, job, mine: p === me });
     }); break;
     /* ----- 운영자 도구: 공지 · 선물(골드 · 강화권 · 아이템 · 물고기) · 직업 대기 풀기. 운영자 계정만 ----- */
@@ -1093,7 +1109,7 @@ function onMsg(ws, me, m) {
     case 'don_list': boxState().then(b => send(ws, Object.assign({ t: 'don_list' }, b))).catch(e => console.error('don_list', e.message)); break;
     case 'don_put': withLocks([me.key, '__box'], async () => {   // 기부는 한 번에 하나씩 (넘치지 않게)
       const s = me.save; if (!s || vBoat) return;
-      const k = m.k, need = BOAT_NEED[k]; if (!need) return;
+      const k = mkKey(m.k), need = BOAT_NEED[k]; if (!need) return;
       const b = await boxState(), sk = k.startsWith('i:') ? k.slice(2) : k, mine = s.don && s.don[k] | 0;
       const left = k === 'g' ? Infinity : need - (b.tot[sk] | 0); let n = Math.min(m.n | 0, left, donCap(k) - mine);
       if (n <= 0) return send(ws, { t: 'news', text: left <= 0 ? '그 재료는 다 모였어요' : '한 사람이 넣을 수 있는 만큼 넣었어요. 다른 친구 몫이에요' });
@@ -1256,7 +1272,7 @@ const EV_KIND = {
 };
 const EV_MAX = 3, STALL_MENU = ['soup', 'grill', 'snack', 'charm'], STALL_EACH = 3, PLAY_R = 4 * 16, NEAR_R = 3 * 16;
 const AUC_TI = ['t_a_pearl', 't_a_moon', 't_a_tea', 't_a_star', 't_a_cloud', 't_a_sea'];   // 장터에서만 나오는 칭호
-const AUC_MAT = [['pearl', 2], ['feather', 2], ['thread', 1], ['toy', 1], ['charm', 2]];
+const AUC_MAT = [['knack', 4], ['knack', 6], ['toy', 1], ['charm', 2]];
 const EV_TI = ['t_cup', 't_bounty', 't_host'], HOST_TI_N = 5;   // 대회 우승 · 현상금 사냥꾼 · 행사 5번 연 사람
 const JR_X = [0, 300, 1200, 4000, 15000, 40000, 100000];   // 대명장 · 전설 · 신화 (index.html JR과 같아요)
 const jrOf = (s, job) => { const x = s && s.job && s.job.xp ? s.job.xp[job] | 0 : 0; let r = 0; for (let i = 0; i < JR_X.length; i++) if (x >= JR_X[i]) r = i; return r; };
@@ -1291,8 +1307,14 @@ async function helpAdd(key, fromName, text) {
   const r = rosterCache.get(key); if (r) { r.help = h.n; rosterSoon(); }
   const l = liveByKey(key); if (l) send(l[0], { t: 'thx', from: fromName, text, n: h.n });
 }
-/* ---------- 축제 메달 · 행사 강화권: 보상은 골드 대신 '하루 상한이 있는 것'으로 ----------
-   메달은 행사에 참여해야만 생겨요 (하루 MED_DAY개, 축제 시간엔 2배). 행사 강화권은 하루 EVTK_DAY장까지 */
+/* 2026-11-05 재화 정리: 신뢰 → 도토리 (1:1) · 강화 촉매 → 강화권 · 옛 재료 이름 접기. 한 사람에 한 번 */
+function curMigrate(s) {
+  foldItems(s); if (s.acm) return; s.acm = 1;
+  const md = s.med && typeof s.med === 'object' ? s.med : (s.med = { n: 0, tot: 0, d: kstDay(), t: 0 }); md.n = (md.n | 0) + (s.trust | 0); s.trust = 0;
+  const e = s.enh; if (e && (e.cat | 0) > 0) { e.tk = Math.min(ENH.TK_MAX, (e.tk | 0) + (e.cat | 0)); e.cat = 0; }
+}
+/* ---------- 축제 도토리 · 행사 강화권: 보상은 골드 대신 '하루 상한이 있는 것'으로 ----------
+   도토리은 행사에 참여해야만 생겨요 (하루 MED_DAY개, 축제 시간엔 2배). 행사 강화권은 하루 EVTK_DAY장까지 */
 const MED_DAY = 10, EVTK_DAY = 6, FEST_H = 21;   // 축제 시간: 밤 9시~10시 (한국 시간)
 const kstH = () => new Date(Date.now() + 9 * 3600e3).getUTCHours();
 const isFest = () => kstH() === FEST_H;
@@ -1303,7 +1325,7 @@ async function medAdd(key, n, why, noCap) {   // 잠금 안에서 부르기
   if (md.d !== d) { md.d = d; md.t = 0; }
   if (!noCap) { if (isFest()) n *= 2; n = Math.min(n, medCap() - (md.t | 0)); if (n <= 0) return 0; md.t = (md.t | 0) + n; }
   md.n = (md.n | 0) + n; md.tot = (md.tot | 0) + n; queueSave(key, s);
-  const l = liveByKey(key); if (l) send(l[0], { t: 'med', med: medPub(s), why: why ? '🎖️ ' + why + ' · 메달 +' + n : null });
+  const l = liveByKey(key); if (l) send(l[0], { t: 'med', med: medPub(s), why: why ? '🌰 ' + why + ' · 도토리 +' + n : null });
   return n;
 }
 async function evTk(key, n, note) {   // 행사에서 받는 강화권 (하루 상한) · 잠금 안에서
@@ -1340,18 +1362,18 @@ function evOpen(ws, me, m) {
     evs.set(e.id, e); e.timer = setTimeout(() => evEnd(e.id), e.end - Date.now());
     send(ws, { t: 'ev_ok', kind: m.kind });
     // 행사를 열면 오늘의 일도 끝 (강화권 +1, 하루 한 번)
-    if (s.jtd !== kstDay()) { s.jtd = kstDay(); const en = enhOf(s), out = []; enhDaily(en, out); en.tk = Math.min(ENH.TK_MAX, en.tk + 1); out.push('행사를 열어서 오늘의 일 완료! 강화권 +1'); sendEnh(ws, me, { note: out }); }
+    /* 2026-11-05: 행사를 열면 화면이 「오늘의 마을 일」을 다 채워요 (보상은 마을 일에서) */
     if (s.evn >= HOST_TI_N) { const got = giveCos(s, ['t_host']); if (got.length) send(ws, { t: 'cos_got', ids: got }); }
     if (V) { const n0 = V.rsv.length; V.rsv = V.rsv.filter(r => r.host !== me.key); if (V.rsv.length !== n0) vMark(); }
     wkAdd('open', 1);
     const where = me.y >= 60 * 16 ? '안개 섬' : (me.x >= 34 * 16 && me.y < 31 * 16) ? '축제 광장' : '마을';
-    const how = { cup: '낚시만 하면 자동 참가!', bounty: '처음 낚는 사람에게 현상금 (강화권 · 메달)!', stall: '지나가다 사 먹으면 30분 버프!', play: '근처에 있으면 짝꿍이 ♥ · 경험치', auc: '오늘만 나오는 물건을 골드로 겨뤄요' }[m.kind];
-    const text = (e.mega ? '📣 ' : '') + K.ic + ' ' + me.name + ' 님(' + JOB_NAME[K.job] + ')이 ' + where + '에서 「' + K.name + '」을(를) 열었어요! ' + how + (e.fest ? ' 🎉 축제 시간이라 메달 2배!' : '');
+    const how = { cup: '낚시만 하면 자동 참가!', bounty: '처음 낚는 사람에게 현상금 (강화권 · 도토리)!', stall: '지나가다 사 먹으면 30분 버프!', play: '근처에 있으면 짝꿍이 ♥ · 경험치', auc: '오늘만 나오는 물건을 골드로 겨뤄요' }[m.kind];
+    const text = (e.mega ? '📣 ' : '') + K.ic + ' ' + me.name + ' 님(' + JOB_NAME[K.job] + ')이 ' + where + '에서 「' + K.name + '」을(를) 열었어요! ' + how + (e.fest ? ' 🎉 축제 시간이라 도토리 2배!' : '');
     broadcast({ t: 'news', text }); if (e.mega) broadcast({ t: 'ev_mega', text, kind: m.kind, host: me.name });
     evSoon(); rosterSoon(); vSoon();
   }).catch(e => console.error('ev_open', e.message));
 }
-const MEGA_G = 50000;   // 행사 확성기: 마을 전체에 크게 알리고, 끝날 때 참가자 메달 +1
+const MEGA_G = 50000;   // 행사 확성기: 마을 전체에 크게 알리고, 끝날 때 참가자 도토리 +1
 function evCatch(ws, me, m) {
   const id = m.id; if (!validFish(id) || !me.save) return; const now = Date.now();
   for (const e of evs.values()) {
@@ -1368,7 +1390,7 @@ function evCatch(ws, me, m) {
         await lockDo(me.key, async () => { await evTk(me.key, 2, '🎯 현상수배 해결! 강화권 +{n}'); await medAdd(me.key, 3, '현상수배 해결'); await giveCosTo(me.key, ['t_bounty']); });
         if (e.host !== me.key) { await lockDo(e.host, async () => { await evTk(e.host, 1, '🎯 ' + me.name + ' 님이 내 현상수배를 해결했어요! 강화권 +{n}'); await medAdd(e.host, 2, '내 현상수배가 해결됐어요'); }); helpAdd(e.host, me.name, '내 현상수배 덕분에 새 물고기를 낚았대요').catch(() => { }); }
         for (const p of [...players.values()]) if (p.key !== me.key && p.key !== e.host) await lockDo(p.key, () => medAdd(p.key, 1, '현상수배 해결 축하'));
-        broadcast({ t: 'news', text: '🎯 현상수배 해결! ' + me.name + ' 님이 ' + e.hostName + ' 박사가 찾던 물고기를 낚았어요! 접속한 모두에게 축하 메달 🎖️' });
+        broadcast({ t: 'news', text: '🎯 현상수배 해결! ' + me.name + ' 님이 ' + e.hostName + ' 박사가 찾던 물고기를 낚았어요! 접속한 모두에게 축하 도토리 🌰' });
         wkAdd('bounty', 1); evEnd(e.id);
       })().catch(er => console.error('bounty', er.message));
     }
@@ -1424,7 +1446,7 @@ function evBid(ws, me, m) {
     send(ws, { t: 'ev_err', text: '🔔 ' + g + '골드에 입찰했어요!' }); evSoon();
   }).catch(er => console.error('ev_bid', er.message));
 }
-/* 펫 놀이터: 1분마다 근처 친구의 짝꿍이 ♥ · 경험치. 5분 넘게 놀면 메달 */
+/* 펫 놀이터: 1분마다 근처 친구의 짝꿍이 ♥ · 경험치. 5분 넘게 놀면 도토리 */
 function evTick() {
   for (const e of evs.values()) {
     if (e.kind !== 'play') continue;
@@ -1473,7 +1495,7 @@ async function evEnd(id) {
       broadcast({ t: 'news', text: '🔔 ' + e.hostName + ' 님의 반짝 장터 끝! ' + (res.length ? '낙찰: ' + res.join(' · ') : '이번엔 낙찰이 없었어요') });
       wkAdd('auc', sold);
     }
-    // 사람이 많이 모일수록 모두에게 메달 더 (3명 +1 · 5명 +2 · 확성기 +1)
+    // 사람이 많이 모일수록 모두에게 도토리 더 (3명 +1 · 5명 +2 · 확성기 +1)
     if (crowd) for (const k of others) await lockDo(k, () => medAdd(k, crowd, '북적북적 보너스'));
     await lockDo(e.host, async () => {
       if (n >= 2) await evTk(e.host, 1, K.ic + ' 「' + K.name + '」 주최 보상! 강화권 +{n}');
@@ -1483,9 +1505,9 @@ async function evEnd(id) {
   } catch (er) { console.error('ev_end', er.message); }
 }
 
-/* ---------- 은비랜드: 골드 → 코인 (한 방향) · 슬롯 · 거북이 경주 · 하이로우 · 경품 교환소 ----------
-   결과는 전부 서버가 정해요. 코인은 골드로 되돌릴 수 없어서 골드가 빠져나가는 곳이에요 (게임 평균 환급 약 90%).
-   코인을 쓰는 이유: 은비랜드에서만 파는 치장 · 칭호, VIP 등급과 매일 보너스, 마을 전체 잭팟. index.html EB와 같아야 해요 */
+/* ---------- 은비랜드: 골드 → 칩 (한 방향) · 슬롯 · 거북이 경주 · 하이로우 · 경품 교환소 ----------
+   결과는 전부 서버가 정해요. 칩은 골드로 되돌릴 수 없어서 골드가 빠져나가는 곳이에요 (게임 평균 환급 약 90%).
+   칩을 쓰는 이유: 은비랜드에서만 파는 치장 · 칭호, VIP 등급과 매일 보너스, 마을 전체 잭팟. index.html EB와 같아야 해요 */
 const EB = {
   RATE: 10, BUY_DAY: 20000, BETS: [10, 50, 100, 500, 1000],
   SLOT_W: [30, 24, 18, 12, 8, 4], SLOT3: [5, 10, 24, 60, 150, 0], SLOT2: [0, .4, .7, 1, 2, 4], JP_CUT: .03, JP_BASE: 2000,
@@ -1495,7 +1517,7 @@ const EB = {
 };
 let ebJP = EB.JP_BASE;
 const ebOf = s => { const e = s.eb && typeof s.eb === 'object' ? s.eb : (s.eb = { c: 0, d: '', buy: 0, wag: 0, best: 0, vd: '' }); if (e.d !== kstDay()) { e.d = kstDay(); e.buy = 0; e.loss = 0; e.cons = 0; } return e; };
-/* 크게 잃은 날을 위한 마음 쓰기: 오늘 순손실 5,000코인마다 은비가 10%를 위로 코인으로 돌려주고, 30,000코인을 잃으면 그날은 쉬어 가요 */
+/* 크게 잃은 날을 위한 마음 쓰기: 오늘 순손실 5,000칩마다 은비가 10%를 위로 칩으로 돌려주고, 30,000칩을 잃으면 그날은 쉬어 가요 */
 const EB_CONS = 5000, EB_LOSS_CAP = 30000;
 const ebCap = s => [20000, 30000, 50000, 70000, 100000][ebVip((ebOf(s).wag) | 0) + 1];   // VIP일수록 하루에 더 바꿀 수 있어요
 const ebVip = wag => { let t = -1; EB.VIP.forEach((v, i) => { if (wag >= v[0]) t = i; }); return t; };
@@ -1505,26 +1527,26 @@ function ebMsg(ws, me, m) {
   withLock(me.key, async () => {
     const s = me.save; if (!s) return; const e = ebOf(s), err = text => send(ws, { t: 'eb_err', text }), done = extra => { queueSave(me.key, s); send(ws, Object.assign(ebPub(s, me), extra || {})); };
     if (m.t === 'eb_info') { if (!me.hiCard) me.hiCard = 1 + Math.floor(Math.random() * 13); return done(); }
-    if (m.t === 'eb_vip') { const t = ebVip(e.wag | 0); if (t < 0) return err('VIP 브론즈부터 받을 수 있어요'); if (e.vd === kstDay()) return err('오늘 보너스는 이미 받았어요'); e.vd = kstDay(); const n = EB.VIP[t][2]; e.c += n; return done({ win: n, note: 'VIP ' + EB.VIP[t][1] + ' 오늘의 보너스 코인 +' + n }); }
+    if (m.t === 'eb_vip') { const t = ebVip(e.wag | 0); if (t < 0) return err('VIP 브론즈부터 받을 수 있어요'); if (e.vd === kstDay()) return err('오늘 보너스는 이미 받았어요'); e.vd = kstDay(); const n = EB.VIP[t][2]; e.c += n; return done({ win: n, note: 'VIP ' + EB.VIP[t][1] + ' 오늘의 보너스 칩 +' + n }); }
     if (m.t === 'eb_buy') {
       const n = Math.floor(Number(m.n) || 0), cap = ebCap(s); if (n < 10 || n > cap) return;
-      if ((e.buy | 0) + n > cap) return err('오늘은 ' + fmtN(cap - (e.buy | 0)) + '코인까지 바꿀 수 있어요');
+      if ((e.buy | 0) + n > cap) return err('오늘은 ' + fmtN(cap - (e.buy | 0)) + '칩까지 바꿀 수 있어요');
       const g = n * EB.RATE; if (!hasKey(s, 'g', g)) return err('골드가 모자라요');
-      await changeBag(me.key, { g: -g }, null); e.buy = (e.buy | 0) + n; e.c = (e.c | 0) + n; return done({ note: '코인 ' + fmtN(n) + '개로 바꿨어요' });
+      await changeBag(me.key, { g: -g }, null); e.buy = (e.buy | 0) + n; e.c = (e.c | 0) + n; return done({ note: '칩 ' + fmtN(n) + '개로 바꿨어요' });
     }
     if (m.t === 'eb_shop') {
       const id = String(m.id || ''), price = EB.SHOP[id]; if (!price) return; const own = (s.cos && s.cos.own) || [];
-      if (own.includes(id)) return err('이미 가지고 있어요'); if ((e.c | 0) < price) return err('코인이 모자라요');
+      if (own.includes(id)) return err('이미 가지고 있어요'); if ((e.c | 0) < price) return err('칩이 모자라요');
       e.c -= price; const got = giveCos(s, [id]); send(ws, { t: 'cos_got', ids: got }); return done({ note: '경품 교환 완료!' });
     }
-    const bet = m.bet | 0; if (!EB.BETS.includes(bet)) return; if ((e.c | 0) < bet) return err('코인이 모자라요');
-    if ((e.loss | 0) >= EB_LOSS_CAP) return err('🐰 은비: 오늘은 여기까지! 내일 다시 놀러 와요 (하루에 잃을 수 있는 코인을 다 썼어요)');
+    const bet = m.bet | 0; if (!EB.BETS.includes(bet)) return; if ((e.c | 0) < bet) return err('칩이 모자라요');
+    if ((e.loss | 0) >= EB_LOSS_CAP) return err('🐰 은비: 오늘은 여기까지! 내일 다시 놀러 와요 (하루에 잃을 수 있는 칩을 다 썼어요)');
     e.c -= bet; e.wag = (e.wag | 0) + bet; const v0 = ebVip(e.wag - bet), v1 = ebVip(e.wag);
     let win = 0, extra = {};
     if (m.t === 'eb_slot') {
       ebJP += bet * EB.JP_CUT; vMark(); const r = [ebPick(EB.SLOT_W), ebPick(EB.SLOT_W), ebPick(EB.SLOT_W)];
       if (r[0] === r[1] && r[1] === r[2]) {
-        if (r[0] === 5) { win = Math.floor(ebJP * Math.min(1, bet / 500)); ebJP = Math.max(EB.JP_BASE, ebJP - win); extra.jack = true; const got = giveCos(s, ['t_jackpot']); if (got.length) send(ws, { t: 'cos_got', ids: got }); broadcast({ t: 'news', text: '🎰 잭팟!! ' + me.name + ' 님이 은비랜드에서 ' + fmtN(win) + '코인을 터뜨렸어요!' }); }
+        if (r[0] === 5) { win = Math.floor(ebJP * Math.min(1, bet / 500)); ebJP = Math.max(EB.JP_BASE, ebJP - win); extra.jack = true; const got = giveCos(s, ['t_jackpot']); if (got.length) send(ws, { t: 'cos_got', ids: got }); broadcast({ t: 'news', text: '🎰 잭팟!! ' + me.name + ' 님이 은비랜드에서 ' + fmtN(win) + '칩을 터뜨렸어요!' }); }
         else win = Math.floor(bet * EB.SLOT3[r[0]]);
       } else { const c = {}; r.forEach(x => c[x] = (c[x] | 0) + 1); for (const x in c) if (c[x] === 2) win = Math.floor(bet * EB.SLOT2[x]); }
       extra.reels = r;
@@ -1539,9 +1561,9 @@ function ebMsg(ws, me, m) {
     } else { e.c += bet; e.wag -= bet; return; }
     e.c += win; if (win > (e.best | 0)) e.best = win;
     e.loss = (e.loss | 0) + bet - win; const step = Math.floor(Math.max(0, e.loss) / EB_CONS);
-    if (step > (e.cons | 0)) { const back = (step - (e.cons | 0)) * EB_CONS / 10; e.cons = step; e.c += back; extra.note = '🐰 은비의 위로 코인 +' + fmtN(back) + ' · 오늘은 운이 조금 없네요'; }
+    if (step > (e.cons | 0)) { const back = (step - (e.cons | 0)) * EB_CONS / 10; e.cons = step; e.c += back; extra.note = '🐰 은비의 위로 칩 +' + fmtN(back) + ' · 오늘은 운이 조금 없네요'; }
     ebRecord(me.name, m.t.slice(3), bet, win, !!extra.jack);
-    if (win >= 5000 && !extra.jack) broadcast({ t: 'news', text: '🎰 ' + me.name + ' 님이 은비랜드에서 ' + fmtN(win) + '코인을 땄어요!' }, ws);
+    if (win >= 5000 && !extra.jack) broadcast({ t: 'news', text: '🎰 ' + me.name + ' 님이 은비랜드에서 ' + fmtN(win) + '칩을 땄어요!' }, ws);
     if (v1 > v0) extra.note = '🎉 은비랜드 VIP ' + EB.VIP[v1][1] + ' 등급이 됐어요!';
     done(Object.assign(extra, { bet, win }));
   }).catch(er => console.error('eb', er.message));
@@ -1568,7 +1590,7 @@ let V = null, vDirty = false, vT = 0;
 const vDefault = () => ({ fund: { g: 0, st: 0 }, don: {}, wk: null, rsv: [], jp: 0 });
 /* 발전 기금으로 짓는 축제 광장 시설 (순서대로). index.html VF와 같아야 해요 */
 const VF = [
-  { id: 'fountain', name: '분수', g: 5e6, eff: '행사 메달 하루 상한 +2' },
+  { id: 'fountain', name: '분수', g: 5e6, eff: '행사 도토리 하루 상한 +2' },
   { id: 'stage', name: '축제 무대', g: 1e7, eff: '모든 행사 시간 +10분' },
   { id: 'carousel', name: '회전목마', g: 2e7, eff: '주간 마을 목표를 다 채우면 강화권 +1 더' },
   { id: 'tower', name: '등대 전망대', g: 3e7, eff: '함께 접속 보너스 행운 +5% → +10%' }];
@@ -1586,10 +1608,10 @@ async function vFlush() { if (!V) return; vDirty = false; V.jp = Math.floor(ebJP
 setInterval(() => { if (vDirty) vFlush(); }, 10000);
 const kstHM = ms => new Date(ms + 9 * 3600e3).toISOString().slice(11, 16);
 /* ⛵ 물결호 키우기 (자연 1.0): 마을 모두가 재료를 실어 단계를 올려요 · 마을 기록(__village)에 저장 · index.html ARK와 같아요 */
-const ARK_NEED = [null, null, { plank: 300, log: 200 }, { cloth: 20, dye: 20, wplank: 100 }, { wplank: 300, honey: 60, fruit: 80 }, { wplank: 600, cloth: 40, wildhoney: 50, honey_rb: 5, flower: 100, fruit: 120 }];   // index.html ARK와 같아요 (2026-11-05 꽃 · 나무가 귀해져서 줄였어요)
+const ARK_NEED = [null, null, { plank: 300, log: 200 }, { cloth: 30, plank: 200 }, { plank: 400, honey: 60, fruit: 80 }, { plank: 600, cloth: 40, wildhoney: 80, honey_rb: 5, flower: 100, fruit: 120 }];   // index.html ARK와 같아요 (2026-11-05 꽃 · 나무가 귀해져서 줄였어요)
 const ARK_GROUP = { fruit: ['apple', 'peach', 'orange', 'cherry'], flower: ['fl_tulip', 'fl_sun', 'fl_cosmos', 'fl_lav', 'fl_rose', 'fl_hydr', 'fl_lily', 'fl_rb'] };
 const ARK_NAME = ['', '물결호', '튼튼한 물결호', '돛단 물결호', '물결 범선', '물결 방주'];
-const arkOf = () => { if (!V) return { st: 1, got: {}, dn: {} }; const a = V.ark && typeof V.ark === 'object' ? V.ark : (V.ark = { st: 1, got: {}, dn: {} }); a.st = Math.max(1, Math.min(5, a.st | 0)); a.got = a.got || {}; a.dn = a.dn || {}; return a; };
+const arkOf = () => { if (!V) return { st: 1, got: {}, dn: {} }; const a = V.ark && typeof V.ark === 'object' ? V.ark : (V.ark = { st: 1, got: {}, dn: {} }); a.st = Math.max(1, Math.min(5, a.st | 0)); a.got = a.got || {}; a.dn = a.dn || {}; for (const k in a.got) if (MERGE[k]) { a.got[MERGE[k]] = (a.got[MERGE[k]] | 0) + a.got[k]; delete a.got[k]; } return a; };
 const arkSt = () => arkOf().st;
 /* 🌷⛵ 꽃배 (2026-11-05): 한 사람에 한 척 · 8척 · 마을 꽃배 부두 ↔ 안개 섬 부두 (index.html SHIP_N과 같아요)
    7일 넘게 안 온 사람의 배는 빈 배가 돼요 (그 사람 꽃은 저장에 그대로) */
@@ -1637,7 +1659,7 @@ function togCheck() { const n = [...players.values()].filter(p => p.save).length
 let festWas = null;
 setInterval(() => {
   togCheck(); if (tog.on) wkAdd('tog', 1);
-  const f = isFest(); if (festWas !== null && f !== festWas) { broadcast({ t: 'news', text: f ? '🎉 축제 시간이 시작됐어요! (밤 ' + FEST_H + '시~' + (FEST_H + 1) + '시) 행사 메달 2배 · 행사 시간 1.5배' : '🎉 오늘의 축제 시간이 끝났어요. 내일 밤 ' + FEST_H + '시에 또 만나요!' }); vSoon(); } festWas = f;
+  const f = isFest(); if (festWas !== null && f !== festWas) { broadcast({ t: 'news', text: f ? '🎉 축제 시간이 시작됐어요! (밤 ' + FEST_H + '시~' + (FEST_H + 1) + '시) 행사 도토리 2배 · 행사 시간 1.5배' : '🎉 오늘의 축제 시간이 끝났어요. 내일 밤 ' + FEST_H + '시에 또 만나요!' }); vSoon(); } festWas = f;
   if (V && V.rsv.length) { const now = Date.now(); let ch = false;
     for (const r of V.rsv) {
       const K = EV_KIND[r.kind];
@@ -1647,8 +1669,8 @@ setInterval(() => {
     const n0 = V.rsv.length; V.rsv = V.rsv.filter(r => now < r.at + 30 * 60e3); if (ch || V.rsv.length !== n0) { vMark(); vSoon(); } }
   wkEnsure();
 }, 60000);
-/* 메달 상점: 늘 있는 것 + 주마다 바뀌는 3개. 확정권은 주 1장 (index.html MED_SHOP과 같아야 해요) */
-const MED_CORE = [['tf_silver', 10], ['tf_gold', 25], ['t_fest', 15], ['sure', 8]];
+/* 도토리 상점: 늘 있는 것 + 주마다 바뀌는 3개. 확정권은 주 1장 (index.html MED_SHOP과 같아야 해요) */
+const MED_CORE = [['tf_silver', 10], ['tf_gold', 25], ['t_fest', 15], ['sure', 8], ['t_trust1', 10], ['t_trust2', 30], ['b_trust', 40], ['k_trust', 80]];   // 2026-11-05: 신뢰 상점도 도토리 상점으로
 const MED_ROT = [['laurel', 15], ['ft_petal', 20], ['ft_star', 20], ['ft_drop', 20], ['flagback', 30], ['tf_rainbow', 40], ['t_medal', 20], ['t_regular', 10]];
 const medShop = () => { const n = wkNum(), out = MED_CORE.slice(); for (let i = 0; i < 3; i++) out.push(MED_ROT[(n * 3 + i) % MED_ROT.length]); return out; };
 function vilMsg(ws, me, m) {
@@ -1663,12 +1685,12 @@ function vilMsg(ws, me, m) {
   }).catch(er => console.error('wk_claim', er.message));
   if (m.t === 'med_buy') return withLock(me.key, async () => {
     const s = me.save, it = medShop().find(x => x[0] === m.id); if (!s || !it) return err('이번 주에는 없는 물건이에요');
-    const md = s.med || (s.med = { n: 0, tot: 0, d: kstDay(), t: 0 }); if ((md.n | 0) < it[1]) return err('메달이 모자라요');
+    const md = s.med || (s.med = { n: 0, tot: 0, d: kstDay(), t: 0 }); if ((md.n | 0) < it[1]) return err('도토리가 모자라요');
     if (it[0] === 'sure') {
       const w = s.medw && s.medw.id === wkId() ? s.medw : (s.medw = { id: wkId(), sure: 0 }); if (w.sure >= 1) return err('확정권은 일주일에 1장이에요');
-      w.sure++; md.n -= it[1]; const en = enhOf(s); en.sure = (en.sure | 0) + 1; sendEnh(ws, me, { note: ['🎖️ 강화 확정권 +1 · 다음 강화 한 번이면 바로 다음 단계!'] });
+      w.sure++; md.n -= it[1]; const en = enhOf(s); en.sure = (en.sure | 0) + 1; sendEnh(ws, me, { note: ['🌰 강화 확정권 +1 · 다음 강화 한 번이면 바로 다음 단계!'] });
     } else { const own = (s.cos && s.cos.own) || []; if (own.includes(it[0])) return err('이미 가지고 있어요'); md.n -= it[1]; const got = giveCos(s, [it[0]]); send(ws, { t: 'cos_got', ids: got }); }
-    queueSave(me.key, s); send(ws, { t: 'med', med: medPub(s), why: '🎖️ 메달 교환 완료!', medw: s.medw || null });
+    queueSave(me.key, s); send(ws, { t: 'med', med: medPub(s), why: '🌰 도토리 교환 완료!', medw: s.medw || null });
   }).catch(er => console.error('med_buy', er.message));
   if (m.t === 'ev_rsv') {
     const K = EV_KIND[m.kind], s = me.save, at = Number(m.at) || 0, now = Date.now(); if (!s || !K || !V) return;
@@ -1728,7 +1750,7 @@ function shinyRoll(ws, me, s, oldSd) {
 }
 /* ---------- 헤비 · 라이트 격차 줄이기 ----------
    1) 돌아온 친구 선물: 하루 이상 못 왔으면 못 온 날만큼(최대 3일) 골드 · 강화권 · '휴식 행운'을 모아 둬요. 마을에서 뒤처진 친구일수록 더 많이
-   2) 선배 보너스: 손맛 도감이 두 배 이상 많은 친구가 옆(8칸)에 있을 때 후배가 새 물고기를 낚으면 선배에게 메달 (하루 10개까지)
+   2) 선배 보너스: 손맛 도감이 두 배 이상 많은 친구가 옆(8칸)에 있을 때 후배가 새 물고기를 낚으면 선배에게 도토리 (하루 10개까지)
    3) 마을의 응원: 화면에서 손맛 도감이 마을 1등의 절반이 안 되면 행운 ↑ (index.html cheerLuck) */
 const WB_GOLD = [3000, 8000, 20000, 50000, 120000, 200000], WB_DAYS = 3, WB_TK = 2, WB_REST = 25, MENTOR_DAY = 10;
 const dayGap = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
@@ -1749,7 +1771,7 @@ function mentorCheck(me, s, oldSd) {
     if (sdN(o.save) < Math.max(10, mine * 2)) continue;
     lockDo(o.key, async () => { const sv = o.save, d = kstDay(), r = sv.mnt && sv.mnt.d === d ? sv.mnt : (sv.mnt = { d, n: 0 }); if (r.n >= MENTOR_DAY) return; const n = Math.min(fresh, MENTOR_DAY - r.n); r.n += n;
       await medAdd(o.key, n, '옆에 있던 ' + me.name + ' 님이 새 물고기를 낚았어요 (선배 보너스)', true); }).catch(() => { });
-    const l = liveByKey(me.key); if (l) send(l[0], { t: 'news', text: '🤝 ' + o.name + ' 님 옆에서 새 물고기! 선배에게 메달이 갔어요' });
+    const l = liveByKey(me.key); if (l) send(l[0], { t: 'news', text: '🤝 ' + o.name + ' 님 옆에서 새 물고기! 선배에게 도토리가 갔어요' });
   }
 }
 /* ---------- 직업 3.0: 누르는 기술 (index.html SK와 같아요). 쿨타임은 서버가 save.skc에 지켜요 ---------- */
@@ -1938,8 +1960,8 @@ function giveCos(s, ids) { const c = s.cos && typeof s.cos === 'object' ? s.cos 
 const PT_MIN = 4, PT_MAX = 5, PT_MS = 10 * 60e3, PT_DAY = 2, PT_BOSS_AT = [3.5 * 60e3, 7.5 * 60e3], PT_BOSS_MS = 30e3, PT_LOBBY_MS = 15 * 60e3, PT_TAP_MIN = 12, PT_BOSS_PER = 45;
 const PT_EV = ['dolphin', 'gull', 'school', 'marlin', 'whale', 'wave'], PT_EV_MS = 30e3;   // index.html SEA_EV와 같은 이름
 let party = null, ptSendT = 0;
-const ptDay = () => PT_DAY + (arkSt() >= 4 ? 1 : 0);   // ⛵ 물결 범선: +1
-const ptToday = s => { const r = s && s.ptd; return r && r.d === kstDay() ? r.n | 0 : 0; };
+const PT_WEEK = 12, ptDay = () => PT_WEEK + (arkSt() >= 4 ? 4 : 0);   // 2026-11-05: 하루 대신 한 주에 (몰아서 가도 돼요) · ⛵ 물결 범선: +4
+const ptToday = s => { const r = s && s.ptd; return r && r.w === wkId() ? r.n | 0 : 0; };   // 이번 주 나간 횟수
 const ptLive = () => party ? party.members.filter(k => liveByKey(k)) : [];
 function ptPub() {
   if (!party) return null; const b = party.boss, now = Date.now();
@@ -1958,7 +1980,7 @@ function ptMsg(ws, me, m) {
   if (m.t === 'pt_open' || m.t === 'pt_join' || m.t === 'pt_board') {
     if (isMem && party.state === 'sea') return ptSend();   // 다시 들어온 선원: 상태만 다시 알려 줘요
     const tx = (me.x | 0) / 16, ty = (me.y | 0) / 16; if (tx < 14 || tx > 23 || ty < 43 || ty > 50) return send(ws, { t: 'news', text: '⚓ 항구 부두의 물결 어선 앞에서 탈 수 있어요' });
-    if (ptToday(me.save) >= ptDay()) return send(ws, { t: 'news', text: '오늘 배낚시는 ' + ptDay() + '번 다 나갔어요' });
+    if (ptToday(me.save) >= ptDay()) return send(ws, { t: 'news', text: '이번 주 배낚시는 ' + ptDay() + '번 다 나갔어요 (월요일에 다시)' });
     if (!party) {
       party = { leader: me.key, members: [me.key], names: { [me.key]: me.name }, state: 'lobby', hold: 0, need: 0, end: 0, boss: null, timers: [], last: {}, goAt: 0 };
       party.timers.push(setTimeout(() => { if (party && party.state === 'lobby') { ptClear(); party = null; ptSend(); } }, PT_LOBBY_MS));
@@ -2002,7 +2024,7 @@ function ptGo(ws) {
   party.members = party.members.filter(k => liveByKey(k));
   if (party.members.length < PT_MIN) { party.goAt = 0; ptSend(); if (ws) send(ws, { t: 'news', text: PT_MIN + '명이 타야 출항할 수 있어요' }); return; }
   ptClear(); party.timers = []; party.state = 'sea'; party.goAt = 0; party.end = now + PT_MS + 3000; party.need = 40 * party.members.length; party.hold = 0; party.votes = []; party.bossN = 0; party.bossWin = 0; party.bossKinds = [];
-  for (const k of party.members) { const l = liveByKey(k); if (l && l[1].save) { const s = l[1].save; s.ptd = { d: kstDay(), n: ptToday(s) + 1 }; queueSave(k, s); } }
+  for (const k of party.members) { const l = liveByKey(k); if (l && l[1].save) { const s = l[1].save; s.ptd = { w: wkId(), n: ptToday(s) + 1 }; queueSave(k, s); } }
   for (const at of PT_BOSS_AT) party.timers.push(setTimeout(ptBoss, at));
   party.timers.push(setTimeout(ptEnd, PT_MS + 3000), setTimeout(ptEvent, 35e3 + Math.random() * 20e3));
   broadcast({ t: 'news', text: '⚓ ' + party.members.map(k => party.names[k]).join(', ') + ' 님이 물결 어선을 타고 먼바다로 떠났어요!' });
@@ -2049,7 +2071,7 @@ function ptRemove(key) {
 }
 async function ptEnd() {
   if (!party || party.state !== 'sea') return; const P = party; ptClear(); party = null;
-  const full = P.hold >= P.need, big = P.hold >= P.need * 2, tk = big ? 3 : full ? 2 : 1, g = big ? 6000 : full ? 3000 : 1000, mats = ['pearl', 'feather', 'scale', 'note', 'shell', 'weed'];
+  const full = P.hold >= P.need, big = P.hold >= P.need * 2, tk = big ? 3 : full ? 2 : 1, g = big ? 6000 : full ? 3000 : 1000, mats = ['knack', 'knack', 'shell', 'weed'];
   for (const k of P.members) {
     await withLock(k, async () => {
       const s = await loadSave(k); if (!s) return;
@@ -2121,13 +2143,14 @@ function rosterSend(force) {
   broadcast({ t: 'roster', list, note, boat: vBoat, paths, vdex, rich, king, chiefs: cf });
 }
 /* 마을 기부함: 모두의 저장에 흩어진 기부를 모아서 봐요 */
-const BOAT_NEED = { 'i:scale': 10, 'i:pearl': 3, 'i:map': 1, 'i:sail': 1, g: 10000000 }, DONORS_NEED = 4, DON_MIN_G = 10000;   // index.html BOAT_NEED와 같아야 해요
+const BOAT_NEED = { 'i:knack': 13, 'i:map': 1, 'i:sail': 1, g: 10000000 }, DONORS_NEED = 4, DON_MIN_G = 10000;   // index.html BOAT_NEED와 같아야 해요
 /* 한 사람이 넣을 수 있는 양: 재료는 필요한 양의 절반(최소 1), 골드는 1만까지. 골드는 목표를 넘어도 받아서 누구나 기부에 참여할 수 있어요 */
 const donCap = k => k === 'g' ? 5000000 : Math.max(1, Math.ceil(BOAT_NEED[k] / 2));   // 골드는 한 사람 500만까지
 async function boxState() {
   const tot = {}, donors = [], per = {};
   for (const key of rosterCache.keys()) {
-    const sv = await loadSave(key), d = sv && sv.don; if (!d || typeof d !== 'object') continue;
+    const sv = await loadSave(key), d0 = sv && sv.don; if (!d0 || typeof d0 !== 'object') continue;
+    const d = {}; for (const k in d0) { const nk = mkKey(k); d[nk] = (d[nk] | 0) + (d0[k] | 0); }   // 옛 재료 이름으로 낸 것도 솜씨 재료로 세요
     let counts = false; for (const k in d) { const n = d[k] | 0; if (!BOAT_NEED[k] || n <= 0) continue; tot[k] = (tot[k] | 0) + n; if (k === 'g' ? n >= DON_MIN_G : n >= 1) counts = true; }
     const nm = (rosterCache.get(key) || {}).name || key; if (counts) donors.push(nm);
     per[nm] = {}; for (const k in d) if (BOAT_NEED[k]) per[nm][k.startsWith('i:') ? k.slice(2) : k] = d[k] | 0;
