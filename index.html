@@ -2861,7 +2861,7 @@ const Snd=(()=>{
     no(){const t=ctx.currentTime;[180,150].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;
       g.gain.setValueAtTime(.12,t+i*.1);g.gain.exponentialRampToValueAtTime(.0001,t+i*.1+.15);o.connect(g);g.connect(sfxBus);o.start(t+i*.1);o.stop(t+i*.1+.2)})},
     gate(){const t=ctx.currentTime;nz(sfxBus,t,.8,'lowpass',500,150,.16,.8);pad(sfxBus,[60,64,67,71],t+.1,1.4,.16);S.buy()},
-    page(){const t=ctx.currentTime;[72,76,79,84,88,91,96].forEach((m,i)=>bell(sfxBus,mtof(m),t+i*.1,1.2,.12))},
+    page(){const t=ctx.currentTime;[72,76,79,84,88,91,96].forEach((m,i)=>bell(sfxBus,mtof(m),t+i*.1,1,.065))},
     pop(){const t=ctx.currentTime;glide(sfxBus,500,1300,t,.07,.12,'sine');nz(sfxBus,t,.04,'highpass',2500,4000,.04,1)},
     jelly(){const t=ctx.currentTime;glide(sfxBus,200,85,t,.28,.17,'sine');glide(sfxBus,300,130,t+.06,.24,.08,'triangle');glide(sfxBus,140,260,t+.2,.12,.05,'sine')},
     drip(){const t=ctx.currentTime;glide(sfxBus,800,1600,t,.08,.1,'sine');glide(sfxBus,650,1300,t+.15,.08,.08,'sine');glide(sfxBus,900,1800,t+.32,.07,.05,'sine');nz(sfxBus,t,.4,'lowpass',700,250,.05,.7)},
@@ -3861,7 +3861,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-celb],[dat
 
 /* ----- 명예의 전당 ----- */
 let HOF_TAB='sh';const HOF_TABS=[['sh','✨ 반짝','반짝이 물고기를 모은 종류'],['gt','👑 거대','거대 개체를 낚은 종류'],['dex','📖 도감','물고기 도감 종류'],['sd','🖐️ 손맛','손맛 도감 종류'],['enh','⚒️ 강화','낚싯대 강화 단계'],['hunt','⚔️ 용사','꿈방울 사냥 용사 레벨'],['help','🤝 도움','마을 의뢰를 도운 횟수'],['eb','🎰 은비랜드','한 번에 딴 칩']];
-function openHof(){Snd.sfx('page');const t=HOF_TABS.find(x=>x[0]===HOF_TAB)||HOF_TABS[0];openSheet('🏆 명예의 전당','<div class="muted" style="font-size:12.5px;margin-bottom:8px">물결마을에서 가장 빛나는 사람들이에요. 매일 바뀌어요! <a href="#" onclick="openDayK();return false">오늘의 낚시왕 보기 →</a></div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+HOF_TABS.map(x=>'<button class="btn '+(x[0]===t[0]?'pink':'ghost')+'" style="padding:5px 9px;font-size:12.5px" data-hoft="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+rankFull(t[0],t[1]+' · '+t[2]))}
+let HOF_OPEN_T=0;function openHof(){const st=$('sheettitle');if(!$('sheetwrap').hidden&&st&&/명예의 전당/.test(st.textContent))Snd.sfx('tap');else Snd.sfx('ui');const t=HOF_TABS.find(x=>x[0]===HOF_TAB)||HOF_TABS[0];openSheet('🏆 명예의 전당','<div class="muted" style="font-size:12.5px;margin-bottom:8px">물결마을에서 가장 빛나는 사람들이에요. 매일 바뀌어요! <a href="#" onclick="openDayK();return false">오늘의 낚시왕 보기 →</a></div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+HOF_TABS.map(x=>'<button class="btn '+(x[0]===t[0]?'pink':'ghost')+'" style="padding:5px 9px;font-size:12.5px" data-hoft="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+rankFull(t[0],t[1]+' · '+t[2]))}
 
 /* ----- 결혼 ----- */
 const WED_OUT=['o_tux','o_wdress'],RINGS=['ring_silver','ring_pearl','ring_dia','ring_star','ring_rainbow'];
@@ -3882,7 +3882,7 @@ function wedLand(x,y){const ok=(X,Y)=>!isSolid((X/TS)|0,(Y/TS)|0)&&W.T[(Y/TS)|0]
 function openWedBook(i){const L=WED.list;if(!L||Date.now()-WED.bookT>8000){WED.bookT=Date.now();if(ONLINE&&Net.me)Net.send({t:'wed_list'})}
   if(!L){openSheet('📖 결혼 기록','<div class="muted" style="padding:10px;text-align:center">불러오는 중…</div>');return}
   if(!L.length){openSheet('📖 결혼 기록','<div class="muted" style="padding:10px;text-align:center">아직 결혼한 부부가 없어요. 첫 부부가 되어 볼까요? 💍</div>');return}
-  i=Math.max(0,Math.min(L.length-1,i|0));const w=L[i];Snd.sfx('page');
+  i=Math.max(0,Math.min(L.length-1,i|0));const w=L[i];Snd.sfx('tap');
   let h='<div style="display:flex;gap:5px;overflow-x:auto;margin-bottom:8px">'+L.map((x,j)=>'<button class="btn '+(j===i?'pink':'ghost')+'" style="white-space:nowrap;padding:5px 9px;font-size:12px" data-wedtab="'+j+'">'+esc(x.a)+' ♥ '+esc(x.b)+'</button>').join('')+'</div>';
   h+='<div class="wishc" style="background:#fff8fb;border-color:#ffc8dc;text-align:center;line-height:1.7"><div style="font-size:20px">💒</div><b style="font-size:16px">'+esc(w.a)+' ♥ '+esc(w.b)+'</b><br><small class="muted">'+new Date(w.at).toLocaleString('ko-KR')+' · 증인 '+esc(w.w)+(w.end?' · 지금은 각자의 길':'')+'</small></div>';
   h+='<div class="sec">함께한 하객 <span class="cnt">'+(w.g||[]).length+'명</span></div><div style="font-size:13px;line-height:1.8">'+((w.g||[]).map(esc).join(' · ')||'<span class="muted">아직 없어요</span>')+'</div>';
