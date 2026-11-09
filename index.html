@@ -36,7 +36,7 @@
 .upd{font-size:13.5px;line-height:1.6}.updh{font-size:15px;margin:10px 0 2px;font-weight:700}.upd ul{margin:0;padding-left:18px}.upd li{margin:2px 0}
 .ntag.wking{border:1.5px solid #8ac4f0;background:#f0f8ff;color:#1d4a7a;font-weight:700}
 .ntag.sking{border:1.5px solid #d0a8f0;background:linear-gradient(90deg,#fff0f8,#fffbe8,#f0f6ff);color:#5a2a80;font-weight:700}
-.ntag .kg.wk{color:#2a70b8}.ntag .kgs{font-size:9px;margin-right:2px;letter-spacing:-1px}.ntag .kg.kgl{white-space:nowrap;font-weight:700;color:#b06a00}.ntag.king,.ntag.sking,.ntag.wking{text-align:center}.ntag .kg.sk{color:#9a4ad0}
+.ntag .kg.wk{color:#2a70b8}.ntag .kgs{font-size:9px;margin-right:2px;letter-spacing:-1px}.ntag .kg.kgl{white-space:nowrap;font-weight:700;color:#b06a00}.ntag .kgm{font-style:normal;background:#f0b030;color:#fff;border-radius:999px;padding:0 4px;font-size:8px;margin-left:2px}.ntag.king,.ntag.sking,.ntag.wking{text-align:center}.ntag .kg.sk{color:#9a4ad0}
 #dkpill{position:fixed;left:max(12px,env(safe-area-inset-left,0px));top:calc(120px + env(safe-area-inset-top,0px));z-index:4;border:2px solid var(--line);border-radius:999px;background:rgba(255,250,242,.94);color:var(--ink);font:inherit;font-size:11.5px;padding:3px 10px;max-width:calc(100vw - 150px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#dkpill[hidden]{display:none}#dkpill b{color:#e0507a}
 .adq{border:2px solid var(--line);border-radius:12px;padding:8px;margin:6px 0;background:var(--paper-2);font-size:13px}.adq.done{opacity:.6}
 #autoBtn{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:6;border:2px solid #fff;border-radius:999px;background:rgba(74,61,107,.78);color:#fff;font:inherit;font-size:12px;padding:4px 12px}#autoBtn.on{background:#ff8fb1}#autoBtn[hidden]{display:none}
@@ -8392,7 +8392,7 @@ function setTag(a,name,ti,e){
   const kg=isKingName(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name);
   const nmK=a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name,wk=isXKing('gt',nmK),sk=isXKing('sh',nmK);
   {const tf=a===ME?S.cos.look.tf:(a.look&&a.look.tf);a.tag.className='ntag'+(tf?' '+tf:'')+(kg?' king':sk?' sking':wk?' wking':'')}
-  a.tag.innerHTML=((kg||sk||wk)?'<span class="kg kgl">'+[kg?'👑 손맛 1위 '+KING.n+'종':'',sk?'✨ 반짝 1위 '+KINGS.sh.n+'종':'',wk?'🌊 월척 1위 '+KINGS.gt.n+'종':''].filter(Boolean).join(' · ')+'</span>':'')+(t?'<span class="ti">「'+esc(t.name)+'」</span>':'')+jb+esc(name||'')+(e>0?'<span class="en'+(e>=30?' e30':e>=21?' e21':'')+'">+'+e+'</span>':'')+(st?'<span class="st">'+esc(st)+'</span>':'');a.tagOn=!!(name||t||e>0||jb||st);a.tagH=0;
+  a.tag.innerHTML=(()=>{const L=[kg?'👑 손맛 1위 '+KING.n+'종':'',sk?'✨ 반짝 1위 '+KINGS.sh.n+'종':'',wk?'🌊 월척 1위 '+KINGS.gt.n+'종':''].filter(Boolean);return L.length?'<span class="kg kgl">'+L[0]+(L.length>1?' <em class="kgm">+'+(L.length-1)+'</em>':'')+'</span>':''})()+(t?'<span class="ti">「'+esc(t.name)+'」</span>':'')+jb+esc(name||'')+(e>0?'<span class="en'+(e>=30?' e30':e>=21?' e21':'')+'">+'+e+'</span>':'')+(st?'<span class="st">'+esc(st)+'</span>':'');a.tagOn=!!(name||t||e>0||jb||st);a.tagH=0;
 }
 function showSay(a,text){
   if(a.bub)a.bub.remove();const el=document.createElement('div');el.className='bub';el.textContent=text;$('tags').appendChild(el);
