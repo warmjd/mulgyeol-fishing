@@ -138,7 +138,7 @@ ISY_ZR.push(...ISY_ZR2);
 ISY_ZR.push(...[[5, 0], [5, 1], [5, 2], [5, 4], [1, 0], [1, 1], [1, 2], [1, 4], [16, 0], [16, 1], [16, 2], [16, 4], [2, 0], [2, 1], [2, 2], [2, 4], [3, 0], [3, 1], [3, 2], [4, 4], [20, 0], [20, 0], [20, 1], [20, 1], [20, 2], [20, 2], [20, 3], [20, 4], [21, 2], [21, 2], [21, 3], [21, 3], [21, 4], [21, 4]]);
 const isIsy = id => id >= ISY_FIRST && id < ISY_FIRST + ISY_ZR.length;
 const FISH_MAX = ISY_FIRST + ISY_ZR.length;
-const ZONE_PRICE = [8, 30, 90, 280, 950, 2000, 400, 100, 1200, 1500, 2600, 400, 3000, 3400, 4200, 3600, 4200, 4000, 4600, 3000, 9000], RAR_MULT = [1, 2.2, 5, 20, 120];   // 2026-11-09: 영웅 · 전설 값 올림 (index.html RARITY와 같아요)
+const ZONE_PRICE = [8, 30, 90, 280, 950, 2000, 400, 100, 1200, 1500, 2600, 400, 3000, 3400, 4200, 7000, 8000, 10000, 12000, 3000, 9000], RAR_MULT = [1, 2.2, 5, 20, 120];   // 2026-11-09: 영웅 · 전설 값 올림 (index.html RARITY와 같아요)
 const rarOf = i => i < 8 ? 0 : i < 14 ? 1 : i < 18 ? 2 : i < 19 ? 3 : 4;
 function fishPrice(id) {
   let z, r;
@@ -1029,16 +1029,19 @@ function onMsg(ws, me, m) {
       const cos = st === 2 ? giveCos(s, [N[3]]) : []; queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: N[st] }, '💝 부탁을 들어준 답례'); send(ws, { t: 'npc_ok', cos });
       if (st === 2) broadcast({ t: 'news', text: '💝 ' + me.name + ' 님이 ' + ({ grand: '파도 할멈', sugar: '디저트 요정 슈가', sobok: '소복옹' }[m.id]) + '의 마지막 부탁까지 들어줬어요!' });
     }); break;
-    case 'hunt_buy': case 'hunt_kill': withLock(me.key, async () => {   // ⚔️ 사냥터 (3차-4): 장비는 은비랜드 칩으로만 · 처치하면 칩 · 아주 가끔 상점에 없는 것
+    case 'hunt_buy': case 'hunt_kill': case 'hunt_pot': case 'hunt_die': withLock(me.key, async () => {   // ⚔️ 사냥터 (3차-4): 장비는 은비랜드 칩으로만 · 처치하면 칩 · 아주 가끔 상점에 없는 것
       const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); const e = ebOf(s);
+      if (m.t === 'hunt_pot') { if ((h.pot | 0) > 0) { h.pot--; queueSave(me.key, s); } return; }
+      if (m.t === 'hunt_die') { const lost = Math.floor((e.c | 0) * .03); e.c -= lost; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c }); }
+      if (m.t === 'hunt_buy' && m.k === 'pot') { if ((e.c | 0) < HPOT_PRICE) return send(ws, { t: 'news', text: '칩이 모자라요' }); e.c -= HPOT_PRICE; h.pot = (h.pot | 0) + 10; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '회복약 10개!' }); }
       if (m.t === 'hunt_buy') {
         const k = m.k, P = HUNT_PRICE[k]; if (!P) return; const nx = (h[k] | 0) + 1; if (nx >= P.length) return; const c = P[nx];
         if ((e.c | 0) < c) return send(ws, { t: 'news', text: '칩이 모자라요 (은비랜드에서 골드를 칩으로 바꿔요)' });
         e.c -= c; h[k] = nx; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '장비를 샀어요!' });
       }
-      const now = Date.now(); if (now - (me.hkT || 0) < 450) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(8, m.t | 0)), red = !!m.red;
-      let c = Math.round([1, 2, 4, 10, 25][r] * (1 + tier * .5) * (red ? 3 : 1)); e.c = (e.c | 0) + c; const got = [];
-      if (!h.sw && r >= 2 && Math.random() < .003 * (r + 1)) { h.sw = 1; got.push('sw'); broadcast({ t: 'news', text: '⚔️✨ ' + me.name + ' 님이 사냥터에서 「전설의 낚싯바늘 검」을 주웠어요!! (상점에 없어요)' }); }
+      const now = Date.now(); if (now - (me.hkT || 0) < 250) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(8, m.t | 0)), red = !!m.red;
+      const el = !!m.el, bo = !!m.boss; let c = Math.round([100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1)); e.c = (e.c | 0) + c; const got = [];
+      if (!h.sw && r >= 2 && Math.random() < (bo ? .05 : .003 * (r + 1))) { h.sw = 1; got.push('sw'); broadcast({ t: 'news', text: '⚔️✨ ' + me.name + ' 님이 사냥터에서 「전설의 낚싯바늘 검」을 주웠어요!! (상점에 없어요)' }); }
       const own = (s.cos && s.cos.own) || [];
       if (!own.includes('t_hunt1') && Math.random() < .004) got.push(...giveCos(s, ['t_hunt1']));
       if (r >= 4 && !own.includes('t_hunt2') && Math.random() < .05) got.push(...giveCos(s, ['t_hunt2']));
@@ -1600,7 +1603,7 @@ const EB = {
 };
 let ebJP = EB.JP_BASE;
 /* 사냥 장비 칩 값 (index.html HUNT_PRICE와 같아요) */
-const HUNT_PRICE = { w: [0, 100, 300, 800, 2000, 5000, 12000, 30000, 70000, 150000], a: [0, 100, 300, 800, 2000, 5000, 12000, 30000, 70000, 150000], b: [0, 500, 2000, 8000, 25000, 60000] };
+const HUNT_PRICE = { w: [0, 5e5, 1.2e6, 2.5e6, 5e6, 1e7, 2e7, 4e7, 8e7, 1.5e8], a: [0, 5e5, 1.2e6, 2.5e6, 5e6, 1e7, 2e7, 4e7, 8e7, 1.5e8], b: [0, 1e6, 3e6, 8e6, 2e7, 5e7] }, HPOT_PRICE = 3e5;   // 2026-11-09: 사냥은 최상위 콘텐츠 (첫 단계 50만 칩부터)
 const ebOf = s => { const e = s.eb && typeof s.eb === 'object' ? s.eb : (s.eb = { c: 0, d: '', buy: 0, wag: 0, best: 0, vd: '' }); if (e.d !== kstDay()) { e.d = kstDay(); e.buy = 0; e.loss = 0; e.cons = 0; } return e; };
 /* 크게 잃은 날을 위한 마음 쓰기: 오늘 순손실 5,000칩마다 은비가 10%를 위로 칩으로 돌려주고, 30,000칩을 잃으면 그날은 쉬어 가요 */
 const EB_CONS = 5000, EB_LOSS_CAP = Infinity;   // 2026-11-09: 하루 룰렛 한도 없음
