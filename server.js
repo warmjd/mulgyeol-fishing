@@ -387,7 +387,7 @@ const hasReqItem = (s, item, n) => item.startsWith('f:') ? has(s, +item.slice(2)
 const MP_IDS = ["mp_b_dragon", "mp_b_angel", "mp_b_sun", "mp_b_galaxy", "mp_b_crown", "mp_b_rainbowp", "mp_b_hourglass", "mp_b_starheart", "mp_r_aurora", "mp_r_dragon", "mp_r_gold2", "mp_r_cosmos"];
 ITEM_IDS.push('clue', ...MP_IDS); ITEM_IDS.push('snow', 'flake');
 ITEM_IDS.push('log', 'plank', 'wplank', 'dye', 'cloth', 'honey', 'honey_lav', 'honey_rb', 'wildhoney', 'pie', 'apple', 'peach', 'orange', 'cherry', 'fl_tulip', 'fl_sun', 'fl_cosmos', 'fl_lav', 'fl_rose', 'fl_hydr', 'fl_lily', 'fl_rb', 'sap_oak', 'sap_pine', 'sap_apple', 'sap_peach', 'sap_orange', 'sap_cherry');   // 자연 1.0 (index.html ITEMS와 같아요)
-LOOK_IDS.bob.push('b_bfly'); LOOK_IDS.ti.push('t_bug1', 't_bug2', 't_ark'); LOOK_IDS.ti.push('t_ruby30', 't_litter30');
+LOOK_IDS.bob.push('b_bfly'); LOOK_IDS.ti.push('t_bug1', 't_bug2', 't_ark'); LOOK_IDS.ti.push('t_ruby30', 't_litter30', 't_hunt1', 't_hunt2');
 Object.assign(ITEM_NPC, { snow: 100, flake: 30000, clue: 20000, fl_tulip: 140000, fl_cosmos: 180000, fl_sun: 270000, fl_lav: 450000, fl_rose: 900000, fl_hydr: 1350000, fl_lily: 2200000, fl_rb: 6000000,   /* 2026-11-09: 꽃이 돈이 되게 */ apple: 3000, peach: 4000, orange: 3500, cherry: 8000, honey: 800, wildhoney: 6000, log: 300, plank: 400, wplank: 2500, sap_oak: 1000000, sap_pine: 1000000, sap_apple: 2500000, sap_peach: 4000000, sap_orange: 4000000, sap_cherry: 7500000 }, {"mp_b_dragon": 12500000, "mp_b_angel": 14000000, "mp_b_sun": 15000000, "mp_b_galaxy": 17500000, "mp_b_crown": 20000000, "mp_b_rainbowp": 22500000, "mp_b_hourglass": 50000000, "mp_b_starheart": 75000000, "mp_r_aurora": 12500000, "mp_r_dragon": 15000000, "mp_r_gold2": 25000000, "mp_r_cosmos": 60000000});
 Object.assign(MAKER, { clue: 'sch' }, {"mp_b_dragon": "cra", "mp_b_angel": "cra", "mp_b_sun": "cra", "mp_b_galaxy": "cra", "mp_b_crown": "cra", "mp_b_rainbowp": "cra", "mp_b_hourglass": "cra", "mp_b_starheart": "cra", "mp_r_aurora": "cra", "mp_r_dragon": "cra", "mp_r_gold2": "cra", "mp_r_cosmos": "cra"});
 Object.assign(ITEM_NAME, { clue: '조사 쪽지' }, {"mp_b_dragon": "용의 알 찌 상자", "mp_b_angel": "천사 찌 상자", "mp_b_sun": "태양 찌 상자", "mp_b_galaxy": "은하수 찌 상자", "mp_b_crown": "왕관 찌 상자", "mp_b_rainbowp": "무지개 진주 찌 상자", "mp_b_hourglass": "시간의 모래시계 찌 상자", "mp_b_starheart": "별의 심장 찌 상자", "mp_r_aurora": "오로라 낚싯대 상자", "mp_r_dragon": "용염 낚싯대 상자", "mp_r_gold2": "순금 용왕 낚싯대 상자", "mp_r_cosmos": "우주의 낚싯대 상자"});
@@ -643,7 +643,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {};
@@ -1020,6 +1020,22 @@ function onMsg(ws, me, m) {
       if (Object.entries(V.snowmen).some(([k, s]) => k !== me.key && s.x === x && s.y === y)) break;
       V.snowmen[me.key] = { n: me.name, x, y, st, parts, at: Date.now() }; vMark(); broadcast({ t: 'snowmen', list: Object.values(V.snowmen) }); break; }
     case 'ski_done': broadcast({ t: 'news', text: '🎿 ' + me.name + ' 님이 스키복을 완성했어요! 이제 소복섬에서도 씽씽' }, ws); break;
+    case 'hunt_buy': case 'hunt_kill': withLock(me.key, async () => {   // ⚔️ 사냥터 (3차-4): 장비는 은비랜드 칩으로만 · 처치하면 칩 · 아주 가끔 상점에 없는 것
+      const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); const e = ebOf(s);
+      if (m.t === 'hunt_buy') {
+        const k = m.k, P = HUNT_PRICE[k]; if (!P) return; const nx = (h[k] | 0) + 1; if (nx >= P.length) return; const c = P[nx];
+        if ((e.c | 0) < c) return send(ws, { t: 'news', text: '칩이 모자라요 (은비랜드에서 골드를 칩으로 바꿔요)' });
+        e.c -= c; h[k] = nx; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '장비를 샀어요!' });
+      }
+      const now = Date.now(); if (now - (me.hkT || 0) < 450) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(8, m.t | 0)), red = !!m.red;
+      let c = Math.round([1, 2, 4, 10, 25][r] * (1 + tier * .5) * (red ? 3 : 1)); e.c = (e.c | 0) + c; const got = [];
+      if (!h.sw && r >= 2 && Math.random() < .003 * (r + 1)) { h.sw = 1; got.push('sw'); broadcast({ t: 'news', text: '⚔️✨ ' + me.name + ' 님이 사냥터에서 「전설의 낚싯바늘 검」을 주웠어요!! (상점에 없어요)' }); }
+      const own = (s.cos && s.cos.own) || [];
+      if (!own.includes('t_hunt1') && Math.random() < .004) got.push(...giveCos(s, ['t_hunt1']));
+      if (r >= 4 && !own.includes('t_hunt2') && Math.random() < .05) got.push(...giveCos(s, ['t_hunt2']));
+      if (got.some(x => x.startsWith('t_'))) send(ws, { t: 'cos_got', ids: got.filter(x => x.startsWith('t_')) });
+      queueSave(me.key, s); send(ws, { t: 'hunt', hunt: h, c: e.c, gain: c, drop: got });
+    }); break;
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
     /* ----- 은비랜드 ----- */
     case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'eb_hilo': case 'eb_vip': ebMsg(ws, me, m); break;
@@ -1574,10 +1590,12 @@ const EB = {
   SHOP: { ebcrown: 40000, ebsuit: 60000, ebwings: 80000, hc20: 20000, hc21: 20000, t_ebvip: 30000 }
 };
 let ebJP = EB.JP_BASE;
+/* 사냥 장비 칩 값 (index.html HUNT_PRICE와 같아요) */
+const HUNT_PRICE = { w: [0, 100, 300, 800, 2000, 5000, 12000, 30000, 70000, 150000], a: [0, 100, 300, 800, 2000, 5000, 12000, 30000, 70000, 150000], b: [0, 500, 2000, 8000, 25000, 60000] };
 const ebOf = s => { const e = s.eb && typeof s.eb === 'object' ? s.eb : (s.eb = { c: 0, d: '', buy: 0, wag: 0, best: 0, vd: '' }); if (e.d !== kstDay()) { e.d = kstDay(); e.buy = 0; e.loss = 0; e.cons = 0; } return e; };
 /* 크게 잃은 날을 위한 마음 쓰기: 오늘 순손실 5,000칩마다 은비가 10%를 위로 칩으로 돌려주고, 30,000칩을 잃으면 그날은 쉬어 가요 */
-const EB_CONS = 5000, EB_LOSS_CAP = 30000;
-const ebCap = s => [20000, 30000, 50000, 70000, 100000][ebVip((ebOf(s).wag) | 0) + 1];   // VIP일수록 하루에 더 바꿀 수 있어요
+const EB_CONS = 5000, EB_LOSS_CAP = Infinity;   // 2026-11-09: 하루 룰렛 한도 없음
+const ebCap = s => 1e12;   // 2026-11-09: 칩 바꾸기 한도 없음 (사냥 장비는 칩으로만)   // VIP일수록 하루에 더 바꿀 수 있어요
 const ebVip = wag => { let t = -1; EB.VIP.forEach((v, i) => { if (wag >= v[0]) t = i; }); return t; };
 const ebPub = (s, me) => { const e = ebOf(s); return { t: 'eb', c: e.c | 0, buy: e.buy | 0, wag: e.wag | 0, best: e.best | 0, vip: ebVip(e.wag | 0), cap: ebCap(s), vd: e.vd === kstDay(), jp: Math.floor(ebJP), card: me.hiCard || 0 }; };
 function ebPick(w) { let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < w.length; i++) { r -= w[i]; if (r < 0) return i; } return w.length - 1; }
