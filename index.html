@@ -60,6 +60,9 @@
 .hut{display:flex;align-items:center;gap:6px;margin-bottom:4px}.hut b{flex:1}.hut button{border:0;border-radius:999px;background:#e0507a;color:#fff;font:inherit;font-size:12px;padding:3px 10px}.hudone{color:#9fe0a0}
 .hubar{position:relative;height:14px;border-radius:999px;background:#2a1c14;overflow:hidden;margin:3px 0}.hubar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#ff6a7a,#ff9a8a)}.hubar.xp i{background:linear-gradient(90deg,#7bd36b,#c8f0a0)}.hubar span{position:relative;display:block;text-align:center;font-size:10.5px;line-height:14px;color:#fff;text-shadow:0 1px 0 #000}.hus{font-size:11.5px;text-align:center;color:#fff}
 body.hunting #tags,body.hunting #mmap,body.hunting #mmTog,body.hunting #qpanel,body.hunting #dkpill,body.hunting #bAfk,body.hunting #actSw,body.hunting #autoBtn,body.hunting #ticker,body.hunting #wallet,body.hunting #itpill,body.hunting #guide,body.hunting #guideX,body.hunting .hud{display:none!important}
+.hud .pill:nth-child(2){flex-shrink:0;font-size:12.5px;padding:6px 10px}.hud .pill:nth-child(2) span{overflow:visible}
+.fest{border:2px solid var(--line);border-radius:14px;padding:8px 10px;margin:6px 0;background:var(--paper-2);position:relative}.fest.on{border-color:#ff8fb1;background:#fff0f5}.fest small{color:var(--ink-soft)}.fdd{position:absolute;right:10px;top:8px;font-weight:700;color:#e0507a;font-size:13px}.fsh{display:flex;gap:6px;margin:6px 0}.fsh img{height:22px;image-rendering:pixelated}.fsh img.unk{filter:brightness(0) opacity(.35)}
+.npcq p{font-size:14px;line-height:1.6;margin:6px 0}
 </style></head><body>
 <title>물결마을 낚시터</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1435,7 +1438,7 @@ function creamTile(v){const b=Buf(16,16),r=RNG(500+v);fillR(b,0,0,16,16,[255,226
 function snowTile(v){const b=Buf(16,16),r=RNG(600+v);fillR(b,0,0,16,16,[244,248,255]);for(let i=0;i<10;i++){const x=(r()*16)|0,y=(r()*16)|0;px(b,x,y,r()<.5?[220,232,248]:[255,255,255])}return b}
 function sandTile(v){const b=Buf(16,16),r=RNG(300+v);fillR(b,0,0,16,16,[248,234,202]);
   for(let i=0;i<12;i++){const x=(r()*16)|0,y=(r()*16)|0;px(b,x,y,r()<.5?[234,216,180]:[255,246,222])}return b}
-const WATER_COL={1:[170,222,226],2:[156,212,236],3:[140,198,236],4:[116,170,224],5:[200,182,240],6:[150,196,204],7:[96,146,206],8:[150,214,222],9:[176,204,206],10:[164,214,228],11:[110,214,214],13:[160,200,190],14:[150,190,220],15:[90,160,220],16:[250,196,220],17:[190,220,250],18:[206,232,248],19:[150,190,228]};
+const WATER_COL={1:[170,222,226],2:[156,212,236],3:[140,198,236],4:[116,170,224],5:[200,182,240],6:[150,196,204],7:[96,146,206],8:[150,214,222],9:[176,204,206],10:[164,214,228],11:[110,214,214],13:[160,200,190],14:[150,190,220],15:[90,160,220],16:[250,196,220],17:[190,220,250],18:[206,232,248],19:[150,190,228],20:[90,190,210],21:[60,60,130]};
 function waterTile(frame,zone){const b=Buf(16,16),c=WATER_COL[zone]||WATER_COL[1];fillR(b,0,0,16,16,c);
   const hi=lighten(c,.5),lo=mixc(c,[90,110,190],.18);
   for(let row=0;row<4;row++){const y=row*4+((row*3)%4)%3,off=(frame*3+row*5)%16;
@@ -1755,7 +1758,7 @@ const ZONES=[
  {id:8,name:'물결 시장 선착장',gate:-1},   /* 바닷가를 열면 갈 수 있어요 */
  {id:9,name:'안개 연못',gate:-1},{id:10,name:'안개 계곡',gate:-1},{id:11,name:'산호초 해안',gate:-1},
  {id:12,name:'꽃배 바다',gate:-1},{id:13,name:'물안개 숲 호수',gate:-1},{id:14,name:'반딧불 개울',gate:-1},{id:15,name:'고래 만',gate:-1},
- {id:16,name:'시럽 호수',gate:-1},{id:17,name:'사탕 바다',gate:-1},{id:18,name:'얼음 호수',gate:-1},{id:19,name:'눈꽃 바다',gate:-1}   /* 3차-3: 달콤섬 · 소복섬 */   /* 3차-2: 안개 섬 옆 「물안개 숲 섬」 */   /* 안개 섬 안의 새 낚시터 (섬에 가면 바로) */
+ {id:16,name:'시럽 호수',gate:-1},{id:17,name:'사탕 바다',gate:-1},{id:18,name:'얼음 호수',gate:-1},{id:19,name:'눈꽃 바다',gate:-1},{id:20,name:'제주 바다',gate:-1},{id:21,name:'깊은 물',gate:-1}   /* 3차-3: 달콤섬 · 소복섬 */   /* 3차-2: 안개 섬 옆 「물안개 숲 섬」 */   /* 안개 섬 안의 새 낚시터 (섬에 가면 바로) */
 ];
 const RARITY=[
  {name:'흔함',color:'#9aa7b4',base:58,mult:1},
@@ -1764,7 +1767,7 @@ const RARITY=[
  {name:'영웅',color:'#b886ee',base:4,mult:20},
  {name:'전설',color:'#f2b238',base:1,mult:120}   // 2026-11-09: 전설 값을 크게 올렸어요 (예전 45)
 ];
-const ZONE_PRICE=[8,30,90,280,950,2000,400,100,1200,1500,2600,400,3000,3400,4200,3600,4200,4000,4600]; // 9 안개 연못 · 10 안개 계곡 · 11 산호초 해안 // server.js ZONE_PRICE와 같아야 해요 (7 배낚시 · 8 시장)
+const ZONE_PRICE=[8,30,90,280,950,2000,400,100,1200,1500,2600,400,3000,3400,4200,3600,4200,4000,4600,3000,9000]; // 9 안개 연못 · 10 안개 계곡 · 11 산호초 해안 // server.js ZONE_PRICE와 같아야 해요 (7 배낚시 · 8 시장)
 
 /* [이름, 틀, 몸색, 무늬, 길이cm, 설명, {pc,belly,fin}] — 각 낚시터 20종, 순서가 희귀도 (8·6·4·1·1) */
 const RAW=[
@@ -2169,6 +2172,12 @@ const FISH4={"16": [["설탕송사리", "tiny", "#fff0f4", 0, 4, "설탕 가루�
 const ISY_IDS={};[13,14,15].forEach(z=>{ISY_IDS[z]=FISH3[z].map((r,i)=>{const R=FISH3_R[z][i],f=addFish(z-1,R,i,[r[0],r[1],r[2],r[3],r[4],r[5],r[6]]);f.isy=true;f.diff=Math.min(1,.12+.55+.12*R);return f.id})});
 const DW_IDS={};[16,17,18,19].forEach(z=>{DW_IDS[z]=FISH4[z].map((r,i)=>{const R=FISH4_R[z][i],f=addFish(z-1,R,i,r);f.isy=true;f.dw=true;f.diff=Math.min(1,.12+.58+.12*R);return f.id})});
 
+/* ===== 3차-5 (2026-11-09): 축제 5세트 (미리 알려 줘요) · 제주 이벤트 섬 8종 · 숨은 깊은 물 6종 — id 819~852 · server.js EXTRA_ZR와 같은 순서 ===== */
+const FEST2=[["snow1", "첫눈 축제", "11-20", "12-10", "t_fs1", "첫눈을 기다린 사람", [["첫눈송사리", 5, 0, "tiny", "#f0f8ff", 0, 5, "첫눈이 내린 날 처음 나타난다.", {}], ["눈꽃피라미", 5, 1, "long", "#e0ecff", 3, 11, "눈꽃 무늬 지느러미.", {}], ["첫눈 기다림 잉어", 5, 2, "round", "#d8e8ff", 2, 30, "창밖을 보며 첫눈을 기다리는 잉어.", {"t": "night"}], ["첫사랑 눈꽃어", 5, 4, "fancy", "#ffffff", 0, 40, "첫눈 오는 날 만나면 사랑이 이뤄진대요.", {"t": "night", "w": "fog", "pc": "#ffd0e0"}]]], ["lunar", "설날 축제", "01-25", "02-10", "t_fs2", "복 많이 받는 사람", [["떡국붕어", 1, 0, "round", "#f8f4ec", 0, 10, "떡국 떡처럼 하얗고 동글.", {}], ["복주머니복어", 1, 1, "puff", "#e04a4a", 4, 12, "복을 가득 담은 주머니.", {"pc": "#ffd34d"}], ["세뱃돈 금붕어", 1, 2, "fancy", "#ffc840", 0, 14, "세뱃돈처럼 반짝반짝.", {}], ["까치설날 잉어", 1, 4, "fancy", "#3a3a5a", 0, 50, "까치가 물어다 준 행운의 잉어.", {"t": "dawn", "pc": "#ffffff"}]]], ["choco", "초콜릿 축제", "02-07", "02-20", "t_fs3", "달콤한 고백", [["초콜릿송사리", 16, 0, "tiny", "#6a4030", 0, 5, "녹을 듯 말 듯.", {}], ["하트초코복어", 16, 1, "puff", "#c04060", 4, 12, "하트 모양으로 부푼다.", {"pc": "#ff8ab0"}], ["트러플 메기", 16, 2, "cat", "#4a2a20", 2, 35, "고급 초콜릿처럼 진한 빛.", {}], ["고백의 초콜릿 잉어", 16, 4, "fancy", "#8a4a3a", 0, 45, "이 잉어를 건네면 마음이 전해진대요.", {"t": "dusk", "pc": "#ffb0c8"}]]], ["sakura", "벚꽃 축제", "03-25", "04-15", "t_fs4", "벚꽃 아래 낚시꾼", [["벚꽃잎피라미", 2, 0, "long", "#ffd0e0", 3, 10, "벚꽃잎처럼 분홍빛.", {}], ["꽃비 송어", 2, 1, "long", "#ffb0c8", 1, 30, "꽃비가 내리면 수면 위로.", {"w": "rain"}], ["벚꽃길 은어", 2, 2, "long", "#f0d8e8", 3, 20, "벚꽃길을 따라 올라온다.", {}], ["만개 벚꽃 비단잉어", 2, 4, "fancy", "#ffc0d8", 0, 55, "벚꽃이 활짝 핀 밤에만.", {"t": "night", "pc": "#ffffff"}]]], ["sea", "바다의 날 축제", "05-25", "06-10", "t_fs5", "바다의 친구", [["파도소리 전갱이", 3, 0, "long", "#90c0e0", 7, 24, "파도 소리를 좋아한다.", {}], ["바다의날 돌돔", 3, 1, "round", "#e0e0d0", 1, 40, "줄무늬 일곱 개.", {"pc": "#2a2a30"}], ["해변 축제 해마", 3, 2, "seahorse", "#ffc0a0", 0, 16, "축제 깃발처럼 알록달록.", {}], ["바다의 수호 거북", 4, 4, "box", "#5a9a7a", 0, 120, "바다의 날, 먼바다에서 인사하러 온다.", {"t": "day", "w": "clear", "pc": "#c0f0e0"}]]]];
+FEST2.forEach(F=>{const ids=F[6].map(r=>{const f=addFish(r[1]-1,r[2],-1,[r[0],r[3],r[4],r[5],r[6],r[7],r[8]]);f.season=F[0];return f.id});SEASONS.push({id:F[0],name:F[1],from:F[2],to:F[3],reward:F[4],ids,fish:[],nw:1})});
+const JEJU_RAW=[["귤빛자리돔", 0, "round", "#ff9a30", 0, 8, "귤처럼 주황빛.", {}], ["유채꽃놀래기", 0, "long", "#ffe040", 3, 18, "유채꽃밭 바다의 노란 놀래기.", {}], ["올레길 쥐치", 1, "flat", "#c8b090", 5, 22, "올레길처럼 구불구불 헤엄친다.", {}], ["바람돌 우럭", 1, "round", "#6a6a70", 2, 30, "구멍 숭숭 현무암을 닮았다.", {}], ["한라봉복어", 2, "puff", "#ff8a20", 4, 16, "꼭지가 툭 튀어나온 복어.", {"pc": "#5aa040"}], ["돌하르방 쏨뱅이", 2, "lion", "#7a7a80", 5, 28, "커다란 눈과 코가 돌하르방 같다.", {}], ["해녀의 전복게", 3, "crab", "#5a8a8a", 0, 20, "해녀 할머니가 아끼는 게.", {"td": "low"}], ["한라산 용왕", 4, "eel", "#3a6a5a", 0, 300, "한라산 그림자가 비치는 새벽, 바다에서 오른다.", {"t": "dawn", "pc": "#ff9a30"}]];const JEJU_IDS=JEJU_RAW.map((r,i)=>{const f=addFish(19,r[1],i,[r[0],r[2],r[3],r[4],r[5],r[6],r[7]]);f.jeju=true;return f.id});
+const HID_RAW=[["깊은물 그림자", 2, "angler", "#2a2a4a", 3, 40, "아무도 닿지 못한 깊은 물의 그림자.", {}], ["달 밑바닥 메기", 2, "cat", "#4a4a6a", 0, 60, "달빛이 닿지 않는 바닥에서 산다.", {}], ["잊혀진 왕관어", 3, "fancy", "#c0a0e0", 0, 35, "누군가 잃어버린 왕관을 쓰고 있다.", {"pc": "#ffd34d"}], ["별을 삼킨 잉어", 3, "round", "#2a3060", 2, 70, "배 속에서 별빛이 새어 나온다.", {"t": "night", "pc": "#fff0a0"}], ["호수의 비밀", 4, "angel", "#e0e0ff", 0, 50, "멀리, 아주 멀리 던진 사람만 만난다.", {"t": "night", "pc": "#a0f0ff"}], ["달빛 호수의 심장", 4, "whale", "#8080c0", 0, 500, "호수가 품은 심장. 안개 낀 밤에 고동친다.", {"t": "night", "w": "fog", "pc": "#ffffff"}]];const HID_IDS=HID_RAW.map((r,i)=>{const f=addFish(20,r[1],i,[r[0],r[2],r[3],r[4],r[5],r[6],r[7]]);f.hid=true;f.diff=Math.min(1,.8+.05*r[1]);return f.id});
+
 /* 축제 기간 (한국 시간 월-일, 해를 넘겨도 됨) */
 const kstMD=()=>{const d=new Date(Date.now()+9*3600e3);return String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')};
 const seasonOn=s=>{const t=kstMD();return s.from<=s.to?(t>=s.from&&t<=s.to):(t>=s.from||t<=s.to)};
@@ -2240,6 +2249,8 @@ const V2_PAGE0=PAGE_IDS.length;[1,2,3,4,5].forEach(z=>[0,1,2,3].forEach(q=>{PAGE
 const ISX_PAGE0=PAGE_IDS.length,ISX_SHORT={9:'안개 연못',10:'안개 계곡',11:'산호초'};[9,10,11].forEach(z=>[0,1,2,3].forEach(q=>{PAGE_IDS.push(ISX_IDS[z].slice(q*10,q*10+10));PAGE_TITLES.push(ISX_SHORT[z]+' '+ROMAN[q]);PASSIVE_OF.push(null);PAGE_SEASON.push(null)}));
 const ISY_PAGE0=PAGE_IDS.length,ISY_SHORT={13:'숲 호수',14:'반딧불 개울',15:'고래 만'},ISY_P={};[13,14,15].forEach(z=>{ISY_P[z]=PAGE_IDS.length;for(let q=0;q*10<ISY_IDS[z].length;q++){PAGE_IDS.push(ISY_IDS[z].slice(q*10,q*10+10));PAGE_TITLES.push(ISY_SHORT[z]+' '+ROMAN[q]);PASSIVE_OF.push(null);PAGE_SEASON.push(null)}});
 const DW_P={},DW_SHORT={16:'시럽 호수',17:'사탕 바다',18:'얼음 호수',19:'눈꽃 바다'};[16,17,18,19].forEach(z=>{DW_P[z]=PAGE_IDS.length;for(let q=0;q<2;q++){PAGE_IDS.push(DW_IDS[z].slice(q*10,q*10+10));PAGE_TITLES.push(DW_SHORT[z]+' '+ROMAN[q]);PASSIVE_OF.push(null);PAGE_SEASON.push(null)}});
+const JEJU_P=PAGE_IDS.length;PAGE_IDS.push(JEJU_IDS);PAGE_TITLES.push('제주 바다');PASSIVE_OF.push(null);PAGE_SEASON.push(null);
+const HID_P=PAGE_IDS.length;PAGE_IDS.push(HID_IDS);PAGE_TITLES.push('???');PASSIVE_OF.push(null);PAGE_SEASON.push(null);
 const GET_PAGE0=PAGE_IDS.length;[0,1,2,3].forEach(q=>{PAGE_IDS.push(GET_IDS.slice(q*10,q*10+10));PAGE_TITLES.push('갯것 '+ROMAN[q]);PASSIVE_OF.push(null);PAGE_SEASON.push(null)});
 const PAGES=PAGE_IDS.length;
 PAGE_IDS.forEach((ids,p)=>ids.forEach(id=>FISH[id].page=p));
@@ -2637,7 +2648,7 @@ const tierOfCos=c=>c&&c.tier!=null?c.tier:-1;
 
 /* 입었는지 · 입기 (염색 · 헤어스타일은 번호로) */
 const cosOn=c=>{const L=S.cos.look;if(c.k==='trap')return trapLook().sk===c.id;if(c.k==='tflag')return trapLook().fl===c.id;return c.k==='dye'?(L.h|0)===c.hc:c.k==='hstyle'?(L.hs|0)===c.hs:L[LOOK_KEY[c.k]]===c.id};
-function wearCos(c,off){if(c.k==='trap'||c.k==='tflag'){const L=trapLook();if(c.k==='trap')L.sk=off?'tp_bamboo':c.id;else L.fl=off?'tf_none':c.id;S.trapLook=L;saveState();if(ONLINE&&Net.me&&typeof myTrap==='function'&&myTrap())Net.send({t:'trap_skin',sk:L.sk,fl:L.fl});return}if(c.k==='dye')return setLook('h',off?0:c.hc);if(c.k==='hstyle')return setLook('hs',off?0:c.hs);setLook(LOOK_KEY[c.k],off?(c.k==='hat'?'nohat':c.k==='outfit'?'tee':''):c.id);if(c.k==='frame'||c.k==='foot')refreshMe()}
+function wearCos(c,off){if(c.k==='rod'&&!off&&FAR_RODS.indexOf(c.id)>=0)setTimeout(()=>toast('…낚싯줄이 평소보다 아주 멀리 나갈 것 같은 느낌이 들어요'),600);if(c.k==='trap'||c.k==='tflag'){const L=trapLook();if(c.k==='trap')L.sk=off?'tp_bamboo':c.id;else L.fl=off?'tf_none':c.id;S.trapLook=L;saveState();if(ONLINE&&Net.me&&typeof myTrap==='function'&&myTrap())Net.send({t:'trap_skin',sk:L.sk,fl:L.fl});return}if(c.k==='dye')return setLook('h',off?0:c.hc);if(c.k==='hstyle')return setLook('hs',off?0:c.hs);setLook(LOOK_KEY[c.k],off?(c.k==='hat'?'nohat':c.k==='outfit'?'tee':''):c.id);if(c.k==='frame'||c.k==='foot')refreshMe()}
 const EV_HOW={sb5:'반짝 개체 5종 모으기',sb10:'반짝 개체 10종 모으기',sb20:'반짝 개체 20종 모으기',sb30:'반짝 개체 30종 모으기',sh1:'반짝 개체 1종 낚기',sh10:'반짝 개체 10종 모으기',sh30:'반짝 개체 30종 모으기',myth:'신화 물고기 낚기',vf1:'마을 발전 기금에 100만 골드를 기부하면',vf2:'마을 발전 기금에 1,000만 골드를 기부하면',cup:'월척 대회에서 우승하면',bounty:'현상수배 물고기를 처음 낚으면',host:'마을 행사를 5번 열면',auc:'반짝 장터에서 낙찰받으면',jackpot:'은비랜드 잭팟이 터지면'};
 function rewardOf(p){if(PAGE_SEASON[p])return PAGE_SEASON[p].reward;const c=COS.find(c=>c.reward===p);return c?c.id:null}
 function rewardText(c){if(c.price!==undefined)return'';if(c.trust)return'🤝 부탁을 해결해서 모은 신뢰 '+c.trust+'점 (교환소 · 부탁 게시판)';if(c.eb)return'🎰 은비랜드 경품 (칩 '+fmt(c.eb)+')';if(c.med)return'🌰 도토리 상점 (도토리 '+c.med+'개)';if(c.ev)return EV_HOW[c.ev]||'행사 보상';if(c.jr)return c.jr[0]==='any'?'어느 직업이든 명장 등급이 되면':JR[c.jr[1]].n+' '+JOBS[c.jr[0]].name+' 등급이 되면';if(c.sz)return c.sz==='all'?'손맛 도감 여섯 낚시터를 모두 채우면':'「'+ZONES[c.sz-1].name+'」 손맛 도감을 직접 낚은 물고기로 채우면';if(c.enh)return'낚싯대를 +'+c.enh+'까지 강화하면';if(c.pet)return PETS.find(p=>p.id===c.pet).name+' Lv10이 되면';if(c.zone)return'「'+ZONES[c.zone-1].name+'」 '+(c.zone===6?20:40)+'종을 모두 채우면 (걸으면 반짝!)'.replace(' (걸으면 반짝!)',c.fx?' · 걸으면 효과':'');if(c.boatd)return'배낚시 만선 상자에서 '+(c.boatd===2?'아주 낮은':'낮은')+' 확률로';if(c.reward==='all')return'도감 '+MAIN_N+'종을 모두 채우면';if(c.season)return'「'+seasonById(c.season).name+'」 도감을 채우면';return'도감 「'+PAGE_TITLES[c.reward]+'」을 채우면'}
@@ -2767,6 +2778,11 @@ const Snd=(()=>{
       if(i%16===3)nz(out,t,2.2,'lowpass',500,260,.012,.5); // 물 소리
       if(intense&&(s%2===0)){const a=[0,2,3,4,3,2,4,3][s%8];pluck(out,mtof(ch[1+a%4]+12),t,sd*1.6,.035)}
     }};
+  /* 3차-5 섬 오르골 (직접 만든 곡): 소복섬 = 느린 오르골 왈츠 · 달콤섬 = 통통 튀는 오르골 */
+  const SNOW_CH=[[48,64,67,72],[45,64,69,72],[41,65,69,72],[43,62,67,71]],SNOW_MEL=[[0,76],[3,79],[6,84],[12,83],[15,79],[18,76],[24,77],[27,81],[30,84],[36,83],[39,79],[42,74],[48,76],[51,72],[54,79],[60,76]];
+  tracks.snow={bpm:66,steps:64,gain:null,step(i,t,loop,out,sd){const bar=i>>4,ch=SNOW_CH[bar];if(i%16===0){pad(out,ch.slice(1),t,sd*16,.045);bass(out,ch[0],t,sd*10,.1)}if(i%3===0)bell(out,mtof(ch[1+(i/3|0)%3]+12),t,sd*2,.03);SNOW_MEL.forEach(n=>{if(n[0]===i)bell(out,mtof(n[1]),t,sd*4,.075)})}};
+  const SW_CH=[[53,65,69,72],[50,62,65,69],[46,62,65,70],[48,64,67,72]],SW_MEL=[[0,77],[2,81],[4,84],[6,81],[8,79],[12,77],[16,74],[18,77],[20,81],[22,79],[24,77],[28,74],[32,70],[34,74],[36,77],[38,74],[40,72],[44,77],[48,79],[50,81],[52,84],[54,86],[56,84],[60,81]];
+  tracks.sweet={bpm:92,steps:64,gain:null,step(i,t,loop,out,sd){const bar=i>>4,ch=SW_CH[bar];if(i%8===0){pad(out,ch.slice(1),t,sd*8,.04);bass(out,ch[0],t,sd*4,.11)}if(i%2===1)pluck(out,mtof(ch[1+(i>>1)%3]+12),t,sd*1.5,.03);SW_MEL.forEach(n=>{if(n[0]===i)bell(out,mtof(n[1]),t,sd*2.5,.07)})}};
   tracks.night={bpm:60,steps:64,gain:null, // 밤의 마을: 한 옥타브 낮고 느리게 (town 코드 재사용)
     step(i,t,loop,out,sd){
       const bar=i>>3,s=i&7,ch=TOWN_CH[bar];
@@ -2892,6 +2908,10 @@ function genWorld(){
   for(let y=63;y<100;y++)for(let x=50;x<90;x++)if(T[y][x]==='w'&&Z[y][x]===6&&(x>=63||y>=94))Z[y][x]=15;
   for(let y=86;y<=97;y++)for(const x of[62,63]){T[y][x]='k';Z[y][x]=0}
   for(let x=62;x<=66;x++)for(const y of[96,97]){T[y][x]='k';Z[y][x]=0}
+  /* 3차-5 제주 이벤트 섬 (마을 동쪽 먼바다) · 숨은 깊은 물 (달빛 호수 한가운데) */
+  for(let y=40;y<63;y++)for(let x=72;x<98;x++){const dx=(x+.5-85)/9,dy=(y+.5-51)/7,d=dx*dx+dy*dy;if(d<=1){T[y][x]=d>.72?'s':'g';Z[y][x]=0}else if(d<=2.2&&T[y][x]==='w')Z[y][x]=20}
+  for(let x=72;x<=76;x++)for(const y of[51,52]){T[y][x]='k';Z[y][x]=0}
+  for(let y=4;y<=7;y++)for(let x=14;x<=20;x++)if(T[y][x]==='w'&&Math.abs(x-17)<=2&&Math.abs(y-5.5)<=1.5)Z[y][x]=21;
   /* 3차-3 달콤섬 (동쪽) · 소복섬 (더 동쪽): 고래 만 부두에서 배로 가요 */
   for(let y=63;y<100;y++)for(let x=92;x<142;x++)if(T[y][x]==='w'&&Z[y][x]===6)Z[y][x]=17;
   for(let y=63;y<100;y++)for(let x=142;x<MW;x++)if(T[y][x]==='w'&&Z[y][x]===6)Z[y][x]=19;
@@ -3114,7 +3134,7 @@ function recalc(){
   ST.luck*=1+cheerLuck()+(amKing()?.1:0);   // 👑 손맛 왕: 행운 +10%   // 마을의 응원: 손맛 도감이 마을 1등보다 많이 뒤처지면
   jobMods();jobBadge();
 }
-const POOL={};FISH.forEach(f=>{if(f.id>=MAIN_N&&!f.isl&&!f.pty&&!f.mk&&!f.v2&&!f.isx&&!f.isy)return;const k=f.zone+'-'+f.rar;(POOL[k]=POOL[k]||[]).push(f)});
+const POOL={};FISH.forEach(f=>{if(f.season)return;if(f.id>=MAIN_N&&!f.isl&&!f.pty&&!f.mk&&!f.v2&&!f.isx&&!f.isy&&!f.jeju&&!f.hid)return;const k=f.zone+'-'+f.rar;(POOL[k]=POOL[k]||[]).push(f)});
 
 /* ----- 4단계: 출현 조건 (시간대 · 날씨 · 장소) ----- */
 const TIME_NAME={dawn:'새벽',day:'낮',dusk:'노을',night:'밤'};
@@ -3189,7 +3209,7 @@ function cosIcon(id){
 function toCan(buf){const c=document.createElement('canvas');c.width=buf.w;c.height=buf.h;const x=c.getContext('2d'),id=x.createImageData(buf.w,buf.h);id.data.set(buf.d);x.putImageData(id,0,0);return c}
 function buildSprites(){SP.crystal=toCan(crystalSprite());
   SP.grass=[0,1,2].map(v=>toCan(grassTile(v)));SP.path=[0,1].map(v=>toCan(pathTile(v)));SP.cream=[0,1].map(v=>toCan(creamTile(v)));SP.snowt=[0,1].map(v=>toCan(snowTile(v)));SP.sand=[0,1].map(v=>toCan(sandTile(v)));
-  SP.plank=toCan(plankTile());SP.water={};for(let z=1;z<=19;z++)SP.water[z]=[0,1,2,3].map(f=>toCan(waterTile(f,z)));SP.water[12]=SP.water[3];
+  SP.plank=toCan(plankTile());SP.water={};for(let z=1;z<=21;z++)SP.water[z]=[0,1,2,3].map(f=>toCan(waterTile(f,z)));SP.water[12]=SP.water[3];
   SP.fenceH=toCan(fenceTile('h'));SP.fenceV=toCan(fenceTile('v'));SP.gateC=toCan(gateTile(false));SP.gateO=toCan(gateTile(true));
   SP.treeBy={};SP.house={};
   W.buildings.forEach(b=>SP.house[b.id]=toCan(buildHouse(b.opts)));
@@ -3234,7 +3254,7 @@ function findCast(){
   const order=[P.dir,'down','left','right','up'].filter((d,i,a)=>a.indexOf(d)===i);
   for(const d of order){
     const v=DIRV[d];let best=null;
-    for(let k=1;k<=3;k++){const x=tx+v[0]*k,y=ty+v[1]*k;if(W.inb(x,y)&&W.T[y][x]==='w'&&zoneOk(W.Z[y][x]))best={x:x,y:y,dir:d,k:k};else break}
+    for(let k=1;k<=(farCast()?5:3);k++){const x=tx+v[0]*k,y=ty+v[1]*k;if(W.inb(x,y)&&W.T[y][x]==='w'&&zoneOk(W.Z[y][x]))best={x:x,y:y,dir:d,k:k};else break}
     if(best)return best;
   }
   return null;
@@ -3248,6 +3268,8 @@ function nearAction0(){
   {const wo=wowTarget();if(wo&&wo.wowed!==wo.hold.at)return{type:'wow',o:wo,label:'우와!'}}
   for(const g of W.gates){if(!hasZone(g.zone)&&Math.abs(g.x-tx)+Math.abs(g.y-ty)<=1)return{type:'gate',zone:g.zone,label:'문 열기'}}
   if(P.sit)return{type:'stand',label:'일어나기'};
+  {const nn=npcNear();if(nn)return{type:'npc',npc:nn,label:npcStep(nn.id)<nn.q.length&&npcWork(nn)?'부탁<br>듣기':'말 걸기'}}
+  {const jj=nearJeju(tx,ty);if(jj)return jj}
   {const sm=nearSnowman();if(sm)return{type:'snowman',sm,label:'눈사람<br>톡'}}
   {const tr=nearTrap();if(tr)return{type:'trap',tr,label:Net.me&&tr.n===Net.me.name?'내 통발<br>보기':'통발<br>구경'}}
   {const na=natAction(tx,ty);if(na&&na.type!=='nat_bug')return na}
@@ -3293,6 +3315,55 @@ function lanternDraw(cX,cY){if(!P||P.y<60*TS||P.y>=100*TS)return;const now=Date.
 function openLantern(){Snd.sfx('ui');const now=Date.now();openSheet('소원 등불','<div class="muted" style="font-size:12.5px;margin-bottom:8px">안개 조각 3개로 소원 등불을 띄워요. 하루 동안 고래 만 하늘에 떠 있어요.</div><div style="display:flex;gap:6px"><input class="tin" id="lanIn" maxlength="24" placeholder="소원을 적어요" style="flex:1;margin:0"><button class="btn sm pink" data-lan="go"'+(itN('shard')>=3?'':' disabled')+'>띄우기 (조각 '+itN('shard')+')</button></div><div class="sec">떠 있는 등불 '+LANS.length+'</div>'+(LANS.length?LANS.slice().reverse().map(l=>'<div class="trow"><span class="nm" style="color:'+nameCol(l.n)+'">'+esc(l.n)+'</span><span style="flex:1;font-size:13px">“'+esc(l.t)+'”</span><small class="muted">'+ago(l.at)+'</small></div>').join(''):'<div class="muted" style="padding:10px;text-align:center">아직 하늘이 비어 있어요</div>'))}
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-lan]');if(!t)return;e.stopPropagation();const tx=($('lanIn').value||'').trim();if(!tx){toast('소원을 적어 주세요');return}if(itN('shard')<3)return;itAdd('shard',-3);saveState(true);Net.send({t:'lan_put',text:tx});Snd.sfx('page');closeSheet();showBanner('🏮 소원 등불이 하늘로 올라가요');if(P)sparkFx(P.x,P.y-20,20,['#ffe08a','#ffffff','#ffb0c0'])},true);
 
+
+/* ===================== 3차-5 (2026-11-09) ===================== */
+/* 🎣 숨은 낚시 구역: 아주 비싼 낚싯대(5천만 골드 이상)를 들면 줄이 2칸 더 멀리 · 달빛 호수 한가운데 '깊은 물'에 닿아요 (치장 설명엔 힌트만) */
+const FAR_RODS=(()=>{let a=COS.filter(c=>c.k==='rod'&&c.price>=5e7).map(c=>c.id);if(!a.length)a=COS.filter(c=>c.k==='rod'&&c.price>0).sort((x,y)=>y.price-x.price).slice(0,3).map(c=>c.id);return a})();
+const farCast=()=>FAR_RODS.indexOf(S.cos.look.rod)>=0;
+/* 🗓️ 축제 달력: 다가오는 축제를 미리 · 제주 이벤트 섬 배 */
+const JEJU_ON=()=>{const t=kstMD();return t>='11-09'&&t<='11-30'};
+const mdNext=s=>{const n=new Date(Date.now()+9*3600e3),y=n.getUTCFullYear(),md=kstMD();let d=new Date(Date.UTC(y,+s.from.slice(0,2)-1,+s.from.slice(3)));if(s.from<md&&!seasonOn(s))d=new Date(Date.UTC(y+1,+s.from.slice(0,2)-1,+s.from.slice(3)));return Math.ceil((d-Date.UTC(y,n.getUTCMonth(),n.getUTCDate()))/864e5)};
+function openFest(){Snd.sfx('page');const list=SEASONS.slice().sort((a,b)=>(seasonOn(b)-seasonOn(a))||mdNext(a)-mdNext(b));
+  let h=(JEJU_ON()?'<div class="wishc" style="background:#fff4e0;border-color:#ffc070"><b>🍊 제주 이벤트 섬</b> · 11월 30일까지<div class="muted" style="font-size:12px;margin:4px 0">귤나무 · 돌하르방 · 제주 바다 8종 (한라산 용왕까지)</div><button class="btn sm pink" data-jeju="go">제주 배 타기</button></div>':'');
+  h+=list.map(s=>{const on=seasonOn(s),dd=on?0:mdNext(s),rw=COS_BY[s.reward];return'<div class="fest'+(on?' on':'')+'"><div><b>'+esc(s.name)+'</b> <small>'+(+s.from.slice(0,2))+'/'+(+s.from.slice(3))+' ~ '+(+s.to.slice(0,2))+'/'+(+s.to.slice(3))+'</small></div><div class="fdd">'+(on?'지금 열려 있어요!':'D-'+dd)+'</div><div class="fsh">'+s.ids.map(id=>'<img src="'+fishURL(id)+'" class="'+(S.dex[id]?'':'unk')+'" alt="">').join('')+'</div>'+(rw?'<small class="muted">다 만나면 '+(rw.k==='title'?'칭호 「'+esc(rw.name)+'」':esc(rw.name))+'</small>':'')+'</div>'}).join('');
+  openSheet('축제 달력',h)}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-jeju]');if(!t)return;e.stopPropagation();closeSheet();if(t.dataset.jeju==='go'){forceTp(78*TS+8,51*TS+12,'🍊 제주 이벤트 섬에 도착했어요! 혼저옵서예');Snd.sfx('splash')}},true);
+/* 제주: 귤나무 (귤 따기) · 돌하르방 */
+const JEJU_TREES=[[80,46],[88,46],[92,50],[83,56],[89,55],[86,49]],HARU=[[81,50],[90,52],[85,45]];const JT_CD={};
+function jejuDrawables(list){if(!P||P.x<70*TS||P.x>98*TS||P.y<38*TS||P.y>64*TS)return;
+  JEJU_TREES.forEach(q=>list.push({y:q[1]*TS+15,fn:()=>{const x=q[0]*TS+8,y=q[1]*TS+15;cx.fillStyle='#7a5636';cx.fillRect(x-2,y-7,4,7);cx.fillStyle='#3a8a4a';cx.beginPath();cx.arc(x,y-13,9,0,6.28);cx.fill();const ready=(JT_CD[q.join(',')]||0)<Date.now();if(ready){cx.fillStyle='#ff9a20';[[-4,-15],[3,-12],[-1,-9],[5,-17],[-5,-10]].forEach(o=>cx.fillRect(x+o[0],y+o[1],3,3))}}}));
+  HARU.forEach(q=>list.push({y:q[1]*TS+15,fn:()=>{const x=q[0]*TS+8,y=q[1]*TS+15;cx.fillStyle='#6a6a72';cx.fillRect(x-4,y-20,8,20);cx.beginPath();cx.arc(x,y-21,5,Math.PI,0);cx.fill();cx.fillStyle='#4a4a52';cx.fillRect(x-3,y-17,2,2);cx.fillRect(x+1,y-17,2,2);cx.fillRect(x-1,y-14,2,3);cx.fillRect(x-4,y-9,8,1);cx.fillStyle='#8a8a92';cx.fillRect(x-5,y-24,10,2)}}))}
+function nearJeju(tx,ty){if(!JEJU_ON()&&!(P.x>70*TS&&P.x<98*TS&&P.y>38*TS&&P.y<64*TS))return null;if(tx>=72&&tx<=76&&(ty===51||ty===52))return{type:'jejuback',label:'마을로<br>배'};const t=JEJU_TREES.find(q=>Math.abs(q[0]-tx)+Math.abs(q[1]-ty)<=1);if(t)return{type:'jejutree',tq:t,label:'귤<br>따기'};const h=HARU.find(q=>Math.abs(q[0]-tx)+Math.abs(q[1]-ty)<=1);if(h)return{type:'haru',label:'돌하르방'};return null}
+function jejuPress(a){if(a.type==='jejuback'){forceTp(17*TS+8,46*TS+12,'⛵ 마을 부두로 돌아왔어요');return true}
+  if(a.type==='jejutree'){const k=a.tq.join(','),now=Date.now();if((JT_CD[k]||0)>now){toast('귤이 아직 덜 익었어요 (조금 뒤에)');return true}JT_CD[k]=now+90000;const n=2+((Math.random()*3)|0);itAdd('orange',n);toast('🍊 귤 '+n+'개! 새콤달콤');Snd.chime(79,.3);saveState();for(let i=0;i<8;i++)parts.push({x:a.tq[0]*TS+8,y:a.tq[1]*TS,vx:(Math.random()-.5)*30,vy:-20,life:.8,t:0,c:'#ff9a20',g:60,s:2});return true}
+  if(a.type==='haru'){toast(pick(['돌하르방: 혼저옵서예~ 제주 바다엔 한라산 용왕이 산댄 햄수다','돌하르방: 새벽에 바다를 봅서. 뭔가 올라올 거우다','돌하르방: 귤 하나 줍서… 농담이우다 허허']));Snd.chime(67,.3);return true}return false}
+/* 👵🍰⛄ NPC 셋: 시간에 따라 말이 달라요 · 일하는 시간에만 부탁을 해요 · 부탁을 다 들어주면 숨은 칭호 */
+const NPCS=[
+ {id:'grand',name:'파도 할멈',x:12,y:36,look:{h:7,k:1,s:6,hat:'nohat',o:'tee'},work:['day'],
+  talk:{dawn:'파도 할멈: 새벽 바다는 조용해서 좋지. …아직 일할 시간은 아니란다.',dusk:'파도 할멈: 노을이 길어졌지? 옛날엔 저 노을 아래서 고래를 봤단다.',night:'파도 할멈: 쉿… 밤엔 고래 만 어미 고래가 노래해. 맑은 새벽 밀물이면 만날지도.'},
+  q:[{t:'노을 바닷가 물고기 3마리만 가져다주렴. 손주 밥 해 먹이게.',z:[3],r:0,n:3,g:3e6},{t:'먼바다의 희귀한 녀석 하나만. 할멈이 젊을 땐 잘 잡았는데.',z:[4],r:2,n:1,g:8e6},{t:'마지막 부탁이야. 바닷가나 먼바다의 전설을… 할멈 눈으로 한 번만 보고 싶구나.',z:[3,4],r:4,n:1,g:3e7,ti:'t_npc1'}]},
+ {id:'sugar',name:'디저트 요정 슈가',x:116,y:88,look:{h:4,k:0,s:1,hat:'ribbon',o:'tee'},work:['day','dusk'],
+  talk:{dawn:'슈가: 쿨쿨… 아직 오븐이 안 데워졌어요… 오후에 와요…',night:'슈가: 밤엔 별사탕을 말려요. 아, 달빛 호수 한가운데… 아주 멀리 던지는 낚싯대가 있다면 비밀을 낚을 수 있대요. 쉿!'},
+  q:[{t:'시럽 호수 물고기 5마리! 케이크에 올릴 거예요.',z:[16],r:0,n:5,g:5e6},{t:'반짝반짝한 희귀 물고기가 필요해요. 시럽 호수나 사탕 바다에서!',z:[16,17],r:2,n:1,g:1e7},{t:'사탕 바다의 전설로 세상에서 제일 큰 케이크를 만들 거예요!',z:[17],r:4,n:1,g:5e7,ti:'t_npc2'}]},
+ {id:'sobok',name:'소복옹',x:163,y:80,look:{h:7,k:1,s:3,hat:'beanie',o:'tee'},work:['night','dawn'],
+  talk:{day:'소복옹: 낮엔 눈사람들이 녹을까 봐 그늘에서 쉰다네. 밤에 오게나.',dusk:'소복옹: 노을이 지면 발판들이 노래할 준비를 하지. 도레미파솔라시도, 한 번 걸어 보게.'},
+  q:[{t:'반짝 눈송이 5개만 구해 주게. 눈사람들 눈을 반짝이게 해 주고 싶다네.',item:'flake',n:5,g:5e6},{t:'얼음 호수의 영웅을 데려와 주겠나? 옛 친구 같거든.',z:[18],r:3,n:1,g:1.5e7},{t:'눈꽃 바다의 전설… 그 녀석을 보면 내 겨울도 끝날 것 같구먼.',z:[19],r:4,n:1,g:8e7,ti:'t_npc3'}]}];
+const npcStep=id=>((S.npcq||{})[id]|0);
+const npcWork=n=>n.work.indexOf(timeSlot())>=0;
+function npcHave(q){if(q.item)return itN(q.item)>=q.n;let c=0;for(const k in S.inv){const f=FISH[k];if(f&&S.inv[k]>0&&q.z.indexOf(f.zone)>=0&&(f.myth?4:f.rar)>=q.r)c+=S.inv[k]}return c>=q.n}
+function npcTake(q){if(q.item){itAdd(q.item,-q.n);return}let left=q.n;Object.keys(S.inv).map(Number).filter(k=>FISH[k]&&S.inv[k]>0&&q.z.indexOf(FISH[k].zone)>=0&&(FISH[k].myth?4:FISH[k].rar)>=q.r).sort((a,b)=>FISH[a].price-FISH[b].price).forEach(k=>{while(left>0&&S.inv[k]>0){S.inv[k]--;left--}})}
+function npcNear(){if(!P)return null;let b=null,bd=22;NPCS.forEach(n=>{const d=Math.hypot(n.x*TS+8-P.x,n.y*TS+12-P.y);if(d<bd){bd=d;b=n}});return b}
+function npcPress(n){const st=npcStep(n.id),q=n.q[st],slot=timeSlot();Snd.chime(76,.25);
+  if(!q){toast(n.name+': 고마워, 덕분에 행복했어. 언제든 놀러 오렴.');return}
+  if(!npcWork(n)){toast(n.talk[slot]||n.name+': …');return}
+  const ask='<div class="npcq"><b>'+esc(n.name)+'</b><p>'+esc(q.t)+'</p><div class="muted" style="font-size:12px">'+(q.item?ITEMS[q.item].n+' '+q.n+'개':q.z.map(z=>ZONES[z-1].name).join(' · ')+' · '+RARITY[q.r].name+' 이상 '+q.n+'마리')+' → '+fmtShort(q.g)+' 골드'+(q.ti?' · 숨은 선물':'')+' ('+(st+1)+'/'+n.q.length+')</div>'+(npcHave(q)?'<button class="btn pink sm" data-npc="'+n.id+'" style="margin-top:8px">건네주기</button>':'<div class="muted" style="margin-top:8px">아직 없어요. 구해서 다시 와요</div>')+'</div>';
+  openSheet(n.name,ask)}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-npc]');if(!t)return;e.stopPropagation();const n=NPCS.find(x=>x.id===t.dataset.npc),st=npcStep(n.id),q=n.q[st];if(!q||!npcHave(q))return;
+  npcTake(q);S.npcq=Object.assign({},S.npcq||{},{[n.id]:st+1});saveState(true);if(ONLINE&&Net.me)setTimeout(()=>Net.send({t:'npc_done',id:n.id,st}),600);closeSheet();showBanner('💝 '+n.name+'의 부탁을 들어줬어요!');Snd.sfx('page')},true);
+function npcDrawables(list){NPCS.forEach(n=>{if(Math.abs(n.x*TS-P.x)>VW||Math.abs(n.y*TS-P.y)>VH)return;list.push({y:n.y*TS+12,fn:()=>{if(!n.spr)n.spr=lookSprites(Object.assign({},S.cos.look,n.look,{ti:'',e:0,rod:'bamboo',bk:'',fa:'',tf:'',ft:''}));const x=n.x*TS+8,y=n.y*TS+12,bob=Math.round(Math.sin(wt*2+n.x)*.6);
+  cx.fillStyle='rgba(60,50,100,.16)';cx.beginPath();cx.ellipse(x,y-1,6,2.5,0,0,6.28);cx.fill();cx.drawImage(n.spr.down[0],x-8,y-21+bob);
+  const st=npcStep(n.id),q=n.q[st];if(q){const w=npcWork(n),m=w?'!':'?';cx.fillStyle=w?'#ffd34d':'#c0b8d8';cx.font='bold 11px sans-serif';cx.textAlign='center';cx.strokeStyle='#4a3d6b';cx.lineWidth=2;cx.strokeText(m,x,y-26-Math.abs(Math.sin(wt*3))*2);cx.fillText(m,x,y-26-Math.abs(Math.sin(wt*3))*2)}}})})}
+const NPC_TAGS=[];function npcTags(cX,cY){const ox=(innerWidth-VW*SC)/2,oy=(innerHeight-VH*SC)/2;NPCS.forEach((n,i)=>{let el=NPC_TAGS[i];if(!el){el=document.createElement('div');el.className='ntag ttag';el.style.borderColor='#ffb43a';el.textContent=n.name;$('tags').appendChild(el);NPC_TAGS[i]=el}const sx=ox+(n.x*TS+8-cX)*SC,sy=oy+(n.y*TS+14-cY)*SC,vis=sx>-60&&sx<innerWidth+60&&sy>-40&&sy<innerHeight+40;el.hidden=!vis;if(vis)el.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,0)'})}
 /* ===================== 3차-3 달콤섬 · 소복섬 (2026-11-09) =====================
    안개가 걷힌 밤, 수평선 너머에서 달콤한 냄새와 차가운 눈송이가 동시에 날아왔어요. 두 섬은 늘 같이 열려요.
    소복마을: 밟으면 오르골 소리가 나는 '방울 발판' · 눈 뭉치기 → 눈사람 (모두에게 보여요, 톡 치면 코코아) · 스키복 없으면 추워서 느려요 */
@@ -3361,6 +3432,7 @@ function regionName(){
   const tx=P.x/TS,ty=P.y/TS;
   if(ty>=100)return'먼바다 배낚시';
   if(ty>=63&&tx>=31&&tx<70)return'물안개 숲 섬';
+  if(tx>=70&&tx<98&&ty>=38&&ty<64)return'🍊 제주 이벤트 섬';
   if(ty>=60&&tx>=92&&tx<142)return'달콤섬';
   if(ty>=60&&tx>=142)return'소복섬 · 소복마을';
   if(tx>=72&&ty<32){const i=deckAt(tx|0,ty|0),x=i>=0&&shipList()[i];return i<0?'꽃배 선단':x?(shipMine(i)?'내 꽃배':x.name+'의 꽃배'):'빈 꽃배'}
@@ -3468,6 +3540,8 @@ function pressAct(){
     else if(a.type==='isleforge'){Snd.sfx('ui');openBoat()}
     else if(a.type==='ferry')openFerry();
     else if(a.type==='snowman')tapSnowman(a.sm);
+    else if(a.type==='npc')npcPress(a.npc);
+    else if(jejuPress(a)){}
     else if(a.type==='snowpile')gatherSnow(a.sp);
     else if(a.type==='snowsign')openSnowSign();
     else if(a.type==='lantern'){if(!ONLINE||!Net.me){toast('온라인에서 띄울 수 있어요');return}openLantern()}
@@ -3592,6 +3666,7 @@ function onAqMsg(m){if(m.t==='aq'){AQ.view=m;if(m.note)toast(m.note);if(aqOpenNo
   if(m.t==='pt_result'){ptResult(m);return true}
   if(m.t==='snowmen'){SNOWMEN=m.list||[];return true}
   if(m.t==='lans'){LANS=m.list||[];if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='소원 등불')openLantern();return true}
+  if(m.t==='npc_ok'){(m.cos||[]).forEach(id=>{if(!owns(id))S.cos.own.push(id)});if(m.cos&&m.cos.length)showBanner('🎁 숨은 선물: 칭호 「'+COS_BY[m.cos[0]].name+'」');return true}
   if(m.t==='egg_ok'){S.egg=Object.assign({},S.egg||{},{[m.k]:Date.now()});(m.cos||[]).forEach(id=>{if(!owns(id))S.cos.own.push(id)});saveState(true);showBanner(m.k==='ruby30'?'🐕💎 루비가 숨겨 둔 보물을 찾았어요! 1억 골드 · 칭호 「루비의 영원한 산책 친구」':'🐈✨ 고양이들의 감사 선물! 2천만 골드 · 솜씨 재료 30 · 칭호 「고양이 화장실의 수호자」');if(P)sparkFx(P.x,P.y-20,40,['#ff6a8a','#ffd34d','#ffffff']);Snd.sfx('gate');return true}
   if(m.t==='dayk'){DAYK=m;dkTick();if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='오늘의 낚시왕')openDayK();return true}
   if(m.t==='myth_news'){showBanner('🌌 '+m.who+' 님이 신화 「'+fishName(m.id)+'」을(를) 낚았어요!'+(m.first?' 마을 최초!':''));Snd.sfx('page');return true}
@@ -4692,7 +4767,7 @@ BOB3.b_trust={rows:["y.y.y","yyyyy",".yyy.","..y.."],pal:{y:'#ffd0a8'},fx:{rise:
 [['t_trust1','title','마을의 해결사'],['t_trust2','title','믿음직한 이웃'],['b_trust','bob','악수 찌'],['k_trust','back','해결사 망토']].forEach(r=>COS.push({id:r[0],k:r[1],name:r[2],med:TRUST_SHOP.find(x=>x[0]===r[0])[1],tier:r[1]==='title'?undefined:1,nw:NEW_DAY}));
 BOB3.b_bfly={rows:["y.y.y","yyyyy",".yky.","yyyyy","y...y"],pal:{y:'#ffe040',k:'#302010'},fx:{rise:['#ffe040','#ffffff'],spark:['#fff4a0']},tier:1};
 [['t_bug1','title','곤충 친구'],['t_bug2','title','곤충 박사'],['b_bfly','bob','나비 찌'],['t_ark','title','방주를 지은 사람']].forEach(r=>COS.push({id:r[0],k:r[1],name:r[2],ev:r[0],tier:r[1]==='bob'?1:undefined,nw:NEW_DAY}));
-COS.push({id:'t_ruby30',k:'title',name:'루비의 영원한 산책 친구',price:undefined,egg:1},{id:'t_litter30',k:'title',name:'고양이 화장실의 수호자',price:undefined,egg:1});COS_BY.t_ruby30=COS[COS.length-2];COS_BY.t_litter30=COS[COS.length-1];
+COS.push({id:'t_fs1',k:'title',name:'첫눈을 기다린 사람'},{id:'t_fs2',k:'title',name:'복 많이 받는 사람'},{id:'t_fs3',k:'title',name:'달콤한 고백'},{id:'t_fs4',k:'title',name:'벚꽃 아래 낚시꾼'},{id:'t_fs5',k:'title',name:'바다의 친구'},{id:'t_npc1',k:'title',name:'바다 할멈의 손주',egg:1},{id:'t_npc2',k:'title',name:'슈가의 단골',egg:1},{id:'t_npc3',k:'title',name:'소복옹의 눈사람 친구',egg:1});['t_fs1','t_fs2','t_fs3','t_fs4','t_fs5','t_npc1','t_npc2','t_npc3'].forEach(id=>COS_BY[id]=COS.find(c=>c.id===id));COS.push({id:'t_ruby30',k:'title',name:'루비의 영원한 산책 친구',price:undefined,egg:1},{id:'t_litter30',k:'title',name:'고양이 화장실의 수호자',price:undefined,egg:1});COS_BY.t_ruby30=COS[COS.length-2];COS_BY.t_litter30=COS[COS.length-1];
 Object.assign(EV_HOW,{t_bug1:'곤충 도감 8종',t_bug2:'곤충 도감 전부',b_bfly:'곤충 도감 전부',t_ark:'물결 방주에 재료를 실은 사람'});
 COS.forEach(c=>COS_BY[c.id]=c);
 /* 2026-11-05 재료 정리: 제작법의 옛 재료 이름을 솜씨 재료로 (같은 양을 더해요) */
@@ -5098,7 +5173,7 @@ setInterval(()=>{if(SAIL&&!SAIL.me&&performance.now()-SAIL.t0>SAIL_MS)SAIL=null}
 const DECK=[[13,111],[21,111],[13,117],[21,117],[17,119]],DOCK_BACK=[17*TS+8,46*TS+12],PT_MIN=3;let PT_DAY=12;setInterval(()=>{PT_DAY=12+(arkSt()>=4?4:0)},3000);   // 2026-11-05: 한 주에 (월요일에 다시) // server.js와 같아요
 let PTY=null,bossTaps=0;
 const inSea=()=>!!(PTY&&PTY.state==='sea'&&PTY.me);
-const zoneOk=z=>z===7?inSea():z===8?hasZone(3):z>=9?hasZone(6):hasZone(z);
+const zoneOk=z=>z===21?farCast():z===20?true:z===7?inSea():z===8?hasZone(3):z>=9?hasZone(6):hasZone(z);
 /* 바다 이벤트 (server.js PT_EV와 같은 이름) · 배 위 기본 혜택: 입질 20% 빨리 · 희귀 확률 15% 더 */
 const SEA_EV={
  dolphin:{i:'🐬',n:'돌고래 떼',t:'돌고래 떼가 배를 따라와요! 30초 동안 입질이 아주 빨라져요',wait:.55},
@@ -5681,7 +5756,7 @@ function render(dt){
   drawFishBoat(drawables);
   W.buildings.forEach(b=>drawables.push({y:(b.y+1)*TS,fn:()=>cx.drawImage(SP.house[b.id],b.x*TS+(b.w*TS-48)/2,(b.y+1)*TS-50)}));
   W.props.forEach(p=>{const s=p.kind==='litter'?SP.litter[litterDirty()?1:0]:SP[p.kind];if(!s)return;drawables.push({y:p.y*TS+15,fn:()=>{cx.drawImage(s,p.x*TS+(TS-s.width)/2,p.y*TS+16-s.height);if(p.kind==='litter'&&litterDirty())litterFlies(p.x*TS+8,p.y*TS+6)}})});
-  natDrawables(drawables,x0,x1,y0,y1);trapDrawables(drawables,x0,x1,y0,y1);smDrawables(drawables);evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
+  natDrawables(drawables,x0,x1,y0,y1);trapDrawables(drawables,x0,x1,y0,y1);smDrawables(drawables);npcDrawables(drawables);jejuDrawables(drawables);evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
   drawables.push({y:P.y,fn:drawPlayer});
   drawOthers(dt,drawables);
   updatePets(dt);updateSparks(dt);
@@ -5714,7 +5789,7 @@ function render(dt){
     if(p.x<cX-4||p.x>cX+VW+4||p.y<cY-4||p.y>cY+VH+4)return;cx.fillStyle='rgba(255,196,214,.9)';cx.fillRect(Math.round(p.x),Math.round(p.y),2,1)});
   cx.restore();
   drawWeather(dt);mistFog();dwFx(dt);
-  placeTags(cX,cY);shipTags(cX,cY);trapTags(cX,cY);smTags(cX,cY);
+  placeTags(cX,cY);shipTags(cX,cY);trapTags(cX,cY);smTags(cX,cY);npcTags(cX,cY);
   // 하루 색조
   const c=dtn.c;if(c[0]<255||c[1]<255||c[2]<255){cx.globalCompositeOperation='multiply';cx.fillStyle='rgb('+c[0]+','+c[1]+','+c[2]+')';cx.fillRect(0,0,VW,VH);cx.globalCompositeOperation='source-over'}
   // 밤 가로등 불빛
@@ -5778,7 +5853,7 @@ function update(dt){
   // BGM
   const want=F.mode==='idle'||F.mode==='result'?(isNight(dayTint().ph)?'night':'town'):'fish';
   const wantT=F.mode==='idle'||F.mode==='result'?want:'fish';
-  const tr=(F.mode!=='idle'&&F.mode!=='result')||F.zone&&false?'fish':(isNight(dayTint().ph)?'night':'town');
+  const tr=(F.mode!=='idle'&&F.mode!=='result')||F.zone&&false?'fish':onWinter()?'snow':onDessert()?'sweet':(isNight(dayTint().ph)?'night':'town');
   if(Snd.ready&&tr!==lastTrack){lastTrack=tr;Snd.setTrack(tr)}
   const rg=regionName();if(rg!==lastRegion){lastRegion=rg;showRegion(rg)}
   saveT+=dt;if(saveT>8){saveT=0;saveState()}
@@ -6380,10 +6455,10 @@ function renderDex(){
   const pz=FISH[ids[0]].zone,szOn=pz<=6&&!sea&&!FISH[ids[0]].get&&!FISH[ids[0]].isy&&!FISH[ids[0]].v2&&!FISH[ids[0]].myth&&!FISH[ids[0]].pty&&!FISH[ids[0]].mk;
   const N=FISH.length;
   let h='<div class="stamps-top"><div class="st1"><b>🐟 '+dexTotalAll()+'</b><small>만남</small></div><div class="st2"><b>🎣 '+sdTotal()+'</b><small>손맛</small></div><div class="st3"><b>✨ '+shTotal()+'</b><small>반짝</small></div><div class="stn"><small>전체</small><b>'+N+'종</b></div></div>'+rankStrip('sd','🎣 손맛 순위');
-  const zs=ZONE_SHORT.map((n,z)=>[n,z*4]).concat(SEASONS.length?[['축제',MAIN_PAGES]]:[]).concat([['안개 섬',MAIN_PAGES+SEASONS.length],['배낚시',MAIN_PAGES+SEASONS.length+2],['시장',MAIN_PAGES+SEASONS.length+5],['신화',MAIN_PAGES+SEASONS.length+6],['마을 2탄',V2_PAGE0],['섬 연못',ISX_PAGE0],['섬 계곡',ISX_PAGE0+4],['산호초',ISX_PAGE0+8],['숲 호수',ISY_P[13]],['반딧불',ISY_P[14]],['고래 만',ISY_P[15]],['달콤섬',DW_P[16]],['소복섬',DW_P[18]],['갯것',GET_PAGE0]]);
+  const zs=ZONE_SHORT.map((n,z)=>[n,z*4]).concat(SEASONS.length?[['축제',MAIN_PAGES]]:[]).concat([['안개 섬',MAIN_PAGES+SEASONS.length],['배낚시',MAIN_PAGES+SEASONS.length+2],['시장',MAIN_PAGES+SEASONS.length+5],['신화',MAIN_PAGES+SEASONS.length+6],['마을 2탄',V2_PAGE0],['섬 연못',ISX_PAGE0],['섬 계곡',ISX_PAGE0+4],['산호초',ISX_PAGE0+8],['숲 호수',ISY_P[13]],['반딧불',ISY_P[14]],['고래 만',ISY_P[15]],['달콤섬',DW_P[16]],['소복섬',DW_P[18]],['제주',JEJU_P],['???',HID_P],['갯것',GET_PAGE0]]);
   h+='<div class="zj">'+zs.map((a,i)=>{const on=p>=a[1]&&(i===zs.length-1||p<zs[i+1][1]);return'<button data-pz="'+a[1]+'"'+(on?' class="on"':'')+'>'+a[0]+'</button>'}).join('')+'</div>';
   const isl=!sea&&!ps,p0=FISH[ids[0]];
-  const info=p0.dw?(p0.zone<=17?'달콤섬':'소복섬')+' · 「'+ZONES[p0.zone-1].name+'」 · 고래 만 부두에서 배를 타요':p0.isy?'물안개 숲 섬 · 「'+ZONES[p0.zone-1].name+'」 · 안개 섬 다리 건너':p0.get?'통발로만 잡혀요 · 낚시터마다 4종 · 직접 걷어 올리면 손맛 도장 · 밤낮과 계절은 실제 한국 시각 기준':p0.v2?'마을 2탄 · 「'+ZONES[p0.zone-1].name+'」 새 물고기':p0.isx?'안개 섬 · 「'+ZONES[p0.zone-1].name+'」'+(hasZone(6)?'':' (섬에 가 본 사람만)'):p0.myth?'낚시터마다 1종 · 시간과 날씨가 딱 맞을 때 아주 가끔':p0.pty?'4명이 모여야 나가는 배낚시':p0.mk?'시장 물고기 · 하루 '+MK_DAY+'마리':isl?'2부 · 물결호를 타고 가는 섬'+(hasZone(6)?'':' (아직 못 가 봤어요)'):sea?mdText(sea.from)+' ~ '+mdText(sea.to)+(seasonOn(sea)?' · 지금 축제 중!':' · 축제 기간에만 나와요'):'';
+  const info=p0.hid?'어딘가 아주 깊은 물… 평범한 낚싯대로는 닿지 않는대요':p0.jeju?'제주 이벤트 섬 (11월 30일까지) · 축제 달력에서 배를 타요':p0.dw?(p0.zone<=17?'달콤섬':'소복섬')+' · 「'+ZONES[p0.zone-1].name+'」 · 고래 만 부두에서 배를 타요':p0.isy?'물안개 숲 섬 · 「'+ZONES[p0.zone-1].name+'」 · 안개 섬 다리 건너':p0.get?'통발로만 잡혀요 · 낚시터마다 4종 · 직접 걷어 올리면 손맛 도장 · 밤낮과 계절은 실제 한국 시각 기준':p0.v2?'마을 2탄 · 「'+ZONES[p0.zone-1].name+'」 새 물고기':p0.isx?'안개 섬 · 「'+ZONES[p0.zone-1].name+'」'+(hasZone(6)?'':' (섬에 가 본 사람만)'):p0.myth?'낚시터마다 1종 · 시간과 날씨가 딱 맞을 때 아주 가끔':p0.pty?'4명이 모여야 나가는 배낚시':p0.mk?'시장 물고기 · 하루 '+MK_DAY+'마리':isl?'2부 · 물결호를 타고 가는 섬'+(hasZone(6)?'':' (아직 못 가 봤어요)'):sea?mdText(sea.from)+' ~ '+mdText(sea.to)+(seasonOn(sea)?' · 지금 축제 중!':' · 축제 기간에만 나와요'):'';
   const rc=rw&&COS_BY[rw],szr=szOn?COS.filter(c=>c.sz===pz):[],szGot=szOn&&szrwS().indexOf(pz)>=0;
   h+='<div class="pager" style="margin-top:10px"><button class="btn ghost sm" data-pg="-1"'+(p===0?' disabled':'')+'>◀</button><div class="t"><div style="font-size:17px">'+PAGE_TITLES[p]+'</div>'+
     '<div class="muted">🐟 '+got+' · 🎣 '+ids.filter(sdHas).length+' · ✨ '+ids.filter(shHas).length+' / '+ids.length+'</div>'+(info?'<div class="muted" style="font-size:12px">'+info+'</div>':'')+
@@ -6566,6 +6641,7 @@ $('sheetbody').addEventListener('click',e=>{
     if(k==='letter'){openLetter();return}
     if(k==='cp'){openCp();return}
     if(k==='hunt'){openHunt();return}
+    if(k==='fest'){openFest();return}
     if(k==='dkoff2'){S.dkOff=S.dkOff?0:1;saveState();openMenu();return}
     if(k==='qoff'){S.qOff=S.qOff?0:1;saveState();questTick();openMenu();return}
     if(k==='dayk'){openDayK();return}
@@ -7364,12 +7440,14 @@ const CUR_GUIDE='<div style="font-size:13px;line-height:1.7">'+
  '· 배낚시는 <b>한 주 12번</b>, 안개 조각은 <b>한 주 120개</b> (몰아서 해도 돼요)<br>· 벌목은 <b>기력</b> (하루 15씩 · 3일치까지), 석청 바위는 <b>20시간마다</b> 다시 차요<br>· 장소별 첫 낚시 선물은 마을 일 선물로 옮겼어요<br>'+
  '<div class="wishc" style="margin-top:8px">📋 <b>메뉴 → 오늘</b> (또는 오른쪽 위 🔹🌰🎫)에서 언제든 확인해요</div></div>';
 function openCurGuide(){Snd.sfx('page');openSheet('📦 재화 · 숙제 정리 안내',CUR_GUIDE)}
-setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.cur2)return;if(ONLINE&&!Net.me)return;S.cur2=1;S.upd1109=1;S.upd1109b=1;S.upd1109c=1;S.upd1109d=1;S.upd1109e=1;S.upd1109f=1;saveState(true);openCurGuide()},2500);
+setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.cur2)return;if(ONLINE&&!Net.me)return;S.cur2=1;S.upd1109=1;S.upd1109b=1;S.upd1109c=1;S.upd1109d=1;S.upd1109e=1;S.upd1109f=1;S.upd1109g=1;saveState(true);openCurGuide()},2500);
 /* 2026-11-09 업데이트 안내 (짧게) */
 const UPD1109='<div class="upd">'+
  '<div class="updh">🪤 통발이 바뀌었어요</div><ul><li>낚시터 물가에 직접 놓아요. 물가에서 오른쪽 아래 <b>바꾸기 → 통발 놓기</b></li><li>남의 통발도 다가가서 들여다보고 한마디 남길 수 있어요</li><li>새 <b>갯것 40종</b>은 통발로만 잡히고 <b>손맛 도감</b>에 들어가요</li><li>치장 상점 「통발」 탭에 통발 치장이 생겼어요</li><li>예전 통발에 모여 있던 물고기는 자동으로 받았어요</li></ul>'+
  '<div class="updh">화면</div><ul><li>오른쪽 위 미니맵 (✕로 끄고, 메뉴에서 다시 켜요)</li><li>오른쪽 아래 버튼이 하는 일마다 색이 달라요. 무엇을 할지 바닥에 표시돼요</li><li>알림이 나뉘어요: 마을 소식은 위쪽 띠, 친구 일은 왼쪽 카드, 놓친 건 메뉴 → 소식함</li><li>교환소 · 수족관에서 물고기를 이름 · 등급으로 찾고 정렬해요</li><li>10만 골드 넘는 물건은 한 번 더 물어봐요</li></ul>'+
  '<div class="updh">바뀐 규칙</div><ul><li>하루가 20분으로 길어지고 노을도 길어졌어요. 날씨도 20분마다</li><li>배낚시는 3명부터 출항 · 기다리는 동안 배 위에서 낚시 가능</li><li>먹는 버프는 없앴어요 (과일 · 요리는 팔거나 재료로)</li><li>전설 · 반짝 물고기 값이 크게 올랐어요</li><li>안전 강화는 +17부터 골드가 많이 들어요</li><li>펫 간식 · 장난감은 하루 5번까지</li><li>안개 섬 부두의 물결호에서 섬 장비 · 방수 등불을 올려요</li></ul></div>';
+const UPD1109G='<div class="upd"><div class="updh">3차 마지막</div><ul><li><b>마을 사람들</b>: 파도 할멈(마을 바닷가) · 디저트 요정 슈가(달콤섬) · 소복옹(소복섬). 시간에 따라 하는 말이 달라요. 머리 위 <b>!</b>는 지금 부탁이 있다는 뜻, <b>?</b>는 다른 시간에 오라는 뜻. 부탁을 다 들어주면…</li><li><b>축제 달력</b> (메뉴): 다가오는 축제 5개가 새로 생겼어요 (첫눈 · 설날 · 초콜릿 · 벚꽃 · 바다의 날)</li><li>🍊 <b>제주 이벤트 섬</b> (11월 30일까지): 축제 달력에서 배를 타요 · 귤 따기 · 돌하르방 · 제주 바다 8종</li><li>섬마다 <b>오르골 음악</b>이 흘러요 (달콤섬 · 소복섬)</li><li>섬에서 시간 · 물때 칸이 잘리지 않게 고쳤어요</li></ul><div class="muted" style="font-size:12px;margin-top:8px">도감 끝에 「???」 쪽이 생겼대요. 아주 비싼 낚싯대를 든 사람만 닿는 곳이 있다는 소문이…</div></div>';
+setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.upd1109g||!S.upd1109f)return;if(ONLINE&&!Net.me)return;S.upd1109g=1;saveState(true);Snd.sfx('page');openSheet('3차 업데이트 ⑤',UPD1109G)},6000);
 const UPD1109F='<div class="upd"><div class="updh">⚔️ 사냥터가 열렸어요</div><ul><li>메뉴 → <b>사냥터</b>: 낚시꾼이 <b>물결 용사</b>가 되어 숲으로! 팔다리가 돋은 물고기들이 나와요</li><li>사냥터 9곳 (연못가 숲 ~ 소복 설원) · 그 지역 도감의 물고기가 나와요</li><li>데미지는 <b>1부터</b>. 무기 한 단계 = 공격 +1 · 갑옷 한 단계 = 방어 +1</li><li>내 도감에 있는 종은 제대로, <b>반짝을 낚아 본 종은 2배</b> · 도감에 없는 종은 <b style="color:#e0505a">빨간 이름</b> · 못 낚은 신화는 무적</li><li>지역 손맛 도감을 다 채우면 경험치 1.5배</li><li>몬스터가 「!」를 띄우면 옆으로 피해요</li><li>장비는 <b>은비랜드 칩으로만</b> · 칩 바꾸기와 룰렛 하루 한도가 없어졌어요</li><li>처치하면 칩 · 아주 가끔 상점에 없는 것이 떨어져요…</li></ul></div>';
 setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.upd1109f||!S.upd1109e)return;if(ONLINE&&!Net.me)return;S.upd1109f=1;saveState(true);Snd.sfx('page');openSheet('3차 업데이트 ④',UPD1109F)},5500);
 const UPD1109E='<div class="upd"><div class="updh">🍰⛄ 달콤섬 · 소복섬이 함께 열렸어요</div><ul><li>물안개 숲 섬 <b>고래 만 부두</b>에서 「달콤 · 소복 배」를 타요</li><li>새 낚시터 4곳 (시럽 호수 · 사탕 바다 · 얼음 호수 · 눈꽃 바다) · 새 물고기 <b>80종</b> (도감 819종)</li><li><b>소복마을 방울 발판</b>: 밟으면 오르골 소리가 나요. 두 줄을 걸어서 노래를 만들어 봐요</li><li><b>눈사람</b>: 눈더미를 뭉쳐 눈사람을 쌓고 꾸며요. 마을 광장에 모두 보이고, 톡 치면 따뜻한 코코아</li><li><b>추위</b>: 스키복이 없으면 소복섬에서 걸음이 느려지고 입질이 늦어요. 스키복은 털실 가게에서 (아주 어려워요!)</li></ul></div>';
@@ -7410,7 +7488,7 @@ function openMenu(){
    h+='<div class="sec">🎒 내 것</div><div class="menu"><button class="mbtn" data-mn="pets" style="background:linear-gradient(#fff0f5,#f3ecff)">동물 친구<small>'+esc(petName(pt))+' Lv'+petLv(pt)+' · 산책 '+(walkDone()?'✓':'아직')+'</small></button><button class="mbtn" data-mn="tree" style="background:linear-gradient(#eef4ff,#f3ecff)">'+(j?JOBS[j].ic+' '+JOBS[j].name:'직업 · 스킬')+'<small>스킬 포인트 '+ptsLeft()+'</small></button>'+
      '<button class="mbtn" data-mn="craft" style="background:linear-gradient(#fff4e4,#fff)">공방 · 아이템<small>미끼 · 요리 · 잡화점</small></button><button class="mbtn" data-mn="today" style="background:linear-gradient(#f0fbf0,#fff)">📋 오늘<small>마을 일 '+Math.min(2,(jdS().done[jkey()]||[]).length)+'/2 · 몫 '+vdayB()+'</small></button><button class="mbtn" data-mn="me">내 정보<small>♥'+((S.pop&&S.pop.up)|0)+' · 기록</small></button></div>'}
   h+='<div class="sec">📍 걸어가는 곳 <span class="cnt">누르면 길을 알려 줘요</span></div><div class="gmenu">'+GO_PLACES.map(g=>'<button class="gbtn" data-go="'+g[0]+'"><span>'+g[1]+'</span><b>'+g[2]+'</b><small>'+(g[4]?g[4]():'')+'</small></button>').join('')+'</div>';
-  {const c=cpS();h+='<div class="menu" style="margin-top:8px"><button class="mbtn" data-mn="cp" style="background:linear-gradient(#fff4e8,#fff)">'+(c?'🐾 '+esc(c.name)+' Lv'+cpLv():'🏠 분양센터')+'<small>'+(c?'반려동물':'평생 함께할 반려동물 데려오기')+'</small></button><button class="mbtn" data-mn="dayk">🎣 오늘의 낚시왕<small>1등은 자정에 1천만 골드</small></button><button class="mbtn" data-mn="hunt" style="background:linear-gradient(#ffece8,#fff)">⚔️ 사냥터<small>물결 용사 Lv'+huS().lv+'</small></button></div>'}
+  {const c=cpS();h+='<div class="menu" style="margin-top:8px"><button class="mbtn" data-mn="cp" style="background:linear-gradient(#fff4e8,#fff)">'+(c?'🐾 '+esc(c.name)+' Lv'+cpLv():'🏠 분양센터')+'<small>'+(c?'반려동물':'평생 함께할 반려동물 데려오기')+'</small></button><button class="mbtn" data-mn="dayk">🎣 오늘의 낚시왕<small>1등은 자정에 1천만 골드</small></button><button class="mbtn" data-mn="hunt" style="background:linear-gradient(#ffece8,#fff)">⚔️ 사냥터<small>물결 용사 Lv'+huS().lv+'</small></button><button class="mbtn" data-mn="fest" style="background:linear-gradient(#fff4e0,#fff)">🗓️ 축제 달력<small>'+(JEJU_ON()?'🍊 제주 이벤트 중!':'다가오는 축제')+'</small></button></div>'}
   h+='<div class="menu" style="margin-top:8px"><button class="mbtn" data-mn="letter">운영자에게 쓰기<small>의견 · 잘못 산 치장 환불</small></button></div>';
   h+='<div class="menu" style="margin-top:8px"><button class="mbtn" data-mn="set">설정<small>소리 · 기록</small></button><button class="mbtn" data-mn="home" style="background:linear-gradient(#e8f6ff,#fff)">🏠 마을로 귀환<small>갇혔을 때 · 3분에 한 번</small></button></div>';
   openSheet('메뉴',h);

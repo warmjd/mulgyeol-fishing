@@ -134,9 +134,11 @@ const ISY_FIRST = GET_FIRST + GET_ZR.length, ISY_ZR = [[13, 0], [13, 0], [13, 0]
 /* 3차-3 달콤섬 · 소복섬 80종 (739~818) — index.html FISH4와 같은 순서 */
 const ISY_ZR2 = [[16, 0], [16, 0], [16, 0], [16, 0], [16, 0], [16, 0], [16, 0], [16, 0], [16, 1], [16, 1], [16, 1], [16, 1], [16, 1], [16, 1], [16, 2], [16, 2], [16, 3], [16, 3], [16, 4], [16, 4], [17, 0], [17, 0], [17, 0], [17, 0], [17, 0], [17, 0], [17, 0], [17, 0], [17, 1], [17, 1], [17, 1], [17, 1], [17, 1], [17, 1], [17, 2], [17, 2], [17, 3], [17, 3], [17, 4], [17, 4], [18, 0], [18, 0], [18, 0], [18, 0], [18, 0], [18, 0], [18, 0], [18, 0], [18, 1], [18, 1], [18, 1], [18, 1], [18, 1], [18, 1], [18, 2], [18, 2], [18, 3], [18, 3], [18, 4], [18, 4], [19, 0], [19, 0], [19, 0], [19, 0], [19, 0], [19, 0], [19, 0], [19, 0], [19, 1], [19, 1], [19, 1], [19, 1], [19, 1], [19, 1], [19, 2], [19, 2], [19, 3], [19, 3], [19, 4], [19, 4]];
 ISY_ZR.push(...ISY_ZR2);
+/* 3차-5 축제 5세트 20종 · 제주 8종 · 깊은 물 6종 (819~852) — index.html FEST2 · JEJU_RAW · HID_RAW와 같은 순서 */
+ISY_ZR.push(...[[5, 0], [5, 1], [5, 2], [5, 4], [1, 0], [1, 1], [1, 2], [1, 4], [16, 0], [16, 1], [16, 2], [16, 4], [2, 0], [2, 1], [2, 2], [2, 4], [3, 0], [3, 1], [3, 2], [4, 4], [20, 0], [20, 0], [20, 1], [20, 1], [20, 2], [20, 2], [20, 3], [20, 4], [21, 2], [21, 2], [21, 3], [21, 3], [21, 4], [21, 4]]);
 const isIsy = id => id >= ISY_FIRST && id < ISY_FIRST + ISY_ZR.length;
 const FISH_MAX = ISY_FIRST + ISY_ZR.length;
-const ZONE_PRICE = [8, 30, 90, 280, 950, 2000, 400, 100, 1200, 1500, 2600, 400, 3000, 3400, 4200, 3600, 4200, 4000, 4600], RAR_MULT = [1, 2.2, 5, 20, 120];   // 2026-11-09: 영웅 · 전설 값 올림 (index.html RARITY와 같아요)
+const ZONE_PRICE = [8, 30, 90, 280, 950, 2000, 400, 100, 1200, 1500, 2600, 400, 3000, 3400, 4200, 3600, 4200, 4000, 4600, 3000, 9000], RAR_MULT = [1, 2.2, 5, 20, 120];   // 2026-11-09: 영웅 · 전설 값 올림 (index.html RARITY와 같아요)
 const rarOf = i => i < 8 ? 0 : i < 14 ? 1 : i < 18 ? 2 : i < 19 ? 3 : 4;
 function fishPrice(id) {
   let z, r;
@@ -387,7 +389,7 @@ const hasReqItem = (s, item, n) => item.startsWith('f:') ? has(s, +item.slice(2)
 const MP_IDS = ["mp_b_dragon", "mp_b_angel", "mp_b_sun", "mp_b_galaxy", "mp_b_crown", "mp_b_rainbowp", "mp_b_hourglass", "mp_b_starheart", "mp_r_aurora", "mp_r_dragon", "mp_r_gold2", "mp_r_cosmos"];
 ITEM_IDS.push('clue', ...MP_IDS); ITEM_IDS.push('snow', 'flake');
 ITEM_IDS.push('log', 'plank', 'wplank', 'dye', 'cloth', 'honey', 'honey_lav', 'honey_rb', 'wildhoney', 'pie', 'apple', 'peach', 'orange', 'cherry', 'fl_tulip', 'fl_sun', 'fl_cosmos', 'fl_lav', 'fl_rose', 'fl_hydr', 'fl_lily', 'fl_rb', 'sap_oak', 'sap_pine', 'sap_apple', 'sap_peach', 'sap_orange', 'sap_cherry');   // 자연 1.0 (index.html ITEMS와 같아요)
-LOOK_IDS.bob.push('b_bfly'); LOOK_IDS.ti.push('t_bug1', 't_bug2', 't_ark'); LOOK_IDS.ti.push('t_ruby30', 't_litter30', 't_hunt1', 't_hunt2');
+LOOK_IDS.bob.push('b_bfly'); LOOK_IDS.ti.push('t_bug1', 't_bug2', 't_ark'); LOOK_IDS.ti.push('t_ruby30', 't_litter30', 't_hunt1', 't_hunt2', 't_fs1', 't_fs2', 't_fs3', 't_fs4', 't_fs5', 't_npc1', 't_npc2', 't_npc3');
 Object.assign(ITEM_NPC, { snow: 100, flake: 30000, clue: 20000, fl_tulip: 140000, fl_cosmos: 180000, fl_sun: 270000, fl_lav: 450000, fl_rose: 900000, fl_hydr: 1350000, fl_lily: 2200000, fl_rb: 6000000,   /* 2026-11-09: 꽃이 돈이 되게 */ apple: 3000, peach: 4000, orange: 3500, cherry: 8000, honey: 800, wildhoney: 6000, log: 300, plank: 400, wplank: 2500, sap_oak: 1000000, sap_pine: 1000000, sap_apple: 2500000, sap_peach: 4000000, sap_orange: 4000000, sap_cherry: 7500000 }, {"mp_b_dragon": 12500000, "mp_b_angel": 14000000, "mp_b_sun": 15000000, "mp_b_galaxy": 17500000, "mp_b_crown": 20000000, "mp_b_rainbowp": 22500000, "mp_b_hourglass": 50000000, "mp_b_starheart": 75000000, "mp_r_aurora": 12500000, "mp_r_dragon": 15000000, "mp_r_gold2": 25000000, "mp_r_cosmos": 60000000});
 Object.assign(MAKER, { clue: 'sch' }, {"mp_b_dragon": "cra", "mp_b_angel": "cra", "mp_b_sun": "cra", "mp_b_galaxy": "cra", "mp_b_crown": "cra", "mp_b_rainbowp": "cra", "mp_b_hourglass": "cra", "mp_b_starheart": "cra", "mp_r_aurora": "cra", "mp_r_dragon": "cra", "mp_r_gold2": "cra", "mp_r_cosmos": "cra"});
 Object.assign(ITEM_NAME, { clue: '조사 쪽지' }, {"mp_b_dragon": "용의 알 찌 상자", "mp_b_angel": "천사 찌 상자", "mp_b_sun": "태양 찌 상자", "mp_b_galaxy": "은하수 찌 상자", "mp_b_crown": "왕관 찌 상자", "mp_b_rainbowp": "무지개 진주 찌 상자", "mp_b_hourglass": "시간의 모래시계 찌 상자", "mp_b_starheart": "별의 심장 찌 상자", "mp_r_aurora": "오로라 낚싯대 상자", "mp_r_dragon": "용염 낚싯대 상자", "mp_r_gold2": "순금 용왕 낚싯대 상자", "mp_r_cosmos": "우주의 낚싯대 상자"});
@@ -643,7 +645,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {};
@@ -1020,6 +1022,12 @@ function onMsg(ws, me, m) {
       if (Object.entries(V.snowmen).some(([k, s]) => k !== me.key && s.x === x && s.y === y)) break;
       V.snowmen[me.key] = { n: me.name, x, y, st, parts, at: Date.now() }; vMark(); broadcast({ t: 'snowmen', list: Object.values(V.snowmen) }); break; }
     case 'ski_done': broadcast({ t: 'news', text: '🎿 ' + me.name + ' 님이 스키복을 완성했어요! 이제 소복섬에서도 씽씽' }, ws); break;
+    case 'npc_done': withLock(me.key, async () => {   // 👵🍰⛄ NPC 부탁 (3차-5): 단계마다 한 번만
+      const s = me.save; if (!s) return; const N = { grand: [3e6, 8e6, 3e7, 't_npc1'], sugar: [5e6, 1e7, 5e7, 't_npc2'], sobok: [5e6, 1.5e7, 8e7, 't_npc3'] }[m.id]; const st = m.st | 0; if (!N || st < 0 || st > 2) return;
+      const d = s.npcd && typeof s.npcd === 'object' ? s.npcd : (s.npcd = {}); if ((d[m.id] | 0) > st) return; d[m.id] = st + 1;
+      const cos = st === 2 ? giveCos(s, [N[3]]) : []; queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: N[st] }, '💝 부탁을 들어준 답례'); send(ws, { t: 'npc_ok', cos });
+      if (st === 2) broadcast({ t: 'news', text: '💝 ' + me.name + ' 님이 ' + ({ grand: '파도 할멈', sugar: '디저트 요정 슈가', sobok: '소복옹' }[m.id]) + '의 마지막 부탁까지 들어줬어요!' });
+    }); break;
     case 'hunt_buy': case 'hunt_kill': withLock(me.key, async () => {   // ⚔️ 사냥터 (3차-4): 장비는 은비랜드 칩으로만 · 처치하면 칩 · 아주 가끔 상점에 없는 것
       const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); const e = ebOf(s);
       if (m.t === 'hunt_buy') {
