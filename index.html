@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}.aq{width:100%;height:auto;image-rendering:pixelated;border-radius:12px;border:3px solid #9fd2f0;display:block;background:#bfe9ff}.aq-cap{display:flex;justify-content:space-between;margin:6px 2px 8px;font-size:14px}.aq-cap span{color:#e0608a}.aqrow{width:100%;text-align:left;border:0;background:none;font:inherit;color:inherit}
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><link rel=manifest href="/manifest.webmanifest"><meta name=theme-color content="#cfe8d8"><meta name=mobile-web-app-capable content=yes><meta name=apple-mobile-web-app-capable content=yes><meta name=apple-mobile-web-app-status-bar-style content=black-translucent><meta name=apple-mobile-web-app-title content="물결마을"><link rel=apple-touch-icon href="/apple-touch-icon.png"><link rel=icon href="/icon-192.png"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}.aq{width:100%;height:auto;image-rendering:pixelated;border-radius:12px;border:3px solid #9fd2f0;display:block;background:#bfe9ff}.aq-cap{display:flex;justify-content:space-between;margin:6px 2px 8px;font-size:14px}.aq-cap span{color:#e0608a}.aqrow{width:100%;text-align:left;border:0;background:none;font:inherit;color:inherit}
 .fpbar{display:flex;gap:6px;margin:4px 0 6px}.fpbar .fpq{flex:1;min-width:0;margin:0}.fpsel{flex:none;font:inherit;font-size:13px;border:2px solid var(--line);border-radius:10px;background:var(--paper-2);color:var(--ink);padding:4px 6px}
 .fprar{flex-wrap:wrap;margin-bottom:6px}.fprar .fchip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px;vertical-align:0}
 .fplist{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
@@ -8272,7 +8272,7 @@ function openMenu(){
      '<button class="mbtn" data-mn="craft" style="background:linear-gradient(#fff4e4,#fff)">공방 · 아이템<small>미끼 · 요리 · 잡화점</small></button><button class="mbtn" data-mn="today" style="background:linear-gradient(#f0fbf0,#fff)">📋 오늘<small>마을 일 '+Math.min(2,(jdS().done[jkey()]||[]).length)+'/2 · 몫 '+vdayB()+'</small></button><button class="mbtn" data-mn="me">내 정보<small>♥'+((S.pop&&S.pop.up)|0)+' · 기록</small></button></div>'}
   h+='<div class="sec">📍 걸어가는 곳 <span class="cnt">누르면 길을 알려 줘요</span></div><div class="gmenu">'+GO_PLACES.map(g=>'<button class="gbtn" data-go="'+g[0]+'"><span>'+g[1]+'</span><b>'+g[2]+'</b><small>'+(g[4]?g[4]():'')+'</small></button>').join('')+'</div>';
   {const c=cpS();h+='<div class="menu" style="margin-top:8px"><button class="mbtn" data-mn="cp" style="background:linear-gradient(#fff4e8,#fff)">'+(c?'🐾 '+esc(c.name)+' Lv'+cpLv():'🏠 분양센터')+'<small>'+(c?'반려동물':'평생 함께할 반려동물 데려오기')+'</small></button><button class="mbtn" data-mn="dayk">🎣 오늘의 낚시왕<small>1등은 자정에 1천만 골드</small></button><button class="mbtn" data-mn="hunt" style="background:linear-gradient(#ffece8,#fff)">⚔️ 사냥터<small>물결 용사 Lv'+huS().lv+'</small></button><button class="mbtn" data-mn="fest" style="background:linear-gradient(#fff4e0,#fff)">🗓️ 축제 달력<small>'+(JEJU_ON()?'🍊 제주 이벤트 중!':'다가오는 축제')+'</small></button></div>'}
-  h+='<div class="menu" style="margin-top:8px"><button class="mbtn" data-mn="letter">운영자에게 쓰기<small>의견 · 잘못 산 치장 환불</small></button></div>';
+  h+='<div class="menu" style="margin-top:8px"><button class="mbtn" data-mn="letter">운영자에게 쓰기<small>의견 · 잘못 산 치장 환불</small></button>'+((matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches||navigator.standalone)?'':'<button class="mbtn" onclick="appInstall()" style="background:linear-gradient(#eaf6ff,#fff)">📲 앱처럼 쓰기<small>홈 화면에 추가 · 주소창 없이</small></button>')+'</div>';
   h+='<div class="menu" style="margin-top:8px"><button class="mbtn" data-mn="set">설정<small>소리 · 기록</small></button><button class="mbtn" data-mn="home" style="background:linear-gradient(#e8f6ff,#fff)">🏠 마을로 귀환<small>갇혔을 때 · 3분에 한 번</small></button></div>';
   openSheet('메뉴',h);
 }
@@ -9148,6 +9148,20 @@ function setupTalk(){
   requestAnimationFrame(frame);
 })();
 
+
+/* 📲 앱처럼: 홈 화면 설치 · 안드로이드 전체 화면 (주소창 · 아래 버튼 숨김) */
+(function(){
+  try{if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{})}catch(e){}
+  const standalone=()=>matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  const android=/Android/i.test(navigator.userAgent);
+  window.APP_INSTALL=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();window.APP_INSTALL=e});
+  window.goFull=function(){const d=document.documentElement,f=d.requestFullscreen||d.webkitRequestFullscreen;if(!f||document.fullscreenElement||document.webkitFullscreenElement)return;try{const r=f.call(d,{navigationUI:'hide'});if(r&&r.catch)r.catch(()=>{});if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('portrait').catch(()=>{})}catch(e){}};
+  window.appInstall=function(){if(window.APP_INSTALL){window.APP_INSTALL.prompt();window.APP_INSTALL.userChoice.then(()=>{window.APP_INSTALL=null});return}
+    openSheet('📲 앱처럼 쓰기','<div style="font-size:14px;line-height:1.8">'+(android?'<b>안드로이드</b><br>① 크롬(또는 삼성 인터넷) 오른쪽 위 <b>⋮ / ≡ 메뉴</b><br>② <b>「홈 화면에 추가」</b> 또는 <b>「앱 설치」</b><br>③ 홈 화면의 물고기 아이콘으로 열면 주소창 없이 <b>전체 화면</b>이에요!<br><small class="muted">이미 추가했는데도 주소창이 보이면, 그 아이콘을 지우고 이 화면을 새로 고침한 뒤 다시 추가해 주세요 (예전엔 앱 정보가 없어서 그냥 바로가기로 저장됐어요)</small>':'<b>아이폰</b><br>① 사파리 아래 <b>공유 버튼(□↑)</b><br>② <b>「홈 화면에 추가」</b><br>③ 홈 화면의 물고기 아이콘으로 열면 주소창 없이 열려요!')+'</div>')};
+  if(android&&!standalone()){let tried=0;const once=()=>{if(tried)return;tried=1;goFull()};document.addEventListener('pointerup',once,{capture:true});
+    setTimeout(()=>{try{if(!localStorage.getItem('instHint')&&typeof toast==='function'){localStorage.setItem('instHint','1');toast('📲 메뉴 → 「앱처럼 쓰기」로 홈 화면에 추가하면 주소창 없이 전체 화면이에요')}}catch(e){}},15000)}
+  document.addEventListener('fullscreenchange',()=>{try{if(typeof resize==='function')resize();dispatchEvent(new Event('resize'))}catch(e){}});
+})();
 </script>
 
 </body></html>

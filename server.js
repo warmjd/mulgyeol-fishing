@@ -94,6 +94,7 @@ function checkCode(code, stored) {
 /* ---------- HTTP: 게임 파일 + 상태 확인 ---------- */
 const app = express();
 app.get('/', (req, res) => { res.set('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'index.html')); });
+for (const f of ['manifest.webmanifest', 'sw.js', 'icon-192.png', 'icon-512.png', 'icon-mask.png', 'apple-touch-icon.png']) app.get('/' + f, (req, res) => { if (f === 'sw.js') res.setHeader('Service-Worker-Allowed', '/'); res.setHeader('Content-Type', f.endsWith('.webmanifest') ? 'application/manifest+json' : f.endsWith('.js') ? 'text/javascript; charset=utf-8' : 'image/png'); res.setHeader('Cache-Control', f === 'sw.js' ? 'no-cache' : 'public, max-age=86400'); require('fs').readFile(path.join(__dirname, f), (err, buf) => { if (err) { res.statusCode = 404; return res.end(); } res.end(buf); }); });   // 📲 홈 화면에 추가하면 앱처럼 (주소창 없이)
 app.get('/health', (req, res) => res.json({ ok: true, online: players.size }));
 const server = http.createServer(app);
 

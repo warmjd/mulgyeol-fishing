@@ -1,0 +1,19 @@
+{
+  "name": "물결마을 낚시터",
+  "short_name": "물결마을",
+  "description": "함께 낚시하고 꾸미는 픽셀 마을",
+  "id": "/",
+  "start_url": "/?app=1",
+  "scope": "/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "portrait",
+  "background_color": "#cfe8d8",
+  "theme_color": "#cfe8d8",
+  "lang": "ko",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-mask.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
