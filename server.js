@@ -1022,6 +1022,7 @@ function onMsg(ws, me, m) {
       if (Object.entries(V.snowmen).some(([k, s]) => k !== me.key && s.x === x && s.y === y)) break;
       V.snowmen[me.key] = { n: me.name, x, y, st, parts, at: Date.now() }; vMark(); broadcast({ t: 'snowmen', list: Object.values(V.snowmen) }); break; }
     case 'ski_done': broadcast({ t: 'news', text: '🎿 ' + me.name + ' 님이 스키복을 완성했어요! 이제 소복섬에서도 씽씽' }, ws); break;
+    case 'hpos': { const f = m.f | 0; broadcast({ t: 'hpos', n: me.name, f: f < 0 ? -1 : Math.min(20, f), x: m.x | 0, y: m.y | 0, lv: m.lv | 0 }, ws); break; }   // ⚔️ 같은 사냥터 친구 보기
     case 'npc_done': withLock(me.key, async () => {   // 👵🍰⛄ NPC 부탁 (3차-5): 단계마다 한 번만
       const s = me.save; if (!s) return; const N = { grand: [3e6, 8e6, 3e7, 't_npc1'], sugar: [5e6, 1e7, 5e7, 't_npc2'], sobok: [5e6, 1.5e7, 8e7, 't_npc3'] }[m.id]; const st = m.st | 0; if (!N || st < 0 || st > 2) return;
       const d = s.npcd && typeof s.npcd === 'object' ? s.npcd : (s.npcd = {}); if ((d[m.id] | 0) > st) return; d[m.id] = st + 1;
