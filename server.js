@@ -16,7 +16,7 @@ const MAX_PLAYERS = 16;          // 동시 접속 최대 (5명 기준이라 넉�
 const SNAP_MS = 100;             // 친구 위치를 보내는 간격 (초당 10번)
 const SAVE_MS = 5000;
 // 운영자: 이 닉네임으로 (그 계정 코드로) 로그인하면 운영자 도구를 쓸 수 있어요. Render 환경변수 ADMINS=이름1,이름2 로 바꿀 수 있어요
-const ADMINS = new Set((process.env.ADMINS || '조돌맹').split(',').map(x => x.trim().toLowerCase()).filter(Boolean));            // 같은 사람의 저장은 최소 5초 간격으로 DB에 씀
+const ADMINS = new Set(((process.env.ADMINS || '조돌맹') + ',운영자').split(',').map(x => x.trim().toLowerCase()).filter(Boolean));            // 같은 사람의 저장은 최소 5초 간격으로 DB에 씀
 
 /* ---------- 저장소: Supabase (없으면 메모리 — 테스트용) ---------- */
 let db;
@@ -206,7 +206,8 @@ function cleanLook(l, save, color) {
   if (ENH_TITLE_NEED[o.ti] && !(enh && enh.max >= ENH_TITLE_NEED[o.ti])) o.ti = '';
   o.e = enh ? enh.lv | 0 : 0;   // 이름표 옆 +강화 수치: 서버 기록 그대로
   { const cup = (save && save.cup) || {}; o.gs = Math.max(cup[o.o] | 0, cup[o.hat] | 0, cup[o.bk] | 0, cup[o.fa] | 0); }   // 치장 별 (입은 것 중 가장 높은 별)
-  o.j = typeof l.j === 'string' && /^(fish|sch|cra|tam|mer)[0-3]$/.test(l.j) ? l.j : '';   // 직업 배지 (아이콘 + 등급 별)
+  o.j = typeof l.j === 'string' && /^(fish|sch|cra|tam|mer)[0-3]$/.test(l.j) ? l.j : '';
+  o.cp = typeof l.cp === 'string' && l.cp.length <= 40 && /^(cat|dog)[0-3]\|[^|<>]{1,8}\|\d{1,2}\|[a-z_]{0,12}$/.test(l.cp) ? l.cp : '';   // 🐾 반려동물 (종류·털색|이름|레벨|장식)   // 직업 배지 (아이콘 + 등급 별)
   return o;
 }
 
@@ -276,7 +277,7 @@ const ENH = {
   S: [1, 1, 2, 3, 4, 6, 9, 13, 18, 24, 16, 20, 25, 31, 38, 61, 72, 84, 98, 114, 130, 150, 170, 190, 215, 240, 270, 300, 340, 380],   // 강화 3.0 (2026-11-04): +11부터 별을 줄였어요
   cost: L => (L >= 17 ? Math.round(Math.min(30, 7 * Math.pow(1.5, L - 17)) * ENH.cost0(L) / 1000) * 1000 : ENH.cost0(L)),   // 2026-11-09: +17부터 안전 강화 골드를 크게 (7배 → 최대 30배)
   cost0: L => L < 10 ? Math.round(50 * Math.pow(1.28, L) / 10) * 10 : L < 20 ? Math.round(3000 * Math.pow(1.32, L - 10) / 100) * 100 : Math.round(3000 * Math.pow(1.32, L - 10) * Math.pow(1.4, L - 19) / 1000) * 1000,   // +10부터는 골드를 꽤 써요
-  DAILY: 3, FISH_CAP: 40, FISH_PER: 25, IDLE_MIN: 30, IDLE_CAP: 6, PIECE_CAP: 20, PIECE_PER: 5, TK_MAX: 999,
+  DAILY: 3, FISH_CAP: 40, FISH_PER: 25, IDLE_MIN: 40, IDLE_CAP: 30,   /* 2026-11-09: 오래 켜 두면 하루 최대 30장 */ PIECE_CAP: 20, PIECE_PER: 5, TK_MAX: 999,
   PTS: [1, 2, 5, 15, 40]
 };
 ENH.K = ENH.P.map(p => Math.max(2, Math.round(1.8 / p)));   // 안전: 이만큼 연속 실패하면 다음은 확정
@@ -379,8 +380,8 @@ const hasReqItem = (s, item, n) => item.startsWith('f:') ? has(s, +item.slice(2)
 const MP_IDS = ["mp_b_dragon", "mp_b_angel", "mp_b_sun", "mp_b_galaxy", "mp_b_crown", "mp_b_rainbowp", "mp_b_hourglass", "mp_b_starheart", "mp_r_aurora", "mp_r_dragon", "mp_r_gold2", "mp_r_cosmos"];
 ITEM_IDS.push('clue', ...MP_IDS);
 ITEM_IDS.push('log', 'plank', 'wplank', 'dye', 'cloth', 'honey', 'honey_lav', 'honey_rb', 'wildhoney', 'pie', 'apple', 'peach', 'orange', 'cherry', 'fl_tulip', 'fl_sun', 'fl_cosmos', 'fl_lav', 'fl_rose', 'fl_hydr', 'fl_lily', 'fl_rb', 'sap_oak', 'sap_pine', 'sap_apple', 'sap_peach', 'sap_orange', 'sap_cherry');   // 자연 1.0 (index.html ITEMS와 같아요)
-LOOK_IDS.bob.push('b_bfly'); LOOK_IDS.ti.push('t_bug1', 't_bug2', 't_ark');
-Object.assign(ITEM_NPC, { clue: 20000, fl_tulip: 4000, fl_cosmos: 5000, fl_sun: 7000, fl_lav: 10000, fl_rose: 20000, fl_hydr: 30000, fl_lily: 50000, fl_rb: 300000, apple: 3000, peach: 4000, orange: 3500, cherry: 8000, honey: 800, wildhoney: 6000, log: 300, plank: 400, wplank: 2500, sap_oak: 1000000, sap_pine: 1000000, sap_apple: 2500000, sap_peach: 4000000, sap_orange: 4000000, sap_cherry: 7500000 }, {"mp_b_dragon": 12500000, "mp_b_angel": 14000000, "mp_b_sun": 15000000, "mp_b_galaxy": 17500000, "mp_b_crown": 20000000, "mp_b_rainbowp": 22500000, "mp_b_hourglass": 50000000, "mp_b_starheart": 75000000, "mp_r_aurora": 12500000, "mp_r_dragon": 15000000, "mp_r_gold2": 25000000, "mp_r_cosmos": 60000000});
+LOOK_IDS.bob.push('b_bfly'); LOOK_IDS.ti.push('t_bug1', 't_bug2', 't_ark'); LOOK_IDS.ti.push('t_ruby30', 't_litter30');
+Object.assign(ITEM_NPC, { clue: 20000, fl_tulip: 140000, fl_cosmos: 180000, fl_sun: 270000, fl_lav: 450000, fl_rose: 900000, fl_hydr: 1350000, fl_lily: 2200000, fl_rb: 6000000,   /* 2026-11-09: 꽃이 돈이 되게 */ apple: 3000, peach: 4000, orange: 3500, cherry: 8000, honey: 800, wildhoney: 6000, log: 300, plank: 400, wplank: 2500, sap_oak: 1000000, sap_pine: 1000000, sap_apple: 2500000, sap_peach: 4000000, sap_orange: 4000000, sap_cherry: 7500000 }, {"mp_b_dragon": 12500000, "mp_b_angel": 14000000, "mp_b_sun": 15000000, "mp_b_galaxy": 17500000, "mp_b_crown": 20000000, "mp_b_rainbowp": 22500000, "mp_b_hourglass": 50000000, "mp_b_starheart": 75000000, "mp_r_aurora": 12500000, "mp_r_dragon": 15000000, "mp_r_gold2": 25000000, "mp_r_cosmos": 60000000});
 Object.assign(MAKER, { clue: 'sch' }, {"mp_b_dragon": "cra", "mp_b_angel": "cra", "mp_b_sun": "cra", "mp_b_galaxy": "cra", "mp_b_crown": "cra", "mp_b_rainbowp": "cra", "mp_b_hourglass": "cra", "mp_b_starheart": "cra", "mp_r_aurora": "cra", "mp_r_dragon": "cra", "mp_r_gold2": "cra", "mp_r_cosmos": "cra"});
 Object.assign(ITEM_NAME, { clue: '조사 쪽지' }, {"mp_b_dragon": "용의 알 찌 상자", "mp_b_angel": "천사 찌 상자", "mp_b_sun": "태양 찌 상자", "mp_b_galaxy": "은하수 찌 상자", "mp_b_crown": "왕관 찌 상자", "mp_b_rainbowp": "무지개 진주 찌 상자", "mp_b_hourglass": "시간의 모래시계 찌 상자", "mp_b_starheart": "별의 심장 찌 상자", "mp_r_aurora": "오로라 낚싯대 상자", "mp_r_dragon": "용염 낚싯대 상자", "mp_r_gold2": "순금 용왕 낚싯대 상자", "mp_r_cosmos": "우주의 낚싯대 상자"});
 LOOK_IDS.bob.push('jb_fish1','jb_fish3','jb_sch1','jb_sch3','jb_cra1','jb_cra3','jb_tam1','jb_tam3','jb_mer1','jb_mer3','b_trust'); LOOK_IDS.rod.push('jr_fish','jr_sch','jr_cra','jr_tam','jr_mer'); LOOK_IDS.bk.push('k_trust'); LOOK_IDS.ti.push('t_trust1','t_trust2');
@@ -583,7 +584,7 @@ wss.on('connection', (ws) => {
         rosterSet(key, p.name, p.save); rosterSend(true);
         if (p.save) withLock(key, async () => { stampMigrate(ws, p.save); queueSave(key, p.save); await welcomeBack(ws, p); }).catch(e => console.error('welcome', e.message));
         send(ws, { t: 'pt', p: ptPub(), today: ptToday(p.save) }); if (p.save) send(ws, { t: 'vday', b: vdayOf(p.save).b });
-        send(ws, { t: 'ev', list: evList() }); send(ws, vPub()); send(ws, { t: 'traps', list: trapPub() }); if (p.save) send(ws, { t: 'med', med: medPub(p.save), wkc: p.save.wkc || null, medw: p.save.medw || null }); togCheck();
+        send(ws, { t: 'ev', list: evList() }); send(ws, vPub()); send(ws, { t: 'traps', list: trapPub() }); send(ws, dkPub()); if (p.save) send(ws, { t: 'med', med: medPub(p.save), wkc: p.save.wkc || null, medw: p.save.medw || null }); togCheck();
         if (p.save && Array.isArray(p.save.auh) && p.save.auh.length) withLock(key, () => holdRefund(key)).catch(e => console.error('hold', e.message));
         console.log('접속', p.name, '현재', players.size, '명');
       } catch (e) {
@@ -989,6 +990,19 @@ function onMsg(ws, me, m) {
     case 'rec_list': recInit().then(() => send(ws, { t: 'rec', rec: (V && V.rec) || {}, myth: (V && V.myth) || {} })).catch(() => { }); break;
     case 'aq_set': case 'aq_list': case 'aq_get': case 'aq_like': aqMsg(ws, me, m); break;
     case 'vil': case 'wk_claim': case 'med_buy': case 'ev_rsv': case 'ev_rsv_del': case 'vf_put': vilMsg(ws, me, m); break;
+    case 'adq_send': {   // 📮 운영자에게 쓰기 (의견 · 환불 요청)
+      if (!V) break; V.adq = Array.isArray(V.adq) ? V.adq : []; const mine = V.adq.filter(x => x.key === me.key && !x.st); if (mine.length >= 3) { send(ws, { t: 'news', text: '아직 답을 기다리는 편지가 3통 있어요' }); break; }
+      const kind = m.kind === 'refund' ? 'refund' : 'note', text = cleanText(m.text || '', 200); if (!text && kind === 'note') break;
+      const cos = kind === 'refund' ? String(m.cos || '').slice(0, 30) : '', g = kind === 'refund' ? Math.max(0, Math.min(1e9, m.g | 0)) : 0;
+      if (kind === 'refund' && !(me.save && me.save.cos && Array.isArray(me.save.cos.own) && me.save.cos.own.includes(cos))) { send(ws, { t: 'news', text: '가지고 있는 치장만 환불을 요청할 수 있어요' }); break; }
+      V.adq.push({ id: crypto.randomBytes(4).toString('hex'), key: me.key, name: me.name, kind, cos, cn: String(m.cn || '').slice(0, 30), g, text, at: Date.now(), st: '' }); if (V.adq.length > 100) V.adq.splice(0, V.adq.length - 100); vMark();
+      send(ws, { t: 'news', text: '📮 운영자에게 편지를 보냈어요' }); for (const [w2, p2] of players) if (p2.admin) send(w2, { t: 'news', text: '📮 ' + me.name + ' 님의 편지가 왔어요 (운영자 도구)' });
+      break; }
+    case 'egg': withLock(me.key, async () => {   // 🥚 숨은 보상 (2026-11-09): 루비 '한 바퀴 더' 30일 연속 · 고양이 화장실 30번
+      const s = me.save; if (!s) return; const eg = s.egg && typeof s.egg === 'object' ? s.egg : (s.egg = {}); const k = m.k; if (eg[k]) return;
+      if (k === 'ruby30' && ((s.wkx && s.wkx.n) | 0) >= 30) { eg[k] = Date.now(); giveCos(s, ['t_ruby30']); queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: 100000000 }, '🐕 루비가 숨겨 둔 보물'); send(ws, { t: 'egg_ok', k, cos: ['t_ruby30'] }); broadcast({ t: 'news', text: '🐕💎 ' + me.name + ' 님이 30일 동안 루비와 한 바퀴 더 걸었어요… 루비가 숨겨 둔 보물을 찾았대요!' }); }
+      else if (k === 'litter30' && (s.litN | 0) >= 30) { eg[k] = Date.now(); giveCos(s, ['t_litter30']); queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: 20000000, 'i:knack': 30 }, '🐈 고양이들의 감사 선물'); send(ws, { t: 'egg_ok', k, cos: ['t_litter30'] }); broadcast({ t: 'news', text: '🐈✨ ' + me.name + ' 님이 고양이 화장실을 30번 치웠어요. 고양이들이 몰래 모은 선물을 내놨대요!' }); }
+    }); break;
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
     /* ----- 은비랜드 ----- */
     case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'eb_hilo': case 'eb_vip': ebMsg(ws, me, m); break;
@@ -1041,6 +1055,25 @@ function onMsg(ws, me, m) {
         send(l[0], { t: 'news', text: '🛠️ 운영자가 연결을 새로 고쳐요. 다시 접속해 주세요' }); setTimeout(() => { try { l[0].close(4000, 'admin'); } catch (e) { } }, 300);
         console.log('운영자', me.name, '연결 끊기', t.name); return ok(t.name + ' 님 연결을 끊었어요');
       }
+      /* ----- 운영자 시험 도구 · 편지함 (2026-11-09) ----- */
+      if (m.op === 'adq_list') return send(ws, { t: 'adq', list: (V && V.adq || []).slice(-40) });
+      if (m.op === 'traphurry') { const T = trapsOf(), t = T[me.key]; if (!t) return ok('놓아둔 통발이 없어요'); t.t0 -= Math.max(1, Math.min(48, m.h | 0)) * 3600e3; vMark(); trapSoon(); return ok('내 통발 시간을 ' + (m.h | 0) + '시간 당겼어요'); }
+      if (m.op === 'adq_ok' || m.op === 'adq_no') {
+        const q = (V && V.adq || []).find(x => x.id === m.id); if (!q || q.st) return ok('이미 처리했거나 없는 요청이에요');
+        if (m.op === 'adq_no') { q.st = 'no'; vMark(); addMail(q.key, '운영자 답장: ' + (cleanText(m.why || '', 60) || '요청을 들어주지 못했어요')); const l = liveByKey(q.key); if (l) send(l[0], { t: 'news', text: '📮 운영자 답장이 왔어요 (교환소 소식함)' }); return send(ws, { t: 'adq', list: V.adq.slice(-40) }); }
+        return withLock(q.key, async () => {
+          const s = await loadSave(q.key); if (!s) return ok('저장이 없어요');
+          if (q.kind === 'refund' && q.cos) {
+            const own = s.cos && Array.isArray(s.cos.own) ? s.cos.own : []; if (!own.includes(q.cos)) { q.st = 'gone'; vMark(); return ok('그 치장을 이미 갖고 있지 않아요'); }
+            s.cos.own = own.filter(x => x !== q.cos); const L = s.cos.look || {}; for (const k in L) if (L[k] === q.cos) L[k] = k === 'hat' ? 'nohat' : k === 'o' ? 'tee' : ''; if (Array.isArray(s.cosg)) s.cosg = s.cosg.filter(x => x !== q.cos);
+            queueSave(q.key, s); await flushSave(q.key); await changeBag(q.key, { g: Math.max(0, Math.min(1e9, q.g | 0)) }, '📮 운영자 환불');
+            const l = liveByKey(q.key); if (l) { l[1].save = s; send(l[0], { t: 'cos_back', id: q.cos }); }
+          }
+          q.st = 'ok'; vMark(); addMail(q.key, '운영자 답장: ' + (q.kind === 'refund' ? '환불해 드렸어요 (' + (q.g | 0).toLocaleString() + ' 골드)' : (cleanText(m.why || '', 60) || '잘 읽었어요! 고마워요')));
+          const l = liveByKey(q.key); if (l) send(l[0], { t: 'news', text: '📮 운영자 답장이 왔어요' + (q.kind === 'refund' ? ' · 환불 완료!' : '') });
+          send(ws, { t: 'adq', list: V.adq.slice(-40) });
+        });
+      }
       const key = String(m.to || '').trim().toLowerCase(); if (!key) return;
       const nm = (rosterCache.get(key) || {}).name || (liveByKey(key) || [0, {}])[1].name; if (!nm) return ok('그런 친구가 없어요');
       withLock(key, async () => {
@@ -1052,6 +1085,7 @@ function onMsg(ws, me, m) {
           console.log('운영자', me.name, '빼내기', nm); return ok(nm + ' 님을 마을로 빼냈어요' + (l ? '' : ' (다음 접속 때 광장에서 시작)'));
         }
         const s = await loadSave(key); if (!s) return ok(nm + ' 님 저장이 아직 없어요');
+        if (m.op === 'setlv') { const e = enhOf(s), n = Math.max(0, Math.min(ENH.MAX, m.n | 0)); e.lv = n; e.max = Math.max(e.max | 0, n); e.star = 0; e.fl = 0; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; sendEnh(l[0], l[1], { note: ['🛠️ 운영자: 낚싯대 +' + n] }); } return ok(nm + ' 님 낚싯대를 +' + n + '(으)로 맞췄어요'); }
         if (m.op === 'ptreset') { s.ptd = null; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'pt', p: ptPub(), today: 0 }); } return ok(nm + ' 님 오늘 배낚시 횟수를 0으로 돌렸어요'); }
         if (m.op === 'unjob') {   // 직업 바꾸기 대기 14일 · 끝 노드 잠금 풀기
           if (s.job && typeof s.job === 'object') { s.job.t = 0; s.job.ch = 0; }
@@ -1795,7 +1829,7 @@ function shinyRoll(ws, me, s, oldSd) {
   const b = objOf(s, 'shb'); for (const id of got) b[id] = (b[id] | 0) + 1;
   const tk = first.length ? stampGive(null, s, 'sh', first, 1, '') : 0;
   const kinds = Object.keys(sh).filter(k => sh[k] > 0).length, ti = SHINY_TI.filter(t => kinds >= t[0]).map(t => t[1]), cos = giveCos(s, ti);
-  for (const id of got) { send(ws, { t: 'shiny', id, n: sh[id], kinds, cos, shb: b, tk: first.includes(id) ? stampTk(id, 'sh') : 0, enh: s.enh }); broadcast({ t: 'shiny_news', who: me.name, id }, ws); }
+  for (const id of got) { send(ws, { t: 'shiny', id, n: sh[id], kinds, cos, shb: b, tk: first.includes(id) ? stampTk(id, 'sh') : 0, enh: s.enh }); broadcast({ t: 'shiny_news', who: me.name, id }, ws); dayAdd(me.key, me.name, 49); }
   const r = rosterCache.get(me.key); if (r) { r.sh = kinds; rosterSoon(); }
 }
 /* ---------- 헤비 · 라이트 격차 줄이기 ----------
@@ -1839,7 +1873,7 @@ function starCatch(ws, s, oldSd) { const r = jobRank(s, 'fish', 'star'); if (!r)
   if (!got || e.lv >= ENH.MAX) return; e.star = (e.star | 0) + got; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv);
   send(ws, { t: 'enh', enh: e, note: ['🎣 강화의 손맛! 강화 별 +' + got + ' (오늘 ' + e.sfd.n + '/10)'] }); }
 /* 오늘의 주인공 집계 (메모리만): 오늘 직접 낚은 마릿수 */
-function dayStar(me, s, oldSd) { const nsd = s.sdex || {}; let dn = 0; for (const k in nsd) dn += Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (!dn) return; const d = kstDay(); if (!me.tday || me.tday.d !== d) me.tday = { d, n: 0 }; me.tday.n += dn; rosterSoon(); }
+function dayStar(me, s, oldSd) { dayAdd(me.key, me.name, dayPts(me, s, oldSd)); const nsd = s.sdex || {}; let dn = 0; for (const k in nsd) dn += Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (!dn) return; const d = kstDay(); if (!me.tday || me.tday.d !== d) me.tday = { d, n: 0 }; me.tday.n += dn; rosterSoon(); }
 /* 신화: 조건이 겹칠 때만 나오는 낚시터의 주인. 잡으면 마을 뉴스 · 칭호 · 마을 최초 기록 */
 function mythCheck(me, s, oldSd) {
   const nsd = s.sdex || {};
@@ -2147,10 +2181,11 @@ const rosterCache = new Map();   // key -> {name, job, lv, sit}
 let vNote = null, rosterSig = '', rosterT = 0, vBoat = null;
 function rosterSet(key, name, save) {
   const j = save && save.job, job = j && ['fish', 'sch', 'cra', 'tam', 'mer'].includes(j.id) ? j.id : '';
-  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), gt: gtN(save), dex: dexIds(save && save.dex), help: save && save.help ? save.help.n | 0 : 0, jr: jrOf(save, job), jx: (save && save.job && save.job.xp && save.job.xp[job]) | 0 });
+  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), gt: gtN(save), sh: shN(save), dex: dexIds(save && save.dex), help: save && save.help ? save.help.n | 0 : 0, jr: jrOf(save, job), jx: (save && save.job && save.job.xp && save.job.xp[job]) | 0 });
   if (save && save.boat && !vBoat) vBoat = { by: name };
   rosterSoon();
 }
+const shN = s => { const d = (s && s.shiny && typeof s.shiny === 'object') ? s.shiny : {}; let n = 0; for (const k in d) if ((d[k] | 0) > 0) n++; return n; };
 const gtN = s => (s && s.giant && typeof s.giant === 'object') ? Object.keys(s.giant).length : 0;
 const dexIds = d => { const out = []; if (d && typeof d === 'object') for (const k in d) if (d[k] && d[k].n > 0 && validFish(+k)) out.push(+k); return out; };
 /* 👑 손맛 왕 (2026-11-05): 손맛 도감(직접 낚은 종 수) 1등만. 더 많이 낚아야 빼앗을 수 있고, 같으면 지금 왕이 지켜요 */
@@ -2166,6 +2201,27 @@ function sdKingCheck(init) {
   console.log('손맛 왕', best.name, best.n);
 }
 const kingPub = () => sdKing ? { name: sdKing.name, n: sdKing.n, since: sdKing.since } : null;
+/* 🌊 월척 왕 (거대 개체 종 수) · ✨ 반짝 왕 (반짝 종 수) (2026-11-09): 손맛 왕처럼 1등만, 같으면 지금 왕이 지켜요 */
+const xKing = { gt: null, sh: null }, XK_NAME = { gt: ['🌊 월척 왕', '종 월척'], sh: ['✨ 반짝 왕', '종 반짝'] };
+function xKingCheck(f, init) {
+  let best = null; for (const [k, r] of rosterCache) { const n = r[f] | 0; if (n > 0 && (!best || n > best.n)) best = { key: k, name: r.name, n }; }
+  if (!best) return; const cur = xKing[f];
+  if (cur && rosterCache.has(cur.key)) { const c = rosterCache.get(cur.key)[f] | 0; cur.n = c; cur.name = rosterCache.get(cur.key).name; if (best.key !== cur.key && best.n <= c) return; }
+  if (cur && best.key === cur.key) return;
+  xKing[f] = { key: best.key, name: best.name, n: best.n, since: Date.now() };
+  if (!init && rosterCache.size > 1) broadcast({ t: 'news', text: XK_NAME[f][0] + ' 탄생! ' + best.name + ' 님 (' + best.n + XK_NAME[f][1] + ')' });
+}
+const xKingPub = () => { const o = {}; for (const f of ['gt', 'sh']) { xKingCheck(f, !xKingCheck.ready); const k = xKing[f]; o[f] = k ? { name: k.name, n: k.n } : null; } xKingCheck.ready = 1; return o; };
+/* 🎣 하루 낚시왕 (2026-11-09): 오늘 직접 낚은 마릿수 · 반짝 50마리 · 신화 100마리로 쳐요 · 한국 자정에 1등에게 1천만 골드 */
+const DAYK_G = 10000000;
+function dayPts(me, s, oldSd) { const nsd = s.sdex || {}; let pts = 0; for (const k in nsd) { const dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (dn) pts += dn * (isMyth(+k) ? 100 : 1); } return pts; }
+function dayAdd(key, name, n) { if (!V || !n) return; const d = kstDay(); if (!V.dk || V.dk.d !== d) { dayClose(); V.dk = { d, p: {} }; } const p = V.dk.p; p[key] = p[key] || { n: 0, name }; p[key].n += n; p[key].name = name; vMark(); dkSoon(); }
+function dayClose() { if (!V || !V.dk || V.dk.paid) return; const arr = Object.entries(V.dk.p).sort((a, b) => b[1].n - a[1].n); V.dk.paid = 1; if (!arr.length || V.dk.d === kstDay()) return; const [k, r] = arr[0];
+  changeBag(k, { g: DAYK_G }, '🎣 어제의 낚시왕! 1천만 골드').catch(() => { }); addMail(k, '🎣 ' + V.dk.d + ' 하루 낚시왕! ' + r.n + '마리 · 1천만 골드를 받았어요');
+  broadcast({ t: 'news', text: '🎣 어제의 낚시왕은 ' + r.name + ' 님! (' + r.n + '마리) 1천만 골드를 받았어요' }); V.dkLast = { d: V.dk.d, name: r.name, n: r.n }; }
+const dkPub = () => { const d = kstDay(), dk = V && V.dk && V.dk.d === d ? V.dk : null; return { t: 'dayk', d, list: dk ? Object.values(dk.p).sort((a, b) => b.n - a.n).slice(0, 10) : [], last: V && V.dkLast || null, g: DAYK_G }; };
+let dkT = 0; function dkSoon() { if (dkT) return; dkT = setTimeout(() => { dkT = 0; broadcast(dkPub()); }, 1500); }
+setInterval(() => { if (V && V.dk && V.dk.d !== kstDay() && !V.dk.paid) { dayClose(); V.dk = { d: kstDay(), p: {} }; vMark(); dkSoon(); } }, 60000);
 function rosterSoon() { clearTimeout(rosterT); rosterT = setTimeout(rosterSend, 500); }
 function rosterSend(force) {
   const live = new Set([...players.values()].map(p => p.key));
@@ -2175,10 +2231,10 @@ function rosterSend(force) {
   // 누릉이가 따라다니는 '오늘의 주인공': 오늘 직접 제일 많이 낚은 친구. 아직 아무도 안 낚았으면 30분마다 접속한 친구를 돌아가며
   let rich = null, rn = 0; const on = []; for (const p of players.values()) { if (!p.save) continue; on.push(p.name); const n = p.tday && p.tday.d === kstDay() ? p.tday.n : 0; if (n > rn) { rn = n; rich = p.name; } }
   if (!rich && on.length) { on.sort(); rich = on[Math.floor(Date.now() / 1800e3) % on.length]; }
-  sdKingCheck(); const king = kingPub();
-  const sig = JSON.stringify([list, note, vBoat, paths, vdex, rich, king && king.name, king && king.n]);
+  sdKingCheck(); const king = kingPub(), kings = xKingPub();
+  const sig = JSON.stringify([list, note, vBoat, paths, vdex, rich, king && king.name, king && king.n, kings]);
   if (!force && sig === rosterSig) return; rosterSig = sig;
-  broadcast({ t: 'roster', list, note, boat: vBoat, paths, vdex, rich, king });
+  broadcast({ t: 'roster', list, note, boat: vBoat, paths, vdex, rich, king, kings });
 }
 /* 마을 기부함: 모두의 저장에 흩어진 기부를 모아서 봐요 */
 const BOAT_NEED = { 'i:knack': 13, 'i:map': 1, 'i:sail': 1, g: 10000000 }, DONORS_NEED = 4, DON_MIN_G = 10000;   // index.html BOAT_NEED와 같아야 해요
