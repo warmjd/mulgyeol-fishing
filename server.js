@@ -129,14 +129,18 @@ const rar2 = id => RAR40((id - (isV2(id) ? VIL2_FIRST : ISX_FIRST)) % 40);
 const GET_FIRST = ISX_FIRST + 120;
 const GET_ZR = [[1,0],[1,1],[1,2],[1,3],[2,0],[2,1],[2,2],[2,3],[3,0],[3,1],[3,2],[3,3],[4,0],[4,1],[4,2],[4,4],[5,0],[5,1],[5,2],[5,4],[8,0],[8,1],[8,2],[8,3],[6,0],[6,1],[6,2],[6,4],[9,0],[9,1],[9,2],[9,3],[10,0],[10,1],[10,2],[10,3],[11,0],[11,1],[11,2],[11,4]];
 const isGet = id => id >= GET_FIRST && id < GET_FIRST + GET_ZR.length;
-const FISH_MAX = GET_FIRST + GET_ZR.length;
-const ZONE_PRICE = [8, 30, 90, 280, 950, 2000, 400, 100, 1200, 1500, 2600], RAR_MULT = [1, 2.2, 5, 20, 120];   // 2026-11-09: 영웅 · 전설 값 올림 (index.html RARITY와 같아요)
+/* 3차-2 물안개 숲 섬 100종 (639~738) [낚시터, 희귀도] — index.html FISH3와 같은 순서 */
+const ISY_FIRST = GET_FIRST + GET_ZR.length, ISY_ZR = [[13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 2], [13, 2], [13, 2], [13, 2], [13, 2], [13, 2], [13, 3], [13, 3], [13, 4], [13, 4], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 2], [14, 2], [14, 2], [14, 2], [14, 2], [14, 2], [14, 3], [14, 3], [14, 4], [14, 4], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 2], [15, 2], [15, 2], [15, 2], [15, 2], [15, 2], [15, 3], [15, 3], [15, 4], [15, 4]];
+const isIsy = id => id >= ISY_FIRST && id < ISY_FIRST + ISY_ZR.length;
+const FISH_MAX = ISY_FIRST + ISY_ZR.length;
+const ZONE_PRICE = [8, 30, 90, 280, 950, 2000, 400, 100, 1200, 1500, 2600, 400, 3000, 3400, 4200], RAR_MULT = [1, 2.2, 5, 20, 120];   // 2026-11-09: 영웅 · 전설 값 올림 (index.html RARITY와 같아요)
 const rarOf = i => i < 8 ? 0 : i < 14 ? 1 : i < 18 ? 2 : i < 19 ? 3 : 4;
 function fishPrice(id) {
   let z, r;
   if (id < 100) { z = Math.floor(id / 20); r = rarOf(id % 20); }
   else if (id < FISH_N) { z = Math.floor((id - 100) / 20); r = rarOf((id - 100) % 20); }
   else if (isGet(id)) { z = GET_ZR[id - GET_FIRST][0] - 1; r = GET_ZR[id - GET_FIRST][1]; }
+  else if (isIsy(id)) { z = ISY_ZR[id - ISY_FIRST][0] - 1; r = ISY_ZR[id - ISY_FIRST][1]; }
   else if (isBoss(id)) return BOSS_PRICE[BOSS_IDS.indexOf(id)];
   else if (isV2(id) || isIsx(id)) { z = zone2(id) - 1; r = rar2(id); }
   else if (isPty2(id)) { z = 6; r = PTY2_RAR[id - PTY2_FIRST]; }
@@ -281,7 +285,7 @@ const ENH = {
   PTS: [1, 2, 5, 15, 40]
 };
 ENH.K = ENH.P.map(p => Math.max(2, Math.round(1.8 / p)));   // 안전: 이만큼 연속 실패하면 다음은 확정
-const fishRar = id => isGet(id) ? GET_ZR[id - GET_FIRST][1] : isV2(id) || isIsx(id) ? rar2(id) : isBoss(id) ? 4 : isPty2(id) ? PTY2_RAR[id - PTY2_FIRST] : id < 100 ? rarOf(id % 20) : id < FISH_N ? rarOf((id - 100) % 20) : id === BOSS_ID || isMyth(id) ? 4 : id >= MK_FIRST ? MK_RAR[id - MK_FIRST] | 0 : id >= PTY_FIRST ? PTY_RAR[id - PTY_FIRST] | 0 : id >= ISLE_FIRST ? rarOf(id - ISLE_FIRST) : (SEASON_FISH[id - FISH_N] || [0])[0];
+const fishRar = id => isIsy(id) ? ISY_ZR[id - ISY_FIRST][1] : isGet(id) ? GET_ZR[id - GET_FIRST][1] : isV2(id) || isIsx(id) ? rar2(id) : isBoss(id) ? 4 : isPty2(id) ? PTY2_RAR[id - PTY2_FIRST] : id < 100 ? rarOf(id % 20) : id < FISH_N ? rarOf((id - 100) % 20) : id === BOSS_ID || isMyth(id) ? 4 : id >= MK_FIRST ? MK_RAR[id - MK_FIRST] | 0 : id >= PTY_FIRST ? PTY_RAR[id - PTY_FIRST] | 0 : id >= ISLE_FIRST ? rarOf(id - ISLE_FIRST) : (SEASON_FISH[id - FISH_N] || [0])[0];
 /* 전설을 잡은 낚시터 (길잡이 보너스) */
 function legZones(save) { const d = (save && save.dex) || {}, out = []; for (const k in d) { const id = +k; if (!(d[k] && d[k].n > 0) || fishRar(id) !== 4) continue; const z = id < FISH_N ? (id < 100 ? Math.floor(id / 20) : Math.floor((id - 100) / 20)) + 1 : id >= ISLE_FIRST && id < PTY_FIRST ? 6 : 0; if (z && out.indexOf(z) < 0) out.push(z); } return out; }
 const enhDefault = () => ({ lv: 0, max: 0, tk: 0, star: 0, fl: 0, sure: 0, day: '', fp: 0, ft: 0, it: 0, idle: 0, pc: 0, pcd: 0, lit: 0, st: 0 });
@@ -344,7 +348,7 @@ const fetchMax = L => L >= 70 ? 3 : L >= 30 ? 2 : L >= 20 ? 1 : 0;
 const WISH_RW = [{ tk: 1, g: 200 }, { tk: 2, g: 500 }, { tk: 3, g: 1200 }, { tk: 4, g: 3000 }, { tk: 5, g: 8000 }];
 const fishZone = id => id < 100 ? Math.floor(id / 20) + 1 : Math.floor((id - 100) / 20) + 1;
 /* 물고기가 사는 낚시터 (index.html FISH의 zone과 같아요): 1~5 · 6 안개 섬 · 7 배낚시 · 8 물결 시장 */
-const placeOf = id => isGet(id) ? GET_ZR[id - GET_FIRST][0] : isV2(id) || isIsx(id) ? zone2(id) : isBoss(id) || isPty2(id) ? 7 : isMyth(id) ? MYTH_Z[id - MYTH_FIRST] : id < FISH_N ? fishZone(id) : id < ISLE_FIRST ? (SEASON_FISH[id - FISH_N] || [0, 0])[1] : id < PTY_FIRST ? 6 : id < MK_FIRST ? 7 : 8;
+const placeOf = id => isIsy(id) ? ISY_ZR[id - ISY_FIRST][0] : isGet(id) ? GET_ZR[id - GET_FIRST][0] : isV2(id) || isIsx(id) ? zone2(id) : isBoss(id) || isPty2(id) ? 7 : isMyth(id) ? MYTH_Z[id - MYTH_FIRST] : id < FISH_N ? fishZone(id) : id < ISLE_FIRST ? (SEASON_FISH[id - FISH_N] || [0, 0])[1] : id < PTY_FIRST ? 6 : id < MK_FIRST ? 7 : 8;
 /* 교환 규칙 (2026-11-04): 자유롭게. 물고기 · 아이템 · 골드를 섞어도, 한쪽만 줘도(선물) 돼요.
    안개 조각만 못 주고받아요 (섬은 모두 같이 시작). 손맛 도감 · 낚시터 문은 직접 낚아야만 올라서 주고받아도 대신 해 줄 수 없어요 */
 function tradeRule(a, b) {
@@ -451,7 +455,7 @@ const shardDay = () => SHARD_DAY + (arkSt() >= 3 ? 20 : 0);   // ⛵ 돛단 물�
 function shardRoll(s, oldSd) {
   const w = wkId(); if (!s.shd || typeof s.shd !== 'object' || s.shd.w !== w) s.shd = { w, n: 0 };
   const nsd = (s.sdex && typeof s.sdex === 'object') ? s.sdex : {}; let got = 0;
-  for (let id of [...Array(PTY_FIRST - ISLE_FIRST).keys()].map(i => ISLE_FIRST + i).concat([...Array(120).keys()].map(i => ISX_FIRST + i))) {   // 섬 새 낚시터 물고기도 조각을 줘요
+  for (let id of [...Array(PTY_FIRST - ISLE_FIRST).keys()].map(i => ISLE_FIRST + i).concat([...Array(120).keys()].map(i => ISX_FIRST + i), [...Array(ISY_ZR.length).keys()].map(i => ISY_FIRST + i))) {   // 섬 새 낚시터 물고기도 조각을 줘요
     let dn = Math.max(0, (nsd[id] | 0) - (oldSd[id] | 0)); const r = fishRar(id);
     const SD = shardDay(); while (dn-- > 0 && s.shd.n < SD) if (Math.random() < SHARD_CH[r]) { const k = Math.min(r >= 4 ? 3 : 1, SD - s.shd.n); s.shd.n += k; got += k; }
   }
@@ -584,7 +588,7 @@ wss.on('connection', (ws) => {
         rosterSet(key, p.name, p.save); rosterSend(true);
         if (p.save) withLock(key, async () => { stampMigrate(ws, p.save); queueSave(key, p.save); await welcomeBack(ws, p); }).catch(e => console.error('welcome', e.message));
         send(ws, { t: 'pt', p: ptPub(), today: ptToday(p.save) }); if (p.save) send(ws, { t: 'vday', b: vdayOf(p.save).b });
-        send(ws, { t: 'ev', list: evList() }); send(ws, vPub()); send(ws, { t: 'traps', list: trapPub() }); send(ws, dkPub()); if (p.save) send(ws, { t: 'med', med: medPub(p.save), wkc: p.save.wkc || null, medw: p.save.medw || null }); togCheck();
+        send(ws, { t: 'ev', list: evList() }); send(ws, vPub()); send(ws, { t: 'traps', list: trapPub() }); send(ws, dkPub()); if (V && Array.isArray(V.lan)) send(ws, { t: 'lans', list: V.lan.filter(l => Date.now() - l.at < 864e5) }); if (p.save) send(ws, { t: 'med', med: medPub(p.save), wkc: p.save.wkc || null, medw: p.save.medw || null }); togCheck();
         if (p.save && Array.isArray(p.save.auh) && p.save.auh.length) withLock(key, () => holdRefund(key)).catch(e => console.error('hold', e.message));
         console.log('접속', p.name, '현재', players.size, '명');
       } catch (e) {
@@ -1003,6 +1007,10 @@ function onMsg(ws, me, m) {
       if (k === 'ruby30' && ((s.wkx && s.wkx.n) | 0) >= 30) { eg[k] = Date.now(); giveCos(s, ['t_ruby30']); queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: 100000000 }, '🐕 루비가 숨겨 둔 보물'); send(ws, { t: 'egg_ok', k, cos: ['t_ruby30'] }); broadcast({ t: 'news', text: '🐕💎 ' + me.name + ' 님이 30일 동안 루비와 한 바퀴 더 걸었어요… 루비가 숨겨 둔 보물을 찾았대요!' }); }
       else if (k === 'litter30' && (s.litN | 0) >= 30) { eg[k] = Date.now(); giveCos(s, ['t_litter30']); queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: 20000000, 'i:knack': 30 }, '🐈 고양이들의 감사 선물'); send(ws, { t: 'egg_ok', k, cos: ['t_litter30'] }); broadcast({ t: 'news', text: '🐈✨ ' + me.name + ' 님이 고양이 화장실을 30번 치웠어요. 고양이들이 몰래 모은 선물을 내놨대요!' }); }
     }); break;
+    case 'lan_put': {   // 🏮 소원 등불 (3차-2): 하루 동안 · 한 사람 하나 · 최대 40개
+      if (!V) break; const text = cleanText(m.text || '', 24); if (!text) break; const now = Date.now();
+      V.lan = (Array.isArray(V.lan) ? V.lan : []).filter(l => now - l.at < 864e5 && l.n !== me.name); V.lan.push({ n: me.name, t: text, at: now }); if (V.lan.length > 40) V.lan.shift(); vMark();
+      broadcast({ t: 'lans', list: V.lan }); broadcast({ t: 'news', text: '🏮 ' + me.name + ' 님이 고래 만 하늘에 소원 등불을 띄웠어요' }, ws); break; }
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
     /* ----- 은비랜드 ----- */
     case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'eb_hilo': case 'eb_vip': ebMsg(ws, me, m); break;
@@ -1717,7 +1725,7 @@ const medShop = () => { const n = wkNum(), out = MED_CORE.slice(); for (let i = 
 
 /* ===== 🪤 통발 3.0 (2026-11-09): 낚시터 물가에 직접 놓는 통발 · 누구나 들여다볼 수 있어요 · 마을 기록(__village)에 저장
    안에 든 물고기는 (seed, 놓은 시각, 빠르기, 칸 수, 미끼)로 모든 화면이 똑같이 계산해요 (index.html trapRoll과 같아요) ===== */
-const TRAP_ZONES = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11], TRAP_PER_ZONE = 6, TRAP_BX = [1, 1.5, 2.5, 3.5, 5];
+const TRAP_ZONES = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 13, 14, 15], TRAP_PER_ZONE = 6, TRAP_BX = [1, 1.5, 2.5, 3.5, 5];
 const TRAP_SKINS = ['tp_bamboo', 'tp_rattan', 'tp_shell', 'tp_sakura', 'tp_coral', 'tp_chest', 'tp_moon', 'tp_gold'], TRAP_FLAGS = ['tf_none', 'tfl_red', 'tfl_stripe', 'tfl_star', 'tfl_lamp', 'tfl_rainbow', 'tfl_heart'];
 const trapsOf = () => { if (!V) return {}; if (!V.traps || typeof V.traps !== 'object') V.traps = {}; return V.traps; };
 const trapPub = () => Object.entries(trapsOf()).map(([k, t]) => ({ n: t.n, z: t.z, x: t.x, y: t.y, t0: t.t0, seed: t.seed, min: t.min, cap: t.cap, bx: t.bx, sk: t.sk, fl: t.fl, at: t.at, vis: t.vis || {}, notes: t.notes || [] }));
