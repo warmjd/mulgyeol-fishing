@@ -93,8 +93,10 @@ function checkCode(code, stored) {
 
 /* ---------- HTTP: 게임 파일 + 상태 확인 ---------- */
 const app = express();
-app.get('/', (req, res) => { res.set('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'index.html')); });
+const BUILD = (() => { try { return require('crypto').createHash('md5').update(require('fs').readFileSync(path.join(__dirname, 'index.html'))).digest('hex').slice(0, 10); } catch (e) { return String(Date.now()); } })();
+app.get('/', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.setHeader('Content-Type', 'text/html; charset=utf-8'); require('fs').readFile(path.join(__dirname, 'index.html'), 'utf8', (err, html) => { if (err) { res.statusCode = 500; return res.end(); } res.end(html.replace('__BUILD__', BUILD)); }); });
 for (const f of ['manifest.webmanifest', 'sw.js', 'icon-192.png', 'icon-512.png', 'icon-mask.png', 'apple-touch-icon.png']) app.get('/' + f, (req, res) => { if (f === 'sw.js') res.setHeader('Service-Worker-Allowed', '/'); res.setHeader('Content-Type', f.endsWith('.webmanifest') ? 'application/manifest+json' : f.endsWith('.js') ? 'text/javascript; charset=utf-8' : 'image/png'); res.setHeader('Cache-Control', f === 'sw.js' ? 'no-cache' : 'public, max-age=86400'); require('fs').readFile(path.join(__dirname, f), (err, buf) => { if (err) { res.statusCode = 404; return res.end(); } res.end(buf); }); });   // 📲 홈 화면에 추가하면 앱처럼 (주소창 없이)
+app.get('/version', (req, res) => { res.setHeader('Cache-Control', 'no-store'); res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ v: BUILD })); });   // 🔄 새 버전 알림
 app.get('/health', (req, res) => res.json({ ok: true, online: players.size }));
 const server = http.createServer(app);
 
@@ -201,7 +203,7 @@ LOOK_IDS.bk.push(["k_wizard", "k_shell", "k_dragon", "k_seraph", "k_dark", "k_na
 LOOK_IDS.fa.push(["f_monocle", "f_heart", "f_bandaid", "f_goggle", "f_freckle"]);
 const ENH_TITLE_NEED = { t_enh10: 10, t_enh15: 15, t_enh20: 20, t_enh25: 25, t_enh30: 30 };
 LOOK_IDS.rod.push('r_music', 'r_cat', 'r_choco', 'r_jelly', 'r_snowflake', 'r_whale', 'r_phoenix', 'r_starlight');
-LOOK_IDS.o.push('o_tux', 'o_wdress'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed');
+LOOK_IDS.o.push('o_tux', 'o_wdress'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
 LOOK_IDS.ti.push('t_enh25', 't_enh30', ...['fish', 'sch', 'cra', 'tam', 'mer'].flatMap(j => [4, 5, 6].map(r => 't_j' + j + r)));
 for (const j of ['fish', 'sch', 'cra', 'tam', 'mer']) { LOOK_IDS.rod.push('jr4_' + j, 'jr6_' + j); LOOK_IDS.bob.push('jb5_' + j); }   // 강화 칭호는 서버 기록으로 확인
 const FREE = new Set(['straw', 'nohat', 'tee', 'bamboo', 'basicbob', '']);
@@ -651,7 +653,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'mar', 'rpg', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {};
@@ -1031,6 +1033,7 @@ function onMsg(ws, me, m) {
     /* ----- 💒 결혼 · 축하 ----- */
     case 'cel': { const now = Date.now(); if (now - (me.celT || 0) < 800) break; me.celT = now; const k = String(m.k || ''); if (!['fw', 'big', 'sp', 'pt', 'cf', 'bub', 'bal', 'lan'].includes(k)) break; broadcast({ t: 'cel', k, x: m.x | 0, y: m.y | 0, id: me.id }, ws); break; }
     case 'mar_req': case 'mar_ans': case 'mar_w': case 'mar_go': case 'mar_end': case 'wed_join': case 'wed_msg': case 'wed_list': case 'wed_done': marMsg(ws, me, m); break;
+    case 'wf_get': case 'wf_catch': case 'wf_claim': case 'gift_send': case 'gift_list': case 'gift_take': withLock(me.key, async () => socMsg(ws, me, m)).catch(e => console.error('soc', e.message)); break;
     case 'hpos': { const f = m.f | 0; broadcast({ t: 'hpos', n: me.name, f: f < 0 ? -1 : Math.min(20, f), x: m.x | 0, y: m.y | 0, lv: m.lv | 0 }, ws); break; }   // ⚔️ 같은 사냥터 친구 보기
     case 'npc_done': withLock(me.key, async () => {   // 👵🍰⛄ NPC 부탁 (3차-5): 단계마다 한 번만
       const s = me.save; if (!s) return; const N = { grand: [3e6, 8e6, 3e7, 't_npc1'], sugar: [5e6, 1e7, 5e7, 't_npc2'], sobok: [5e6, 1.5e7, 8e7, 't_npc3'] }[m.id]; const st = m.st | 0; if (!N || st < 0 || st > 2) return;
@@ -1704,6 +1707,38 @@ const vSt = () => V ? V.fund.st | 0 : 0;
 const vEvExtra = () => vSt() >= 2 ? 10 : 0;
 const togLuck = () => vSt() >= 4 ? .10 : .05;
 function vMark() { vDirty = true; }
+/* ---------- 🏅 주간 낚시 대회 · 🎁 친구 선물 (2026-11-09) ---------- */
+const WF_IDS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97];   // index.html과 같아요
+const wfWeek = () => Math.floor((Date.now() + 9 * 3600e3 - Date.UTC(2026, 0, 5)) / (7 * 864e5)), wfId = w => WF_IDS[((w % WF_IDS.length) + WF_IDS.length) % WF_IDS.length];
+function wfState() { const w = wfWeek(); V.wf = V.wf && typeof V.wf === 'object' ? V.wf : { w, top: {} }; V.wfHist = Array.isArray(V.wfHist) ? V.wfHist : [];
+  if (V.wf.w !== w) { const tops = Object.entries(V.wf.top || {}).sort((a, b) => b[1] - a[1]); if (tops.length) V.wfHist.unshift({ w: V.wf.w, id: wfId(V.wf.w), n: tops[0][0], len: tops[0][1], top3: tops.slice(0, 3) }); if (V.wfHist.length > 30) V.wfHist.length = 30; V.wf = { w, top: {} }; vMark(); }
+  return V.wf; }
+const wfPub = () => { const S = wfState(); return { w: S.w, id: wfId(S.w), top: Object.entries(S.top).sort((a, b) => b[1] - a[1]).slice(0, 10), hist: V.wfHist.slice(0, 10), ends: Date.UTC(2026, 0, 5) + (S.w + 1) * 7 * 864e5 - 9 * 3600e3 }; };
+async function socMsg(ws, me, m) {
+  const s = me.save; if (!s || !V) return; const no = msg => send(ws, { t: 'news', text: msg }), now = Date.now();
+  if (m.t === 'wf_get') return send(ws, Object.assign({ t: 'wf' }, wfPub()));
+  if (m.t === 'wf_catch') { const S = wfState(), len = Math.max(1, Math.min(5000, m.len | 0)); if ((m.id | 0) !== wfId(S.w)) return; if (now - (me.wfT || 0) < 3000) return; me.wfT = now;
+    const prev = S.top[me.name] | 0; if (len <= prev) return; const was = Object.entries(S.top).sort((a, b) => b[1] - a[1])[0]; S.top[me.name] = len; vMark();
+    if (!was || len > was[1]) broadcast({ t: 'news', text: '🏅 주간 낚시 대회 1위가 바뀌었어요! ' + me.name + ' 님 ' + len + 'cm' });
+    return send(ws, Object.assign({ t: 'wf', note: '🏅 주간 대회 기록 ' + len + 'cm 등록!' }, wfPub())); }
+  if (m.t === 'wf_claim') { wfState(); const got = s.wfc && typeof s.wfc === 'object' ? s.wfc : (s.wfc = {}); const h = V.wfHist.find(x => x.n === me.name && !got[x.w]); if (!h) return no('받을 우승 상이 없어요');
+    got[h.w] = 1; const cos = giveCos(s, ['t_wfchamp']); queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: 30000000 }, '🏅 주간 낚시 대회 우승 상금'); if (cos.length) send(ws, { t: 'cos_got', ids: cos }); return send(ws, Object.assign({ t: 'wf' }, wfPub())); }
+  V.gifts = V.gifts && typeof V.gifts === 'object' ? V.gifts : {};
+  if (m.t === 'gift_list') return send(ws, { t: 'gifts', list: V.gifts[me.name] || [] });
+  if (m.t === 'gift_send') {   // 골드 · 주문서만 보낼 수 있어요 (물고기는 각자 직접!)
+    const to = cleanText(m.to, 12); if (!to || to === me.name) return no('받을 친구 이름을 적어 주세요'); const known = [...rosterCache.values()].some(r => r.name === to); if (!known) return no('그 이름의 주민을 찾지 못했어요');
+    if (now - (me.gfT || 0) < 5000) return no('조금 있다가 다시 보내요'); const g = Math.max(0, Math.min(1e9, Math.floor(+m.g || 0))), sc = String(m.sc || ''), scN = Math.max(0, Math.min(50, m.n | 0)), note = cleanText(m.note, 40);
+    const h = s.hunt || {}; const SC = h.scr || {}; if (!g && !(sc && scN)) return no('보낼 것을 골라요');
+    if (g && (s.gold | 0) < g) return no('골드가 모자라요'); if (sc && scN && (!/^[wa](100|60|10)$/.test(sc) || (SC[sc] | 0) < scN)) return no('주문서가 모자라요');
+    const box = V.gifts[to] = V.gifts[to] || []; if (box.length >= 30) return no(to + ' 님 우편함이 가득 찼어요'); me.gfT = now;
+    if (sc && scN) { SC[sc] -= scN; queueSave(me.key, s); } if (g) await changeBag(me.key, { g: -g }, null);
+    box.push({ id: now.toString(36) + Math.random().toString(36).slice(2, 5), from: me.name, g, sc: sc && scN ? sc : '', n: sc && scN ? scN : 0, note, at: now }); vMark();
+    const L = liveByName(to); if (L) send(L[0], { t: 'gift_new', from: me.name }); return send(ws, { t: 'news', text: '🎁 ' + to + ' 님에게 선물을 보냈어요!' }); }
+  if (m.t === 'gift_take') { const box = V.gifts[me.name] || [], i = box.findIndex(x => x.id === String(m.id || '')); if (i < 0) return; const x = box.splice(i, 1)[0]; vMark();
+    if (x.sc && x.n) { const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); h.scr = h.scr || {}; h.scr[x.sc] = (h.scr[x.sc] | 0) + x.n; queueSave(me.key, s); send(ws, { t: 'rpg', hunt: h }); }
+    if (x.g) { await flushSave(me.key); await changeBag(me.key, { g: x.g }, '🎁 ' + x.from + ' 님의 선물'); }
+    return send(ws, { t: 'gifts', list: box, took: x }); }
+}
 /* ---------- 🗡️ 물결 RPG 장비 (2026-11-09): 8부위 · 7등급 · 랜덤 옵션 · 주문서 강화(리니지식 증발) · 재료 제작 · 낚시 드랍 ---------- */
 const RPG_SLOTS = ['w', 'a', 'h', 'r', 'g', 's', 'c', 'n'], RPG_MAIN = { w: 'atk', a: 'def', h: 'hp', g: 'atk', s: 'spd', c: 'def', r: 'cri', n: 'luk' }, RPG_SUB = ['atk', 'def', 'hp', 'cri', 'spd', 'luk', 'chip', 'dr'];
 const RPG_GN = ['일반', '고급', '희귀', '영웅', '전설', '신화', '태초'], RPG_SN = { w: '무기', a: '갑옷', h: '모자', r: '반지', g: '장갑', s: '신발', c: '망토', n: '목걸이' }, RPG_WT = ['ham', 'net', 'gun', 'wand', 'bow', 'bomb'];

@@ -3502,6 +3502,12 @@ const NPCS=[
  {id:'sobok',name:'소복옹',x:166,y:73,look:{h:7,k:1,s:3,hat:'beanie',o:'tee'},work:['night','dawn'],
   talk:{day:'소복옹: 낮엔 눈사람들이 녹을까 봐 그늘에서 쉰다네. 밤에 오게나.',dusk:'소복옹: 노을이 지면 발판들이 노래할 준비를 하지. 도레미파솔라시도, 한 번 걸어 보게.'},
   q:[{t:'반짝 눈송이 5개만 구해 주게. 눈사람들 눈을 반짝이게 해 주고 싶다네.',item:'flake',n:5,g:5e6},{t:'얼음 호수의 영웅을 데려와 주겠나? 옛 친구 같거든.',z:[18],r:3,n:1,g:1.5e7},{t:'눈꽃 바다의 전설… 그 녀석을 보면 내 겨울도 끝날 것 같구먼.',z:[19],r:4,n:1,g:8e7,ti:'t_npc3'}]}];
+/* 🕰️ 주민 하루 일과: 일하는 시간엔 자리 근처를 서성이고, 쉬는 시간엔 산책 자리로, 밤엔 집 앞에서 꾸벅꾸벅 */
+function npcRoutine(dt){if(!P||HUNT.on)return;const slot=timeSlot();NPCS.forEach(n=>{if(n.hx==null){n.hx=n.x;n.hy=n.y;let best=null;for(let r=3;r<=6&&!best;r++)for(let dy=-r;dy<=r&&!best;dy++)for(let dx=-r;dx<=r;dx++){const x=n.hx+dx,y=n.hy+dy;if(Math.abs(dx)+Math.abs(dy)<3||!W.inb(x,y)||isSolid(x,y)||W.T[y][x]==='w')continue;best=[x,y];break}n.off=best||[n.hx,n.hy];n.tx=n.hx;n.ty=n.hy;n.wt=0}
+  if(Math.abs(n.hx*TS-P.x)>VW*1.5||Math.abs(n.hy*TS-P.y)>VH*1.5)return;const work=npcWork(n),sleep=!work&&(slot==='night'||(n.id==='sobok'&&slot==='day'));n.sleep=sleep;
+  n.wt-=dt;if(n.wt<=0){n.wt=4+Math.random()*5;if(sleep){n.tx=n.hx;n.ty=n.hy}else if(work){const c=[[0,0],[1,0],[-1,0],[0,1]].filter(d=>!isSolid(n.hx+d[0],n.hy+d[1])),d=c[(Math.random()*c.length)|0]||[0,0];n.tx=n.hx+d[0];n.ty=n.hy+d[1]}else{n.tx=n.off[0];n.ty=n.off[1]}}
+  const near=Math.hypot(n.x*TS+8-P.x,n.y*TS+12-P.y)<26;if(near)return;const dx=n.tx-n.x,dy=n.ty-n.y,d=Math.hypot(dx,dy);if(d>.02){const v=Math.min(d,dt*1.6);n.x+=dx/d*v;n.y+=dy/d*v}});}
+function npcZ(list){NPCS.forEach(n=>{if(!n.sleep||Math.abs(n.x*TS-P.x)>VW||Math.abs(n.y*TS-P.y)>VH)return;list.push({y:1e6,fn:()=>{const ph=(wt*.6)%1;[0,.5].forEach(o=>{const k=(ph+o)%1;cx.globalAlpha=Math.sin(k*Math.PI);cx.fillStyle='#8a80d8';cx.font='bold '+(6+k*4|0)+'px sans-serif';cx.textAlign='left';cx.fillText('z',n.x*TS+12+k*6,n.y*TS-14-k*10)});cx.globalAlpha=1}})})}
 const npcStep=id=>((S.npcq||{})[id]|0);
 const npcWork=n=>n.work.indexOf(timeSlot())>=0;
 function npcHave(q){if(q.item)return itN(q.item)>=q.n;let c=0;for(const k in S.inv){const f=FISH[k];if(f&&S.inv[k]>0&&q.z.indexOf(f.zone)>=0&&(f.myth?4:f.rar)>=q.r)c+=S.inv[k]}return c>=q.n}
@@ -6409,7 +6415,7 @@ function render(dt){
   drawFishBoat(drawables);
   W.buildings.forEach(b=>drawables.push({y:(b.y+1)*TS,fn:()=>{const hx=b.x*TS+(b.w*TS-48)/2,hy=(b.y+1)*TS-50;cx.drawImage(SP.house[b.id],hx,hy);houseLife(b,hx,hy)}}));
   W.props.forEach(p=>{const s=p.kind==='litter'?SP.litter[litterDirty()?1:0]:SP[p.kind];if(!s)return;drawables.push({y:p.y*TS+15,fn:()=>{cx.drawImage(s,p.x*TS+(TS-s.width)/2,p.y*TS+16-s.height);if(p.kind==='litter'&&litterDirty())litterFlies(p.x*TS+8,p.y*TS+6)}})});
-  natDrawables(drawables,x0,x1,y0,y1);trapDrawables(drawables,x0,x1,y0,y1);smDrawables(drawables);npcDrawables(drawables);jejuDrawables(drawables);decoDrawables(drawables,x0,x1,y0,y1);critDrawables(drawables);drawables.push({y:20*TS+12,fn:drawPortal});wedDrawables(drawables);boatDrawables(drawables);evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
+  natDrawables(drawables,x0,x1,y0,y1);trapDrawables(drawables,x0,x1,y0,y1);smDrawables(drawables);npcDrawables(drawables);jejuDrawables(drawables);decoDrawables(drawables,x0,x1,y0,y1);critDrawables(drawables);drawables.push({y:20*TS+12,fn:drawPortal});wedDrawables(drawables);boatDrawables(drawables);npcZ(drawables);evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
   drawables.push({y:P.y,fn:drawPlayer});
   drawOthers(dt,drawables);
   updatePets(dt);updateSparks(dt);
@@ -6482,7 +6488,7 @@ function drawWeather(dt){
 let last=0,saveT=0,lastTrack='',lastRegion='';
 function update(dt){
   if(HUNT.on){huUpdate(dt);saveT+=dt;if(saveT>8){saveT=0;saveState()}if(ONLINE)Net.tick(dt);return}
-  wedTick(dt);discTick(dt);touchTick(dt);surpTick(dt);
+  wedTick(dt);discTick(dt);touchTick(dt);surpTick(dt);npcRoutine(dt);
   S.t+=dt;
   {const k=kbVec(),mm=Math.hypot(k[0]||inp.x,k[1]||inp.y);
     if(F.afk&&mm>.4&&!uiOpen)stopAfk('낚싯대를 거뒀어요');
@@ -9179,6 +9185,10 @@ function setupTalk(){
     setTimeout(()=>{try{if(!localStorage.getItem('instHint')&&typeof toast==='function'){localStorage.setItem('instHint','1');toast('📲 메뉴 → 「앱처럼 쓰기」로 홈 화면에 추가하면 주소창 없이 전체 화면이에요')}}catch(e){}},15000)}
   document.addEventListener('fullscreenchange',()=>{try{if(typeof resize==='function')resize();dispatchEvent(new Event('resize'))}catch(e){}});
 })();
+
+/* 🔄 새 버전이 올라오면 알려 줘요 (예전 화면을 계속 쓰지 않게) */
+(function(){let mine='__BUILD__',told=false;const chk=()=>fetch('/version',{cache:'no-store'}).then(r=>r.json()).then(j=>{if(mine.indexOf('BUILD')>=0){mine=j.v;return}if(j.v!==mine&&!told){told=true;const b=document.createElement('button');b.textContent='✨ 새 버전이 나왔어요! 눌러서 새로고침';b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:calc(64px + env(safe-area-inset-top,0px));z-index:80;border:3px solid #fff;border-radius:999px;background:linear-gradient(#ff9ab8,#e9628a);color:#fff;font:inherit;font-weight:800;font-size:14px;padding:10px 18px;box-shadow:0 4px 0 rgba(160,50,90,.35);white-space:nowrap';b.onclick=()=>{try{saveState(true)}catch(e){}setTimeout(()=>location.reload(),300)};document.body.appendChild(b)}}).catch(()=>{});
+  chk();setInterval(chk,120000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();
 </script>
 
 </body></html>
