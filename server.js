@@ -16,7 +16,7 @@ const MAX_PLAYERS = 16;          // 동시 접속 최대 (5명 기준이라 넉�
 const SNAP_MS = 100;             // 친구 위치를 보내는 간격 (초당 10번)
 const SAVE_MS = 5000;
 // 운영자: 이 닉네임으로 (그 계정 코드로) 로그인하면 운영자 도구를 쓸 수 있어요. Render 환경변수 ADMINS=이름1,이름2 로 바꿀 수 있어요
-const ADMINS = new Set(((process.env.ADMINS || '조돌맹') + ',운영자').split(',').map(x => x.trim().toLowerCase()).filter(Boolean));            // 같은 사람의 저장은 최소 5초 간격으로 DB에 씀
+const ADMINS = new Set((process.env.ADMINS || '조돌맹').split(',').map(x => x.trim().toLowerCase()).filter(Boolean));            // 같은 사람의 저장은 최소 5초 간격으로 DB에 씀
 
 /* ---------- 저장소: Supabase (없으면 메모리 — 테스트용) ---------- */
 let db;
@@ -1200,7 +1200,7 @@ function onMsg(ws, me, m) {
       rosterSoon();
     }); break;
     /* ----- 4인 배낚시 ----- */
-    case 'pt_open': case 'pt_join': case 'pt_board': case 'pt_leave': case 'pt_go': case 'pt_catch': case 'pt_tap': case 'pt_home': ptMsg(ws, me, m); break;
+    case 'pt_open': case 'pt_join': case 'pt_board': case 'pt_leave': case 'pt_go': case 'pt_catch': case 'pt_tap': case 'pt_miss': case 'pt_home': ptMsg(ws, me, m); break;
     /* ----- 도감 박사의 예보: 마을 모두에게 ----- */
     case 'vil_note': {
       if (!jobRank(me.save, 'sch', 'fc') && !jobRank(me.save, 'sch', 'cap')) return;
@@ -2041,7 +2041,7 @@ function giveCos(s, ids) { const c = s.cos && typeof s.cos === 'object' ? s.cos 
 /* ---------- 4인 배낚시 3.0: 모집 → 4명 이상 출항 → 10분 · 어창 · 바다 이벤트 · 보스 2번(모두가 같이 당겨야) · 만선 귀항 투표 → 귀항 보상 ----------
    - 바다 위에서 접속이 끊겨도 선원으로 남아요. 다시 들어오면 갑판으로 돌아가요 (보스는 접속 중인 사람만 같이 당기면 돼요)
    - 만선(어창 가득)이 되면 바로 귀항 투표를 할 수 있어요. 안 돌아가고 계속 낚으면 대만선(2배)에 도전 */
-const PT_MIN = 3 /* 2026-11-09: 3명부터 (예전 4명) */, PT_MAX = 5, PT_MS = 10 * 60e3, PT_DAY = 2, PT_BOSS_AT = [3.5 * 60e3, 7.5 * 60e3], PT_BOSS_MS = 30e3, PT_LOBBY_MS = 15 * 60e3, PT_TAP_MIN = 12, PT_BOSS_PER = 45;
+const PT_MIN = 3 /* 2026-11-09: 3명부터 (예전 4명) */, PT_MAX = 5, PT_MS = 10 * 60e3, PT_DAY = 2, PT_BOSS_AT = [3.5 * 60e3, 7.5 * 60e3], PT_BOSS_MS = 30e3, PT_LOBBY_MS = 15 * 60e3, PT_TAP_MIN = 14, PT_BOSS_PER = 20;   /* 2026-11-09: 리듬으로 바뀌어서 (링에 맞게 톡) */
 const PT_EV = ['dolphin', 'gull', 'school', 'marlin', 'whale', 'wave'], PT_EV_MS = 30e3;   // index.html SEA_EV와 같은 이름
 let party = null, ptSendT = 0;
 const PT_WEEK = 12, ptDay = () => PT_WEEK + (arkSt() >= 4 ? 4 : 0);   // 2026-11-05: 하루 대신 한 주에 (몰아서 가도 돼요) · ⛵ 물결 범선: +4
@@ -2052,7 +2052,7 @@ function ptPub() {
   return { state: party.state, leader: party.names[party.leader], members: party.members.map(k => party.names[k]), on: party.members.map(k => !!liveByKey(k)),
     hold: party.hold, need: party.need, end: party.end, goAt: party.goAt || 0, votes: party.votes ? party.votes.length : 0, fullAt: party.fullAt || 0,
     ev: party.ev && party.ev.until > now ? party.ev : null, bossN: party.bossN | 0, bossWin: party.bossWin | 0,
-    boss: b ? { k: b.k, got: b.got, need: b.need, until: b.until, min: PT_TAP_MIN, taps: party.members.map(k => b.taps[k] | 0) } : null };
+    boss: b ? { k: b.k, got: b.got, need: b.need, until: b.until, min: PT_TAP_MIN, taps: party.members.map(k => b.taps[k] | 0), miss: party.members.map(k => (b.miss || {})[k] | 0), seed: b.seed, at: b.at, sn: Date.now() } : null };
 }
 function ptSend(extra) { for (const [ws, p] of players) send(ws, Object.assign({ t: 'pt', p: ptPub(), today: ptToday(p.save) }, extra ? extra(p) : {})); }
 function ptSoon() { if (ptSendT) return; ptSendT = setTimeout(() => { ptSendT = 0; ptSend(); }, 300); }
@@ -2083,7 +2083,7 @@ function ptMsg(ws, me, m) {
   if (m.t === 'pt_catch') {
     if (now - (party.last[me.key] || 0) < 1200) return; party.last[me.key] = now;
     const school = party.ev && party.ev.k === 'school' && party.ev.until > now;
-    ptAdd([1, 2, 4, 8, 15][Math.max(0, Math.min(4, m.rar | 0))] * (school ? 2 : 1)); return ptSoon();
+    const pp = [1, 2, 4, 8, 15][Math.max(0, Math.min(4, m.rar | 0))] * (school ? 2 : 1); const st = ptSt(me.key); st.c++; st.pts += pp; ptAdd(pp); return ptSoon();
   }
   if (m.t === 'pt_home') {   // 만선이면 귀항 투표 · 접속한 선원 절반 이상이면 바로 돌아가요
     if (party.hold < party.need || party.boss) return;
@@ -2092,12 +2092,14 @@ function ptMsg(ws, me, m) {
     if (party.votes.filter(k => liveByKey(k)).length >= need) { ptTell('⚓ 만선 귀항! 뱃머리를 항구로 돌려요'); return ptEnd(); }
     ptTell('⚓ ' + me.name + ' 님이 귀항에 한 표 (' + party.votes.length + '/' + need + ')'); return ptSend();
   }
+  if (m.t === 'pt_miss') { const b = party.boss; if (!b) return; b.miss = b.miss || {}; if ((b.miss[me.key] | 0) > 200) return; b.miss[me.key] = (b.miss[me.key] | 0) + 1; ptSt(me.key).miss++; return ptSoon(); }
   if (m.t === 'pt_tap') {
     const b = party.boss; if (!b) return; const tc = b.tc[me.key] || (b.tc[me.key] = []); while (tc.length && now - tc[0] > 1000) tc.shift(); if (tc.length >= 10) return; tc.push(now);
-    b.got++; b.taps[me.key] = (b.taps[me.key] | 0) + 1;
+    b.got++; b.taps[me.key] = (b.taps[me.key] | 0) + 1; ptSt(me.key).hit++;
     const live = ptLive(); if (b.got >= b.need && live.every(k => (b.taps[k] | 0) >= PT_TAP_MIN)) ptBossWin(); else ptSoon();
   }
 }
+const ptSt = key => { party.st = party.st || {}; return party.st[key] || (party.st[key] = { c: 0, pts: 0, hit: 0, miss: 0 }); };
 function ptAdd(n) {
   const was = party.hold; party.hold += n;
   if (was < party.need && party.hold >= party.need) { party.fullAt = Date.now(); ptTell('🚩 만선!! 어창이 가득 찼어요. 귀항 투표로 바로 돌아가거나, 계속 낚아서 대만선(' + party.need * 2 + ')에 도전해요'); ptSend(p => party.members.includes(p.key) ? { full: 1 } : {}); }
@@ -2129,7 +2131,7 @@ function ptBoss() {
   if (!party || party.state !== 'sea' || party.boss) return; const now = Date.now();
   const used = party.bossKinds || [], pool = [0, 0, 0, 1, 1, 2].filter(k => used.indexOf(k) < 0); const k = pool.length ? pool[(Math.random() * pool.length) | 0] : 0; used.push(k); party.bossKinds = used;
   party.ev = null; party.bossN = (party.bossN | 0) + 1;
-  party.boss = { k, got: 0, need: PT_BOSS_PER * Math.max(1, ptLive().length), until: now + PT_BOSS_MS, taps: {}, tc: {} };
+  party.boss = { k, got: 0, need: PT_BOSS_PER * Math.max(1, ptLive().length), until: now + PT_BOSS_MS, taps: {}, tc: {}, miss: {}, seed: crypto.randomBytes(4).readUInt32LE(0), at: now };
   const b = party.boss;
   party.timers.push(setTimeout(() => { if (party && party.boss === b) { const lazy = ptLive().filter(k => (b.taps[k] | 0) < PT_TAP_MIN).map(k => party.names[k]); party.boss = null;
     ptTell(BOSS_NAMES[b.k] + '(이)가 줄을 끊고 사라졌어요…' + (lazy.length ? ' (' + lazy.join(', ') + ' 님이 ' + PT_TAP_MIN + '번 이상 당겨야 했어요)' : ' (조금만 더 빨리 연타했으면!)')); ptSend(p => party.members.includes(p.key) ? { bossEnd: 'lost' } : {}); } }, PT_BOSS_MS));
@@ -2155,12 +2157,14 @@ function ptRemove(key) {
 }
 async function ptEnd() {
   if (!party || party.state !== 'sea') return; const P = party; ptClear(); party = null;
-  const full = P.hold >= P.need, big = P.hold >= P.need * 2, tk = big ? 3 : full ? 2 : 1, g = big ? 6000 : full ? 3000 : 1000, mats = ['knack', 'knack', 'shell', 'weed'];
+  const full = P.hold >= P.need, big = P.hold >= P.need * 2, tk = big ? 6 : full ? 4 : 2, g = (big ? 3000000 : full ? 1500000 : 400000) + (P.bossWin | 0) * 500000, mats = ['knack', 'knack', 'shell', 'weed'];   /* 2026-11-09: 10분 몰입한 만큼 크게 */
+  const STS = P.st || {}, mvp = P.members.slice().sort((a, b) => ((STS[b] || {}).pts | 0) - ((STS[a] || {}).pts | 0))[0];
+  broadcast({ t: 'pt_result', hold: P.hold, need: P.need, full, big, boss: P.bossWin | 0, list: P.members.map(k => { const x = STS[k] || {}; return { name: P.names[k], c: x.c | 0, pts: x.pts | 0, hit: x.hit | 0, miss: x.miss | 0, g, tk: tk + (k === mvp && (x.pts | 0) > 0 ? 2 : 0) }; }) });
   for (const k of P.members) {
     await withLock(k, async () => {
       const s = await loadSave(k); if (!s) return;
       const d = { g }; let items = 0; for (let i = 0; i < (big ? 2 : full ? 1 : 0); i++) { const it = mats[(Math.random() * mats.length) | 0]; d['i:' + it] = (d['i:' + it] | 0) + 1; items++; }
-      const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + tk);
+      const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + tk + (k === mvp && ((STS[k] || {}).pts | 0) > 0 ? 2 : 0));
       const own = (s.cos && s.cos.own) || [], drop = [];
       if (full && !own.includes('lifejacket') && Math.random() < (big ? .5 : .3)) drop.push('lifejacket');
       if (full && !own.includes('pirate') && Math.random() < (big ? .12 : .06)) drop.push('pirate');

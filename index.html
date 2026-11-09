@@ -44,6 +44,18 @@
 #eco.g-myth{background:radial-gradient(circle at 50% 45%,#3a1a5a,#0a0520 60%,#000);animation:ecog 1.6s infinite alternate}@keyframes ecog{to{filter:brightness(1.6)}}.ecog{color:#ffd36e}#eco.g-myth .ecog{color:#e0c0ff}
 .cpbox{font-size:13.5px}.cpgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:4px 0 8px}.cpc{border:2px solid var(--line);border-radius:12px;background:var(--paper-2);padding:6px 2px;font:inherit;color:var(--ink);text-align:center}.cpc.on{border-color:#ff8fb1;background:#fff0f5}.cpc img{height:30px;image-rendering:pixelated;display:block;margin:0 auto 2px}.cpc small{display:block;font-size:10.5px;color:var(--ink-soft)}.cpc b{display:block;font-size:11.5px;font-weight:600}
 #qpanel{position:fixed;left:max(10px,env(safe-area-inset-left,0px));top:calc(150px + env(safe-area-inset-top,0px));z-index:4;max-width:min(190px,48vw);text-align:left;border:2px solid #a8e0b0;border-radius:12px;background:rgba(240,251,240,.9);color:var(--ink);font:inherit;font-size:10.5px;line-height:1.45;padding:5px 8px}#qpanel[hidden]{display:none}#qpanel b{display:block;font-size:11.5px;color:#2f7a4a}#qpanel span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#qpanel span.ok{color:#8aa890;text-decoration:line-through}#qpanel.ready{border-color:#ff8fb1;background:rgba(255,240,246,.95);animation:pulse .6s infinite alternate}
+.eqp{background:linear-gradient(#7a5434,#5a3a22);border:3px solid #3a2414;border-radius:16px;padding:8px;margin-bottom:10px;box-shadow:inset 0 0 0 2px #9a7448}
+.eqg{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:6px}.eqx{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.eqs{position:relative;min-height:62px;border:2px solid #9a7a48;border-radius:10px;background:#2a1c14;color:#ffe27a;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 2px;gap:2px}
+.eqs.on{border-color:#ffd34d;box-shadow:0 0 0 2px rgba(255,211,77,.5)}.eqs img{height:30px;max-width:90%;object-fit:contain;image-rendering:pixelated}.eqs b{font-size:11px;font-weight:700;text-shadow:0 1px 0 #000}
+.eqs.big{min-height:96px}.eqs.big img{height:52px}.eqs.me{grid-row:span 1;min-height:96px;background:radial-gradient(circle at 50% 40%,#5a3a5a,#2a1c14)}.eqs.me img{height:64px;max-height:none}.eqs.me em{position:absolute;right:4px;top:3px;font-style:normal;font-size:11px;color:#fff;background:#e0507a;border-radius:6px;padding:0 4px}
+.eqs.sm{min-height:44px;flex-direction:row;gap:6px}.eqs.sm img{max-height:26px}.eqe{font-style:normal;font-size:10px;color:#8a7a68}.eqt{font-style:normal;font-size:10px;color:#fff;line-height:1.2;text-align:center}
+.eqbar{display:flex;justify-content:space-between;gap:4px;margin-top:6px;background:#2a1c14;border:2px solid #9a7a48;border-radius:10px;padding:4px 8px;color:#ffe27a;font-size:11.5px;flex-wrap:wrap}
+.bgrid2{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;background:#2a1c14;border:3px solid #5a3a22;border-radius:12px;padding:6px}
+.bcl{position:relative;aspect-ratio:1;border:2px solid;border-radius:8px;background:#3a2a20;padding:2px;display:grid;place-items:center}.bcl img{max-width:92%;max-height:80%;image-rendering:pixelated}.bcl span{position:absolute;right:2px;bottom:0;font-size:10px;color:#fff;text-shadow:0 1px 0 #000,0 0 2px #000}.bcl.on{box-shadow:0 0 0 2px #ffd34d}
+.bsel{display:flex;gap:10px;align-items:center;background:var(--paper-2);border:2px solid var(--line);border-radius:12px;padding:6px 10px;margin-bottom:6px}.bsel img{height:30px;image-rendering:pixelated}
+#rhy{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom,0px));width:min(320px,86vw);height:auto;z-index:20;border-radius:14px;border:2px solid #fff;image-rendering:auto}#rhy[hidden]{display:none}#bossui s{color:#ff8a9a;text-decoration:none;font-size:.9em}
+.ptr{width:100%;border-collapse:collapse;font-size:12.5px}.ptr th{font-weight:600;color:var(--ink-soft);text-align:left;padding:4px}.ptr td{padding:6px 4px;border-top:1px dashed var(--line);vertical-align:top}.ptr s{color:#e0607a;text-decoration:none}.ptr tr.mvp td{background:#fff8dc}
 </style></head><body>
 <title>물결마을 낚시터</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -2801,7 +2813,9 @@ const Snd=(()=>{
       g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.15);g.gain.setValueAtTime(.05,t+1.1);g.gain.exponentialRampToValueAtTime(.0001,t+1.6);o.connect(g);g.connect(sfxBus);o.start(t);o.stop(t+1.7)})}
   };
   function sfx(n,a){if(!ctx||vol.mute)return;try{S[n](a)}catch(e){}}
-  return{init,resume,setTrack,setIntense,sfx,setVol,setMute,vol,get ready(){return!!ctx}};
+  /* 오르골 음 하나 (2026-11-09): 배낚시 리듬 · 레비아 발판에 써요. 펜타토닉이라 어떤 순서로 쳐도 어울려요 */
+  function chime(m,v){if(!ctx||vol.mute)return;try{bell(sfxBus,mtof(m),ctx.currentTime+.005,1.1,v||.32)}catch(e){}}
+  return{init,resume,setTrack,setIntense,sfx,setVol,setMute,vol,chime,get ready(){return!!ctx}};
 })();
 
 /* ---------- 월드: 타일맵 · 낚시터 · 문 ---------- */
@@ -3362,6 +3376,7 @@ function onAqMsg(m){if(m.t==='aq'){AQ.view=m;if(m.note)toast(m.note);if(aqOpenNo
   if(m.t==='cup'){S.cup=m.cup||{};if(m.shb)S.shb=m.shb;refreshMe();saveState();const c=COS_BY[m.id];showBanner('✨ 「'+(c?c.name:'')+'」 ★'+(S.cup[m.id]|0)+'!');Snd.sfx('page');if(P)sparkFx(P.x,P.y-16,24,['#fff6b0','#ffffff','#ffd6e6']);if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='가방')renderBag();return true}
   if(m.t==='shb'){S.shb=m.shb||{};if(m.sold!==undefined){coinRain(m.g);showBanner('✨ 반짝 '+fishName(m.sold)+' → '+fmt(m.g)+' 골드!')}if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='가방')renderBag();saveState();return true}
   if(m.t==='shiny_news'){const t='✨ '+m.who+' 님이 반짝 '+fishName(m.id)+'을(를) 낚았어요!';showBanner(t);nlogAdd('vil',t);if(P)sparkFx(P.x,P.y-30,24,['#fff6b0','#ffffff','#ffd34d','#b9a6ee']);Snd.sfx('page');return true}
+  if(m.t==='pt_result'){ptResult(m);return true}
   if(m.t==='egg_ok'){S.egg=Object.assign({},S.egg||{},{[m.k]:Date.now()});(m.cos||[]).forEach(id=>{if(!owns(id))S.cos.own.push(id)});saveState(true);showBanner(m.k==='ruby30'?'🐕💎 루비가 숨겨 둔 보물을 찾았어요! 1억 골드 · 칭호 「루비의 영원한 산책 친구」':'🐈✨ 고양이들의 감사 선물! 2천만 골드 · 솜씨 재료 30 · 칭호 「고양이 화장실의 수호자」');if(P)sparkFx(P.x,P.y-20,40,['#ff6a8a','#ffd34d','#ffffff']);Snd.sfx('gate');return true}
   if(m.t==='dayk'){DAYK=m;dkTick();if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='오늘의 낚시왕')openDayK();return true}
   if(m.t==='myth_news'){showBanner('🌌 '+m.who+' 님이 신화 「'+fishName(m.id)+'」을(를) 낚았어요!'+(m.first?' 마을 최초!':''));Snd.sfx('page');return true}
@@ -4942,8 +4957,8 @@ function bossEnd(win,k){$('bossbtn').hidden=true;const nm=BOSS_NAMES[k|0];
 function bossUI(){const el=$('bossui');if(!el)return;const b=PTY&&PTY.boss;if(!b||!inSea()){el.hidden=true;return}
   const left=Math.max(0,(b.until-Date.now())/1000),tot=Math.min(1,b.got/b.need),min=b.min||12;
   let h='<div class="bt">🐟 '+BOSS_NAMES[b.k|0]+' <span>'+Math.ceil(left)+'초</span></div><div class="bb"><i style="width:'+(tot*100).toFixed(1)+'%"></i><b>'+b.got+' / '+b.need+'</b></div><div class="bm">';
-  PTY.members.forEach((n,i)=>{const t=(b.taps&&b.taps[i])|0,off=PTY.on&&!PTY.on[i];h+='<span class="'+(t>=min?'ok':off?'off':'')+'">'+(t>=min?'✓':off?'💤':'…')+' '+esc(n)+' '+t+'</span>'});
-  h+='</div><div class="bh">모두 합쳐 '+b.need+'번 + <b>각자 '+min+'번 이상</b> 당기면 잡혀요!</div>';el.innerHTML=h;el.hidden=false}
+  PTY.members.forEach((n,i)=>{const t=(b.taps&&b.taps[i])|0,ms=(b.miss&&b.miss[i])|0,off=PTY.on&&!PTY.on[i];h+='<span class="'+(t>=min?'ok':off?'off':'')+'">'+(t>=min?'✓':off?'💤':'…')+' '+esc(n)+' '+t+(ms?' <s>삑'+ms+'</s>':'')+'</span>'});
+  h+='</div><div class="bh">'+(b.seed?'물고기가 <b>링에 닿을 때</b> 버튼을 톡! 모두 합쳐 '+b.need+'번 + <b>각자 '+min+'번 이상</b> 맞히면 잡혀요':'모두 합쳐 '+b.need+'번 + <b>각자 '+min+'번 이상</b> 당기면 잡혀요!')+'</div>';el.innerHTML=h;el.hidden=false}
 function ptBar(){const el=$('ptbar'),hb=$('pthome');if(!el)return;{let ub=$('unbBtn');const on=P&&P.aboard!=null&&PTY&&PTY.state==='lobby'&&!inSea();if(on&&!ub){ub=document.createElement('button');ub.id='unbBtn';ub.textContent='배에서 내리기';ub.onclick=()=>{Snd.sfx('tap');hbLeave()};document.body.appendChild(ub)}if(ub)ub.hidden=!on}if(!inSea()){el.hidden=true;if(hb)hb.hidden=true;return}const p=PTY,left=Math.max(0,Math.ceil((p.end-Date.now())/1000));
   const big=p.hold>=p.need*2,full=p.hold>=p.need;
   let t='⚓ '+Math.floor(left/60)+':'+String(left%60).padStart(2,'0')+' · 어창 '+p.hold+'/'+(full?p.need*2:p.need)+(big?' 🏆 대만선!':full?' 🚩 만선!':'');
@@ -4951,7 +4966,34 @@ function ptBar(){const el=$('ptbar'),hb=$('pthome');if(!el)return;{let ub=$('unb
   if(hb){const show=full&&!p.boss;hb.hidden=!show;if(show){const live=p.on?p.on.filter(Boolean).length:p.members.length;hb.innerHTML='⚓ 만선 귀항 <small>'+(p.votes|0)+'/'+Math.max(1,Math.ceil(live/2))+'표</small>'}}}
 setInterval(()=>{if(inSea()){ptBar();bossUI();evBanner();if(PTY.practice)practiceTick()}else if(P&&(P.aboard!=null||$('unbBtn')))ptBar()},250);
 function ptCatch(f){if(f.zone!==7||!inSea())return;const pts=[1,2,4,8,15][f.rar]*(SEA.ev==='school'&&seaEvOn()?2:1);if(PTY.practice){practiceAdd(pts);return}Net.send({t:'pt_catch',rar:f.rar})}
-function bossTap(){if(!inSea()||!PTY.boss)return;bossTaps++;Snd.sfx('tap');const b=$('bossbtn');b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');
+
+/* ===== 🎵 배낚시 보스 리듬 (2026-11-09): 물고기가 링에 닿을 때 톡! 모두가 각자 일정 수 이상 맞혀야 잡혀요 · 놓치면 모두에게 보여요 ===== */
+const RH={key:'',notes:[],hit:{},miss:{},t0:0,fx:[],seq:0};const RH_WIN=.17,RH_SPD=120,PENTA=[72,74,76,79,81,84,86,88];
+function rhSetup(b){const key=b.seed+':'+b.at;if(RH.key===key)return;RH.key=key;RH.off=b.sn?Date.now()-b.sn:0;RH.notes=[];RH.hit={};RH.miss={};RH.fx=[];RH.seq=0;const R=rngOf(b.seed>>>0);let t=b.at+1800;
+  while(t<b.until-600){RH.notes.push(t);const r=R();t+=r<.18?260:r<.6?520:780}}
+function rhOn(){const b=PTY&&PTY.boss;return!!(b&&b.seed&&inSea()&&!PTY.practice)}
+function rhTap(){const b=PTY.boss;rhSetup(b);const now=Date.now()-(RH.off||0);let bi=-1,bd=1e9;RH.notes.forEach((t,i)=>{if(RH.hit[i]||RH.miss[i])return;const d=Math.abs(now-t)/1000;if(d<bd){bd=d;bi=i}});
+  if(bi>=0&&bd<=RH_WIN){RH.hit[bi]=1;const pf=bd<.07;Snd.chime(PENTA[RH.seq++%PENTA.length],pf?.38:.28);RH.fx.push({t:now,txt:pf?'완벽!':'좋아!',c:pf?'#ffd34d':'#9fe0a0'});Net.send({t:'pt_tap'});if(SEA.boss)SEA.boss.tug=performance.now()}
+  else{Snd.sfx('no');RH.fx.push({t:now,txt:'삑!',c:'#ff7a8a'});Net.send({t:'pt_miss'});SHK={t:.15,a:1}}}
+function rhDraw(){const cv=$('rhy');if(!rhOn()){if(cv)cv.hidden=true;return}const b=PTY.boss;rhSetup(b);
+  let c=cv;if(!c){c=document.createElement('canvas');c.id='rhy';c.width=320;c.height=70;document.body.appendChild(c)}c.hidden=false;
+  const x=c.getContext('2d'),now=Date.now()-(RH.off||0),RX=46;x.clearRect(0,0,320,70);x.fillStyle='rgba(20,30,60,.72)';x.fillRect(0,0,320,70);x.fillStyle='rgba(120,200,255,.18)';x.fillRect(0,28,320,14);
+  const pul=Math.max(0,1-((now-(RH.fx.length?RH.fx[RH.fx.length-1].t:0))/250));x.strokeStyle='rgba(255,255,255,'+(.6+.4*pul)+')';x.lineWidth=3;x.beginPath();x.arc(RX,35,16+pul*4,0,6.28);x.stroke();
+  const img=fishCan(BOSS_IDS[b.k|0]||0);
+  RH.notes.forEach((t,i)=>{if(RH.hit[i])return;const dx=(t-now)/1000*RH_SPD;if(dx<-40||dx>300)return;
+    if(dx<-RH_WIN*RH_SPD-4&&!RH.miss[i]){RH.miss[i]=1;Net.send({t:'pt_miss'});RH.fx.push({t:now,txt:'놓침',c:'#ff9aa8'})}
+    x.globalAlpha=RH.miss[i]?.3:1;x.drawImage(img,Math.round(RX+dx-11),24,22,22*img.height/img.width);x.globalAlpha=1});
+  RH.fx=RH.fx.filter(f=>now-f.t<700);RH.fx.slice(-1).forEach(f=>{const k=(now-f.t)/700;x.globalAlpha=1-k;x.fillStyle=f.c;x.font='bold 15px sans-serif';x.textAlign='center';x.fillText(f.txt,RX,14-k*6);x.globalAlpha=1});
+  const hn=Object.keys(RH.hit).length,mn=Object.keys(RH.miss).length;x.fillStyle='#fff';x.font='12px sans-serif';x.textAlign='right';x.fillText('맞힘 '+hn+' · 놓침 '+mn,312,64)}
+(function rhLoop(){try{rhDraw()}catch(e){}requestAnimationFrame(rhLoop)})();
+
+/* 배낚시 결과판: 모두에게 (누가 몇 마리 · 얼마나 놓쳤고 · 얼마 벌었는지) */
+function ptResult(m){const L=m.list||[],me=Net.me&&L.some(x=>x.name===Net.me.name),best=L.slice().sort((a,b)=>b.pts-a.pts)[0];
+  const h='<div class="muted" style="font-size:12.5px;margin-bottom:8px">어창 '+m.hold+'/'+m.need+(m.big?' · 🏆 대만선':m.full?' · 🚩 만선':'')+(m.boss?' · 보스 '+m.boss+'마리':'')+'</div><table class="ptr"><tr><th></th><th>낚음</th><th>리듬</th><th>번 것</th></tr>'+
+    L.map(x=>'<tr'+(best&&x.name===best.name?' class="mvp"':'')+'><td style="color:'+nameCol(x.name)+'">'+esc(x.name)+(best&&x.name===best.name?' 👑':'')+'</td><td>'+x.c+'마리 · '+x.pts+'점</td><td>'+x.hit+'맞힘 · <s>'+x.miss+'놓침</s></td><td>'+fmtShort(x.g)+'골드<br><small>강화권 '+x.tk+'</small></td></tr>').join('')+'</table>'+(best?'<div class="muted" style="font-size:12px;margin-top:6px">👑 MVP '+esc(best.name)+' 님은 강화권 +2 더</div>':'');
+  if(me){setTimeout(()=>openSheet('배낚시 결과',h),1600)}else{vilNews('⚓ 배낚시 귀항! '+L.map(x=>x.name+' '+x.c+'마리').join(' · '));PT_LAST=h}}
+let PT_LAST='';
+function bossTap(){if(!inSea()||!PTY.boss)return;if(rhOn()){const bb=$('bossbtn');bb.classList.remove('pop');void bb.offsetWidth;bb.classList.add('pop');rhTap();return}bossTaps++;Snd.sfx('tap');const b=$('bossbtn');b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');
   if(SEA.boss)SEA.boss.tug=performance.now();
   if(PTY.practice){PTY.boss.got++;PTY.boss.taps[0]++;return}Net.send({t:'pt_tap'})}
 /* 혼자 모드: 봇 선원 셋과 연습 출항 (4분 · 보상 없음). 바다 이벤트 · 보스 · 만선 귀항까지 똑같이 연습해요 */
@@ -5735,9 +5777,29 @@ function shBagHtml(){const b=shbS(),ids=Object.keys(b).map(Number).filter(id=>FI
   const nb=SHB_BOBS.find(x=>shTotal()<x[0]);if(nb)h+='<div class="muted" style="font-size:12px;margin-bottom:6px">반짝 '+nb[0]+'종을 모으면 「'+esc(COS_BY[nb[1]].name)+'」 (지금 '+shTotal()+'종)</div>';
   if(!ids.length)return h+'<div class="muted" style="padding:18px;text-align:center">아직 반짝 물고기가 없어요.<br>직접 낚을 때 300마리에 1마리쯤 반짝 개체가 나와요.</div>';
   return h+ids.map(id=>{const f=FISH[id];return'<div class="row shrow"><img src="'+shinyURL(id)+'" alt=""><div class="nm"><div>✨ '+esc(f.name)+' ×'+b[id]+' '+rarTagF(f)+'</div><div class="muted">'+fmt(shSell(id))+' 골드</div></div><div class="go"><button class="btn sm pink" data-shsell="'+id+'">팔기</button></div></div>'}).join('')}
+
+/* ===== 🎒 가방 2.0 (2026-11-09): 위엔 장착 칸 (아스가르드 장비창처럼) · 아래엔 탭 달린 가방 칸 ===== */
+let LOOKF='',BAGSEL=-1;
+const EQ_SLOTS=[['hat','모자'],['title','칭호'],['face','얼굴'],['rod','낚싯대'],['outfit','옷'],['bob','찌'],['back','망토'],['frame','테두리'],['foot','발자국']];
+function eqIcon(k){const L=S.cos.look,id=k==='title'?L.ti:L[LOOK_KEY[k]];if(!id)return'';if(k==='title')return'';const ic=cosIcon(id);return ic}
+function eqName(k){const L=S.cos.look,id=k==='title'?L.ti:L[LOOK_KEY[k]],c=id&&COS_BY[id];return c?c.name:'비어 있음'}
+function equipHtml(){const pl=SP.pl,cp=cpS(),e=S.enh,fishN=Object.keys(S.inv).reduce((a,k)=>a+(S.inv[k]>0?S.inv[k]:0),0);
+  const slot=(k,lb,big)=>{const ic=eqIcon(k),nm=eqName(k);return'<button class="eqs'+(big?' big':'')+(LOOKF===k?' on':'')+'" data-eqs="'+k+'" aria-label="'+lb+' · '+esc(nm)+'">'+(ic?'<img src="'+ic+'" alt="">':k==='title'&&S.cos.look.ti?'<i class="eqt">「'+esc(nm)+'」</i>':'<i class="eqe">비어 있음</i>')+'<b>'+lb+'</b></button>'};
+  let h='<div class="eqp"><div class="eqg">'+slot('hat','모자')+slot('title','칭호')+slot('face','얼굴')+
+    slot('rod','낚싯대',1)+'<button class="eqs me" data-eqs="outfit"><img src="'+pl.down[0].toDataURL()+'" alt="내 모습"><b>옷</b>'+(e.lv?'<em>+'+e.lv+'</em>':'')+'</button>'+slot('bob','찌',1)+
+    slot('back','망토')+slot('frame','테두리')+slot('foot','발자국')+'</div>'+
+    '<div class="eqx"><button class="eqs sm" data-mn="cp">'+(cp?'<img src="'+cpSprites(cp.k,cp.c|0).sit.toDataURL()+'" alt="">':'<i class="eqe">없음</i>')+'<b>'+(cp?esc(cp.name)+' Lv'+cpLv():'반려동물')+'</b></button>'+
+    '<button class="eqs sm" data-bt="look"><i class="eqe">색</i><b>머리 · 피부 · 옷 색</b></button></div>'+
+    '<div class="eqbar"><span><span class="coin"></span> '+fmtShort(S.gold)+'</span><span>강화권 '+fmt(e.tk)+'</span><span>조각 '+e.pc+'</span><span>물고기 '+fmt(fishN)+'</span></div></div>';
+  return h}
+function fishGridHtml(){const ids=Object.keys(S.inv).map(Number).filter(i=>S.inv[i]>0&&FISH[i]);ids.sort((a,b)=>fpRar(FISH[b])-fpRar(FISH[a])||a-b);
+  if(!ids.length)return'<div class="muted" style="padding:18px;text-align:center">아직 잡은 물고기가 없어요.</div>';
+  const res=reservedMats();let h='';
+  if(BAGSEL>=0&&S.inv[BAGSEL]>0){const f=FISH[BAGSEL],rs=Math.min(S.inv[BAGSEL],res[BAGSEL]||0);h+='<div class="bsel"><img src="'+fishURL(BAGSEL)+'" alt=""><div style="flex:1"><b>'+esc(f.name)+'</b> '+rarTagF(f)+(f.get?' <span class="tag" style="background:#5cbf6a">갯것</span>':'')+'<div class="muted" style="font-size:12px">×'+S.inv[BAGSEL]+' · '+(soldKnown(BAGSEL)?fmt(sellPrice(f))+' 골드':'값은 팔아 봐야 알아요')+(rs?' · 장비 재료로 '+rs+'마리':'')+' · '+esc(ZONES[f.zone-1].name)+'</div></div></div>'}
+  return h+'<div class="bgrid2">'+ids.map(id=>{const f=FISH[id];return'<button class="bcl'+(BAGSEL===id?' on':'')+'" data-bsel="'+id+'" style="border-color:'+(f.myth?'#9a7aff':RARITY[f.rar].color)+'"><img src="'+fishURL(id)+'" alt="'+esc(f.name)+'"><span>'+S.inv[id]+'</span></button>'}).join('')+'</div>'}
 function renderBag(){
   const shN=Object.keys(shbS()).reduce((a,k)=>a+(shbS()[k]|0),0);
-  let h='<div class="tabs"><button class="tab'+(bagTab==='fish'?' on':'')+'" data-bt="fish">물고기</button><button class="tab'+(bagTab==='sh'?' on':'')+'" data-bt="sh">✨ 반짝'+(shN?' '+shN:'')+'</button><button class="tab'+(bagTab==='item'?' on':'')+'" data-bt="item">🎒 물건</button><button class="tab'+(bagTab==='look'?' on':'')+'" data-bt="look">꾸미기</button></div>';
+  let h=equipHtml()+'<div class="tabs bagtabs"><button class="tab'+(bagTab==='fish'?' on':'')+'" data-bt="fish">물고기</button><button class="tab'+(bagTab==='sh'?' on':'')+'" data-bt="sh">✨ 반짝'+(shN?' '+shN:'')+'</button><button class="tab'+(bagTab==='item'?' on':'')+'" data-bt="item">🎒 물건</button><button class="tab'+(bagTab==='look'?' on':'')+'" data-bt="look">꾸미기</button></div>';
   if(bagTab==='sh'){body().innerHTML=h+shBagHtml();return}
   if(bagTab==='item'){body().innerHTML=h+itemBagHtml();return}
   if(bagTab==='fish'){const res=reservedMats();let all=0,cnt=0;Object.keys(S.inv).forEach(k=>{const n=S.inv[k]-(res[k]||0);if(n>0){all+=n*sellPrice(FISH[k]);cnt+=n}});
@@ -5746,7 +5808,7 @@ function renderBag(){
     h+='<div class="pcard"><img src="'+SP.crystal.toDataURL()+'" alt=""><div style="flex:1"><div>반짝 조각 <b>×'+e.pc+'</b> <span class="muted">('+ENH.PIECE_PER+'개면 강화권 1장)</span></div>'+
       '<div class="muted" style="font-size:12px">강화권 '+e.tk+'장 · 오늘 주운 조각 '+e.pcd+'/'+ENH.PIECE_CAP+(lying?' · 땅에 떨어진 조각 '+lying+'개':'')+'</div>'+
       '<div class="muted" style="font-size:12px">나무 흔들기 · 반짝이는 곳 · 벤치 · 쓰다듬기 · 화장실 청소로 떨어져요</div></div></div>'}
-  h+=bagTab==='fish'?'<div id="bagl">'+invHtml(false)+'</div>':lookHtml();
+  h+=bagTab==='fish'?'<div id="bagl">'+fishGridHtml()+'</div>':lookHtml();
   body().innerHTML=h;
 }
 /* 꾸미기: 가진 것만 보여요 (사기 · 입어 보기는 치장 상점) */
@@ -5759,7 +5821,8 @@ function lookHtml(){
   const sw=(key,list,arr,cur)=>'<div class="sws">'+list.map(i=>{const c=arr[i],col=Array.isArray(c[0])?c[0]:c;return'<button class="sw'+(cur===i?' on':'')+'" data-look="'+key+':'+i+'" style="background:rgb('+col.join(',')+')" aria-label="'+(i+1)+'번 색"></button>'}).join('')+'</div>';
   h+=cupHtml();
   h+='<div class="sec">머리색</div>'+sw('h',hairs,HAIRS,L.h|0)+'<div class="sec">피부색</div>'+sw('k',SKINS.map((c,i)=>i),SKINS,L.k|0)+'<div class="sec">옷 색</div>'+sw('s',SHIRTS.map((c,i)=>i),SHIRTS,L.s|0);
-  LOOK_KINDS.forEach(k=>{
+  if(LOOKF)h+='<div style="display:flex;gap:6px;align-items:center;margin:6px 0"><b style="flex:1">'+(COS_KINDS[LOOKF]||'')+' 고르기</b><button class="btn ghost sm" data-eqs="">전체 보기</button></div>';
+  (LOOKF?[LOOKF]:LOOK_KINDS).forEach(k=>{
     const mine=COS.filter(c=>c.k===k&&owns(c.id)),all=COS.filter(c=>c.k===k).length,opt=['face','back','hstyle','title','frame','foot'].indexOf(k)>=0;if(!mine.length&&!opt)return;
     h+='<div class="sec">'+COS_KINDS[k]+' <span class="cnt">'+mine.length+' / '+all+'</span></div><div class="chips">';
     if(opt)h+='<button class="chip'+((k==='hstyle'?!(L.hs|0):!L[LOOK_KEY[k]])?' on':'')+'" data-eq="'+k+':">'+(k==='hstyle'?'기본':'없음')+'</button>';
@@ -6242,7 +6305,9 @@ $('sheetbody').addEventListener('click',e=>{
   if(t.dataset.sell!==undefined){const id=+t.dataset.sell,f=FISH[id],first=!soldKnown(id),p=sell(id,1);if(p){soldMark(id);Snd.sfx('coin');saveState();renderShop();sellWow(f,p,first)}return}
   if(t.dataset.sellall){const res=reservedMats();let p=0,nw=0,top=null;Object.keys(S.inv).forEach(k=>{const q=(S.inv[k]||0)-(res[k]||0);if(q<=0)return;if(!soldKnown(+k))nw++;const f=FISH[k];if(!top||(f.myth?9:f.rar)>(top.myth?9:top.rar))top=f;p+=sell(+k,q);soldMark(+k)});if(p){Snd.sfx('buy');saveState();renderShop();coinRain(p);showBanner('💰 다 팔았어요! +'+fmt(p)+' 골드'+(nw?' · 처음 판 물고기 '+nw+'종':''))}return}
   if(t.dataset.up){upgrade(t.dataset.up);return}
-  if(t.dataset.bt){bagTab=t.dataset.bt;Snd.sfx('tap');renderBag();return}
+  if(t.dataset.eqs!==undefined){LOOKF=t.dataset.eqs;bagTab='look';Snd.sfx('tap');renderBag();return}
+  if(t.dataset.bsel){BAGSEL=+t.dataset.bsel;Snd.sfx('tap');renderBag();return}
+  if(t.dataset.bt){bagTab=t.dataset.bt;if(t.dataset.bt==='look'&&!t.closest('.eqp'))LOOKF='';Snd.sfx('tap');renderBag();return}
   if(t.dataset.look){const a=t.dataset.look.split(':');setLook(a[0],+a[1]);renderBag();return}
   if(t.dataset.eq!==undefined){const a=t.dataset.eq.split(':'),k=a[0],id=a[1];if(id&&!owns(id))return;if(id)wearCos(COS_BY[id]);else if(k==='hstyle')setLook('hs',0);else setLook(LOOK_KEY[k],'');if(bagTab==='look'&&$('sheettitle').textContent==='가방')renderBag();else renderBoutique();return}
   if(t.dataset.bset!==undefined){btqSet=t.dataset.bset;Snd.sfx('tap');renderBoutique();return}
@@ -7030,7 +7095,7 @@ setInterval(walletTick,700);
 document.addEventListener('click',e=>{const w=e.target.closest&&e.target.closest('#wallet');if(w){e.stopPropagation();openToday()}},true);
 
 /* ===== 📋 오늘의 마을 일 알림판 (2026-11-09): 왼쪽에 작게 늘 보여요 · 누르면 「오늘」 · 메뉴에서 끄기 ===== */
-function questTick(){let el=$('qpanel');const vis=!!P&&$('title').hidden&&!uiOpen&&!S.qOff&&!ECO.on&&F.mode==='idle'&&typeof JTASK!=='undefined';
+function questTick(){let el=$('qpanel');const vis=!!P&&$('title').hidden&&!uiOpen&&!S.qOff&&!ECO.on&&F.mode==='idle'&&typeof JTASK!=='undefined'&&!inSea();
   if(!el){if(!vis)return;el=document.createElement('button');el.id='qpanel';el.onclick=()=>openToday();document.body.appendChild(el)}
   el.hidden=!vis;if(!vis)return;const id=jkey(),dn=jdS().done[id]||[],b=vdayB(),T=JTASK[id]||[];
   const t='<b>오늘의 마을 일 '+Math.min(2,dn.length)+'/2'+(dn.length>=2&&b>0?' · 받기!':'')+'</b>'+T.map((q,i)=>{const ok=dn.indexOf(i)>=0;return'<span class="'+(ok?'ok':'')+'">'+(ok?'✓ ':'· ')+esc(q.t)+(ok?'':' '+fmt(Math.min(q.n,jtProg(q)))+'/'+fmt(q.n))+'</span>'}).join('');
@@ -7074,12 +7139,14 @@ const CUR_GUIDE='<div style="font-size:13px;line-height:1.7">'+
  '· 배낚시는 <b>한 주 12번</b>, 안개 조각은 <b>한 주 120개</b> (몰아서 해도 돼요)<br>· 벌목은 <b>기력</b> (하루 15씩 · 3일치까지), 석청 바위는 <b>20시간마다</b> 다시 차요<br>· 장소별 첫 낚시 선물은 마을 일 선물로 옮겼어요<br>'+
  '<div class="wishc" style="margin-top:8px">📋 <b>메뉴 → 오늘</b> (또는 오른쪽 위 🔹🌰🎫)에서 언제든 확인해요</div></div>';
 function openCurGuide(){Snd.sfx('page');openSheet('📦 재화 · 숙제 정리 안내',CUR_GUIDE)}
-setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.cur2)return;if(ONLINE&&!Net.me)return;S.cur2=1;S.upd1109=1;S.upd1109b=1;saveState(true);openCurGuide()},2500);
+setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.cur2)return;if(ONLINE&&!Net.me)return;S.cur2=1;S.upd1109=1;S.upd1109b=1;S.upd1109c=1;saveState(true);openCurGuide()},2500);
 /* 2026-11-09 업데이트 안내 (짧게) */
 const UPD1109='<div class="upd">'+
  '<div class="updh">🪤 통발이 바뀌었어요</div><ul><li>낚시터 물가에 직접 놓아요. 물가에서 오른쪽 아래 <b>바꾸기 → 통발 놓기</b></li><li>남의 통발도 다가가서 들여다보고 한마디 남길 수 있어요</li><li>새 <b>갯것 40종</b>은 통발로만 잡히고 <b>손맛 도감</b>에 들어가요</li><li>치장 상점 「통발」 탭에 통발 치장이 생겼어요</li><li>예전 통발에 모여 있던 물고기는 자동으로 받았어요</li></ul>'+
  '<div class="updh">화면</div><ul><li>오른쪽 위 미니맵 (✕로 끄고, 메뉴에서 다시 켜요)</li><li>오른쪽 아래 버튼이 하는 일마다 색이 달라요. 무엇을 할지 바닥에 표시돼요</li><li>알림이 나뉘어요: 마을 소식은 위쪽 띠, 친구 일은 왼쪽 카드, 놓친 건 메뉴 → 소식함</li><li>교환소 · 수족관에서 물고기를 이름 · 등급으로 찾고 정렬해요</li><li>10만 골드 넘는 물건은 한 번 더 물어봐요</li></ul>'+
  '<div class="updh">바뀐 규칙</div><ul><li>하루가 20분으로 길어지고 노을도 길어졌어요. 날씨도 20분마다</li><li>배낚시는 3명부터 출항 · 기다리는 동안 배 위에서 낚시 가능</li><li>먹는 버프는 없앴어요 (과일 · 요리는 팔거나 재료로)</li><li>전설 · 반짝 물고기 값이 크게 올랐어요</li><li>안전 강화는 +17부터 골드가 많이 들어요</li><li>펫 간식 · 장난감은 하루 5번까지</li><li>안개 섬 부두의 물결호에서 섬 장비 · 방수 등불을 올려요</li></ul></div>';
+const UPD1109C='<div class="upd"><div class="updh">3차 첫 번째</div><ul><li><b>가방</b>: 위에 장착 칸이 생겼어요. 칸을 누르면 그 종류만 골라 입어요. 물고기는 칸으로 보여요</li><li><b>배낚시 보스</b>: 연타 대신 리듬! 물고기가 링에 닿을 때 톡. 모두 각자 14번 이상 맞혀야 잡혀요 · 놓치면 모두에게 보여요</li><li><b>배낚시 결과판</b>: 누가 몇 마리 · 몇 번 놓쳤는지 · 얼마 벌었는지 모두에게 · MVP는 강화권 +2</li><li>배낚시 보상이 크게 늘었어요 (최대 300만 골드 + 보스마다 50만)</li></ul></div>';
+setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.upd1109c||!S.upd1109b)return;if(ONLINE&&!Net.me)return;S.upd1109c=1;saveState(true);Snd.sfx('page');openSheet('3차 업데이트 ①',UPD1109C)},4000);
 const UPD1109B='<div class="upd">'+
  '<div class="updh">새로 생긴 것</div><ul><li><b>분양센터</b> (메뉴): 고양이 · 강아지를 데려와 이름을 지어요. 켜 둔 시간만큼 1~99레벨로 자라고 행운 · 판매가가 올라요</li><li><b>오늘의 낚시왕</b>: 오늘 직접 낚은 마릿수 (반짝 50 · 신화 100) · 자정에 1등 1천만 골드</li><li><b>월척 왕</b>(파란 이름표) · <b>반짝 왕</b>(무지개 이름표)</li><li><b>함께 낚시</b>: 5칸 안에 친구가 있으면 행운 +10~20% · 발밑에 민트빛 오라</li><li>낚싯대 <b>+20</b>: 자동 낚시 체크</li><li>걸어두기에도 <b>신화</b>가 걸려요. 귀한 게 걸리면 절전 화면 색이 바뀌어요</li><li>반짝을 낚으면 모두에게 크게 알려요</li><li>메뉴 → <b>운영자에게 쓰기</b> (의견 · 잘못 산 치장 환불)</li></ul>'+
  '<div class="updh">바뀐 것</div><ul><li>꽃이 비싸게 팔리고, 가끔 꽃 대박</li><li>켜 둔 보상 강화권 하루 최대 30장</li><li>던질 때 휘익 하는 모션</li><li>왼쪽에 오늘의 마을 일 알림판 (메뉴에서 끄기)</li><li>동물 친구 직업은 반려동물 효과 1.5배</li></ul><div class="muted" style="font-size:12px;margin-top:8px">숨겨진 보상도 몇 개 있대요…</div></div>';
@@ -7790,7 +7857,7 @@ function routeNews(t){const s=String(t||'');if(!s)return;if(/ 님/.test(s)&&!isM
 
 /* ===== 🎣 하루 낚시왕 (2026-11-09): 오늘 직접 낚은 마릿수 (반짝 50 · 신화 100) · 자정에 1등 1천만 골드 · 왼쪽 위 작은 판 (메뉴에서 끄기) ===== */
 let DAYK=null;
-function dkTick(){let el=$('dkpill');const vis=!!P&&$('title').hidden&&!uiOpen&&ONLINE&&Net.me&&DAYK&&!S.dkOff&&!ECO.on;
+function dkTick(){let el=$('dkpill');const vis=!!P&&$('title').hidden&&!uiOpen&&ONLINE&&Net.me&&DAYK&&!S.dkOff&&!ECO.on&&!inSea();
   if(!el){if(!vis)return;el=document.createElement('button');el.id='dkpill';el.onclick=()=>openDayK();document.body.appendChild(el)}
   el.hidden=!vis;if(!vis)return;const l=DAYK.list||[],me=l.findIndex(x=>x.name===Net.me.name),top=l[0];
   const t=top?'🎣 1위 '+esc(top.name)+' <b>'+fmt(top.n)+'</b>'+(me>0?' · 나 '+(me+1)+'위 <b>'+fmt(l[me].n)+'</b>':me===0?' (나!)':''):'🎣 오늘의 낚시왕 · 아직 아무도';if(el.dataset.k!==t){el.dataset.k=t;el.innerHTML=t}}
