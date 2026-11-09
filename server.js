@@ -1029,8 +1029,11 @@ function onMsg(ws, me, m) {
       const cos = st === 2 ? giveCos(s, [N[3]]) : []; queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: N[st] }, '💝 부탁을 들어준 답례'); send(ws, { t: 'npc_ok', cos });
       if (st === 2) broadcast({ t: 'news', text: '💝 ' + me.name + ' 님이 ' + ({ grand: '파도 할멈', sugar: '디저트 요정 슈가', sobok: '소복옹' }[m.id]) + '의 마지막 부탁까지 들어줬어요!' });
     }); break;
-    case 'hunt_buy': case 'hunt_kill': case 'hunt_pot': case 'hunt_die': withLock(me.key, async () => {   // ⚔️ 사냥터 (3차-4): 장비는 은비랜드 칩으로만 · 처치하면 칩 · 아주 가끔 상점에 없는 것
+    case 'hunt_buy': case 'hunt_kill': case 'hunt_pot': case 'hunt_die': case 'hunt_eq': case 'hunt_ex': withLock(me.key, async () => {   // ⚔️ 사냥터 (3차-4): 장비는 은비랜드 칩으로만 · 처치하면 칩 · 아주 가끔 상점에 없는 것
       const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); const e = ebOf(s);
+      h.inv = Array.isArray(h.inv) ? h.inv : [];
+      if (m.t === 'hunt_eq') { const i = m.i | 0, it = h.inv[i]; if (!it) return; if (it.t === 'w') h.eqw = h.eqw === i ? null : i; else h.eqa = h.eqa === i ? null : i; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c }); }
+      if (m.t === 'hunt_ex') { if ((h.dr | 0) < 20) return; h.dr -= 20; queueSave(me.key, s); await giveTk(me.key, 1, '💤 꿈조각 20개 → 낚시 강화권 1장'); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '강화권 1장으로 바꿨어요!' }); }
       if (m.t === 'hunt_pot') { if ((h.pot | 0) > 0) { h.pot--; queueSave(me.key, s); } return; }
       if (m.t === 'hunt_die') { const lost = Math.floor((e.c | 0) * .03); e.c -= lost; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c }); }
       if (m.t === 'hunt_buy' && m.k === 'pot') { if ((e.c | 0) < HPOT_PRICE) return send(ws, { t: 'news', text: '칩이 모자라요' }); e.c -= HPOT_PRICE; h.pot = (h.pot | 0) + 10; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '회복약 10개!' }); }
@@ -1046,7 +1049,12 @@ function onMsg(ws, me, m) {
       if (!own.includes('t_hunt1') && Math.random() < .004) got.push(...giveCos(s, ['t_hunt1']));
       if (r >= 4 && !own.includes('t_hunt2') && Math.random() < .05) got.push(...giveCos(s, ['t_hunt2']));
       if (got.some(x => x.startsWith('t_'))) send(ws, { t: 'cos_got', ids: got.filter(x => x.startsWith('t_')) });
-      queueSave(me.key, s); send(ws, { t: 'hunt', hunt: h, c: e.c, gain: c, drop: got });
+      h.dr = (h.dr | 0) + [1, 1, 2, 3, 5][r] * (bo ? 10 : el ? 2 : 1);
+      let item = null; if (Math.random() < (bo ? 1 : el ? .3 : .05 + r * .02)) { const gw = bo ? [10, 30, 35, 18, 7] : [60, 25, 10, 4, 1]; let x = Math.random() * 100, g = 0; for (; g < 4; g++) { x -= gw[g]; if (x <= 0) break; }
+        const isW = Math.random() < .6; item = { t: isW ? 'w' : 'a', g, b: [1, 2, 3, 5, 8][g] + Math.floor(tier / 2), wt: isW ? ['ham', 'net', 'gun', 'wand'][(Math.random() * 4) | 0] : undefined };
+        h.inv.push(item); if (h.inv.length > 30) { let lo = 0; h.inv.forEach((x2, i2) => { if (i2 !== h.eqw && i2 !== h.eqa && x2.b < h.inv[lo].b) lo = i2; }); h.inv.splice(lo, 1); if (h.eqw > lo) h.eqw--; if (h.eqa > lo) h.eqa--; }
+        if (g >= 4) broadcast({ t: 'news', text: '🎁 ' + me.name + ' 님이 꿈방울에서 전설 ' + (isW ? '무기' : '갑옷') + '을(를) 주웠어요!' }); }
+      queueSave(me.key, s); send(ws, { t: 'hunt', hunt: h, c: e.c, gain: c, drop: got, item });
     }); break;
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
     /* ----- 은비랜드 ----- */
