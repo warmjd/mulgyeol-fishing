@@ -6621,9 +6621,14 @@ const GRP={n:0,ids:[]};const groupLuck=()=>GRP.n>=3?.2:GRP.n===2?.15:GRP.n===1?.
 function groupTick(){if(!P||!ONLINE||!Net.me){if(GRP.n){GRP.n=0;GRP.ids=[];recalc()}return}const ids=[];others.forEach(o=>{if(o.seen&&Math.hypot(o.x-P.x,o.y-P.y)<=5*TS)ids.push(o.id)});
   const n=Math.min(3,ids.length);GRP.ids=ids;if(n!==GRP.n){const was=GRP.n;GRP.n=n;recalc();if(n>was&&n>0)toast('함께 낚시! 행운 +'+Math.round(groupLuck()*100)+'%')}}
 setInterval(groupTick,1000);
-function drawGroupAura(){if(!GRP.n)return;const p=.5+.5*Math.sin(wt*3),pts=[[P.x,P.y]];GRP.ids.forEach(id=>{const o=others.get(id);if(o)pts.push([o.x,o.y])});
-  cx.save();pts.forEach(([x,y])=>{cx.strokeStyle='rgba(120,230,200,'+(.45+.35*p)+')';cx.lineWidth=1.5;cx.beginPath();cx.ellipse(Math.round(x),Math.round(y)-1,13+p*2,(13+p*2)*.42,0,0,6.28);cx.stroke();
-    if(Math.random()<.25)parts.push({x:x+(Math.random()-.5)*20,y:y-2,vx:0,vy:-12,life:.9,t:0,c:'#b8f5e0',g:0,s:1})});cx.restore()}
+function drawGroupAura(){if(!GRP.n)return;const p=.5+.5*Math.sin(wt*3),col=GRP.n>=3?[255,214,90]:GRP.n===2?[150,200,255]:[110,235,200],C=a=>'rgba('+col[0]+','+col[1]+','+col[2]+','+a+')';
+  const me=[P.x,P.y-9],pts=[];GRP.ids.forEach(id=>{const o=others.get(id);if(o)pts.push([o.x,o.y-9])});cx.save();cx.globalCompositeOperation='lighter';
+  [[P.x,P.y]].concat(pts.map(q=>[q[0],q[1]+9])).forEach(([x,y])=>{cx.strokeStyle=C(.55+.35*p);cx.lineWidth=2;cx.beginPath();cx.ellipse(Math.round(x),Math.round(y)-1,12+p*2,(12+p*2)*.42,0,0,6.28);cx.stroke()});
+  cx.globalCompositeOperation='source-over';pts.forEach((q,k)=>{const dx=q[0]-me[0],dy=q[1]-me[1],L=Math.max(1,Math.hypot(dx,dy)),nx=-dy/L,ny=dx/L,N=Math.max(8,L/4|0);
+    for(let s2=0;s2<3;s2++){cx.strokeStyle=s2===0?C(.35):s2===1?'rgb('+(col[0]*.8|0)+','+(col[1]*.85|0)+','+(col[2]*.9|0)+')':'rgba(255,255,255,.95)';cx.lineWidth=s2===0?5:s2===1?2.2:.9;cx.beginPath();for(let i2=0;i2<=N;i2++){const t=i2/N,amp=Math.sin(t*Math.PI)*(4+2*p),w=Math.sin(t*10-wt*6+k)*amp*(s2?.4:1);const x=me[0]+dx*t+nx*w,y=me[1]+dy*t+ny*w-Math.sin(t*Math.PI)*6;i2?cx.lineTo(x,y):cx.moveTo(x,y)}cx.stroke()}
+    for(let m=0;m<3;m++){const t=((wt*.6+m/3+k*.17)%1),x=me[0]+dx*t+nx*Math.sin(t*10-wt*6+k)*Math.sin(t*Math.PI)*4,y=me[1]+dy*t-Math.sin(t*Math.PI)*6;const g=cx.createRadialGradient(x,y,0,x,y,5);g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(1,C(0));cx.fillStyle=g;cx.fillRect(x-5,y-5,10,10)}
+    if(Math.random()<.12)parts.push({x:me[0]+dx*.5,y:me[1]+dy*.5-8,vx:(Math.random()-.5)*8,vy:-14,life:1,t:0,heart:true,c:'#ff9ac0',g:0,s:1})});
+  cx.globalCompositeOperation='source-over';const q0=pts[0]||[P.x,P.y-9],lx=(me[0]+q0[0])/2,ly=(me[1]+q0[1])/2-14;const txt='🤝 함께 +'+Math.round(groupLuck()*100)+'%';cx.font='bold 8px sans-serif';cx.textAlign='center';cx.lineWidth=3;cx.strokeStyle='rgba(255,255,255,.95)';cx.strokeText(txt,lx,ly+Math.sin(wt*2)*1);cx.fillStyle='rgb('+(col[0]*.55|0)+','+(col[1]*.6|0)+','+(col[2]*.6|0)+')';cx.fillText(txt,lx,ly+Math.sin(wt*2)*1);cx.restore()}
 /* ===== 미니맵 (2026-11-09): 작은 레이더 · 사람마다 고유 색 · 내 통발 ===== */
 const MMAP={base:null,t:0,lbl:0};
 const nameHue=n=>{let h=0;for(const c of String(n||''))h=(h*131+c.codePointAt(0))>>>0;return h%360};
