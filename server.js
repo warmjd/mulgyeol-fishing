@@ -1052,7 +1052,7 @@ function onMsg(ws, me, m) {
         e.c -= c; h[k] = nx; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '장비를 샀어요!' });
       }
       const now = Date.now(); if (now - (me.hkT || 0) < 250) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(10, m.t | 0)), red = !!m.red;
-      const el = !!m.el, bo = !!m.boss; const RS = rpgSum(h); let c = Math.round([100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100)); e.c = (e.c | 0) + c; const got = [];
+      const el = !!m.el, bo = !!m.boss; const RS = rpgSum(h); let c = Math.round([100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100)); e.c = (e.c | 0) + c; const got = []; if (Math.random() < (bo ? .35 : el ? .06 : .012)) { h.sc = (h.sc | 0) + 1; got.push('sc'); } if (bo && Math.random() < .06) { h.bsc = (h.bsc | 0) + 1; got.push('bsc'); } 
       if (!h.sw && r >= 2 && Math.random() < (bo ? .05 : .003 * (r + 1))) { h.sw = 1; got.push('sw'); broadcast({ t: 'news', text: '⚔️✨ ' + me.name + ' 님이 사냥터에서 「전설의 낚싯바늘 검」을 주웠어요!! (상점에 없어요)' }); }
       const own = (s.cos && s.cos.own) || [];
       if (!own.includes('t_hunt1') && Math.random() < .004) got.push(...giveCos(s, ['t_hunt1']));
@@ -1618,7 +1618,7 @@ const EB = {
 };
 let ebJP = EB.JP_BASE;
 /* 사냥 장비 칩 값 (index.html HUNT_PRICE와 같아요) */
-const HUNT_PRICE = { w: [0, 5e5, 1.2e6, 2.5e6, 5e6, 1e7, 2e7, 4e7, 8e7, 1.5e8], a: [0, 5e5, 1.2e6, 2.5e6, 5e6, 1e7, 2e7, 4e7, 8e7, 1.5e8], b: [0, 1e6, 3e6, 8e6, 2e7, 5e7] }, HPOT_PRICE = 3e5;   // 2026-11-09: 사냥은 최상위 콘텐츠 (첫 단계 50만 칩부터)
+const HUNT_PRICE = { w: [0, 3e5, 8e5, 1.5e6, 3e6, 6e6, 1.2e7, 2.5e7, 5e7, 1e8], a: [0, 3e5, 8e5, 1.5e6, 3e6, 6e6, 1.2e7, 2.5e7, 5e7, 1e8], b: [0, 8e5, 2.5e6, 6e6, 1.5e7, 4e7] }, HPOT_PRICE = 3e5;   // 2026-11-09: 사냥은 최상위 콘텐츠 (첫 단계 50만 칩부터)
 const ebOf = s => { const e = s.eb && typeof s.eb === 'object' ? s.eb : (s.eb = { c: 0, d: '', buy: 0, wag: 0, best: 0, vd: '' }); if (e.d !== kstDay()) { e.d = kstDay(); e.buy = 0; e.loss = 0; e.cons = 0; } return e; };
 /* 크게 잃은 날을 위한 마음 쓰기: 오늘 순손실 5,000칩마다 은비가 10%를 위로 칩으로 돌려주고, 30,000칩을 잃으면 그날은 쉬어 가요 */
 const EB_CONS = 5000, EB_LOSS_CAP = Infinity;   // 2026-11-09: 하루 룰렛 한도 없음
