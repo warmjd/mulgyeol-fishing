@@ -4100,7 +4100,17 @@ function boatGo(b){Snd.sfx('sail');const go=()=>{if(b.to==='jeju'){forceTp(78*TS
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-boatgo]');if(!t)return;e.stopPropagation();closeSheet();const b=BOATS[+t.dataset.boatgo];S.dwStory=1;sailFx(b);setTimeout(()=>boatGo(b),300)},true);
 function sailFx(b){b.leave=wt;for(let i=0;i<24;i++)parts.push({x:b.x+(Math.random()-.5)*40,y:b.y+6,vx:(Math.random()-.5)*30,vy:-10-Math.random()*16,life:.8,t:0,c:'rgba(255,255,255,.9)',g:60,s:2})}
 /* ✨ 화면 밀도: 물결 반짝임 · 흘러가는 구름 그림자 */
-function ambDraw(){if(!P||HUNT.on)return;const x0=Math.max(0,((P.x-VW/2)/TS|0)-1),x1=Math.min(MW-1,((P.x+VW/2)/TS|0)+1),y0=Math.max(0,((P.y-VH/2)/TS|0)-1),y1=Math.min(MH-1,((P.y+VH/2)/TS|0)+1);
+/* 🌬️ 바람: 가끔 돌풍이 불면 꽃 · 갈대가 한쪽으로 쏠리고 꽃잎이 날려요 */
+const WIND={g:0,next:20+Math.random()*30};
+function windAt(x,y){return Math.round(Math.sin(wt*1.6+x*.45+y*.3)*(.5+WIND.g*1.2)+WIND.g*1.5)}
+function windTick(dt){WIND.next-=dt;if(WIND.next<=0&&WIND.g<=0){WIND.next=25+Math.random()*40;WIND.t=0}if(WIND.t!==undefined){WIND.t+=dt;WIND.g=Math.max(0,Math.sin(Math.min(1,WIND.t/4)*Math.PI));if(WIND.t>4){WIND.t=undefined;WIND.g=0}
+  if(P&&!HUNT.on&&Math.random()<dt*14*WIND.g)parts.push({x:P.x-VW/2-10,y:P.y-VH/2+Math.random()*VH,vx:60+Math.random()*50,vy:(Math.random()-.5)*10,life:4,t:0,c:onWinter()?'#ffffff':onDessert()?['#ffb0d0','#fff0a0'][(Math.random()*2)|0]:['#ffc0d0','#ffffff','#b8e090'][(Math.random()*3)|0],g:0,s:Math.random()<.5?2:1})}}
+let WET=0;const PUD=[];
+function ambDraw(){if(!P||HUNT.on)return;windTick(FXDT||.016);const rainy=weatherNow()==='rain';WET=Math.max(0,Math.min(1,WET+(rainy?.02:-.004)*((FXDT||.016)*10)));const x0=Math.max(0,((P.x-VW/2)/TS|0)-1),x1=Math.min(MW-1,((P.x+VW/2)/TS|0)+1),y0=Math.max(0,((P.y-VH/2)/TS|0)-1),y1=Math.min(MH-1,((P.y+VH/2)/TS|0)+1);
+  if(WET>0){for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const t=W.T[y][x];if(t!=='p'&&t!=='g'||W.SOL[y][x])continue;const h=(x*92837111^y*689287499)>>>0;if(h%(t==='p'?6:23))continue;const px0=x*TS+8+(h>>3)%5-2,py0=y*TS+9+(h>>6)%4,rw=(4+(h>>9)%4)*WET,rh=rw*.42;
+    cx.fillStyle='rgba(110,150,190,'+(.45*WET)+')';cx.beginPath();cx.ellipse(px0,py0,rw,rh,0,0,6.28);cx.fill();cx.fillStyle='rgba(255,255,255,'+(.35*WET)+')';cx.fillRect(px0-rw*.4,py0-rh*.3,rw*.5,1);
+    if(rainy){const k=(wt*1.3+(h%100)/37)%1;cx.strokeStyle='rgba(255,255,255,'+(.6*(1-k)*WET)+')';cx.lineWidth=.6;cx.beginPath();cx.ellipse(px0+((h>>4)%3)-1,py0,1+k*rw*.7,(1+k*rw*.7)*.42,0,0,6.28);cx.stroke()}
+    if(Math.abs(P.x-px0)<rw&&Math.abs(P.y-py0)<4&&(inp.x||inp.y)&&Math.random()<.3){parts.push({x:P.x+(Math.random()-.5)*6,y:py0,vx:(Math.random()-.5)*30,vy:-20-Math.random()*15,life:.4,t:0,c:'rgba(200,225,250,.9)',g:120,s:1});if(Math.random()<.05)Snd.sfx('drip')}}}
   for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){if(W.T[y][x]!=='w')continue;const h=(x*73856093^y*19349663)>>>0,ph=(wt*.9+(h%1000)/160)%6;if(ph>1.2)continue;const a=Math.sin(ph/1.2*Math.PI);cx.fillStyle='rgba(255,255,255,'+(a*.75)+')';const gx=x*TS+(h%11)+2,gy=y*TS+((h>>4)%11)+2;cx.fillRect(gx,gy,3+((h>>8)%3),1);if(a>.7)cx.fillRect(gx+1,gy-1,1,1)}
 }
 /* 🏠 집이 살아 있어요: 굴뚝 연기 · 저녁엔 창문 불빛 */
@@ -4634,7 +4644,8 @@ function drawPet(a){
   const hop=a.react>0?Math.round(Math.abs(Math.sin(a.react*11))*4):0;
   cx.drawImage(img,Math.round(a.x-img.width/2)+sk,Math.round(a.y-img.height)-(sk?Math.abs(sk):0)-hop);
   if(a.p.id==='ruby')drawWishBubble(a,img);
-  if(a.state==='sleep'&&((wt*1.2)|0)%2===0){cx.fillStyle='rgba(150,140,230,.9)';cx.fillRect(Math.round(a.x+img.width/2-2),Math.round(a.y-img.height-3),3,1);cx.fillRect(Math.round(a.x+img.width/2-1),Math.round(a.y-img.height-4),1,1)}
+  if(a.state==='sleep'){const ph=(wt*.7+a.x*.01)%1;[0,.5].forEach(o=>{const k=(ph+o)%1;cx.globalAlpha=Math.sin(k*Math.PI)*.9;cx.fillStyle='#8a80d8';cx.font='bold '+(5+k*3|0)+'px sans-serif';cx.textAlign='left';cx.fillText('z',a.x+img.width/2-2+k*5,a.y-img.height-1-k*9)});cx.globalAlpha=1}
+  else if(a.state!=='walk'&&/cat|kitten/.test(a.p.kind)){if(!a.p._tc){try{const d=img.getContext('2d').getImageData(img.width>>1,img.height-4,1,1).data;a.p._tc='rgb('+d[0]+','+d[1]+','+d[2]+')'}catch(e){a.p._tc='#d8873e'}}const tx=Math.round(a.x-(L?-1:1)*(img.width/2-1)),ty=Math.round(a.y-3),sw=Math.sin(wt*(a.p.sleepy>.2?2:4)+a.x)*2;cx.fillStyle=a.p._tc;cx.fillRect(tx,ty-1,1,2);cx.fillRect(tx+(L?1:-1),ty-3,1,2);cx.fillRect(tx+(L?1:-1)+Math.round(sw*.5),ty-5,1,2);cx.fillRect(tx+(L?2:-2)+Math.round(sw),ty-6,1,1)}
 }
 function nearPet(){let best=null,bd=20;pets.forEach(a=>{const d=Math.hypot(a.x-P.x,a.y-(P.y-2));if(d<bd){bd=d;best=a}});return best}
 /* 쓰다듬기: 10분에 한 번 친해져요. 아주 친해지면 칭호 */
@@ -6375,8 +6386,8 @@ function render(dt){
   W.fences.forEach(f=>{if(f.x>=x0-1&&f.x<=x1+1&&f.y>=y0-1&&f.y<=y1+1)drawables.push({y:f.y*TS+14,fn:()=>cx.drawImage(f.k==='h'?SP.fenceH:SP.fenceV,f.x*TS,f.y*TS)})});
   W.gates.forEach(g=>{const open=hasZone(g.zone);drawables.push({y:g.y*TS+14,fn:()=>{if(g.zone===4){if(!open)cx.drawImage(SP.gateC,g.x*TS,g.y*TS)}else cx.drawImage(open?SP.gateO:SP.gateC,g.x*TS,g.y*TS)}})});
   W.deco.forEach(d=>{if(d.k==='lily')return;if(d.x<x0-1||d.x>x1+1||d.y<y0-1||d.y>y1+1)return;
-    if(d.k==='flower')drawables.push({y:d.y*TS+1,fn:()=>cx.drawImage(SP.flower[d.c][d.v],d.x*TS,d.y*TS)});
-    else drawables.push({y:d.y*TS+12,fn:()=>cx.drawImage(SP.reed[d.v],d.x*TS+Math.round(Math.sin(wt*1.5+d.x)*.8),d.y*TS)})});
+    if(d.k==='flower')drawables.push({y:d.y*TS+1,fn:()=>{const im=SP.flower[d.c][d.v],o=windAt(d.x,d.y);if(!o){cx.drawImage(im,d.x*TS,d.y*TS);return}cx.drawImage(im,0,9,16,7,d.x*TS,d.y*TS+9,16,7);cx.drawImage(im,0,4,16,5,d.x*TS+Math.round(o*.5),d.y*TS+4,16,5);cx.drawImage(im,0,0,16,4,d.x*TS+o,d.y*TS,16,4)}});
+    else drawables.push({y:d.y*TS+12,fn:()=>cx.drawImage(SP.reed[d.v],d.x*TS+Math.round(Math.sin(wt*1.5+d.x)*.8)+windAt(d.x,d.y),d.y*TS)})});
   if(shaking){shaking.time+=dt;if(shaking.time>.6)shaking=null}
   W.trees.forEach(t=>{if(t.x>=x0-2&&t.x<=x1+2&&t.y>=y0-2&&t.y<=y1+3){if(treeCut(t)){drawables.push({y:t.y*TS+15,fn:()=>{cx.fillStyle='#7a5636';cx.fillRect(t.x*TS+4,t.y*TS+9,8,5);cx.fillStyle='#c89a6a';cx.beginPath();cx.ellipse(t.x*TS+8,t.y*TS+9,4,1.6,0,0,6.28);cx.fill()}});return}const s=treeSpr(t),wob=shaking&&shaking.t===t?Math.round(Math.sin(shaking.time*40)*1.5):0;drawables.push({y:t.y*TS+15,fn:()=>cx.drawImage(s,t.x*TS+8-13+wob,t.y*TS+16-33)})}});
   drawFishBoat(drawables);
