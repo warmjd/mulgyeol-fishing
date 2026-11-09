@@ -8296,7 +8296,7 @@ function setTag(a,name,ti,e){
   const kg=isKingName(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name);
   const nmK=a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name,wk=isXKing('gt',nmK),sk=isXKing('sh',nmK);
   {const tf=a===ME?S.cos.look.tf:(a.look&&a.look.tf);a.tag.className='ntag'+(tf?' '+tf:'')+(kg?' king':sk?' sking':wk?' wking':'')}
-  a.tag.innerHTML=((kg||sk||wk)?'<span class="kgs" title="'+[kg?'손맛 왕':'',sk?'반짝 왕':'',wk?'월척 왕':''].filter(Boolean).join(' · ')+'">'+(kg?'👑':'')+(sk?'✨':'')+(wk?'🌊':'')+'</span>':'')+(t?'<span class="ti">「'+esc(t.name)+'」</span>':'')+jb+esc(name||'')+(e>0?'<span class="en'+(e>=30?' e30':e>=21?' e21':'')+'">+'+e+'</span>':'')+(st?'<span class="st">'+esc(st)+'</span>':'');a.tagOn=!!(name||t||e>0||jb||st);a.tagH=0;
+  a.tag.innerHTML=(t?'<span class="ti">「'+esc(t.name)+'」</span>':'')+((kg||sk||wk)?'<span class="kgs" title="'+[kg?'손맛 왕':'',sk?'반짝 왕':'',wk?'월척 왕':''].filter(Boolean).join(' · ')+'">'+(kg?'👑':'')+(sk?'✨':'')+(wk?'🌊':'')+'</span>':'')+jb+esc(name||'')+(e>0?'<span class="en'+(e>=30?' e30':e>=21?' e21':'')+'">+'+e+'</span>':'')+(st?'<span class="st">'+esc(st)+'</span>':'');a.tagOn=!!(name||t||e>0||jb||st);a.tagH=0;
 }
 function showSay(a,text){
   if(a.bub)a.bub.remove();const el=document.createElement('div');el.className='bub';el.textContent=text;$('tags').appendChild(el);
