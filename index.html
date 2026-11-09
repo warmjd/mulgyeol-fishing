@@ -133,6 +133,7 @@ button:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
 .sr.s1.on{background:#eef6ff;border-color:#b8d8f4}.sr.s2.on{background:#fff1e6;border-color:#ffc89a}.sr.s3.on{background:#fffbe6;border-color:#ffe28a}
 .shb-top{background:#fffbe6;border:2px solid #ffe28a;border-radius:12px;padding:8px 10px;font-size:12px;margin-bottom:8px}.shrow{background:linear-gradient(90deg,#fffbe6,#fff)}
 .bub .vr{font-style:normal;display:inline-block;background:linear-gradient(90deg,#ffd34d,#ffb36b);color:#5a3a00;border-radius:8px;padding:1px 8px;font-size:12px;font-weight:700;margin-bottom:2px;animation:pop .4s cubic-bezier(.2,1.5,.4,1)}
+.inp{border:2px solid #e6dcef;border-radius:12px;padding:9px 11px;font:inherit;font-size:14px;background:#fff;color:var(--ink);box-sizing:border-box;outline:none}.inp:focus{border-color:#ffb0cc}
 #skb{position:fixed;left:calc(14px + env(safe-area-inset-left));bottom:calc(258px + env(safe-area-inset-bottom));z-index:12;display:flex;flex-direction:row;gap:6px;touch-action:none}#skb.drag{outline:2px dashed #fff;outline-offset:4px;border-radius:30px}
 #skb button{width:48px;height:48px;border-radius:50%;border:3px solid #fff;background:#fff6e0;box-shadow:0 3px 0 rgba(120,100,170,.25);display:grid;place-items:center;padding:0;font:inherit;line-height:1}
 #skb button i{font-style:normal;font-size:19px}#skb button small{font-size:8px;color:var(--ink-soft);margin-top:-6px}
@@ -2321,6 +2322,8 @@ const COS=[
  {id:'tee',k:'outfit',name:'기본 티셔츠',price:0},{id:'stripe',k:'outfit',name:'줄무늬 티',price:600},{id:'apron',k:'outfit',name:'카페 앞치마',price:1200},
  {id:'overall',k:'outfit',name:'멜빵바지',price:1500},{id:'raincoat',k:'outfit',name:'노란 우비',price:2500},{id:'hoodie',k:'outfit',name:'후드 티',price:3000},
  {id:'star',k:'outfit',name:'별무늬 티',price:6000},{id:'suit',k:'outfit',name:'멋쟁이 정장',price:20000},
+ {id:'o_tux',k:'outfit',name:'💒 예식 턱시도',price:500000},{id:'o_wdress',k:'outfit',name:'💒 순백 웨딩드레스',price:500000,fx:'petal'},{id:'h_veil',k:'hat',name:'💒 면사포',price:200000},{id:'h_fcrown',k:'hat',name:'💐 꽃 화관',price:150000},
+ {id:'ring_silver',k:'ring',name:'은빛 결혼반지',price:200000},{id:'ring_pearl',k:'ring',name:'진주 결혼반지',price:800000},{id:'ring_dia',k:'ring',name:'다이아 결혼반지',price:3000000},{id:'ring_star',k:'ring',name:'별빛 결혼반지',price:10000000},{id:'ring_rainbow',k:'ring',name:'무지개 결혼반지',price:30000000},
  {id:'vest',k:'outfit',name:'낚시 조끼',reward:7},{id:'sailor',k:'outfit',name:'세일러복',reward:11},{id:'wave',k:'outfit',name:'파도 무늬 티',reward:15},
  {id:'lotus',k:'hat',name:'연꽃 왕관',zone:1},{id:'pondrobe',k:'outfit',name:'연못 요정 드레스',zone:1,fx:'petal'},
  {id:'leaf',k:'hat',name:'물방울 잎사귀',zone:2},{id:'streamsuit',k:'outfit',name:'시냇물 멜빵',zone:2,fx:'drop'},
@@ -2416,7 +2419,7 @@ COS.push({id:'tp_bamboo',k:'trap',name:'대나무 통발',price:0},{id:'tp_ratta
  {id:'tf_none',k:'tflag',name:'부표 없음',price:0},{id:'tfl_red',k:'tflag',name:'빨간 부표',price:20000},{id:'tfl_stripe',k:'tflag',name:'줄무늬 부표',price:60000},
  {id:'tfl_star',k:'tflag',name:'별 깃발',price:150000},{id:'tfl_heart',k:'tflag',name:'하트 깃발',price:200000},{id:'tfl_lamp',k:'tflag',name:'등불 부표 (밤에 빛나요)',price:400000},{id:'tfl_rainbow',k:'tflag',name:'무지개 깃발',price:700000});
 const COS_BY={};COS.forEach(c=>COS_BY[c.id]=c);
-const COS_KINDS={hat:'모자',outfit:'옷',face:'얼굴',back:'망토 · 날개',dye:'염색',hstyle:'헤어스타일',frame:'이름표 테두리',foot:'발자국',rod:'낚싯대',bob:'찌',title:'칭호'};
+const COS_KINDS={ring:'결혼반지',hat:'모자',outfit:'옷',face:'얼굴',back:'망토 · 날개',dye:'염색',hstyle:'헤어스타일',frame:'이름표 테두리',foot:'발자국',rod:'낚싯대',bob:'찌',title:'칭호'};
 const LOOK_KEY={hat:'hat',outfit:'o',face:'fa',back:'bk',dye:'h',hstyle:'hs',frame:'tf',foot:'ft',rod:'rod',bob:'bob',title:'ti'};
 /* ===== 치장 3.0 (2026-11-05): 명품 찌 · 명품 낚싯대 · 새 옷 · 모자 · 망토 · 헤어 · 시즌 한정 · 신제품 =====
    등급 (메이플 잠재 색처럼): 0 레어(파랑) · 1 에픽(보라) · 2 유니크(노랑) · 3 레전더리(초록) · 4 미스틱(분홍)
@@ -2571,6 +2574,8 @@ function drawHat3(b,dir,id,hair,hairTop){const side=dir==='side',up=dir==='up';
     case'h_snap':{const k=[40,40,50],g=[255,206,84];fillR(b,4,2,8,4,k);fillR(b,5,1,6,1,k);if(side)fillR(b,10,5,4,1,k);else if(!up)fillR(b,3,5,10,1,k);if(!up&&!side){px(b,7,3,g);px(b,8,3,g);px(b,7,2,g)}break}
     case'h_headset':{hairTop();const k=[60,60,72],p=[255,140,190];fillR(b,4,2,8,1,k);if(side){fillR(b,6,6,2,3,p)}else{fillR(b,3,5,1,4,k);fillR(b,12,5,1,4,k);fillR(b,2,6,2,3,p);fillR(b,12,6,2,3,p)}break}
     case'h_maid':{hairTop();const w=[255,255,255],k=[50,44,60];fillR(b,4,3,8,1,w);for(let x=4;x<12;x+=2)px(b,x,2,w);if(!side){px(b,11,3,k);px(b,12,2,k)}break}
+    case'h_veil':{hairTop();const w=[255,255,255],wv=[240,240,250],pk=[255,200,220];fillR(b,4,2,8,1,w);px(b,6,1,pk);px(b,9,1,pk);px(b,7,1,w);px(b,8,1,w);if(up){fillR(b,3,3,10,9,wv);fillR(b,4,12,8,2,wv)}else if(side){fillR(b,3,3,3,10,wv)}else{fillR(b,2,3,2,9,wv);fillR(b,12,3,2,9,wv)}break}
+    case'h_fcrown':{hairTop();const c=[[255,170,200],[255,255,255],[255,230,130],[200,170,255],[150,210,140]];for(let x=3;x<13;x++)px(b,x,3,c[x%5]);px(b,5,2,c[0]);px(b,8,2,c[2]);px(b,11,2,c[3]);break}
     case'h_tophat':{const k=[44,40,52],r=[200,50,70];fillR(b,5,0,6,4,k);fillR(b,5,3,6,1,r);fillR(b,3,4,10,1,k);px(b,6,0,[80,76,90]);break}
     case'h_sheep':{hairTop();const c=[230,210,170],d=[190,160,120];if(side){px(b,6,3,c);px(b,5,2,c);px(b,5,3,d)}else{px(b,3,3,c);px(b,3,2,c);px(b,4,2,d);px(b,12,3,c);px(b,12,2,c);px(b,11,2,d)}break}
     case'h_starpin':{hairTop();const y=[255,220,90];px(b,10,2,y);px(b,9,3,y);px(b,11,3,y);px(b,10,4,y);px(b,10,3,[255,255,220]);if(!side){px(b,5,3,[255,160,200])}break}
@@ -2595,6 +2600,8 @@ function drawOutfit3(b,dir,id,sh,shD,pants){const side=dir==='side',back=dir==='
     case'o_varsity':{const n=[50,60,110],c=[244,236,214],y=[255,206,84];fillR(b,tx,11,tw,5,n);fillR(b,tx,15,tw,1,c);if(!side){fillR(b,3,12,1,4,c);fillR(b,12,12,1,4,c)}if(!back&&!side){px(b,5,12,y);px(b,6,13,y);px(b,5,13,y)}if(back){px(b,7,12,y);px(b,8,12,y);px(b,7,13,y);px(b,8,13,y)}break}
     case'o_leather':{const k=[40,36,44],s=[160,160,176];fillR(b,tx,11,tw,5,k);arms(k);if(!back&&!side){fillR(b,7,11,2,5,sh);px(b,6,12,s);px(b,6,14,s)}fillR(b,tx,15,tw,1,[24,20,28]);break}
     case'o_maid':{const k=[44,40,56],w=[255,255,255];dress(b,dir,k,k,w,tx,tw);if(!back){fillR(b,side?7:6,12,side?3:4,6,w)}break}
+    case'o_tux':{const k=[34,32,44],kd=[22,20,30],w=[255,255,255],r=[40,40,48];fillR(b,tx,11,tw,7,k);fillR(b,tx,17,tw,1,kd);arms(k);if(!back&&!side){fillR(b,7,11,2,5,w);px(b,6,11,r);px(b,9,11,r);px(b,7,11,r);px(b,8,11,r);px(b,7,13,[200,200,210]);px(b,8,15,[200,200,210]);px(b,5,12,[255,190,210])}if(side){px(b,10,11,w);px(b,10,12,w)}break}
+    case'o_wdress':{const w=[255,255,255],wd=[232,228,240],pk=[255,214,228];fillR(b,tx,11,tw,4,w);fillR(b,tx-(side?0:2),15,tw+(side?0:4),4,w);fillR(b,tx-(side?0:2),18,tw+(side?0:4),1,wd);if(!side){px(b,3,12,w);px(b,12,12,w)}if(!back&&!side){px(b,7,11,pk);px(b,8,11,pk);fillR(b,6,14,4,1,wd);px(b,5,16,pk);px(b,10,17,pk);px(b,7,17,pk)}break}
     case'o_butler':{const k=[40,36,48],w=[255,255,255],r=[200,50,70];fillR(b,tx,11,tw,5,k);arms(k);if(!back&&!side){fillR(b,7,11,2,4,w);px(b,7,11,r);px(b,8,11,r)}if(back||side){fillR(b,side?4:6,16,side?2:4,3,k)}break}
     case'o_trench':{const c=[200,150,90],d=[160,110,60],k=[90,60,40];coat(c,d,8);fillR(b,tx,14,tw,1,k);if(!back&&!side){px(b,6,12,k);px(b,9,12,k);px(b,7,11,[230,90,40])}break}
     case'o_santa':{const r=[220,40,50],w=[255,255,255],k=[40,36,48],g=[255,206,84];coat(r,w,7);fillR(b,tx,14,tw,1,k);if(!back&&!side){px(b,7,14,g);px(b,8,14,g);fillR(b,7,11,2,3,w)}break}
@@ -2659,7 +2666,7 @@ const tierOfCos=c=>c&&c.tier!=null?c.tier:-1;
 
 /* 입었는지 · 입기 (염색 · 헤어스타일은 번호로) */
 const cosOn=c=>{const L=S.cos.look;if(c.k==='trap')return trapLook().sk===c.id;if(c.k==='tflag')return trapLook().fl===c.id;return c.k==='dye'?(L.h|0)===c.hc:c.k==='hstyle'?(L.hs|0)===c.hs:L[LOOK_KEY[c.k]]===c.id};
-function wearCos(c,off){if(c.k==='rod'&&!off&&FAR_RODS.indexOf(c.id)>=0)setTimeout(()=>toast('…낚싯줄이 평소보다 아주 멀리 나갈 것 같은 느낌이 들어요'),600);if(c.k==='trap'||c.k==='tflag'){const L=trapLook();if(c.k==='trap')L.sk=off?'tp_bamboo':c.id;else L.fl=off?'tf_none':c.id;S.trapLook=L;saveState();if(ONLINE&&Net.me&&typeof myTrap==='function'&&myTrap())Net.send({t:'trap_skin',sk:L.sk,fl:L.fl});return}if(c.k==='dye')return setLook('h',off?0:c.hc);if(c.k==='hstyle')return setLook('hs',off?0:c.hs);setLook(LOOK_KEY[c.k],off?(c.k==='hat'?'nohat':c.k==='outfit'?'tee':''):c.id);if(c.k==='frame'||c.k==='foot')refreshMe()}
+function wearCos(c,off){if(c.k==='ring'){toast('💍 「'+c.name+'」 · 요정 리본에게 혼인 신고할 때 써요 (북쪽 물결 예식장)');return}if(c.k==='rod'&&!off&&FAR_RODS.indexOf(c.id)>=0)setTimeout(()=>toast('…낚싯줄이 평소보다 아주 멀리 나갈 것 같은 느낌이 들어요'),600);if(c.k==='trap'||c.k==='tflag'){const L=trapLook();if(c.k==='trap')L.sk=off?'tp_bamboo':c.id;else L.fl=off?'tf_none':c.id;S.trapLook=L;saveState();if(ONLINE&&Net.me&&typeof myTrap==='function'&&myTrap())Net.send({t:'trap_skin',sk:L.sk,fl:L.fl});return}if(c.k==='dye')return setLook('h',off?0:c.hc);if(c.k==='hstyle')return setLook('hs',off?0:c.hs);setLook(LOOK_KEY[c.k],off?(c.k==='hat'?'nohat':c.k==='outfit'?'tee':''):c.id);if(c.k==='frame'||c.k==='foot')refreshMe()}
 const EV_HOW={sb5:'반짝 개체 5종 모으기',sb10:'반짝 개체 10종 모으기',sb20:'반짝 개체 20종 모으기',sb30:'반짝 개체 30종 모으기',sh1:'반짝 개체 1종 낚기',sh10:'반짝 개체 10종 모으기',sh30:'반짝 개체 30종 모으기',myth:'신화 물고기 낚기',vf1:'마을 발전 기금에 100만 골드를 기부하면',vf2:'마을 발전 기금에 1,000만 골드를 기부하면',cup:'월척 대회에서 우승하면',bounty:'현상수배 물고기를 처음 낚으면',host:'마을 행사를 5번 열면',auc:'반짝 장터에서 낙찰받으면',jackpot:'은비랜드 잭팟이 터지면'};
 function rewardOf(p){if(PAGE_SEASON[p])return PAGE_SEASON[p].reward;const c=COS.find(c=>c.reward===p);return c?c.id:null}
 function rewardText(c){if(c.price!==undefined)return'';if(c.trust)return'🤝 부탁을 해결해서 모은 신뢰 '+c.trust+'점 (교환소 · 부탁 게시판)';if(c.eb)return'🎰 은비랜드 경품 (칩 '+fmt(c.eb)+')';if(c.med)return'🌰 도토리 상점 (도토리 '+c.med+'개)';if(c.ev)return EV_HOW[c.ev]||'행사 보상';if(c.jr)return c.jr[0]==='any'?'어느 직업이든 명장 등급이 되면':JR[c.jr[1]].n+' '+JOBS[c.jr[0]].name+' 등급이 되면';if(c.sz)return c.sz==='all'?'손맛 도감 여섯 낚시터를 모두 채우면':'「'+ZONES[c.sz-1].name+'」 손맛 도감을 직접 낚은 물고기로 채우면';if(c.enh)return'낚싯대를 +'+c.enh+'까지 강화하면';if(c.pet)return PETS.find(p=>p.id===c.pet).name+' Lv10이 되면';if(c.zone)return'「'+ZONES[c.zone-1].name+'」 '+(c.zone===6?20:40)+'종을 모두 채우면 (걸으면 반짝!)'.replace(' (걸으면 반짝!)',c.fx?' · 걸으면 효과':'');if(c.boatd)return'배낚시 만선 상자에서 '+(c.boatd===2?'아주 낮은':'낮은')+' 확률로';if(c.reward==='all')return'도감 '+MAIN_N+'종을 모두 채우면';if(c.season)return'「'+seasonById(c.season).name+'」 도감을 채우면';return'도감 「'+PAGE_TITLES[c.reward]+'」을 채우면'}
@@ -3119,7 +3126,7 @@ let ST={};
 
 /* 🏆 어디서든 순위 (2026-11-05): 도감 · 은비랜드 · 강화소 · 직업 · 짧게 한 줄 + 은비랜드 최근 대박 기록 */
 const RANKS={},RANK_REQ={},MEDAL=['🥇','🥈','🥉'],EB_GAME={slot:'🎰 슬롯',race:'🐢 경주',hilo:'🃏 하이로우'};
-const rankFmt=(k,v)=>k==='sd'?v+'종':k==='enh'?'+'+v:k==='eb'?fmtK(v)+'칩':k.indexOf('job:')===0?JR[JR.reduce((r,x,i)=>v>=x.x?i:r,0)].n+' '+fmt(v):fmt(v);
+const rankFmt=(k,v)=>k==='sd'||k==='sh'||k==='gt'||k==='dex'?v+'종':k==='hunt'?'Lv'+v:k==='help'?v+'번':k==='enh'?'+'+v:k==='eb'?fmtK(v)+'칩':k.indexOf('job:')===0?JR[JR.reduce((r,x,i)=>v>=x.x?i:r,0)].n+' '+fmt(v):fmt(v);
 function rankNeed(k){if(!ONLINE||!Net.me)return;if(Date.now()-(RANK_REQ[k]||0)>15000){RANK_REQ[k]=Date.now();Net.send({t:'rank_get',k})}}
 function rankStrip(k,title){rankNeed(k);const R=RANKS[k];let h='<div class="rstrip" data-rk="'+k+'" data-t="'+esc(title)+'"><b>'+title+'</b> ';
   if(!ONLINE||!Net.me)return h+'<span class="muted">친구들과 하면 순위가 보여요</span></div>';
@@ -3183,6 +3190,7 @@ const needText=n=>!n?'':[n.lamp?'방수 등불 '+n.lamp+'단계':'',n.rod?'섬 �
 function condOk(f,c){const w=f.when;if(f.isl&&w&&w.w==='fog'&&!lampLv())return false;if(f.need&&!needOk(f.need))return false;if(!w)return true;if(w.td&&w.td!==tideNow())return false;if(w.t&&w.t.split('|').indexOf(c.t)<0)return false;if(w.w&&w.w!==c.w)return false;if(w.s&&w.s!==c.s)return false;return true}
 function condText(f){if(condHidden(f))return'??? (숨은 조건)';const w=f.when;const a=[];if(f.need)a.push(needText(f.need));if(!w)return a.join(' · ');if(w.t)a.push(w.t.split('|').map(k=>TIME_NAME[k]).join('·'));if(w.w)a.push(WX_COND[w.w]);if(w.s)a.push(SPOT_NAME[w.s]);if(w.td)a.push(TIDE_NAME[w.td]+' 때');if(w.gs)a.push(GS_NAME[w.gs]);return a.join(' · ')}
 function rollFish(zone,c){
+  {const wf=wedFish(zone);if(wf)return wf}
   c=c||condNow(null);
   const ev=[];SEASONS.forEach(s=>{if(seasonOn(s))s.ids.forEach(id=>{const f=FISH[id];if(f.zone===zone&&condOk(f,c))ev.push(f)})});
   if(ev.length&&Math.random()<.1)return ev[(Math.random()*ev.length)|0];
@@ -3291,6 +3299,7 @@ function nearAction0(){
   for(const g of W.gates){if(!hasZone(g.zone)&&Math.abs(g.x-tx)+Math.abs(g.y-ty)<=1)return{type:'gate',zone:g.zone,label:'문 열기'}}
   if(P.sit)return{type:'stand',label:'일어나기'};
   if(Math.abs(P.x-(17*TS+8))<14&&Math.abs(P.y-(20*TS+12))<14)return{type:'hunthut',label:'꿈의 문<br>들어가기'};
+  {const xa=wedNear();if(xa)return xa}
   {const cr=critNear();if(cr)return{type:'crit',cr,label:'말<br>걸기'}}
   if(Math.abs(tx-22)<=1&&ty>=13&&ty<=14)return{type:'cattower',label:'캣타워'};
   {const nn=npcNear();if(nn)return{type:'npc',npc:nn,label:npcStep(nn.id)<nn.q.length&&npcWork(nn)?'부탁<br>듣기':'말 걸기'}}
@@ -3750,6 +3759,145 @@ function onHuntMsg(m){if(m.t==='hpos'){if(m.f<0)delete HOTH[m.n];else{const was=
   if(m.item&&HUNT.on){const it=m.item,nm=HG_NAME[it.g]+' '+(it.t==='w'?(HWT[it.wt]||HWT.ham)[0]:HSLOT[it.t][0])+' ('+HSLOT[it.t][1]+' +'+it.b+')';HUNT.loot.push({x:HUNT.lastX||HUNT.x,y:HUNT.lastY||HUNT.y,g:it.g,txt:nm,t:0});if(it.g>=3)Snd.hfx('lv')}if(m.drop&&m.drop.indexOf('sw')>=0){Snd.hfx('drop');showBanner('⚔️✨ 「전설의 낚싯바늘 검」! 공격 +3')}
   if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='사냥터 오두막')openHunt();return true}
 
+/* ===================== 💒 물결 예식장 · 명예의 전당 · 축하 용품 · 길에서 만나는 이야기 (2026-11-09) ===================== */
+const VEN={x0:52,x1:71,y0:1,y1:14},VEN_ALT=[62,3],VEN_FAIRY=[65,4],VEN_BOOK=[58,13],VEN_STAND=[54,12],VEN_PIANO=[56,3],HOF_AT=[23,24];
+const VEN_CHAIRS=[];[6,8,10,12].forEach(y=>{[55,56,57,58,59,65,66,67,68,69].forEach(x=>VEN_CHAIRS.push([x,y]))});
+const VEN_TABLES=[[54,6],[54,9],[70,6],[70,9]];
+const WED_STEPS=[['입장','레드카펫 끝에서 함께 서요',[62,12]],['주례','요정 리본 앞으로 걸어가요',[62,5]],['반지 교환','꽃 아치 아래에서 반지를 나눠요',[62,4]],['축가','피아노 옆에서 축가를 들어요',[57,4]],['피로연','하얀 테이블에서 식사해요',[55,7]],['행진','레드카펫을 따라 행진해요',[62,12]]];
+const WED_LEN=600,WED_STEP=WED_LEN/WED_STEPS.length;
+const CEL_ITEMS=[['fw','🎆','작은 폭죽',10000,'톡! 하고 터지는 작은 불꽃'],['big','🎇','대형 불꽃',60000,'하늘 가득 퍼지는 큰 불꽃'],['sp','✨','반짝이 가루',12000,'주변에 반짝반짝 가루를 뿌려요'],['pt','🌸','꽃잎 비',25000,'꽃잎이 살랑살랑 내려요'],['cf','🎊','색종이 대포',15000,'팡! 알록달록 색종이'],['bub','🫧','비눗방울',8000,'몽글몽글 비눗방울'],['bal','🎈','하트 풍선',20000,'하트 풍선이 둥실 날아가요'],['lan','🏮','소원 등불',40000,'소원을 담은 등불이 하늘로']];
+const CEL_BY={};CEL_ITEMS.forEach(c=>CEL_BY[c[0]]=c);
+let WED={live:null,list:null,me:null,joined:0,pad:{},bookT:0},CFX=[];
+(function(){VEN_CHAIRS.forEach(c=>{});[[VEN_PIANO[0],VEN_PIANO[1]],[VEN_PIANO[0]+1,VEN_PIANO[1]],VEN_BOOK,VEN_STAND,HOF_AT].concat(VEN_TABLES).forEach(p=>{if(W.inb(p[0],p[1]))W.SOL[p[1]][p[0]]=true});[60,64].forEach(x=>{if(W.inb(x,3))W.SOL[3][x]=true})})();
+const inVen=(x,y)=>x>=VEN.x0*TS&&x<=(VEN.x1+3)*TS&&y>=VEN.y0*TS&&y<=(VEN.y1+1)*TS;
+const wedMe=()=>S.mar&&S.mar.p?S.mar:null;
+const wedStep=()=>{const L=WED.live;if(!L)return-1;const s=(Date.now()-L.at)/1000;return s<0||s>=WED_LEN?-1:Math.floor(s/WED_STEP)};
+const amCouple=()=>!!(WED.live&&Net.me&&(WED.live.a===Net.me.name||WED.live.b===Net.me.name));
+function wedFish(zone){if(!WED.live||wedStep()<0||!P||!inVen(P.x,P.y)||Math.random()>.4)return null;if(!wedFish.pool)wedFish.pool=FISH.filter(f=>f&&!f.boss&&/꽃|장미|튤립|벚|라벤더|데이지|해바라기|연꽃|코스모스|백합|국화/.test(f.name));const p=wedFish.pool;if(!p.length)return null;const f=p[(Math.random()*p.length)|0];if(!wedFish.told){wedFish.told=1;showBanner('💐 결혼식 축복으로 꽃물고기가 몰려왔어요!')}return f}
+
+/* ----- 그리기 ----- */
+function wedDrawables(list){if(Math.abs(P.x-62*TS)<VW+200&&Math.abs(P.y-7*TS)<VH+200){
+  list.push({y:-1e6,fn:venGround});
+  VEN_CHAIRS.forEach(c=>list.push({y:c[1]*TS+10,fn:()=>venChair(c[0],c[1])}));
+  VEN_TABLES.forEach(t=>list.push({y:t[1]*TS+12,fn:()=>venTable(t[0],t[1])}));
+  list.push({y:VEN_PIANO[1]*TS+12,fn:venPiano},{y:VEN_ALT[1]*TS+12,fn:venArch},{y:VEN_FAIRY[1]*TS+12,fn:venFairy},{y:VEN_BOOK[1]*TS+12,fn:venBook},{y:VEN_STAND[1]*TS+12,fn:venStand});
+  if(amCouple()){const st=wedStep();if(st>=0){const p=WED_STEPS[st][2];list.push({y:-1e5,fn:()=>venPad(p)})}}}
+  if(Math.abs(P.x-HOF_AT[0]*TS)<VW+100&&Math.abs(P.y-HOF_AT[1]*TS)<VH+100)list.push({y:HOF_AT[1]*TS+12,fn:hofDraw});
+  list.push({y:1e7,fn:celDraw})}
+function venGround(){const live=WED.live&&wedStep()>=0;
+  /* 하얀 무대 */
+  cx.fillStyle='#f6f2ea';cx.fillRect(57*TS,1*TS+8,11*TS,3*TS);cx.fillStyle='#e6dccb';cx.fillRect(57*TS,4*TS+6,11*TS,2);
+  for(let x=57;x<68;x++){cx.fillStyle=(x%2)?'#efe8dc':'#fbf8f2';cx.fillRect(x*TS,1*TS+8,TS,3*TS-2)}
+  /* 카펫 */
+  const cw=TS*1.4,cx0=62*TS+8-cw/2;cx.fillStyle=live?'#d8344e':'#ffffff';cx.fillRect(cx0,4*TS+6,cw,9*TS+4);
+  cx.fillStyle=live?'#f4c04a':'#e8e0f0';cx.fillRect(cx0,4*TS+6,2,9*TS+4);cx.fillRect(cx0+cw-2,4*TS+6,2,9*TS+4);
+  if(live){for(let i=0;i<9;i++){cx.fillStyle='rgba(255,220,230,'+(.25+.2*Math.sin(wt*3+i))+')';cx.fillRect(cx0+4,5*TS+i*TS,cw-8,2)}}
+  /* 꽃 화분 길 */
+  for(let y=5;y<=13;y+=2)[60,64].forEach(x=>{const X=x*TS+8,Y=y*TS+10;cx.fillStyle='#c9a27a';cx.fillRect(X-3,Y-2,6,5);cx.fillStyle=['#ffb0c8','#ffffff','#ffd6e8','#c8b0ff'][(x+y)%4];cx.beginPath();cx.arc(X,Y-5,4,0,6.28);cx.fill();cx.fillStyle='#7cc070';cx.fillRect(X-1,Y-2,2,2)});
+}
+function venChair(x,y){const X=x*TS+8,Y=y*TS+10;cx.fillStyle='#fffdf8';cx.fillRect(X-5,Y-10,10,3);cx.fillRect(X-5,Y-4,10,3);cx.fillStyle='#d8d0c4';cx.fillRect(X-5,Y-1,2,4);cx.fillRect(X+3,Y-1,2,4);cx.fillStyle='#f0e8f4';cx.fillRect(X-5,Y-7,10,3);cx.fillStyle='#ffc8dc';cx.fillRect(X-1,Y-12,3,3)}
+function venTable(x,y){const X=x*TS+8,Y=y*TS+10;cx.fillStyle='rgba(0,0,0,.12)';cx.beginPath();cx.ellipse(X,Y+3,11,3,0,0,6.28);cx.fill();cx.fillStyle='#ffffff';cx.beginPath();cx.ellipse(X,Y-6,11,6,0,0,6.28);cx.fill();cx.fillStyle='#ece6f2';cx.fillRect(X-11,Y-6,22,7);cx.fillStyle='#ffffff';cx.beginPath();cx.ellipse(X,Y-7,11,5,0,0,6.28);cx.fill();
+  if(x<60){cx.fillStyle='#fff4e0';cx.fillRect(X-4,Y-16,8,8);cx.fillStyle='#ffd0e0';cx.fillRect(X-4,Y-13,8,2);cx.fillStyle='#ff6080';cx.fillRect(X-1,Y-18,2,2)}else{cx.fillStyle='#ffe0a0';cx.beginPath();cx.arc(X-4,Y-9,2,0,6.28);cx.arc(X+4,Y-8,2,0,6.28);cx.fill();cx.fillStyle='#c8e8ff';cx.fillRect(X-1,Y-13,2,5)}}
+function venPiano(){const X=VEN_PIANO[0]*TS+16,Y=VEN_PIANO[1]*TS+12;cx.fillStyle='rgba(0,0,0,.15)';cx.beginPath();cx.ellipse(X,Y+2,16,4,0,0,6.28);cx.fill();cx.fillStyle='#2a2630';cx.beginPath();cx.moveTo(X-15,Y-4);cx.lineTo(X+15,Y-4);cx.quadraticCurveTo(X+16,Y-22,X+2,Y-24);cx.lineTo(X-15,Y-22);cx.closePath();cx.fill();cx.fillStyle='#48424e';cx.fillRect(X-13,Y-21,12,2);cx.fillStyle='#fff';cx.fillRect(X-15,Y-6,30,3);for(let i=0;i<8;i++){cx.fillStyle='#2a2630';cx.fillRect(X-13+i*4,Y-6,1,2)}cx.fillStyle='#2a2630';cx.fillRect(X-14,Y-3,2,5);cx.fillRect(X+12,Y-3,2,5);
+  if(WED.live&&wedStep()===3&&Math.random()<.15)parts.push({x:X+(Math.random()-.5)*20,y:Y-26,vx:(Math.random()-.5)*10,vy:-18,life:1.2,t:0,c:'#8a6ad8',g:0,s:2,note:1})}
+function venArch(){const X=VEN_ALT[0]*TS+8,Y=VEN_ALT[1]*TS+12;cx.strokeStyle='#ffffff';cx.lineWidth=4;cx.beginPath();cx.arc(X,Y-14,22,Math.PI,0);cx.stroke();cx.fillStyle='#fff';cx.fillRect(X-24,Y-14,4,16);cx.fillRect(X+20,Y-14,4,16);
+  for(let i=0;i<=12;i++){const a=Math.PI+i/12*Math.PI,px=X+Math.cos(a)*22,py=Y-14+Math.sin(a)*22;cx.fillStyle=['#ffb0c8','#ffffff','#ffd6e8','#c8b0ff','#ffe8a0'][i%5];cx.beginPath();cx.arc(px,py,3.2,0,6.28);cx.fill();if(i%3===0){cx.fillStyle='#86c878';cx.fillRect(px-1,py+2,3,2)}}
+  for(let i=0;i<4;i++){cx.fillStyle=['#ffb0c8','#fff','#ffd6e8','#c8e8a0'][i];cx.beginPath();cx.arc(X-22+(i%2)*2,Y-2-i*4,2.6,0,6.28);cx.arc(X+22-(i%2)*2,Y-2-i*4,2.6,0,6.28);cx.fill()}
+  if(WED.live&&wedStep()>=0&&Math.random()<.2)parts.push({x:X+(Math.random()-.5)*40,y:Y-36,vx:(Math.random()-.5)*8,vy:6,life:1.6,t:0,c:['#ffb0c8','#ffffff'][(Math.random()*2)|0],g:0,s:2})}
+function venFairy(){const X=VEN_FAIRY[0]*TS+8,Y=VEN_FAIRY[1]*TS+4+Math.sin(wt*2.2)*2;const g=cx.createRadialGradient(X,Y-8,1,X,Y-8,16);g.addColorStop(0,'rgba(255,240,255,.8)');g.addColorStop(1,'rgba(255,200,240,0)');cx.fillStyle=g;cx.fillRect(X-16,Y-24,32,32);
+  const fl=Math.sin(wt*18)*2;cx.fillStyle='rgba(200,230,255,.8)';cx.beginPath();cx.ellipse(X-6,Y-10,5,3+fl*.5,-.5,0,6.28);cx.ellipse(X+6,Y-10,5,3+fl*.5,.5,0,6.28);cx.fill();
+  cx.fillStyle='#ffd6ea';cx.beginPath();cx.moveTo(X-4,Y-2);cx.lineTo(X+4,Y-2);cx.lineTo(X+2,Y-10);cx.lineTo(X-2,Y-10);cx.fill();cx.fillStyle='#fff0e4';cx.beginPath();cx.arc(X,Y-13,4,0,6.28);cx.fill();cx.fillStyle='#ffe07a';cx.fillRect(X-4,Y-17,8,2);cx.fillStyle='#ff7aa8';cx.fillRect(X-1,Y-19,3,3);
+  cx.fillStyle='#4a3a50';cx.fillRect(X-2,Y-13,1,1);cx.fillRect(X+1,Y-13,1,1);cx.fillStyle='#ffb0c8';cx.fillRect(X-3,Y-12,1,1);cx.fillRect(X+2,Y-12,1,1);
+  cx.strokeStyle='#ffe07a';cx.lineWidth=1;cx.beginPath();cx.moveTo(X+4,Y-6);cx.lineTo(X+9,Y-14);cx.stroke();cx.fillStyle='#fff8a0';cx.fillRect(X+8,Y-16,3,3);if(Math.random()<.08)parts.push({x:X+9,y:Y-15,vx:(Math.random()-.5)*14,vy:-8,life:.8,t:0,c:'#fff8c0',g:0,s:1})}
+function venBook(){const X=VEN_BOOK[0]*TS+8,Y=VEN_BOOK[1]*TS+12;cx.fillStyle='#b88a60';cx.fillRect(X-1,Y-8,2,8);cx.fillStyle='#fffaf0';cx.fillRect(X-9,Y-20,18,13);cx.fillStyle='#e8c8d0';cx.fillRect(X-9,Y-20,18,2);cx.fillStyle='#d8344e';cx.beginPath();cx.arc(X-2,Y-14,2,0,6.28);cx.arc(X+2,Y-14,2,0,6.28);cx.fill();cx.beginPath();cx.moveTo(X-4,Y-13);cx.lineTo(X+4,Y-13);cx.lineTo(X,Y-9);cx.fill()}
+function venStand(){const X=VEN_STAND[0]*TS+8,Y=VEN_STAND[1]*TS+12;cx.fillStyle='#fff';cx.fillRect(X-10,Y-10,20,10);cx.fillStyle='#ffb0c8';for(let i=0;i<5;i++)cx.fillRect(X-10+i*4,Y-22,4,4+((i%2)?1:0));cx.fillStyle=['#ff6080','#ffd040','#60b0ff'][((wt*2)|0)%3];cx.fillRect(X-7,Y-15,3,5);cx.fillStyle='#ffd040';cx.fillRect(X-1,Y-14,3,4);cx.fillStyle='#a080e0';cx.fillRect(X+4,Y-16,3,6);cx.fillStyle='#d8c0a8';cx.fillRect(X-10,Y-18,1,8);cx.fillRect(X+9,Y-18,1,8)}
+function venPad(p){const X=p[0]*TS+8,Y=p[1]*TS+12,k=.5+.5*Math.sin(wt*5);cx.strokeStyle='rgba(255,215,90,'+(.5+k*.5)+')';cx.lineWidth=2;cx.beginPath();cx.ellipse(X,Y,11+k*3,5+k,0,0,6.28);cx.stroke();cx.fillStyle='rgba(255,240,170,.35)';cx.beginPath();cx.ellipse(X,Y,9,4,0,0,6.28);cx.fill();cx.fillStyle='#ffd34d';cx.font='10px sans-serif';cx.textAlign='center';cx.fillText('♥',X,Y-14-k*3)}
+function hofDraw(){const X=HOF_AT[0]*TS+8,Y=HOF_AT[1]*TS+12;cx.fillStyle='rgba(0,0,0,.15)';cx.beginPath();cx.ellipse(X,Y+2,12,3.5,0,0,6.28);cx.fill();cx.fillStyle='#e8e4f0';cx.fillRect(X-9,Y-10,18,12);cx.fillStyle='#cfc8dc';cx.fillRect(X-9,Y-1,18,3);cx.fillStyle='#a89cc0';cx.fillRect(X-6,Y-7,12,2);
+  const g=cx.createRadialGradient(X,Y-22,1,X,Y-22,18);g.addColorStop(0,'rgba(255,230,120,.55)');g.addColorStop(1,'rgba(255,230,120,0)');cx.fillStyle=g;cx.fillRect(X-18,Y-40,36,36);
+  cx.fillStyle='#f2b238';cx.fillRect(X-6,Y-30,12,8);cx.fillRect(X-2,Y-22,4,6);cx.fillRect(X-5,Y-16,10,3);cx.fillStyle='#ffd86a';cx.fillRect(X-5,Y-29,4,6);cx.strokeStyle='#f2b238';cx.lineWidth=2;cx.beginPath();cx.arc(X-7,Y-26,3,1.5,4.7);cx.stroke();cx.beginPath();cx.arc(X+7,Y-26,3,-1.6,1.6);cx.stroke();
+  if(Math.random()<.06)parts.push({x:X+(Math.random()-.5)*14,y:Y-30,vx:0,vy:-10,life:.8,t:0,c:'#fff3a0',g:0,s:1})}
+
+/* ----- 축하 효과 (모두에게 보여요) ----- */
+function celFx(k,x,y){const C=['#ff6080','#ffd040','#60b0ff','#80e080','#c080ff','#ffffff','#ff9ad0'];
+  if(k==='fw'||k==='big'){const n=k==='big'?3:1;for(let j=0;j<n;j++)CFX.push({k:'rk',x:x+(j-1)*30,y:y-6,ty:y-(k==='big'?90:60)-j*14,t:0,c:C[(Math.random()*C.length)|0],big:k==='big',d:j*.25});Snd.hfx&&Snd.hfx('swing')}
+  else if(k==='sp')for(let i=0;i<40;i++){const a=Math.random()*6.28,s=10+Math.random()*50;parts.push({x,y:y-10,vx:Math.cos(a)*s,vy:Math.sin(a)*s-10,life:1+Math.random(),t:0,c:['#fff8c0','#ffffff','#ffe070','#c8e8ff'][i%4],g:0,s:1+(i%2)})}
+  else if(k==='pt')for(let i=0;i<36;i++)setTimeout(()=>parts.push({x:x+(Math.random()-.5)*120,y:y-80,vx:(Math.random()-.5)*14,vy:18+Math.random()*10,life:3,t:0,c:['#ffb0c8','#ffd6e8','#ffffff'][i%3],g:0,s:2}),i*60);
+  else if(k==='cf'){for(let i=0;i<50;i++){const a=-1.57+(Math.random()-.5)*1.6,s=60+Math.random()*80;parts.push({x,y:y-10,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1.6,t:0,c:C[i%C.length],g:120,s:2})}Snd.sfx('pop')}
+  else if(k==='bub')for(let i=0;i<14;i++)setTimeout(()=>CFX.push({k:'bb',x:x+(Math.random()-.5)*30,y:y-10,t:0,r:3+Math.random()*4,vx:(Math.random()-.5)*12}),i*120);
+  else if(k==='bal')for(let i=0;i<5;i++)CFX.push({k:'bl',x:x+(i-2)*8,y:y-12,t:0,c:['#ff6080','#ff9ad0','#ffb0c8','#ff4070','#ffd0e0'][i],d:i*.15});
+  else if(k==='lan')for(let i=0;i<3;i++)CFX.push({k:'ln',x:x+(i-1)*14,y:y-12,t:0,d:i*.4})}
+function celDraw(){const dt=FXDT||.016;CFX=CFX.filter(f=>{f.t+=dt;if(f.d){f.d-=dt;if(f.d>0)return true;f.d=0}
+  if(f.k==='rk'){if(!f.boom){const k=Math.min(1,f.t/.8);const yy=f.y+(f.ty-f.y)*k;cx.fillStyle='#fff3c0';cx.fillRect(f.x-1,yy,2,4);parts.push({x:f.x,y:yy+4,vx:(Math.random()-.5)*6,vy:10,life:.4,t:0,c:'#ffd070',g:0,s:1});if(k>=1){f.boom=1;const n=f.big?70:36;for(let i=0;i<n;i++){const a=i/n*6.28,s=(f.big?70:45)*(.7+Math.random()*.3);parts.push({x:f.x,y:f.ty,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1.3,t:0,c:i%3?f.c:'#ffffff',g:30,s:f.big?2:1.5})}Snd.sfx('pop')}return true}return false}
+  if(f.k==='bb'){f.y-=14*dt;f.x+=f.vx*dt+Math.sin(f.t*3)*.3;cx.strokeStyle='rgba(200,230,255,'+(1-f.t/3)+')';cx.lineWidth=1;cx.beginPath();cx.arc(f.x,f.y,f.r,0,6.28);cx.stroke();cx.fillStyle='rgba(255,255,255,.6)';cx.fillRect(f.x-f.r*.5,f.y-f.r*.5,1.5,1.5);return f.t<3}
+  if(f.k==='bl'){const yy=f.y-f.t*26,xx=f.x+Math.sin(f.t*2+f.x)*4;cx.strokeStyle='rgba(120,120,120,.5)';cx.beginPath();cx.moveTo(xx,yy);cx.lineTo(xx,yy+10);cx.stroke();cx.fillStyle=f.c;cx.beginPath();cx.arc(xx-2,yy-4,3,0,6.28);cx.arc(xx+2,yy-4,3,0,6.28);cx.fill();cx.beginPath();cx.moveTo(xx-5,yy-3);cx.lineTo(xx+5,yy-3);cx.lineTo(xx,yy+2);cx.fill();return f.t<5}
+  if(f.k==='ln'){const yy=f.y-f.t*18,xx=f.x+Math.sin(f.t*1.4+f.x)*5,a=Math.max(0,1-f.t/7);const g=cx.createRadialGradient(xx,yy,1,xx,yy,12);g.addColorStop(0,'rgba(255,200,110,'+a*.7+')');g.addColorStop(1,'rgba(255,200,110,0)');cx.fillStyle=g;cx.fillRect(xx-12,yy-12,24,24);cx.fillStyle='rgba(255,170,90,'+a+')';cx.fillRect(xx-3,yy-4,6,7);return f.t<7}
+  return false})}
+function celUse(k){const c=CEL_BY[k];S.cel=S.cel||{};if(!c||!(S.cel[k]>0)){toast('먼저 축하 가게에서 사요');return}S.cel[k]--;saveState(true);celFx(k,P.x,P.y);if(ONLINE&&Net.me)Net.send({t:'cel',k,x:Math.round(P.x),y:Math.round(P.y)});if(WED.live&&wedStep()>=0&&inVen(P.x,P.y)&&!amCouple())heartsAt(P.x,P.y-30,3)}
+function celBuy(k,n){const c=CEL_BY[k];if(!c)return;const cost=c[3]*n;if(S.gold<cost){Snd.sfx('no');toast('골드가 부족해요');return}S.gold-=cost;S.cel=S.cel||{};S.cel[k]=(S.cel[k]|0)+n;Snd.sfx('buy');saveState(true);toast(c[1]+' '+c[2]+' ×'+n+' 샀어요');openCelShop()}
+function openCelShop(){S.cel=S.cel||{};Snd.sfx('ui');openSheet('🎉 축하 가게','<div class="wishc" style="font-size:12.5px;line-height:1.6">결혼식, 생일, 대박 낚시… 축하할 일이 생기면 펑! 주변 모두에게 보여요. 산 건 <b>가방 → 🎉</b> 버튼이나 여기서 바로 쓸 수 있어요.</div>'+CEL_ITEMS.map(c=>'<div class="rank" style="align-items:center"><span class="r" style="font-size:22px">'+c[1]+'</span><span class="n"><b>'+c[2]+'</b> <small class="muted">'+c[4]+'</small><br><small>'+fmt(c[3])+'골드 · 가진 것 '+(S.cel[c[0]]|0)+'개</small></span><span style="display:flex;gap:4px"><button class="btn ghost" data-celb="'+c[0]+'|1">1개</button><button class="btn ghost" data-celb="'+c[0]+'|10">10개</button>'+((S.cel[c[0]]|0)?'<button class="btn pink" data-celu="'+c[0]+'">쓰기</button>':'')+'</span></div>').join(''))}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-celb],[data-celu],[data-wedtab],[data-hoft],[data-wedmsg],[data-wedgo],[data-wedreq],[data-wedend],[data-wedans]');if(!b)return;
+  if(b.dataset.celb){const[k,n]=b.dataset.celb.split('|');celBuy(k,+n)}else if(b.dataset.celu){celUse(b.dataset.celu);openCelShop()}
+  else if(b.dataset.hoft){HOF_TAB=b.dataset.hoft;openHof()}else if(b.dataset.wedtab!=null){openWedBook(+b.dataset.wedtab)}
+  else if(b.dataset.wedmsg){const i=$('wedmsgin');const t=i&&i.value.trim();if(!t)return;if(!ONLINE||!Net.me)return toast('온라인에서만 남길 수 있어요');Net.send({t:'wed_msg',id:b.dataset.wedmsg,text:t});i.value='';Snd.sfx('page')}
+  else if(b.dataset.wedgo!=null)wedGo();else if(b.dataset.wedreq!=null)wedReq();else if(b.dataset.wedend!=null)askConfirm('정말 헤어질까요?','결혼 기록은 방명록에 그대로 남아요','헤어질게요',()=>Net.send({t:'mar_end'}));
+  else if(b.dataset.wedans){const[k,ok]=b.dataset.wedans.split('|');Net.send({t:k,ok:ok==='1'});closeSheet()}});
+
+/* ----- 명예의 전당 ----- */
+let HOF_TAB='sh';const HOF_TABS=[['sh','✨ 반짝','반짝이 물고기를 모은 종류'],['gt','👑 거대','거대 개체를 낚은 종류'],['dex','📖 도감','물고기 도감 종류'],['sd','🖐️ 손맛','손맛 도감 종류'],['enh','⚒️ 강화','낚싯대 강화 단계'],['hunt','⚔️ 용사','꿈방울 사냥 용사 레벨'],['help','🤝 도움','마을 의뢰를 도운 횟수'],['eb','🎰 은비랜드','한 번에 딴 칩']];
+function openHof(){Snd.sfx('page');const t=HOF_TABS.find(x=>x[0]===HOF_TAB)||HOF_TABS[0];openSheet('🏆 명예의 전당','<div class="muted" style="font-size:12.5px;margin-bottom:8px">물결마을에서 가장 빛나는 사람들이에요. 매일 바뀌어요! <a href="#" onclick="openDayK();return false">오늘의 낚시왕 보기 →</a></div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+HOF_TABS.map(x=>'<button class="btn '+(x[0]===t[0]?'pink':'ghost')+'" style="padding:5px 9px;font-size:12.5px" data-hoft="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+rankFull(t[0],t[1]+' · '+t[2]))}
+
+/* ----- 결혼 ----- */
+const WED_OUT=['o_tux','o_wdress'],RINGS=['ring_silver','ring_pearl','ring_dia','ring_star','ring_rainbow'];
+const myRing=()=>{let r='';RINGS.forEach(id=>{if(owns(id))r=id});return r};
+function openFairy(){Snd.sfx('page');const m=wedMe(),o=(S.cos.look||{}).o,ring=myRing();let h='<div class="wishc" style="background:#fff0f6;border-color:#ffc0d8;font-size:12.5px;line-height:1.7">🧚 <b>요정 리본</b> · "어머, 손님! 저는 물결마을의 혼인 신고를 맡은 요정이에요. 사랑하는 사람과 증인 한 명을 데리고 오면 꽃 아치 아래에서 영원을 약속하게 해 줄게요~"</div>';
+  if(m){h+='<div class="sec">💍 우리 부부</div><div class="rank"><span class="r">💞</span><span class="n"><b>'+esc(Net.me?Net.me.name:'나')+'</b> ♥ <b>'+esc(m.p)+'</b><br><small class="muted">'+new Date(m.d).toLocaleDateString('ko-KR')+' 결혼 · 증인 '+esc(m.w||'')+'</small></span></div>'+
+    '<button class="btn pink" style="width:100%;margin-top:8px" data-wedgo="1">💍 반지의 힘으로 '+esc(m.p)+' 곁으로 (5분마다)</button><button class="btn ghost" style="width:100%;margin-top:6px" data-wedend="1">이별하기</button>'}
+  else{const ok1=WED_OUT.includes(o),ok2=!!ring;h+='<div class="sec">결혼 준비물</div>'+
+    '<div class="rank"><span class="r">'+(ok1?'✅':'⬜')+'</span><span class="n">예복 입기 · <b>턱시도</b> 또는 <b>웨딩드레스</b> <small class="muted">(부티크)</small></span></div>'+
+    '<div class="rank"><span class="r">'+(ok2?'✅':'⬜')+'</span><span class="n">결혼반지 갖기 <small class="muted">(부티크 · 반지)</small></span></div>'+
+    '<div class="rank"><span class="r">👥</span><span class="n">신랑 · 신부 · <b>증인 1명</b>이 모두 요정 근처에 있어야 해요</span></div>'+
+    '<div class="sec">혼인 신고서</div><input id="wedP" class="inp" placeholder="결혼할 상대 이름" maxlength="12" style="width:100%;margin-bottom:6px"><input id="wedW" class="inp" placeholder="증인 이름" maxlength="12" style="width:100%"><button class="btn pink" style="width:100%;margin-top:8px" data-wedreq="1">💌 혼인 신고 요청</button>'+
+    '<div class="muted" style="font-size:12px;margin-top:8px">신고가 끝나면 바로 <b>10분 결혼식</b>이 시작돼요. 레드카펫이 깔리고 반짝이는 발판을 따라 입장 → 주례 → 반지 교환 → 축가 → 피로연 → 행진! 그동안 하객이 앞 냇가에서 낚시하면… 🌸</div>'}
+  h+='<button class="btn ghost" style="width:100%;margin-top:8px" data-wedtab="0">📖 결혼 기록 방명록</button>';openSheet('💒 물결 예식장',h)}
+function wedReq(){if(!ONLINE||!Net.me)return toast('온라인에서만 할 수 있어요');const p=($('wedP')||{}).value||'',w=($('wedW')||{}).value||'';if(!p.trim()||!w.trim())return toast('상대와 증인 이름을 모두 적어요');Net.send({t:'mar_req',p:p.trim(),w:w.trim(),ring:myRing()});toast('💌 신고서를 냈어요! 상대와 증인의 대답을 기다려요')}
+function wedGo(){if(!ONLINE||!Net.me)return;if(HUNT.on)return toast('꿈의 세계에선 반지가 닿지 않아요');Net.send({t:'mar_go'})}
+function wedLand(x,y){const ok=(X,Y)=>!isSolid((X/TS)|0,(Y/TS)|0)&&W.T[(Y/TS)|0]&&W.T[(Y/TS)|0][(X/TS)|0]!=='w';const c=[[14,0],[-14,0],[0,12],[0,-12],[20,10],[-20,10]];for(const d of c)if(ok(x+d[0],y+d[1])){P.x=x+d[0];P.y=y+d[1];return true}if(ok(x,y)){P.x=x;P.y=y;return true}return false}
+function openWedBook(i){const L=WED.list;if(!L||Date.now()-WED.bookT>8000){WED.bookT=Date.now();if(ONLINE&&Net.me)Net.send({t:'wed_list'})}
+  if(!L){openSheet('📖 결혼 기록','<div class="muted" style="padding:10px;text-align:center">불러오는 중…</div>');return}
+  if(!L.length){openSheet('📖 결혼 기록','<div class="muted" style="padding:10px;text-align:center">아직 결혼한 부부가 없어요. 첫 부부가 되어 볼까요? 💍</div>');return}
+  i=Math.max(0,Math.min(L.length-1,i|0));const w=L[i];Snd.sfx('page');
+  let h='<div style="display:flex;gap:5px;overflow-x:auto;margin-bottom:8px">'+L.map((x,j)=>'<button class="btn '+(j===i?'pink':'ghost')+'" style="white-space:nowrap;padding:5px 9px;font-size:12px" data-wedtab="'+j+'">'+esc(x.a)+' ♥ '+esc(x.b)+'</button>').join('')+'</div>';
+  h+='<div class="wishc" style="background:#fff8fb;border-color:#ffc8dc;text-align:center;line-height:1.7"><div style="font-size:20px">💒</div><b style="font-size:16px">'+esc(w.a)+' ♥ '+esc(w.b)+'</b><br><small class="muted">'+new Date(w.at).toLocaleString('ko-KR')+' · 증인 '+esc(w.w)+(w.end?' · 지금은 각자의 길':'')+'</small></div>';
+  h+='<div class="sec">함께한 하객 <span class="cnt">'+(w.g||[]).length+'명</span></div><div style="font-size:13px;line-height:1.8">'+((w.g||[]).map(esc).join(' · ')||'<span class="muted">아직 없어요</span>')+'</div>';
+  h+='<div class="sec">축하 메시지 <span class="cnt">'+(w.m||[]).length+'</span></div>'+((w.m||[]).map(x=>'<div class="rank"><span class="r">💌</span><span class="n"><b>'+esc(x.n)+'</b> '+esc(x.t)+'</span><span class="muted" style="font-size:11px">'+ago(x.at)+'</span></div>').join('')||'<div class="muted" style="padding:6px">첫 축하를 남겨요!</div>');
+  h+='<div style="display:flex;gap:6px;margin-top:8px"><input id="wedmsgin" class="inp" maxlength="60" placeholder="축하 한마디 (영원히 남아요)" style="flex:1"><button class="btn pink" data-wedmsg="'+w.id+'">남기기</button></div>';
+  WED.bookI=i;openSheet('📖 결혼 기록 방명록',h)}
+function wedTick(dt){if(!P||HUNT.on)return;const L=WED.live;if(!L)return;const st=wedStep();
+  if(st<0){if(Date.now()-L.at>WED_LEN*1000){if(amCouple()&&!WED.doneSent){WED.doneSent=1;const n=Object.keys(WED.pad).length;Net.send({t:'wed_done',n});showBanner('🎉 결혼식이 끝났어요! 영원히 행복하세요 💕')}WED.live=null}return}
+  if(st!==WED.lastSt){WED.lastSt=st;if(inVen(P.x,P.y)||amCouple()){showBanner('💒 '+WED_STEPS[st][0]+' · '+WED_STEPS[st][1]);if(st===3)wedSong()}}
+  if(inVen(P.x,P.y)&&!amCouple()&&!WED.joined&&ONLINE&&Net.me){WED.joined=L.id;Net.send({t:'wed_join',id:L.id});toast('💐 하객으로 이름이 기록됐어요! 앞 냇가에서 낚시해 볼까요?')}
+  if(amCouple()){const p=WED_STEPS[st][2];if(Math.hypot(P.x-(p[0]*TS+8),P.y-(p[1]*TS+12))<16){WED.padT=(WED.padT||0)+dt;if(WED.padT>4&&!WED.pad[st]){WED.pad[st]=1;heartsAt(P.x,P.y-30,6);Snd.sfx('page');toast('💕 '+WED_STEPS[st][0]+' 완료!')}}else WED.padT=0}}
+function wedSong(){if(!Snd.chime)return;const mel=[72,72,74,72,77,76,72,72,74,72,79,77,72,72,84,81,77,76,74,82,82,81,77,79,77];mel.forEach((n,i)=>setTimeout(()=>Snd.chime(n,.35),i*340))}
+function onWedMsg(m){
+  if(m.t==='cel'){if(!P||Math.abs(m.x-P.x)>VW*1.5||Math.abs(m.y-P.y)>VH*1.5)return true;celFx(m.k,m.x,m.y);const o=m.id&&others.get(m.id);if(o&&Math.random()<.3)showSay(o,pick(['축하해요!','펑!','와아~','🎉']));return true}
+  if(m.t==='wed_live'){WED.live=m.w;WED.lastSt=-1;WED.joined=0;WED.pad={};WED.doneSent=0;showBanner('💒 '+m.w.a+' ♥ '+m.w.b+' 결혼식이 시작됐어요! 물결 예식장(북쪽 들판)으로~');Snd.sfx('page');return true}
+  if(m.t==='wed_list'){WED.list=m.list||[];if(m.live)WED.live=m.live;const st=$('sheettitle');if(st&&!$('sheetwrap').hidden&&/결혼 기록/.test(st.textContent))openWedBook(WED.bookI|0);return true}
+  if(m.t==='mar'){S.mar=m.mar||null;saveState(true);if(m.note)toast(m.note);const st=$('sheettitle');if(st&&!$('sheetwrap').hidden&&/예식장/.test(st.textContent))openFairy();return true}
+  if(m.t==='mar_ask'){Snd.sfx('page');openSheet(m.w?'🤵 증인 부탁':'💌 청혼이 왔어요','<div class="wishc" style="background:#fff0f6;border-color:#ffc0d8;text-align:center;line-height:1.8;font-size:14px">'+(m.w?'<b>'+esc(m.a)+'</b> 님과 <b>'+esc(m.b)+'</b> 님이<br>결혼식 증인이 되어 달래요!':'<b>'+esc(m.a)+'</b> 님이 청혼했어요 💍<br>증인: '+esc(m.wn))+'</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn ghost" style="flex:1" data-wedans="'+(m.w?'mar_w':'mar_ans')+'|0">다음에요</button><button class="btn pink" style="flex:1" data-wedans="'+(m.w?'mar_w':'mar_ans')+'|1">'+(m.w?'증인 할게요!':'네, 좋아요!')+'</button></div>');return true}
+  if(m.t==='mar_go'){if(wedLand(m.x,m.y)){Snd.sfx('page');sparkFx(P.x,P.y-10,30,['#ffd6e8','#ffffff','#ffd34d']);toast('💍 '+m.p+' 곁으로 왔어요!')}else toast('그 근처엔 설 곳이 없어요');return true}
+  return false}
+function wedNear(){if(!P)return null;const n=(p,r)=>Math.abs(P.x-(p[0]*TS+8))<(r||18)&&Math.abs(P.y-(p[1]*TS+14))<(r||18);
+  if(n(VEN_FAIRY,20))return{type:'x',fn:openFairy,label:'요정 리본<br>혼인 신고'};if(n(VEN_BOOK))return{type:'x',fn:()=>openWedBook(0),label:'결혼 기록<br>방명록'};if(n(VEN_STAND))return{type:'x',fn:openCelShop,label:'축하 가게'};
+  if(n([VEN_PIANO[0]+.5,VEN_PIANO[1]],22))return{type:'x',fn:()=>{wedSong();toast('🎹 딩동댕~ 결혼 행진곡을 쳤어요')},label:'피아노<br>치기'};if(n(HOF_AT))return{type:'x',fn:openHof,label:'명예의 전당'};return null}
+
+/* ----- 길에서 만나는 이야기: 처음 보는 곳에 다가가면 깜짝! ----- */
+const DISC=[['portal',[17,20],'뭐야, 마을 한가운데 포탈이 생겼어!? 반짝반짝 빨려 들어갈 것 같아…','🌀 꿈의 문을 발견했어요! 물고기들의 꿈이 갇힌 세계래요'],
+  ['hof',HOF_AT,'우와 황금 트로피다! 누가 1등이지?','🏆 명예의 전당을 발견했어요'],
+  ['ven',[62,9],'여기 왜 이렇게 예쁘게 꾸며져 있지? 결혼식장인가 봐!','💒 물결 예식장을 발견했어요! 꽃 아치 옆 요정에게 말을 걸어 봐요'],
+  ['fairy',VEN_FAIRY,'저기 작은 요정이 날개를 파닥파닥…!','🧚 혼인 신고 요정 「리본」을 만났어요']];
+let DISC_T=0;function discTick(dt){DISC_T-=dt;if(DISC_T>0||!P||HUNT.on)return;DISC_T=.5;S.seen=S.seen||{};for(const d of DISC){if(S.seen[d[0]])continue;if(Math.hypot(P.x-(d[1][0]*TS+8),P.y-(d[1][1]*TS+12))<64){S.seen[d[0]]=1;saveState(true);showSay(ME,d[2]);setTimeout(()=>{showBanner(d[3]);Snd.sfx('page')},900);break}}}
+function discAdd(list){list.forEach(d=>{if(!DISC.find(x=>x[0]===d[0]))DISC.push(d)})}
+
 function pressAct(){
   if(HUNT.on){huAttack();return}
   if(!P||uiOpen||$('title')&&!$('title').hidden)return;
@@ -3765,6 +3913,7 @@ function pressAct(){
     else if(a.type==='isleshop'){Snd.sfx('ui');openIsleShop()}
     else if(a.type==='isleforge'){Snd.sfx('ui');openBoat()}
     else if(a.type==='hunthut')openHunt();
+    else if(a.type==='x')a.fn();
     else if(a.type==='ferry')openFerry();
     else if(a.type==='snowman')tapSnowman(a.sm);
     else if(a.type==='npc')npcPress(a.npc);
@@ -5001,6 +5150,7 @@ BOB3.b_trust={rows:["y.y.y","yyyyy",".yyy.","..y.."],pal:{y:'#ffd0a8'},fx:{rise:
 [['t_trust1','title','마을의 해결사'],['t_trust2','title','믿음직한 이웃'],['b_trust','bob','악수 찌'],['k_trust','back','해결사 망토']].forEach(r=>COS.push({id:r[0],k:r[1],name:r[2],med:TRUST_SHOP.find(x=>x[0]===r[0])[1],tier:r[1]==='title'?undefined:1,nw:NEW_DAY}));
 BOB3.b_bfly={rows:["y.y.y","yyyyy",".yky.","yyyyy","y...y"],pal:{y:'#ffe040',k:'#302010'},fx:{rise:['#ffe040','#ffffff'],spark:['#fff4a0']},tier:1};
 [['t_bug1','title','곤충 친구'],['t_bug2','title','곤충 박사'],['b_bfly','bob','나비 찌'],['t_ark','title','방주를 지은 사람']].forEach(r=>COS.push({id:r[0],k:r[1],name:r[2],ev:r[0],tier:r[1]==='bob'?1:undefined,nw:NEW_DAY}));
+COS.push({id:'t_wed',k:'title',name:'💞 물결마을 부부'});COS_BY.t_wed=COS[COS.length-1];
 COS.push({id:'t_fs1',k:'title',name:'첫눈을 기다린 사람'},{id:'t_fs2',k:'title',name:'복 많이 받는 사람'},{id:'t_fs3',k:'title',name:'달콤한 고백'},{id:'t_fs4',k:'title',name:'벚꽃 아래 낚시꾼'},{id:'t_fs5',k:'title',name:'바다의 친구'},{id:'t_npc1',k:'title',name:'바다 할멈의 손주',egg:1},{id:'t_npc2',k:'title',name:'슈가의 단골',egg:1},{id:'t_npc3',k:'title',name:'소복옹의 눈사람 친구',egg:1});['t_fs1','t_fs2','t_fs3','t_fs4','t_fs5','t_npc1','t_npc2','t_npc3'].forEach(id=>COS_BY[id]=COS.find(c=>c.id===id));COS.push({id:'t_ruby30',k:'title',name:'루비의 영원한 산책 친구',price:undefined,egg:1},{id:'t_litter30',k:'title',name:'고양이 화장실의 수호자',price:undefined,egg:1});COS_BY.t_ruby30=COS[COS.length-2];COS_BY.t_litter30=COS[COS.length-1];
 Object.assign(EV_HOW,{t_bug1:'곤충 도감 8종',t_bug2:'곤충 도감 전부',b_bfly:'곤충 도감 전부',t_ark:'물결 방주에 재료를 실은 사람'});
 COS.forEach(c=>COS_BY[c.id]=c);
@@ -5990,7 +6140,7 @@ function render(dt){
   drawFishBoat(drawables);
   W.buildings.forEach(b=>drawables.push({y:(b.y+1)*TS,fn:()=>cx.drawImage(SP.house[b.id],b.x*TS+(b.w*TS-48)/2,(b.y+1)*TS-50)}));
   W.props.forEach(p=>{const s=p.kind==='litter'?SP.litter[litterDirty()?1:0]:SP[p.kind];if(!s)return;drawables.push({y:p.y*TS+15,fn:()=>{cx.drawImage(s,p.x*TS+(TS-s.width)/2,p.y*TS+16-s.height);if(p.kind==='litter'&&litterDirty())litterFlies(p.x*TS+8,p.y*TS+6)}})});
-  natDrawables(drawables,x0,x1,y0,y1);trapDrawables(drawables,x0,x1,y0,y1);smDrawables(drawables);npcDrawables(drawables);jejuDrawables(drawables);decoDrawables(drawables,x0,x1,y0,y1);critDrawables(drawables);drawables.push({y:20*TS+12,fn:drawPortal});evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
+  natDrawables(drawables,x0,x1,y0,y1);trapDrawables(drawables,x0,x1,y0,y1);smDrawables(drawables);npcDrawables(drawables);jejuDrawables(drawables);decoDrawables(drawables,x0,x1,y0,y1);critDrawables(drawables);drawables.push({y:20*TS+12,fn:drawPortal});wedDrawables(drawables);evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
   drawables.push({y:P.y,fn:drawPlayer});
   drawOthers(dt,drawables);
   updatePets(dt);updateSparks(dt);
@@ -6062,6 +6212,7 @@ function drawWeather(dt){
 let last=0,saveT=0,lastTrack='',lastRegion='';
 function update(dt){
   if(HUNT.on){huUpdate(dt);saveT+=dt;if(saveT>8){saveT=0;saveState()}if(ONLINE)Net.tick(dt);return}
+  wedTick(dt);discTick(dt);
   S.t+=dt;
   {const k=kbVec(),mm=Math.hypot(k[0]||inp.x,k[1]||inp.y);
     if(F.afk&&mm>.4&&!uiOpen)stopAfk('낚싯대를 거뒀어요');
@@ -8103,6 +8254,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(onHomeMsg(m)){}
     else if(onTrapMsg(m)){}
     else if(onHuntMsg(m)){}
+    else if(onWedMsg(m)){}
     else if(m.t==='skill_ok')skOk(m);
     else if(m.t==='skill_err')skErr(m);
     else if(m.t==='welcome'){S.rest=(S.rest|0)+(m.rest|0);recalc();saveState();setTimeout(()=>{showBanner('🎁 그동안 모아 둔 선물! ('+m.away+'일 치) 골드 +'+fmt(m.g)+' · 강화권 +'+m.tk);Snd.sfx('page')},1500);setTimeout(()=>toast('🌙 휴식 행운: 다음 '+m.rest+'마리는 행운 +30%'+(m.behind?' · 📣 마을이 응원하고 있어요':'')),5000);vilHud()}

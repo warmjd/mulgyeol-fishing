@@ -199,11 +199,14 @@ LOOK_IDS.o.push(["o_wizard", "o_mermaid", "o_dragon", "o_angel", "o_dark", "o_na
 LOOK_IDS.bk.push(["k_wizard", "k_shell", "k_dragon", "k_seraph", "k_dark", "k_navy", "k_royal", "k_guitar", "k_neon", "k_fishbag", "k_moon", "k_maple", "k_snow", "i_lantern", "i_seawing"]);
 LOOK_IDS.fa.push(["f_monocle", "f_heart", "f_bandaid", "f_goggle", "f_freckle"]);
 const ENH_TITLE_NEED = { t_enh10: 10, t_enh15: 15, t_enh20: 20, t_enh25: 25, t_enh30: 30 };
+LOOK_IDS.o.push('o_tux', 'o_wdress'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed');
 LOOK_IDS.ti.push('t_enh25', 't_enh30', ...['fish', 'sch', 'cra', 'tam', 'mer'].flatMap(j => [4, 5, 6].map(r => 't_j' + j + r)));
 for (const j of ['fish', 'sch', 'cra', 'tam', 'mer']) { LOOK_IDS.rod.push('jr4_' + j, 'jr6_' + j); LOOK_IDS.bob.push('jb5_' + j); }   // 강화 칭호는 서버 기록으로 확인
 const FREE = new Set(['straw', 'nohat', 'tee', 'bamboo', 'basicbob', '']);
 const HAIR_N = 22, HAIR_FREE = 8, HS_N = 16;   // index.html HAIRS · HSTYLES와 같아야 해요
+let LOOK_FLAT = 0; function lookFlat() { if (LOOK_FLAT) return; LOOK_FLAT = 1; for (const k in LOOK_IDS) LOOK_IDS[k] = LOOK_IDS[k].flat(); }   // 예전에 배열째 넣은 id들을 펼쳐요
 function cleanLook(l, save, color) {
+  lookFlat();
   l = l && typeof l === 'object' ? l : {};
   const own = new Set((save && save.cos && Array.isArray(save.cos.own)) ? save.cos.own : []);
   const n = (v, max, d) => Number.isInteger(v) && v >= 0 && v < max ? v : d;
@@ -579,6 +582,7 @@ wss.on('connection', (ws) => {
           send(ows, { t: 'kicked' }); ows.close();
         }
         if (pending.has(key)) { const p = pending.get(key); row.save = p.save; }
+        if (row.save && row.save.mar && V && V.marEnd && V.marEnd[row.name] > (row.save.mar.d | 0)) { row.save.mar = null; delete V.marEnd[row.name]; vMark(); }   // 💔 상대가 헤어짐을 고른 경우
         const color = colorOf(key);
         const p = { id: nextId++, key, name: row.name, color, admin: ADMINS.has(key), x: 0, y: 0, d: 'down', m: 0, b: 0, here: false,
           save: row.save, look: cleanLook(row.save && row.save.cos && row.save.cos.look, row.save, color), tr: null, sayT: 0, emoT: 0 };
@@ -645,7 +649,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {};
@@ -1022,6 +1026,9 @@ function onMsg(ws, me, m) {
       if (Object.entries(V.snowmen).some(([k, s]) => k !== me.key && s.x === x && s.y === y)) break;
       V.snowmen[me.key] = { n: me.name, x, y, st, parts, at: Date.now() }; vMark(); broadcast({ t: 'snowmen', list: Object.values(V.snowmen) }); break; }
     case 'ski_done': broadcast({ t: 'news', text: '🎿 ' + me.name + ' 님이 스키복을 완성했어요! 이제 소복섬에서도 씽씽' }, ws); break;
+    /* ----- 💒 결혼 · 축하 ----- */
+    case 'cel': { const now = Date.now(); if (now - (me.celT || 0) < 800) break; me.celT = now; const k = String(m.k || ''); if (!['fw', 'big', 'sp', 'pt', 'cf', 'bub', 'bal', 'lan'].includes(k)) break; broadcast({ t: 'cel', k, x: m.x | 0, y: m.y | 0, id: me.id }, ws); break; }
+    case 'mar_req': case 'mar_ans': case 'mar_w': case 'mar_go': case 'mar_end': case 'wed_join': case 'wed_msg': case 'wed_list': case 'wed_done': marMsg(ws, me, m); break;
     case 'hpos': { const f = m.f | 0; broadcast({ t: 'hpos', n: me.name, f: f < 0 ? -1 : Math.min(20, f), x: m.x | 0, y: m.y | 0, lv: m.lv | 0 }, ws); break; }   // ⚔️ 같은 사냥터 친구 보기
     case 'npc_done': withLock(me.key, async () => {   // 👵🍰⛄ NPC 부탁 (3차-5): 단계마다 한 번만
       const s = me.save; if (!s) return; const N = { grand: [3e6, 8e6, 3e7, 't_npc1'], sugar: [5e6, 1e7, 5e7, 't_npc2'], sobok: [5e6, 1.5e7, 8e7, 't_npc3'] }[m.id]; const st = m.st | 0; if (!N || st < 0 || st > 2) return;
@@ -1674,6 +1681,8 @@ function ebRecord(name, game, bet, win, jack) {
 function rankOf(k, me) {
   const top = (arr) => { arr.sort((a, b) => b.v - a.v); const i = arr.findIndex(x => x.n === me.name); return { top: arr.slice(0, 10), me: i >= 0 ? { r: i + 1, v: arr[i].v } : null, total: arr.length }; };
   if (k === 'sd') return top([...rosterCache.values()].map(r => ({ n: r.name, v: r.sd | 0 })).filter(x => x.v > 0));
+  const RV = { sh: r => r.sh | 0, gt: r => r.gt | 0, dex: r => (r.dex || []).length, hunt: r => r.hl | 0, vl: r => r.lv | 0, help: r => r.help | 0 };
+  if (RV[k]) return top([...rosterCache.values()].map(r => ({ n: r.name, v: RV[k](r) })).filter(x => x.v > 0));
   if (k === 'enh') return top([...rankCache.values()].map(r => ({ n: r.name, v: r.lv | 0, m: r.max | 0 })).filter(x => x.v > 0));
   if (k === 'eb') return Object.assign(top(Object.entries((V && V.ebTop) || {}).map(([n, v]) => ({ n, v }))), { log: ((V && V.ebLog) || []).slice(0, 10) });
   if (k.startsWith('job:')) { const j = k.slice(4); if (!MAKER_JOBS.includes(j)) return null; return top([...rosterCache.values()].filter(r => r.job === j && (r.jx | 0) > 0).map(r => ({ n: r.name, v: r.jx | 0 }))); }
@@ -1694,6 +1703,57 @@ const vSt = () => V ? V.fund.st | 0 : 0;
 const vEvExtra = () => vSt() >= 2 ? 10 : 0;
 const togLuck = () => vSt() >= 4 ? .10 : .05;
 function vMark() { vDirty = true; }
+/* ---------- 💒 물결 예식장: 혼인 신고 · 10분 결혼식 · 영원한 방명록 · 반지로 곁에 가기 ---------- */
+const WED_OUT = ['o_tux', 'o_wdress'], RING_IDS = ['ring_silver', 'ring_pearl', 'ring_dia', 'ring_star', 'ring_rainbow'], FAIRY_XY = [65 * 16 + 8, 4 * 16 + 12], WED_LEN = 600000;
+let MARP = null, WLIVE = null;
+const liveByName = n => { for (const [ws, p] of players) if (p.name === n) return [ws, p]; return null; };
+const nearFairy = p => Math.hypot(p.x - FAIRY_XY[0], p.y - FAIRY_XY[1]) < 110;
+const ownRing = s => { const own = (s && s.cos && s.cos.own) || []; return RING_IDS.filter(r => own.includes(r)).pop() || ''; };
+const wedPub = () => ({ list: ((V && V.wed) || []).slice(0, 60), live: WLIVE && Date.now() - WLIVE.at < WED_LEN ? WLIVE : null });
+function marMsg(ws, me, m) {
+  const s = me.save; if (!s || !V) return; const no = msg => send(ws, { t: 'news', text: msg }); const now = Date.now(); V.wed = Array.isArray(V.wed) ? V.wed : [];
+  if (m.t === 'wed_list') return send(ws, Object.assign({ t: 'wed_list' }, wedPub()));
+  if (m.t === 'mar_req') {
+    if (s.mar) return no('이미 결혼했어요 💍'); if (WLIVE && now - WLIVE.at < WED_LEN) return no('지금 다른 부부의 결혼식이 열리고 있어요. 끝나면 신고해요');
+    const P = liveByName(cleanText(m.p, 12)), Wn = liveByName(cleanText(m.w, 12));
+    if (!P || P[1] === me) return no('결혼할 상대가 지금 마을에 없어요'); if (!Wn || Wn[1] === me || Wn[1] === P[1]) return no('증인이 지금 마을에 없어요 (신랑 · 신부가 아닌 다른 사람)');
+    const ps = P[1].save; if (!ps) return; if (ps.mar) return no(P[1].name + ' 님은 이미 결혼했어요');
+    if (!WED_OUT.includes(me.look && me.look.o) || !WED_OUT.includes(P[1].look && P[1].look.o)) return no('두 사람 모두 턱시도나 웨딩드레스를 입어야 해요');
+    if (!ownRing(s) || !ownRing(ps)) return no('두 사람 모두 결혼반지가 있어야 해요 (부티크)');
+    if (![me, P[1], Wn[1]].every(nearFairy)) return no('신랑 · 신부 · 증인 모두 요정 리본 곁에 모여야 해요');
+    MARP = { a: me.key, an: me.name, b: P[1].key, bn: P[1].name, w: Wn[1].key, wn: Wn[1].name, okB: false, at: now };
+    send(P[0], { t: 'mar_ask', a: me.name, b: P[1].name, wn: Wn[1].name }); return no('💌 ' + P[1].name + ' 님에게 청혼했어요! 두근두근…');
+  }
+  if (m.t === 'mar_ans' || m.t === 'mar_w') {
+    const q = MARP; if (!q || now - q.at > 180000) return; const isB = m.t === 'mar_ans' && q.b === me.key, isW = m.t === 'mar_w' && q.w === me.key && q.okB; if (!isB && !isW) return;
+    const A = liveByName(q.an), B = liveByName(q.bn), Wt = liveByName(q.wn);
+    if (!m.ok) { MARP = null; if (A) send(A[0], { t: 'news', text: isB ? '💔 ' + q.bn + ' 님이 아직은 아니래요…' : '증인 ' + q.wn + ' 님이 거절했어요. 다른 증인을 찾아봐요' }); return; }
+    if (isB) { q.okB = true; q.at = now; if (Wt) send(Wt[0], { t: 'mar_ask', w: 1, a: q.an, b: q.bn }); if (A) send(A[0], { t: 'news', text: '💞 ' + q.bn + ' 님이 청혼을 받아줬어요! 이제 증인의 서명만 남았어요' }); return; }
+    if (!A || !B || !A[1].save || !B[1].save || A[1].save.mar || B[1].save.mar) { MARP = null; return no('신랑이나 신부가 자리에 없어요'); }
+    MARP = null; const ra = ownRing(A[1].save), rb = ownRing(B[1].save);
+    A[1].save.mar = { p: q.bn, d: now, w: q.wn, ring: ra }; B[1].save.mar = { p: q.an, d: now, w: q.wn, ring: rb };
+    queueSave(q.a, A[1].save); queueSave(q.b, B[1].save); send(A[0], { t: 'mar', mar: A[1].save.mar }); send(B[0], { t: 'mar', mar: B[1].save.mar });
+    const rec = { id: 'w' + now.toString(36), a: q.an, b: q.bn, w: q.wn, at: now + 3000, g: [q.wn], m: [] }; V.wed.unshift(rec); if (V.wed.length > 300) V.wed.length = 300; vMark();
+    WLIVE = { id: rec.id, a: rec.a, b: rec.b, w: rec.w, at: rec.at }; broadcast({ t: 'wed_live', w: WLIVE }); broadcast({ t: 'news', text: '💒 ' + q.an + ' ♥ ' + q.bn + ' 님이 결혼했어요! 증인 ' + q.wn + ' · 지금 북쪽 물결 예식장에서 결혼식이 열려요 🎉' });
+    return;
+  }
+  if (m.t === 'mar_go') {
+    const mr = s.mar; if (!mr) return; if (!ownRing(s)) return no('결혼반지가 있어야 해요'); const left = 300000 - (now - (mr.t | 0)); if (left > 0) return no('💍 반지의 힘이 다시 차오르는 중이에요 (' + Math.ceil(left / 60000) + '분)');
+    const P = liveByName(mr.p); if (!P || !P[1].here) return no(mr.p + ' 님이 지금 마을에 없어요'); mr.t = now; queueSave(me.key, s);
+    send(P[0], { t: 'news', text: '💍 ' + me.name + ' 님이 반지의 힘으로 곁에 왔어요!' }); return send(ws, { t: 'mar_go', x: P[1].x, y: P[1].y, p: mr.p });
+  }
+  if (m.t === 'mar_end') {
+    const mr = s.mar; if (!mr) return; s.mar = null; queueSave(me.key, s); send(ws, { t: 'mar', mar: null, note: '각자의 길을 걷기로 했어요. 결혼 기록은 방명록에 남아 있어요' });
+    const P = liveByName(mr.p); if (P && P[1].save && P[1].save.mar && P[1].save.mar.p === me.name) { P[1].save.mar = null; queueSave(P[1].key, P[1].save); send(P[0], { t: 'mar', mar: null, note: '💔 ' + me.name + ' 님이 각자의 길을 걷기로 했어요' }); }
+    else { V.marEnd = V.marEnd || {}; V.marEnd[mr.p] = now; }
+    const rec = V.wed.find(r => !r.end && ((r.a === me.name && r.b === mr.p) || (r.b === me.name && r.a === mr.p))); if (rec) rec.end = now; vMark(); return;
+  }
+  const rec = V.wed.find(r => r.id === String(m.id || '')) || (m.t === 'wed_done' && WLIVE && V.wed.find(r => r.id === WLIVE.id));
+  if (!rec) return;
+  if (m.t === 'wed_join') { if (!WLIVE || WLIVE.id !== rec.id) return; rec.g = rec.g || []; if (!rec.g.includes(me.name) && me.name !== rec.a && me.name !== rec.b && rec.g.length < 200) { rec.g.push(me.name); vMark(); } return; }
+  if (m.t === 'wed_msg') { const text = cleanText(m.text, 60); if (!text) return; if (now - (me.wmT || 0) < 10000) return no('조금 있다가 또 남겨요'); me.wmT = now; rec.m = rec.m || []; rec.m.push({ n: me.name, t: text, at: now }); if (rec.m.length > 300) rec.m.shift(); vMark(); return send(ws, Object.assign({ t: 'wed_list' }, wedPub())); }
+  if (m.t === 'wed_done') { if (me.name !== rec.a && me.name !== rec.b) return; if (now - rec.at < WED_LEN - 30000) return; const got = giveCos(s, ['t_wed']); queueSave(me.key, s); if (got.length) send(ws, { t: 'cos_got', ids: got }); if (WLIVE && WLIVE.id === rec.id && now - WLIVE.at >= WED_LEN - 30000) WLIVE = null; return; }
+}
 async function vLoad() {
   try { let r = await db.get(VKEY); if (!r) { await db.create(VKEY, '마을', hashCode(crypto.randomBytes(12).toString('hex'))); r = { save: null }; }
     V = Object.assign(vDefault(), r.save || {}); if (V.jp) ebJP = Math.max(EB.JP_BASE, V.jp); }
@@ -1968,7 +2028,7 @@ const AQ_DECO = { coral: 3e5, shellbed: 2e5, weed2: 2.5e5, chest: 5e5, castle: 8
 const aqMax = s => AQX_N[Math.min(3, s.aqx | 0)];
 /* 치장 별 ★1~5: 입은 것이 반짝반짝 (모두에게 보여요). ★5는 반짝 물고기 1마리도 같이 */
 const CUP_BASE = { o: 1e5, hat: 6e4, bk: 1.5e5, fa: 4e4, bob: 4e4 }, CUP_MUL = [1, 3, 8, 20, 50];
-const cosSlot = id => { for (const k of ['o', 'hat', 'bk', 'fa', 'bob']) if (LOOK_IDS[k].includes(id)) return k; return ''; };
+const cosSlot = id => { lookFlat(); for (const k of ['o', 'hat', 'bk', 'fa', 'bob']) if (LOOK_IDS[k].includes(id)) return k; return ''; };
 const cupCost = (id, cur) => { const k = cosSlot(id); return k && cur < 5 ? Math.round(CUP_BASE[k] * CUP_MUL[cur] * (id.startsWith('pv_') ? 2 : 1)) : 0; };
 /* 한정 치장: 이미 있는 옷의 특별한 색 (주간 상점 · 안개 섬) */
 const PV_WEEK = [['o', 'pondrobe', 'gold'], ['o', 'starcloak', 'ember'], ['o', 'suit', 'gold'], ['o', 'pd_snow', 'crystal'], ['o', 'knight', 'gold'], ['o', 'idol', 'rainbow'], ['o', 'hanbok_p', 'pearl'], ['o', 'witchrobe', 'night'], ['o', 'sailor', 'pearl'],
@@ -2240,7 +2300,7 @@ const rosterCache = new Map();   // key -> {name, job, lv, sit}
 let vNote = null, rosterSig = '', rosterT = 0, vBoat = null;
 function rosterSet(key, name, save) {
   const j = save && save.job, job = j && ['fish', 'sch', 'cra', 'tam', 'mer'].includes(j.id) ? j.id : '';
-  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), gt: gtN(save), sh: shN(save), dex: dexIds(save && save.dex), help: save && save.help ? save.help.n | 0 : 0, jr: jrOf(save, job), jx: (save && save.job && save.job.xp && save.job.xp[job]) | 0 });
+  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), gt: gtN(save), sh: shN(save), dex: dexIds(save && save.dex), help: save && save.help ? save.help.n | 0 : 0, hl: (save && save.hu && save.hu.lv) | 0, mar: (save && save.mar && save.mar.p) || '', jr: jrOf(save, job), jx: (save && save.job && save.job.xp && save.job.xp[job]) | 0 });
   if (save && save.boat && !vBoat) vBoat = { by: name };
   rosterSoon();
 }
