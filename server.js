@@ -131,9 +131,12 @@ const GET_ZR = [[1,0],[1,1],[1,2],[1,3],[2,0],[2,1],[2,2],[2,3],[3,0],[3,1],[3,2
 const isGet = id => id >= GET_FIRST && id < GET_FIRST + GET_ZR.length;
 /* 3차-2 물안개 숲 섬 100종 (639~738) [낚시터, 희귀도] — index.html FISH3와 같은 순서 */
 const ISY_FIRST = GET_FIRST + GET_ZR.length, ISY_ZR = [[13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 0], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 1], [13, 2], [13, 2], [13, 2], [13, 2], [13, 2], [13, 2], [13, 3], [13, 3], [13, 4], [13, 4], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 0], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 1], [14, 2], [14, 2], [14, 2], [14, 2], [14, 2], [14, 2], [14, 3], [14, 3], [14, 4], [14, 4], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 0], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 1], [15, 2], [15, 2], [15, 2], [15, 2], [15, 2], [15, 2], [15, 3], [15, 3], [15, 4], [15, 4]];
+/* 3차-3 달콤섬 · 소복섬 80종 (739~818) — index.html FISH4와 같은 순서 */
+const ISY_ZR2 = [[16, 0], [16, 0], [16, 0], [16, 0], [16, 0], [16, 0], [16, 0], [16, 0], [16, 1], [16, 1], [16, 1], [16, 1], [16, 1], [16, 1], [16, 2], [16, 2], [16, 3], [16, 3], [16, 4], [16, 4], [17, 0], [17, 0], [17, 0], [17, 0], [17, 0], [17, 0], [17, 0], [17, 0], [17, 1], [17, 1], [17, 1], [17, 1], [17, 1], [17, 1], [17, 2], [17, 2], [17, 3], [17, 3], [17, 4], [17, 4], [18, 0], [18, 0], [18, 0], [18, 0], [18, 0], [18, 0], [18, 0], [18, 0], [18, 1], [18, 1], [18, 1], [18, 1], [18, 1], [18, 1], [18, 2], [18, 2], [18, 3], [18, 3], [18, 4], [18, 4], [19, 0], [19, 0], [19, 0], [19, 0], [19, 0], [19, 0], [19, 0], [19, 0], [19, 1], [19, 1], [19, 1], [19, 1], [19, 1], [19, 1], [19, 2], [19, 2], [19, 3], [19, 3], [19, 4], [19, 4]];
+ISY_ZR.push(...ISY_ZR2);
 const isIsy = id => id >= ISY_FIRST && id < ISY_FIRST + ISY_ZR.length;
 const FISH_MAX = ISY_FIRST + ISY_ZR.length;
-const ZONE_PRICE = [8, 30, 90, 280, 950, 2000, 400, 100, 1200, 1500, 2600, 400, 3000, 3400, 4200], RAR_MULT = [1, 2.2, 5, 20, 120];   // 2026-11-09: 영웅 · 전설 값 올림 (index.html RARITY와 같아요)
+const ZONE_PRICE = [8, 30, 90, 280, 950, 2000, 400, 100, 1200, 1500, 2600, 400, 3000, 3400, 4200, 3600, 4200, 4000, 4600], RAR_MULT = [1, 2.2, 5, 20, 120];   // 2026-11-09: 영웅 · 전설 값 올림 (index.html RARITY와 같아요)
 const rarOf = i => i < 8 ? 0 : i < 14 ? 1 : i < 18 ? 2 : i < 19 ? 3 : 4;
 function fishPrice(id) {
   let z, r;
@@ -382,10 +385,10 @@ function npcReqs() {
 const hasReqItem = (s, item, n) => item.startsWith('f:') ? has(s, +item.slice(2), n) : (itemsOf(s)[mk(item)] | 0) >= n;
 /* 직업 4.0 (2026-11-05): 조사 쪽지 · 장인 명품 상자 — index.html ITEMS와 같아요 */
 const MP_IDS = ["mp_b_dragon", "mp_b_angel", "mp_b_sun", "mp_b_galaxy", "mp_b_crown", "mp_b_rainbowp", "mp_b_hourglass", "mp_b_starheart", "mp_r_aurora", "mp_r_dragon", "mp_r_gold2", "mp_r_cosmos"];
-ITEM_IDS.push('clue', ...MP_IDS);
+ITEM_IDS.push('clue', ...MP_IDS); ITEM_IDS.push('snow', 'flake');
 ITEM_IDS.push('log', 'plank', 'wplank', 'dye', 'cloth', 'honey', 'honey_lav', 'honey_rb', 'wildhoney', 'pie', 'apple', 'peach', 'orange', 'cherry', 'fl_tulip', 'fl_sun', 'fl_cosmos', 'fl_lav', 'fl_rose', 'fl_hydr', 'fl_lily', 'fl_rb', 'sap_oak', 'sap_pine', 'sap_apple', 'sap_peach', 'sap_orange', 'sap_cherry');   // 자연 1.0 (index.html ITEMS와 같아요)
 LOOK_IDS.bob.push('b_bfly'); LOOK_IDS.ti.push('t_bug1', 't_bug2', 't_ark'); LOOK_IDS.ti.push('t_ruby30', 't_litter30');
-Object.assign(ITEM_NPC, { clue: 20000, fl_tulip: 140000, fl_cosmos: 180000, fl_sun: 270000, fl_lav: 450000, fl_rose: 900000, fl_hydr: 1350000, fl_lily: 2200000, fl_rb: 6000000,   /* 2026-11-09: 꽃이 돈이 되게 */ apple: 3000, peach: 4000, orange: 3500, cherry: 8000, honey: 800, wildhoney: 6000, log: 300, plank: 400, wplank: 2500, sap_oak: 1000000, sap_pine: 1000000, sap_apple: 2500000, sap_peach: 4000000, sap_orange: 4000000, sap_cherry: 7500000 }, {"mp_b_dragon": 12500000, "mp_b_angel": 14000000, "mp_b_sun": 15000000, "mp_b_galaxy": 17500000, "mp_b_crown": 20000000, "mp_b_rainbowp": 22500000, "mp_b_hourglass": 50000000, "mp_b_starheart": 75000000, "mp_r_aurora": 12500000, "mp_r_dragon": 15000000, "mp_r_gold2": 25000000, "mp_r_cosmos": 60000000});
+Object.assign(ITEM_NPC, { snow: 100, flake: 30000, clue: 20000, fl_tulip: 140000, fl_cosmos: 180000, fl_sun: 270000, fl_lav: 450000, fl_rose: 900000, fl_hydr: 1350000, fl_lily: 2200000, fl_rb: 6000000,   /* 2026-11-09: 꽃이 돈이 되게 */ apple: 3000, peach: 4000, orange: 3500, cherry: 8000, honey: 800, wildhoney: 6000, log: 300, plank: 400, wplank: 2500, sap_oak: 1000000, sap_pine: 1000000, sap_apple: 2500000, sap_peach: 4000000, sap_orange: 4000000, sap_cherry: 7500000 }, {"mp_b_dragon": 12500000, "mp_b_angel": 14000000, "mp_b_sun": 15000000, "mp_b_galaxy": 17500000, "mp_b_crown": 20000000, "mp_b_rainbowp": 22500000, "mp_b_hourglass": 50000000, "mp_b_starheart": 75000000, "mp_r_aurora": 12500000, "mp_r_dragon": 15000000, "mp_r_gold2": 25000000, "mp_r_cosmos": 60000000});
 Object.assign(MAKER, { clue: 'sch' }, {"mp_b_dragon": "cra", "mp_b_angel": "cra", "mp_b_sun": "cra", "mp_b_galaxy": "cra", "mp_b_crown": "cra", "mp_b_rainbowp": "cra", "mp_b_hourglass": "cra", "mp_b_starheart": "cra", "mp_r_aurora": "cra", "mp_r_dragon": "cra", "mp_r_gold2": "cra", "mp_r_cosmos": "cra"});
 Object.assign(ITEM_NAME, { clue: '조사 쪽지' }, {"mp_b_dragon": "용의 알 찌 상자", "mp_b_angel": "천사 찌 상자", "mp_b_sun": "태양 찌 상자", "mp_b_galaxy": "은하수 찌 상자", "mp_b_crown": "왕관 찌 상자", "mp_b_rainbowp": "무지개 진주 찌 상자", "mp_b_hourglass": "시간의 모래시계 찌 상자", "mp_b_starheart": "별의 심장 찌 상자", "mp_r_aurora": "오로라 낚싯대 상자", "mp_r_dragon": "용염 낚싯대 상자", "mp_r_gold2": "순금 용왕 낚싯대 상자", "mp_r_cosmos": "우주의 낚싯대 상자"});
 LOOK_IDS.bob.push('jb_fish1','jb_fish3','jb_sch1','jb_sch3','jb_cra1','jb_cra3','jb_tam1','jb_tam3','jb_mer1','jb_mer3','b_trust'); LOOK_IDS.rod.push('jr_fish','jr_sch','jr_cra','jr_tam','jr_mer'); LOOK_IDS.bk.push('k_trust'); LOOK_IDS.ti.push('t_trust1','t_trust2');
@@ -588,7 +591,7 @@ wss.on('connection', (ws) => {
         rosterSet(key, p.name, p.save); rosterSend(true);
         if (p.save) withLock(key, async () => { stampMigrate(ws, p.save); queueSave(key, p.save); await welcomeBack(ws, p); }).catch(e => console.error('welcome', e.message));
         send(ws, { t: 'pt', p: ptPub(), today: ptToday(p.save) }); if (p.save) send(ws, { t: 'vday', b: vdayOf(p.save).b });
-        send(ws, { t: 'ev', list: evList() }); send(ws, vPub()); send(ws, { t: 'traps', list: trapPub() }); send(ws, dkPub()); if (V && Array.isArray(V.lan)) send(ws, { t: 'lans', list: V.lan.filter(l => Date.now() - l.at < 864e5) }); if (p.save) send(ws, { t: 'med', med: medPub(p.save), wkc: p.save.wkc || null, medw: p.save.medw || null }); togCheck();
+        send(ws, { t: 'ev', list: evList() }); send(ws, vPub()); send(ws, { t: 'traps', list: trapPub() }); send(ws, dkPub()); if (V && V.snowmen) send(ws, { t: 'snowmen', list: Object.values(V.snowmen) }); if (V && Array.isArray(V.lan)) send(ws, { t: 'lans', list: V.lan.filter(l => Date.now() - l.at < 864e5) }); if (p.save) send(ws, { t: 'med', med: medPub(p.save), wkc: p.save.wkc || null, medw: p.save.medw || null }); togCheck();
         if (p.save && Array.isArray(p.save.auh) && p.save.auh.length) withLock(key, () => holdRefund(key)).catch(e => console.error('hold', e.message));
         console.log('접속', p.name, '현재', players.size, '명');
       } catch (e) {
@@ -1011,6 +1014,12 @@ function onMsg(ws, me, m) {
       if (!V) break; const text = cleanText(m.text || '', 24); if (!text) break; const now = Date.now();
       V.lan = (Array.isArray(V.lan) ? V.lan : []).filter(l => now - l.at < 864e5 && l.n !== me.name); V.lan.push({ n: me.name, t: text, at: now }); if (V.lan.length > 40) V.lan.shift(); vMark();
       broadcast({ t: 'lans', list: V.lan }); broadcast({ t: 'news', text: '🏮 ' + me.name + ' 님이 고래 만 하늘에 소원 등불을 띄웠어요' }, ws); break; }
+    case 'sm_set': {   // ⛄ 소복마을 눈사람 (3차-3): 한 사람에 하나 · 모두에게 보여요
+      if (!V) break; V.snowmen = V.snowmen && typeof V.snowmen === 'object' ? V.snowmen : {}; const x = m.x | 0, y = m.y | 0, st = Math.max(0, Math.min(2, m.st | 0));
+      const parts = Array.isArray(m.parts) ? m.parts.filter(p => ['nose', 'arms', 'scarf', 'hat', 'star'].includes(p)).slice(0, 5) : [];
+      if (Object.entries(V.snowmen).some(([k, s]) => k !== me.key && s.x === x && s.y === y)) break;
+      V.snowmen[me.key] = { n: me.name, x, y, st, parts, at: Date.now() }; vMark(); broadcast({ t: 'snowmen', list: Object.values(V.snowmen) }); break; }
+    case 'ski_done': broadcast({ t: 'news', text: '🎿 ' + me.name + ' 님이 스키복을 완성했어요! 이제 소복섬에서도 씽씽' }, ws); break;
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
     /* ----- 은비랜드 ----- */
     case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'eb_hilo': case 'eb_vip': ebMsg(ws, me, m); break;
@@ -1725,7 +1734,7 @@ const medShop = () => { const n = wkNum(), out = MED_CORE.slice(); for (let i = 
 
 /* ===== 🪤 통발 3.0 (2026-11-09): 낚시터 물가에 직접 놓는 통발 · 누구나 들여다볼 수 있어요 · 마을 기록(__village)에 저장
    안에 든 물고기는 (seed, 놓은 시각, 빠르기, 칸 수, 미끼)로 모든 화면이 똑같이 계산해요 (index.html trapRoll과 같아요) ===== */
-const TRAP_ZONES = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 13, 14, 15], TRAP_PER_ZONE = 6, TRAP_BX = [1, 1.5, 2.5, 3.5, 5];
+const TRAP_ZONES = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19], TRAP_PER_ZONE = 6, TRAP_BX = [1, 1.5, 2.5, 3.5, 5];
 const TRAP_SKINS = ['tp_bamboo', 'tp_rattan', 'tp_shell', 'tp_sakura', 'tp_coral', 'tp_chest', 'tp_moon', 'tp_gold'], TRAP_FLAGS = ['tf_none', 'tfl_red', 'tfl_stripe', 'tfl_star', 'tfl_lamp', 'tfl_rainbow', 'tfl_heart'];
 const trapsOf = () => { if (!V) return {}; if (!V.traps || typeof V.traps !== 'object') V.traps = {}; return V.traps; };
 const trapPub = () => Object.entries(trapsOf()).map(([k, t]) => ({ n: t.n, z: t.z, x: t.x, y: t.y, t0: t.t0, seed: t.seed, min: t.min, cap: t.cap, bx: t.bx, sk: t.sk, fl: t.fl, at: t.at, vis: t.vis || {}, notes: t.notes || [] }));

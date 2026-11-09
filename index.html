@@ -1427,9 +1427,11 @@ function grassTile(v){const b=Buf(16,16),r=RNG(100+v);fillR(b,0,0,16,16,[196,230
 function pathTile(v){const b=Buf(16,16),r=RNG(200+v);fillR(b,0,0,16,16,[240,226,196]);
   for(let i=0;i<10;i++){const x=(r()*16)|0,y=(r()*16)|0;px(b,x,y,r()<.5?[216,200,168]:[252,242,218])}
   for(let i=0;i<2;i++){const x=(r()*13)|0,y=(r()*14)|0;fillR(b,x,y,2,1,[212,194,160])}return b}
+function creamTile(v){const b=Buf(16,16),r=RNG(500+v);fillR(b,0,0,16,16,[255,226,236]);for(let i=0;i<14;i++){const x=(r()*16)|0,y=(r()*16)|0;px(b,x,y,[[255,200,220],[255,255,255],[200,236,255],[255,240,170]][(r()*4)|0])}return b}
+function snowTile(v){const b=Buf(16,16),r=RNG(600+v);fillR(b,0,0,16,16,[244,248,255]);for(let i=0;i<10;i++){const x=(r()*16)|0,y=(r()*16)|0;px(b,x,y,r()<.5?[220,232,248]:[255,255,255])}return b}
 function sandTile(v){const b=Buf(16,16),r=RNG(300+v);fillR(b,0,0,16,16,[248,234,202]);
   for(let i=0;i<12;i++){const x=(r()*16)|0,y=(r()*16)|0;px(b,x,y,r()<.5?[234,216,180]:[255,246,222])}return b}
-const WATER_COL={1:[170,222,226],2:[156,212,236],3:[140,198,236],4:[116,170,224],5:[200,182,240],6:[150,196,204],7:[96,146,206],8:[150,214,222],9:[176,204,206],10:[164,214,228],11:[110,214,214],13:[160,200,190],14:[150,190,220],15:[90,160,220]};
+const WATER_COL={1:[170,222,226],2:[156,212,236],3:[140,198,236],4:[116,170,224],5:[200,182,240],6:[150,196,204],7:[96,146,206],8:[150,214,222],9:[176,204,206],10:[164,214,228],11:[110,214,214],13:[160,200,190],14:[150,190,220],15:[90,160,220],16:[250,196,220],17:[190,220,250],18:[206,232,248],19:[150,190,228]};
 function waterTile(frame,zone){const b=Buf(16,16),c=WATER_COL[zone]||WATER_COL[1];fillR(b,0,0,16,16,c);
   const hi=lighten(c,.5),lo=mixc(c,[90,110,190],.18);
   for(let row=0;row<4;row++){const y=row*4+((row*3)%4)%3,off=(frame*3+row*5)%16;
@@ -1748,7 +1750,8 @@ const ZONES=[
  {id:7,name:'먼바다 배낚시',gate:-1},   /* 4명이 모여야만 나가요 */
  {id:8,name:'물결 시장 선착장',gate:-1},   /* 바닷가를 열면 갈 수 있어요 */
  {id:9,name:'안개 연못',gate:-1},{id:10,name:'안개 계곡',gate:-1},{id:11,name:'산호초 해안',gate:-1},
- {id:12,name:'꽃배 바다',gate:-1},{id:13,name:'물안개 숲 호수',gate:-1},{id:14,name:'반딧불 개울',gate:-1},{id:15,name:'고래 만',gate:-1}   /* 3차-2: 안개 섬 옆 「물안개 숲 섬」 */   /* 안개 섬 안의 새 낚시터 (섬에 가면 바로) */
+ {id:12,name:'꽃배 바다',gate:-1},{id:13,name:'물안개 숲 호수',gate:-1},{id:14,name:'반딧불 개울',gate:-1},{id:15,name:'고래 만',gate:-1},
+ {id:16,name:'시럽 호수',gate:-1},{id:17,name:'사탕 바다',gate:-1},{id:18,name:'얼음 호수',gate:-1},{id:19,name:'눈꽃 바다',gate:-1}   /* 3차-3: 달콤섬 · 소복섬 */   /* 3차-2: 안개 섬 옆 「물안개 숲 섬」 */   /* 안개 섬 안의 새 낚시터 (섬에 가면 바로) */
 ];
 const RARITY=[
  {name:'흔함',color:'#9aa7b4',base:58,mult:1},
@@ -1757,7 +1760,7 @@ const RARITY=[
  {name:'영웅',color:'#b886ee',base:4,mult:20},
  {name:'전설',color:'#f2b238',base:1,mult:120}   // 2026-11-09: 전설 값을 크게 올렸어요 (예전 45)
 ];
-const ZONE_PRICE=[8,30,90,280,950,2000,400,100,1200,1500,2600,400,3000,3400,4200]; // 9 안개 연못 · 10 안개 계곡 · 11 산호초 해안 // server.js ZONE_PRICE와 같아야 해요 (7 배낚시 · 8 시장)
+const ZONE_PRICE=[8,30,90,280,950,2000,400,100,1200,1500,2600,400,3000,3400,4200,3600,4200,4000,4600]; // 9 안개 연못 · 10 안개 계곡 · 11 산호초 해안 // server.js ZONE_PRICE와 같아야 해요 (7 배낚시 · 8 시장)
 
 /* [이름, 틀, 몸색, 무늬, 길이cm, 설명, {pc,belly,fin}] — 각 낚시터 20종, 순서가 희귀도 (8·6·4·1·1) */
 const RAW=[
@@ -2157,7 +2160,10 @@ const GS_NAME={spring:'봄',summer:'여름',autumn:'가을',winter:'겨울'};
 const FISH3={"13": [["이끼송사리", "tiny", "#8ab08a", 0, 4, "이끼 낀 숲 호수의 작은 주민.", {}], ["안개버들치", "long", "#a8b8b0", 3, 10, "안개 사이로 은빛 줄이 스친다.", {}], ["솔잎붕어", "round", "#7a9a6a", 2, 14, "솔잎 그림자 아래 숨어 지낸다.", {}], ["도토리납자루", "round", "#b08a5a", 0, 7, "도토리처럼 동글동글.", {}], ["고사리미꾸리", "eel", "#8a9a5a", 5, 11, "고사리 뿌리 사이를 꼬물꼬물.", {}], ["물방울피라미", "long", "#b8d0e0", 3, 9, "물방울처럼 맑은 몸.", {}], ["숲그늘중고기", "round", "#6a7a6a", 1, 12, "나무 그늘을 따라 천천히.", {}], ["버섯모래무지", "flat", "#c8b090", 5, 13, "버섯 무늬를 등에 얹었다.", {}], ["안개각시붕어", "round", "#d0c8d8", 0, 8, "안개 낀 아침에 수줍게.", {}], ["솔방울돌고기", "cat", "#8a6a4a", 5, 10, "솔방울처럼 거칠거칠.", {}], ["잎새쉬리", "long", "#9ac0a0", 1, 11, "잎맥 같은 줄무늬.", {}], ["이슬참붕어", "round", "#a0b8c0", 2, 13, "이슬 맺힌 비늘이 반짝.", {}], ["숲속빙어", "tiny", "#e0e8f0", 0, 6, "차가운 숲 호수의 투명한 빙어.", {}], ["물푸레갈겨니", "long", "#90a8a0", 3, 12, "물푸레나무 그늘을 좋아한다.", {}], ["안개잉어", "round", "#b0a8a0", 2, 40, "안개 속에서 커다란 그림자가.", {"w": "fog"}], ["숲거북복", "box", "#7a9a6a", 5, 22, "이끼 등껍질을 이고 다닌다.", {}], ["고목메기", "cat", "#5a4a3a", 0, 45, "쓰러진 고목 밑의 터줏대감.", {"t": "night"}], ["안개쏘가리", "round", "#a09070", 5, 30, "안개 낀 날만 사냥에 나선다.", {"w": "fog"}], ["청이끼가물치", "eel", "#4a6a4a", 5, 60, "푸른 이끼빛 가물치.", {}], ["숲요정금붕어", "fancy", "#ffb0c0", 0, 12, "날개 같은 지느러미.", {"pc": "#fff0f8"}], ["버섯볼락", "round", "#c07a5a", 2, 20, "빨간 버섯 갓 같은 머리.", {}], ["그루터기향어", "round", "#8a7a6a", 1, 35, "그루터기처럼 묵직하다.", {}], ["달이끼송어", "long", "#a0b0d0", 1, 38, "달빛에 이끼가 은빛으로.", {"t": "night"}], ["새벽안개열목어", "long", "#c0a8a0", 2, 45, "새벽 안개 속 붉은 눈.", {"t": "dawn"}], ["숲의 숨결 잉어", "fancy", "#c0f0d0", 0, 55, "숲이 숨 쉴 때 함께 떠오른다.", {"w": "fog", "pc": "#ffffff"}], ["이끼정령어", "angel", "#9ad07a", 2, 25, "이끼를 두른 작은 정령.", {"w": "rain"}], ["안개사슴메기", "cat", "#b0a090", 4, 70, "뿔 같은 수염을 가졌다.", {"t": "dusk"}], ["물안개철갑상어", "shark", "#8a9aa8", 0, 150, "안개 호수 가장 깊은 곳의 고대어.", {}], ["숲빛 비단잉어", "fancy", "#ffe0a0", 0, 60, "숲에 빛이 들 때만.", {"t": "day", "w": "clear", "pc": "#ff8a5a"}], ["고목의 왕메기", "cat", "#3a2a20", 0, 120, "천 년 고목 밑에서 잠든 왕.", {"t": "night", "w": "rain"}], ["안개숲 수호 거북", "box", "#6a8a5a", 0, 90, "숲 호수를 지키는 거북. 안개 짙은 밤에.", {"t": "night", "w": "fog", "pc": "#c0f0a0"}], ["이끼왕 가물치", "eel", "#2a4a2a", 5, 140, "숲 호수 먹이사슬 꼭대기.", {"w": "rain"}], ["숲의 기억", "fancy", "#e8f8e0", 0, 80, "숲이 기억하는 가장 오래된 물고기.", {"t": "dawn", "w": "fog", "pc": "#ffe8a0"}], ["물안개 용잉어", "fancy", "#d0e0ff", 0, 130, "안개를 타고 하늘로 오른다는 잉어.", {"t": "night", "w": "fog", "pc": "#a0f0ff"}]], "14": [["반딧불송사리", "tiny", "#e8f0a0", 0, 4, "꼬리 끝이 반딧불처럼.", {}], ["개울돌마자", "cat", "#8a8070", 5, 8, "돌 틈의 작은 친구.", {}], ["자갈종개", "eel", "#a09070", 5, 10, "자갈과 꼭 닮았다.", {}], ["풀피리피라미", "long", "#c0d0a0", 3, 10, "풀피리 소리를 좋아한대요.", {}], ["물살꺽지", "round", "#6a6a5a", 2, 13, "물살을 거슬러 오른다.", {}], ["조약돌동사리", "cat", "#9a8a7a", 2, 11, "조약돌 위에서 꼼짝 않는다.", {}], ["별빛참마자", "long", "#b0b8d0", 2, 14, "밤 개울에 별빛이 비친다.", {}], ["물풀납줄개", "round", "#a8c0a0", 0, 7, "물풀 사이에서 반짝.", {}], ["개울버들매치", "long", "#a8a090", 3, 12, "버드나무 아래 단골.", {}], ["은방울어름치", "long", "#c0c8d0", 2, 16, "은방울 같은 점무늬.", {}], ["개구리밥붕어", "round", "#90b070", 0, 11, "개구리밥을 머리에 이고.", {}], ["물레방아돌고기", "cat", "#7a7060", 5, 12, "물레방아 아래서 빙글빙글.", {}], ["개울새미", "long", "#a0a8b0", 3, 13, "새벽 개울에 먼저 나온다.", {"t": "dawn"}], ["반딧불무지개송어", "long", "#e0b0d0", 1, 40, "밤이면 몸에 불빛이 켜진다.", {"t": "night"}], ["개울쏘가리", "round", "#a08060", 5, 32, "개울의 사냥꾼.", {}], ["물안개둑중개", "cat", "#7a8a8a", 5, 15, "안개 낀 날 둑 아래.", {"w": "fog"}], ["초롱꺽정이", "cat", "#c0a060", 2, 18, "초롱불 같은 눈.", {"t": "night"}], ["비단자가사리", "cat", "#d0a070", 0, 15, "비단결 같은 피부.", {}], ["여울황쏘가리", "round", "#f0c040", 5, 35, "여울에서 금빛으로 번쩍.", {"w": "clear"}], ["달맞이열목어", "long", "#d0a0a0", 2, 48, "달이 뜨면 물 위로 고개를.", {"t": "night"}], ["개울금강모치", "long", "#90b0c0", 3, 12, "맑은 물에만 산다.", {}], ["반딧불여왕어", "fancy", "#fff0a0", 0, 30, "반딧불이들이 따라다닌다.", {"t": "night", "pc": "#a0ff80"}], ["물소리돌상어", "shark", "#8a8a80", 0, 25, "물소리에 맞춰 헤엄친다.", {}], ["개울별자리어", "angel", "#9090e0", 2, 20, "몸에 별자리가 그려져 있다.", {"t": "night", "w": "clear", "pc": "#ffffff"}], ["초여름 꾸구리", "cat", "#a0b080", 5, 12, "초여름 밤에만.", {"t": "dusk"}], ["여울의 은빛 연어", "long", "#d0d8e0", 1, 80, "개울을 거슬러 고향으로.", {"w": "rain"}], ["반딧불 대왕어", "fancy", "#e8ff90", 0, 70, "개울 전체를 밝히는 빛.", {"t": "night", "w": "clear", "pc": "#ffffff"}], ["개울 수호 장어", "eel", "#5a6a5a", 0, 110, "비 오는 밤 개울을 거슬러 오른다.", {"t": "night", "w": "rain"}], ["무지개다리어", "fancy", "#ffc0c0", 0, 45, "무지개가 뜨면 다리처럼 뛰어오른다.", {"w": "rainbow", "pc": "#a0e0ff"}], ["별똥별 송어", "long", "#fff0c0", 1, 60, "별똥별이 떨어진 밤에 태어났다.", {"t": "night", "pc": "#ffd34d"}], ["반딧불 정령왕", "angel", "#f0ffb0", 0, 50, "반딧불 개울의 왕. 맑은 밤에만.", {"t": "night", "w": "clear", "pc": "#80ff60"}], ["여울의 용", "eel", "#40a080", 0, 160, "개울이 시작되는 곳의 전설.", {"t": "dawn", "w": "rain", "pc": "#f0d070"}], ["개울의 꿈", "fancy", "#e0d0ff", 0, 40, "잠든 개울이 꾸는 꿈.", {"t": "night", "w": "fog", "pc": "#ffe0f0"}]], "15": [["만새끼멸치", "tiny", "#c0d8e8", 0, 6, "고래 만에 떼로 몰려온다.", {}], ["파도전갱이", "long", "#90b8d8", 7, 25, "파도를 타고 들어온다.", {}], ["고래밥정어리", "tiny", "#a8c8e0", 3, 12, "고래가 좋아하는 간식.", {}], ["물보라고등어", "long", "#6aa0d0", 7, 30, "물보라 속을 가른다.", {}], ["소금쥐치", "flat", "#c8c0a8", 5, 20, "소금기 가득한 바람을 좋아한다.", {}], ["만쥐노래미", "round", "#9a8a6a", 5, 28, "바위 사이 노래꾼.", {}], ["갈매기볼락", "round", "#c0b0a0", 2, 22, "갈매기 그림자를 피해 다닌다.", {}], ["산호놀래기", "long", "#f0a080", 3, 20, "산호빛 줄무늬.", {}], ["돌고래꽁치", "needle", "#a0c0e0", 0, 30, "돌고래와 함께 뛴다.", {}], ["포말전어", "round", "#c8d0d8", 2, 18, "하얀 거품 속에서 반짝.", {}], ["만벵에돔", "round", "#4a5a6a", 5, 35, "파도 부서지는 갯바위 아래.", {}], ["해초도다리", "flat", "#8a9a6a", 5, 30, "해초밭에 납작.", {}], ["고래소리방어", "long", "#88a8c8", 1, 70, "고래 노래가 들리면 모여든다.", {}], ["푸른 줄돔", "round", "#5a8ad0", 1, 40, "푸른 줄이 선명하다.", {}], ["만물결가오리", "ray", "#8a9ab8", 2, 90, "물결처럼 날갯짓.", {"td": "low"}], ["밀물참돔", "round", "#f09098", 2, 55, "밀물 때 만 안으로.", {"td": "high", "pc": "#8ad0f0"}], ["범고래 동무", "shark", "#3a3a4a", 0, 120, "범고래 무늬를 닮은 상어.", {"belly": "#ffffff"}], ["노을개복치", "box", "#e0a080", 5, 150, "노을빛 둥근 몸.", {"t": "dusk"}], ["돌고래 친구 만새기", "long", "#40c0a0", 3, 100, "돌고래 떼와 함께 다닌다.", {"pc": "#f0d040"}], ["고래 만 쏠배감펭", "lion", "#e07060", 1, 30, "화려한 지느러미 부채.", {}], ["혹등고래 그림자어", "whale", "#5a6a8a", 0, 250, "혹등고래 곁을 따라 헤엄친다.", {"td": "high"}], ["파란 청새치", "sail", "#3a6ad0", 0, 260, "고래 만 바깥의 검객.", {"pc": "#8ae0ff"}], ["물보라 돌고래상어", "shark", "#7a90b0", 2, 200, "돌고래처럼 뛰어오르는 상어.", {"w": "clear"}], ["진주 해마", "seahorse", "#f0e8f0", 0, 18, "진주빛 꼬리를 감는다.", {"td": "low", "pc": "#ffffff"}], ["고래 만 황금참치", "long", "#f0c040", 1, 180, "황금빛 참치 떼의 대장.", {"t": "day", "pc": "#fff0a0"}], ["밤바다 등불오징어", "angler", "#4a3a8a", 3, 60, "몸에서 등불이 켜진다.", {"t": "night", "pc": "#a0f0ff"}], ["무지개 돌고래어", "fancy", "#a0d0ff", 0, 90, "무지개가 뜨면 함께 뛴다.", {"w": "rainbow", "pc": "#ffc0e0"}], ["고래 노래 가오리", "ray", "#6a7ab0", 2, 180, "고래 노래에 맞춰 춤춘다.", {"t": "night", "td": "high"}], ["밀물의 은빛 고래상어", "shark", "#a0b0c8", 2, 400, "밀물이 차오르는 밤에 지나간다.", {"t": "night", "td": "high", "pc": "#ffffff"}], ["만의 등대 참돔", "round", "#ff8a8a", 2, 80, "등대 불빛 아래서만.", {"t": "night", "pc": "#ffe0a0"}], ["고래 만의 어미 고래", "whale", "#4a5a7a", 4, 800, "고래 만의 어미. 맑은 밀물 새벽에 노래한다.", {"t": "dawn", "td": "high", "w": "clear", "pc": "#c0e0ff"}], ["푸른 바다의 왕 흰수염고래", "whale", "#6a8ab0", 0, 1500, "만에 들어오는 가장 큰 생명. 안개 낀 밀물에.", {"td": "high", "w": "fog", "pc": "#e0f0ff"}], ["파도 위의 은빛 돛새치", "sail", "#c0d0e8", 0, 320, "파도 꼭대기를 나는 은빛 돛.", {"w": "clear", "pc": "#ffffff"}]]};
 const FISH3_R={"13": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 4, 4], "14": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 4, 4], "15": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 4, 4]};
 /* ===== 3차-2 (2026-11-09): 물안개 숲 섬 100종 (id 639~738) · 13 물안개 숲 호수 34 · 14 반딧불 개울 33 · 15 고래 만 33 — server.js ISY와 같은 순서 ===== */
+const FISH4={"16": [["설탕송사리", "tiny", "#fff0f4", 0, 4, "설탕 가루를 뿌린 듯 반짝.", {}], ["젤리피라미", "long", "#ffb0c8", 3, 9, "말랑말랑 젤리 몸.", {}], ["마카롱붕어", "round", "#c8e8b0", 4, 10, "위아래가 다른 색 마카롱.", {}], ["캐러멜미꾸리", "eel", "#d09050", 0, 11, "캐러멜처럼 쭉 늘어난다.", {}], ["딸기우유납자루", "round", "#ffc0d0", 2, 7, "딸기 우유 빛 비늘.", {}], ["푸딩복어", "puff", "#f8e0a0", 4, 10, "탱글탱글 푸딩 몸.", {}], ["시럽빙어", "tiny", "#ffe8b0", 0, 6, "시럽 호수의 투명한 빙어.", {}], ["솜사탕각시붕어", "round", "#ffd0f0", 0, 8, "솜사탕처럼 폭신.", {}], ["초코칩메기", "cat", "#6a4030", 2, 30, "등에 초코칩이 콕콕.", {}], ["바닐라잉어", "round", "#fff4d8", 0, 35, "바닐라 향이 솔솔.", {}], ["녹차라떼쏘가리", "round", "#a0c080", 5, 28, "쌉싸름한 녹차빛.", {}], ["크림브륄레가물치", "eel", "#e0b070", 4, 50, "윗면이 바삭바삭.", {"t": "dusk"}], ["컵케이크금붕어", "fancy", "#ffa0c0", 0, 12, "머리에 크림을 얹었다.", {"pc": "#ffffff"}], ["티라미수향어", "round", "#b08a60", 5, 35, "코코아 가루를 두른 향어.", {}], ["무지개사탕잉어", "fancy", "#ffd0a0", 0, 40, "무지개가 뜨면 일곱 빛 사탕으로.", {"w": "rainbow", "pc": "#a0e0ff"}], ["별사탕해마", "seahorse", "#fff0a0", 0, 14, "별사탕을 꼬리에 감고.", {"t": "night"}], ["케이크성 수호어", "angel", "#ffe0e8", 0, 30, "케이크 성을 지킨다.", {"pc": "#ff8ab0"}], ["생크림 고래", "whale", "#fffaf0", 0, 200, "시럽 호수에서 크림을 뿜는다.", {"w": "clear"}], ["달콤섬의 여왕 마카롱", "fancy", "#e0c0ff", 0, 60, "달콤섬 가장 깊은 시럽 속의 여왕.", {"t": "night", "w": "clear", "pc": "#ffd0e0"}], ["황금 꿀단지어", "fancy", "#ffc840", 0, 70, "꿀단지에서 태어났다는 전설.", {"t": "day", "pc": "#fff0a0"}]], "17": [["사탕멸치", "tiny", "#ffd0e0", 3, 6, "줄무늬 사탕 같은 멸치.", {}], ["젤리빈전갱이", "long", "#a0d0ff", 7, 24, "젤리빈 색이 알록달록.", {}], ["쿠키쥐치", "flat", "#d0a070", 5, 22, "바삭한 쿠키 무늬.", {}], ["비스킷도다리", "flat", "#e0c090", 5, 28, "납작한 비스킷.", {}], ["레몬사탕볼락", "round", "#fff080", 2, 20, "새콤한 레몬빛.", {}], ["민트초코고등어", "long", "#80d0c0", 7, 30, "민트 바탕에 초코 줄.", {"pc": "#5a3a2a"}], ["콜라젤리오징어", "angler", "#8a4a3a", 3, 25, "톡 쏘는 콜라빛.", {}], ["막대사탕해파리", "jelly", "#ffb0d0", 0, 18, "막대사탕처럼 빙글빙글.", {}], ["와플가오리", "ray", "#e0b070", 5, 70, "와플 격자무늬 날개.", {}], ["도넛복어", "puff", "#f0a0b0", 0, 16, "가운데가 뻥 뚫린 듯.", {}], ["초코바참치", "long", "#6a4a3a", 1, 90, "초코바처럼 단단한 몸.", {}], ["츄러스장어", "eel", "#d09a5a", 1, 70, "설탕 묻은 츄러스.", {}], ["슈크림개복치", "box", "#fff0d0", 5, 120, "속에 슈크림이 가득.", {"t": "day"}], ["딸기쇼트케이크돔", "round", "#ffe0e8", 2, 45, "딸기가 콕 박혔다.", {"pc": "#ff5a7a"}], ["밤하늘 별사탕상어", "shark", "#4a4a8a", 2, 180, "밤이면 별사탕이 반짝인다.", {"t": "night", "pc": "#fff0a0"}], ["솜사탕 돛새치", "sail", "#ffc0e8", 0, 200, "솜사탕 돛을 활짝.", {"pc": "#c0e0ff"}], ["캔디 고래상어", "shark", "#a0e0d0", 2, 300, "사탕 바다를 천천히 지나간다.", {"w": "clear"}], ["마시멜로 해파리왕", "jelly", "#fff8ff", 0, 60, "둥실둥실 거대한 마시멜로.", {"w": "fog"}], ["사탕 바다의 용", "eel", "#ff9ad0", 0, 400, "사탕 바다를 휘감는 분홍 용.", {"t": "night", "w": "rainbow", "pc": "#fff0a0"}], ["설탕 궁전의 고래", "whale", "#ffe8f0", 4, 900, "설탕 궁전만 한 고래. 맑은 밀물 새벽에.", {"t": "dawn", "td": "high", "pc": "#ffffff"}]], "18": [["눈꽃송사리", "tiny", "#e8f4ff", 0, 4, "눈꽃 무늬가 콕콕.", {}], ["얼음빙어", "tiny", "#d8ecff", 0, 7, "얼음 구멍 아래서 반짝.", {}], ["서리버들치", "long", "#c8d8e8", 3, 10, "서리가 내린 듯 하얀 등.", {}], ["고드름미꾸리", "eel", "#c0d8f0", 0, 12, "고드름처럼 가늘고 길다.", {}], ["털모자붕어", "round", "#e0c0c0", 4, 14, "머리가 털모자처럼 빨갛다.", {"pc": "#e86070"}], ["눈사람복어", "puff", "#ffffff", 0, 12, "눈사람처럼 동글동글 두 단.", {}], ["장갑납자루", "round", "#c0d0f0", 2, 8, "지느러미가 벙어리장갑 같다.", {}], ["목도리피라미", "long", "#d0e0f0", 3, 10, "목에 빨간 줄무늬 목도리.", {"pc": "#e05050"}], ["얼음송어", "long", "#a8c8e8", 1, 40, "차가운 호수의 은빛 송어.", {}], ["눈보라곤들매기", "long", "#b0c0d0", 2, 38, "눈보라 치는 날 더 잘 문다.", {"w": "fog"}], ["오로라연어", "long", "#a0e0d0", 1, 70, "오로라 빛 줄무늬.", {"t": "night", "pc": "#c0a0ff"}], ["코코아메기", "cat", "#8a5a3a", 0, 45, "따뜻한 코코아 빛.", {}], ["설원철갑상어", "shark", "#9aa8b8", 0, 140, "얼음 아래 고대어.", {}], ["눈토끼빙어", "tiny", "#ffffff", 0, 8, "귀가 쫑긋한 하얀 빙어.", {"t": "dawn"}], ["크리스마스 금붕어", "fancy", "#e04040", 0, 14, "빨강 초록 크리스마스 빛.", {"pc": "#40a060"}], ["종소리잉어", "fancy", "#f0d060", 0, 45, "헤엄칠 때 딸랑딸랑 소리가.", {"t": "night", "pc": "#ffffff"}], ["얼음꽃 정령어", "angel", "#e0f0ff", 0, 25, "얼음꽃 속에서 태어났다.", {"w": "fog", "pc": "#a0d0ff"}], ["겨울왕 곤들매기", "long", "#7a9ab8", 2, 90, "겨울 호수의 왕.", {"t": "night"}], ["눈의 여왕 잉어", "fancy", "#f0f8ff", 0, 80, "눈의 여왕이 아끼던 잉어. 눈 내리는 밤에.", {"t": "night", "w": "fog", "pc": "#c0e0ff"}], ["소복마을 산타 메기", "cat", "#e04a4a", 0, 120, "크리스마스 이브에 선물을 나른다나.", {"t": "night", "w": "clear", "pc": "#ffffff"}]], "19": [["눈꽃멸치", "tiny", "#e0f0ff", 0, 6, "눈송이처럼 흩날린다.", {}], ["빙하대구", "round", "#a0b0c0", 2, 60, "빙하 아래 큰 대구.", {}], ["얼음명태", "long", "#b0c0d0", 3, 45, "꽁꽁 언 바다의 명태.", {}], ["서리청어", "long", "#90b0d0", 7, 30, "서리 낀 등 푸른 청어.", {}], ["펭귄가자미", "flat", "#3a3a4a", 0, 30, "펭귄처럼 배가 하얗다.", {"belly": "#ffffff"}], ["바다표범쥐치", "flat", "#8a8a90", 5, 25, "바다표범 무늬.", {}], ["얼음게", "crab", "#c0d8f0", 0, 20, "얼음처럼 투명한 게.", {}], ["눈송이해파리", "jelly", "#e8f0ff", 0, 16, "눈송이가 헤엄친다.", {}], ["빙산도루묵", "round", "#a8b8c8", 2, 25, "겨울에 알이 꽉 찬다.", {}], ["북극곰복어", "puff", "#fafaff", 0, 22, "북극곰처럼 하얀 털 같은 비늘.", {}], ["오로라방어", "long", "#80c0e0", 1, 90, "오로라 아래 은빛.", {"t": "night"}], ["일각돌고래어", "shark", "#a0a8c0", 2, 250, "이마에 긴 뿔.", {"w": "fog"}], ["빙하가오리", "ray", "#b0c8e0", 2, 120, "빙하 아래를 미끄러진다.", {}], ["설원킹크랩", "crab", "#d06050", 0, 70, "눈 덮인 바다의 왕게.", {"t": "night"}], ["눈꽃 범고래", "shark", "#2a2a3a", 0, 400, "눈꽃 바다의 사냥꾼.", {"belly": "#ffffff"}], ["얼음 돛새치", "sail", "#a0d0ff", 0, 260, "얼음 돛을 펼친다.", {"w": "clear"}], ["오로라 해파리", "jelly", "#c0a0ff", 0, 40, "오로라를 머금고 빛난다.", {"t": "night", "pc": "#a0ffd0"}], ["빙하의 수염고래", "whale", "#8090b0", 0, 1200, "빙하만 한 고래. 안개 낀 밀물에.", {"td": "high", "w": "fog"}], ["오로라 용", "eel", "#80e0d0", 0, 600, "오로라가 춤추는 밤, 하늘과 바다를 잇는 용.", {"t": "night", "w": "clear", "pc": "#e0a0ff"}], ["눈꽃 바다의 일각고래 왕", "whale", "#e0e8f0", 4, 1000, "눈꽃 바다의 왕. 새벽 썰물에 뿔을 내민다.", {"t": "dawn", "td": "low", "pc": "#ffffff"}]]};const FISH4_R={"16": [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4], "17": [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4], "18": [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4], "19": [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4]};
+/* 3차-3 (2026-11-09): 달콤섬 · 소복섬 80종 (id 739~818) · 16 시럽 호수 · 17 사탕 바다 · 18 얼음 호수 · 19 눈꽃 바다 — server.js DW와 같은 순서 */
 const ISY_IDS={};[13,14,15].forEach(z=>{ISY_IDS[z]=FISH3[z].map((r,i)=>{const R=FISH3_R[z][i],f=addFish(z-1,R,i,[r[0],r[1],r[2],r[3],r[4],r[5],r[6]]);f.isy=true;f.diff=Math.min(1,.12+.55+.12*R);return f.id})});
+const DW_IDS={};[16,17,18,19].forEach(z=>{DW_IDS[z]=FISH4[z].map((r,i)=>{const R=FISH4_R[z][i],f=addFish(z-1,R,i,r);f.isy=true;f.dw=true;f.diff=Math.min(1,.12+.58+.12*R);return f.id})});
 
 /* 축제 기간 (한국 시간 월-일, 해를 넘겨도 됨) */
 const kstMD=()=>{const d=new Date(Date.now()+9*3600e3);return String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')};
@@ -2229,6 +2235,7 @@ PAGE_IDS.push(MYTH_IDS);PAGE_TITLES.push('신화');PASSIVE_OF.push(null);PAGE_SE
 const V2_PAGE0=PAGE_IDS.length;[1,2,3,4,5].forEach(z=>[0,1,2,3].forEach(q=>{PAGE_IDS.push(VIL2_IDS[z].slice(q*10,q*10+10));PAGE_TITLES.push(ZONE_SHORT[z-1]+' '+ROMAN[4+q]);PASSIVE_OF.push(null);PAGE_SEASON.push(null)}));
 const ISX_PAGE0=PAGE_IDS.length,ISX_SHORT={9:'안개 연못',10:'안개 계곡',11:'산호초'};[9,10,11].forEach(z=>[0,1,2,3].forEach(q=>{PAGE_IDS.push(ISX_IDS[z].slice(q*10,q*10+10));PAGE_TITLES.push(ISX_SHORT[z]+' '+ROMAN[q]);PASSIVE_OF.push(null);PAGE_SEASON.push(null)}));
 const ISY_PAGE0=PAGE_IDS.length,ISY_SHORT={13:'숲 호수',14:'반딧불 개울',15:'고래 만'},ISY_P={};[13,14,15].forEach(z=>{ISY_P[z]=PAGE_IDS.length;for(let q=0;q*10<ISY_IDS[z].length;q++){PAGE_IDS.push(ISY_IDS[z].slice(q*10,q*10+10));PAGE_TITLES.push(ISY_SHORT[z]+' '+ROMAN[q]);PASSIVE_OF.push(null);PAGE_SEASON.push(null)}});
+const DW_P={},DW_SHORT={16:'시럽 호수',17:'사탕 바다',18:'얼음 호수',19:'눈꽃 바다'};[16,17,18,19].forEach(z=>{DW_P[z]=PAGE_IDS.length;for(let q=0;q<2;q++){PAGE_IDS.push(DW_IDS[z].slice(q*10,q*10+10));PAGE_TITLES.push(DW_SHORT[z]+' '+ROMAN[q]);PASSIVE_OF.push(null);PAGE_SEASON.push(null)}});
 const GET_PAGE0=PAGE_IDS.length;[0,1,2,3].forEach(q=>{PAGE_IDS.push(GET_IDS.slice(q*10,q*10+10));PAGE_TITLES.push('갯것 '+ROMAN[q]);PASSIVE_OF.push(null);PAGE_SEASON.push(null)});
 const PAGES=PAGE_IDS.length;
 PAGE_IDS.forEach((ids,p)=>ids.forEach(id=>FISH[id].page=p));
@@ -2263,7 +2270,7 @@ const ENH_LV=()=>(S.enh&&S.enh.lv)|0;
 const zoneDiscOf=zs=>{const z=Math.max(1,...(zs||[1]).filter(x=>x<=5));return{1:.2,2:.35,3:.5,4:.7}[z]||1};
 const enhSpeed=lv=>lv>=30?3:lv>=25?2.8:lv>=20?2.6:lv>=15?2.3:lv>=10?2:1+.03*lv;
 /* 낚시터별 권장 강화: 모자라면 그 낚시터 물고기가 세져요 (못 들어가진 않아요). 스토리(1~5번)는 +4 이하 */
-const REC_ENH={1:0,2:1,3:2,4:3,5:4,6:14,7:5,8:2,9:15,10:15,11:16,13:17,14:18,15:18};   // 2026-11-09: 섬은 지금 친구들 강화에 맞춰
+const REC_ENH={1:0,2:1,3:2,4:3,5:4,6:14,7:5,8:2,9:15,10:15,11:16,13:17,14:18,15:18,16:17,17:18,18:18,19:19};   // 2026-11-09: 섬은 지금 친구들 강화에 맞춰
 const recGap=z=>Math.max(0,(REC_ENH[z]|0)-((S.enh&&S.enh.lv)|0));
 /* 강화로 열리는 새 능력 */
 const ENH_MILE=[[3,'자동 챔질 · 입질을 놓쳐도 낚싯대가 알아서','✨'],[5,'두 마리 확률 ×2 · 거대 개체 등장','🐟'],[7,'그물 · 흔한 물고기는 한 번에 3마리','🕸️'],[8,'걸어두기에 희귀도 걸려요','🎣'],[10,'월척 · 크기 1.3배 개체 · 걷는 속도 ×2 · 칭호','⚡'],[12,'줄다리기 자석 막대','🧲'],[15,'전설 재도전 · 신화 확률 ×2 · 칭호','🌈'],[18,'반짝 개체 확률 ×2','💎'],[20,'신화 확률 ×3 · 황금 낚싯줄 · 칭호','👑'],[21,'별빛 오라 · 강화 효과가 우주빛으로','🌌'],[22,'희귀 이상 +10% · 머리 위로 별똥별','🌠'],[24,'줄다리기 막대 +10%','🎯'],[25,'빛의 날개 · 칭호 「별의 낚시꾼」 · 걷는 속도 ×2.8','🪽'],[27,'통발 +10칸','🪤'],[28,'반짝 개체 ×1.5','✨'],[30,'신의 후광 · 발밑 마법진 · 칭호 「바다의 신」 · 걷는 속도 ×3','🔱']];
@@ -2881,6 +2888,15 @@ function genWorld(){
   for(let y=63;y<100;y++)for(let x=50;x<90;x++)if(T[y][x]==='w'&&Z[y][x]===6&&(x>=63||y>=94))Z[y][x]=15;
   for(let y=86;y<=97;y++)for(const x of[62,63]){T[y][x]='k';Z[y][x]=0}
   for(let x=62;x<=66;x++)for(const y of[96,97]){T[y][x]='k';Z[y][x]=0}
+  /* 3차-3 달콤섬 (동쪽) · 소복섬 (더 동쪽): 고래 만 부두에서 배로 가요 */
+  for(let y=63;y<100;y++)for(let x=92;x<142;x++)if(T[y][x]==='w'&&Z[y][x]===6)Z[y][x]=17;
+  for(let y=63;y<100;y++)for(let x=142;x<MW;x++)if(T[y][x]==='w'&&Z[y][x]===6)Z[y][x]=19;
+  for(let y=66;y<99;y++)for(let x=98;x<140;x++){const dx=(x+.5-118)/18,dy=(y+.5-82)/13,d=dx*dx+dy*dy;if(d<=1){T[y][x]=d>.78?'s':'c';Z[y][x]=0}}
+  for(let y=74;y<=84;y++)for(let x=110;x<=126;x++){const dx=(x+.5-118)/6.5,dy=(y+.5-79)/3.6;if(dx*dx+dy*dy<=1){T[y][x]='w';Z[y][x]=16}}
+  for(let x=97;x<=101;x++)for(const y of[82,83]){T[y][x]='k';Z[y][x]=0}
+  for(let y=66;y<99;y++)for(let x=146;x<190;x++){const dx=(x+.5-167)/19,dy=(y+.5-82)/14,d=dx*dx+dy*dy;if(d<=1){T[y][x]='n';Z[y][x]=0}}
+  for(let y=73;y<=83;y++)for(let x=165;x<=180;x++){const dx=(x+.5-172)/6.5,dy=(y+.5-78)/3.6;if(dx*dx+dy*dy<=1){T[y][x]='w';Z[y][x]=18}}
+  for(let x=145;x<=149;x++)for(const y of[82,83]){T[y][x]='k';Z[y][x]=0}
   /* 배낚시 배: 먼바다 한가운데 (4명이 모여야 와요) */
   for(let y=110;y<=118;y++)for(let x=13;x<=21;x++){T[y][x]='k';Z[y][x]=0}
   for(let y=107;y<=109;y++)for(let x=15+(109-y);x<=19-(109-y);x++){T[y][x]='k';Z[y][x]=0}
@@ -2986,7 +3002,7 @@ function genWorld(){
     trees.push({x:x,y:y,kind:kind,seed:(rnd()*1e5)|0});SOL[y][x]=true;
   }
   {const r2=RNG(78);for(let y=0;y<31;y++)for(let x=OW;x<W1;x++){const edge=x>=W1-2||y<=1||(y===16&&x%3===0)||(y<15&&r2()<.18);if(!edge||!okTree(x,y))continue;trees.push({x:x,y:y,kind:y<15?'sakura':'teal',seed:x*97+y});SOL[y][x]=true}}
-  [[10,79],[24,77],[12,86],[22,84],[9,88],[25,87],[15,93],[20,92],[13,78],[38,85],[41,90],[52,72],[39,72],[53,90],[44,94],[48,70],[36,79],[59,78],[60,88]].forEach(p=>{const x=p[0],y=p[1];if(inb(x,y)&&T[y][x]==='g'&&!SOL[y][x]&&!occ.has(x+','+y)){trees.push({x:x,y:y,kind:'teal',seed:x*131+y});SOL[y][x]=true}});
+  [[10,79],[24,77],[12,86],[22,84],[9,88],[25,87],[15,93],[20,92],[13,78],[106,74],[130,76],[108,90],[128,89],[118,92],[156,74],[180,90],[184,80],[152,88],[176,70],[38,85],[41,90],[52,72],[39,72],[53,90],[44,94],[48,70],[36,79],[59,78],[60,88]].forEach(p=>{const x=p[0],y=p[1];if(inb(x,y)&&T[y][x]==='g'&&!SOL[y][x]&&!occ.has(x+','+y)){trees.push({x:x,y:y,kind:'teal',seed:x*131+y});SOL[y][x]=true}});
   /* 🌷 꽃밭 언덕 (자연 1.0): 축제 광장 동쪽 · 예전 땅의 무작위 배치를 건드리지 않게 마지막에 */
   {const clear=(x,y)=>{SOL[y][x]=false;for(let i=trees.length-1;i>=0;i--)if(trees[i].x===x&&trees[i].y===y)trees.splice(i,1);for(let i=deco.length-1;i>=0;i--)if(deco[i].x===x&&deco[i].y===y)deco.splice(i,1)};
    for(let y=23;y<=24;y++)for(let x=46;x<72;x++){if(T[y][x]==='g'||T[y][x]==='p'){clear(x,y);T[y][x]='p'}}
@@ -3168,8 +3184,8 @@ function cosIcon(id){
 }
 function toCan(buf){const c=document.createElement('canvas');c.width=buf.w;c.height=buf.h;const x=c.getContext('2d'),id=x.createImageData(buf.w,buf.h);id.data.set(buf.d);x.putImageData(id,0,0);return c}
 function buildSprites(){SP.crystal=toCan(crystalSprite());
-  SP.grass=[0,1,2].map(v=>toCan(grassTile(v)));SP.path=[0,1].map(v=>toCan(pathTile(v)));SP.sand=[0,1].map(v=>toCan(sandTile(v)));
-  SP.plank=toCan(plankTile());SP.water={};for(let z=1;z<=15;z++)SP.water[z]=[0,1,2,3].map(f=>toCan(waterTile(f,z)));SP.water[12]=SP.water[3];
+  SP.grass=[0,1,2].map(v=>toCan(grassTile(v)));SP.path=[0,1].map(v=>toCan(pathTile(v)));SP.cream=[0,1].map(v=>toCan(creamTile(v)));SP.snowt=[0,1].map(v=>toCan(snowTile(v)));SP.sand=[0,1].map(v=>toCan(sandTile(v)));
+  SP.plank=toCan(plankTile());SP.water={};for(let z=1;z<=19;z++)SP.water[z]=[0,1,2,3].map(f=>toCan(waterTile(f,z)));SP.water[12]=SP.water[3];
   SP.fenceH=toCan(fenceTile('h'));SP.fenceV=toCan(fenceTile('v'));SP.gateC=toCan(gateTile(false));SP.gateO=toCan(gateTile(true));
   SP.treeBy={};SP.house={};
   W.buildings.forEach(b=>SP.house[b.id]=toCan(buildHouse(b.opts)));
@@ -3228,10 +3244,15 @@ function nearAction0(){
   {const wo=wowTarget();if(wo&&wo.wowed!==wo.hold.at)return{type:'wow',o:wo,label:'우와!'}}
   for(const g of W.gates){if(!hasZone(g.zone)&&Math.abs(g.x-tx)+Math.abs(g.y-ty)<=1)return{type:'gate',zone:g.zone,label:'문 열기'}}
   if(P.sit)return{type:'stand',label:'일어나기'};
+  {const sm=nearSnowman();if(sm)return{type:'snowman',sm,label:'눈사람<br>톡'}}
   {const tr=nearTrap();if(tr)return{type:'trap',tr,label:Net.me&&tr.n===Net.me.name?'내 통발<br>보기':'통발<br>구경'}}
   {const na=natAction(tx,ty);if(na&&na.type!=='nat_bug')return na}
   for(const id in W.doors){const d=W.doors[id];if(tx>=d.x0&&tx<=d.x1&&ty===d.y)return{type:id,label:{isleshop:'섬<br>상점',shop:'상점',lib:'도감관',boutique:'치장<br>상점',trade:'교환소',forge:'강화소',isleforge:'섬<br>대장간',ebland:'은비<br>랜드',aqua:'수족관',home:'우리<br>집'}[id]}}
-  if(tx>=62&&tx<=66&&(ty===95||ty===96||ty===97))return{type:'lantern',label:'소원<br>등불'};
+  if(tx>=65&&tx<=66&&(ty===96||ty===97))return{type:'ferry',label:'달콤 · 소복<br>배'};
+  if(tx>=62&&tx<=64&&(ty===95||ty===96||ty===97))return{type:'lantern',label:'소원<br>등불'};
+  if((tx>=97&&tx<=100||tx>=145&&tx<=148)&&(ty===82||ty===83))return{type:'ferry',label:'배 타기'};
+  {const sp=SNOWPILE.find(q=>Math.abs(q[0]-tx)+Math.abs(q[1]-ty)<=1);if(sp)return{type:'snowpile',sp,label:'눈<br>뭉치기'}}
+  if(Math.abs(tx-167)+Math.abs(ty-84)<=1)return{type:'snowsign',label:'눈사람 ·<br>털실 가게'};
   if((tx===16||tx===17)&&ty===58)return{type:'boat',label:boatReady()?'물결호<br>타기':'물결호'};
   if((tx===16||tx===17)&&ty>=64&&ty<=65)return{type:'sailhome',label:'물결호<br>· 섬 장비'};
   if(Math.abs(tx-26)+Math.abs(ty-23)<=1)return{type:'party',label:'배낚시<br>모집'};
@@ -3267,10 +3288,77 @@ function lanternDraw(cX,cY){if(!P||P.y<60*TS||P.y>=100*TS)return;const now=Date.
   const g=cx.createRadialGradient(x,y,0,x,y,10);g.addColorStop(0,'rgba(255,220,140,.7)');g.addColorStop(1,'rgba(255,220,140,0)');cx.fillStyle=g;cx.fillRect(x-10,y-10,20,20);cx.fillStyle='hsl('+h+',80%,70%)';cx.fillRect(Math.round(x)-2,Math.round(y)-3,5,6);cx.fillStyle='#fff6c8';cx.fillRect(Math.round(x)-1,Math.round(y)-1,3,2)})}
 function openLantern(){Snd.sfx('ui');const now=Date.now();openSheet('소원 등불','<div class="muted" style="font-size:12.5px;margin-bottom:8px">안개 조각 3개로 소원 등불을 띄워요. 하루 동안 고래 만 하늘에 떠 있어요.</div><div style="display:flex;gap:6px"><input class="tin" id="lanIn" maxlength="24" placeholder="소원을 적어요" style="flex:1;margin:0"><button class="btn sm pink" data-lan="go"'+(itN('shard')>=3?'':' disabled')+'>띄우기 (조각 '+itN('shard')+')</button></div><div class="sec">떠 있는 등불 '+LANS.length+'</div>'+(LANS.length?LANS.slice().reverse().map(l=>'<div class="trow"><span class="nm" style="color:'+nameCol(l.n)+'">'+esc(l.n)+'</span><span style="flex:1;font-size:13px">“'+esc(l.t)+'”</span><small class="muted">'+ago(l.at)+'</small></div>').join(''):'<div class="muted" style="padding:10px;text-align:center">아직 하늘이 비어 있어요</div>'))}
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-lan]');if(!t)return;e.stopPropagation();const tx=($('lanIn').value||'').trim();if(!tx){toast('소원을 적어 주세요');return}if(itN('shard')<3)return;itAdd('shard',-3);saveState(true);Net.send({t:'lan_put',text:tx});Snd.sfx('page');closeSheet();showBanner('🏮 소원 등불이 하늘로 올라가요');if(P)sparkFx(P.x,P.y-20,20,['#ffe08a','#ffffff','#ffb0c0'])},true);
+
+/* ===================== 3차-3 달콤섬 · 소복섬 (2026-11-09) =====================
+   안개가 걷힌 밤, 수평선 너머에서 달콤한 냄새와 차가운 눈송이가 동시에 날아왔어요. 두 섬은 늘 같이 열려요.
+   소복마을: 밟으면 오르골 소리가 나는 '방울 발판' · 눈 뭉치기 → 눈사람 (모두에게 보여요, 톡 치면 코코아) · 스키복 없으면 추워서 느려요 */
+const onDessert=()=>P&&P.y>=60*TS&&P.y<100*TS&&P.x>=92*TS&&P.x<142*TS;
+const onWinter=()=>P&&P.y>=60*TS&&P.y<100*TS&&P.x>=142*TS;
+const FERRY={mist:[64*TS+8,95*TS+12,'물안개 숲 섬 (고래 만 부두)'],des:[103*TS+8,82*TS+12,'달콤섬'],win:[151*TS+8,82*TS+12,'소복섬 · 소복마을']};
+const STORY_DW='<div style="font-size:14px;line-height:1.8">안개가 걷힌 어느 밤, 고래 만 부두에 작은 배 한 척이 닿았어요.<br>배에는 편지가 두 통.<br><br>🍰 <b>“달콤섬에 놀러 와요! 시럽 호수에 물고기가 가득해요” — 디저트 요정 슈가</b><br>⛄ <b>“소복마을은 지금 눈이 소복소복. 발판을 밟으면 노래가 나와요. 단, 스키복 없이는 꽁꽁 언다네” — 눈사람 할아버지 소복옹</b><br><br>두 섬은 바다를 사이에 두고 늘 함께 열려요. 어느 쪽부터 갈까요?</div>';
+function openFerry(){Snd.sfx('ui');const here=onDessert()?'des':onWinter()?'win':'mist';
+  openSheet('달콤 · 소복 배',(S.dwStory?'':STORY_DW)+'<div class="menu" style="margin-top:10px">'+Object.keys(FERRY).filter(k=>k!==here).map(k=>'<button class="mbtn" data-ferry="'+k+'">'+FERRY[k][2]+'<small>'+(k==='win'&&!S.ski?'스키복이 없으면 추워요':k==='des'?'시럽 호수 · 사탕 바다':'안개 섬으로 돌아가는 길')+'</small></button>').join('')+'</div>')}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-ferry]');if(!t)return;e.stopPropagation();const k=t.dataset.ferry,d=FERRY[k];S.dwStory=1;closeSheet();Snd.sfx('splash');forceTp(d[0],d[1],'⛵ '+d[2]+'에 도착했어요');saveState(true);if(k==='win'&&!S.ski)setTimeout(()=>toast('🥶 으슬으슬… 스키복이 없으면 걸음이 느려지고 입질도 늦어요. 소복마을 털실 가게에서 만들어요'),1500)},true);
+/* 추위: 스키복(만들기 아주 어려움)이나 코코아(눈사람)가 있으면 괜찮아요 */
+const warmNow=()=>!!S.ski||(S.cocoa||0)>Date.now();
+const coldMul=()=>onWinter()&&!warmNow()?.62:1,coldWait=()=>onWinter()&&!warmNow()?1.45:1;
+/* 방울 발판: 두 줄 · 밟으면 오르골 음 (첫 줄 도레미파솔라시도 · 둘째 줄 펜타토닉 내려가기) */
+const PLATES=[];[156,158,160,162,164,166,168,170].forEach((x,i)=>PLATES.push({x,y:86,m:[72,74,76,77,79,81,83,84][i],c:['#ff9ab0','#ffc27a','#ffe27a','#9fe0a0','#8ac8ff','#a9a0ff','#e0a0ff','#ffb0d8'][i],t:0}));
+[157,159,161,163,165,167,169,171].forEach((x,i)=>PLATES.push({x,y:89,m:[88,86,84,81,79,76,74,72][i],c:['#e0f0ff','#d0e8ff','#c0e0ff','#b0d8ff','#a0d0ff','#90c8ff','#80c0ff','#70b8ff'][i],t:0}));
+let PLATE_LAST='';
+function plateTick(){if(!onWinter())return;const tx=Math.floor(P.x/TS),ty=Math.floor((P.y-2)/TS),k=tx+','+ty;if(k===PLATE_LAST)return;PLATE_LAST=k;const pl=PLATES.find(q=>q.x===tx&&q.y===ty);if(!pl)return;
+  pl.t=performance.now();Snd.chime(pl.m,.34);for(let i=0;i<8;i++){const a=i/8*6.28;parts.push({x:pl.x*TS+8+Math.cos(a)*6,y:pl.y*TS+10+Math.sin(a)*3,vx:Math.cos(a)*18,vy:Math.sin(a)*9-6,life:.7,t:0,c:pl.c,g:0,s:2})}}
+function drawPlates(){if(!P||P.x<142*TS||P.y<60*TS||P.y>=100*TS)return;const now=performance.now(),p=.5+.5*Math.sin(wt*2.5);
+  PLATES.forEach(q=>{const x=q.x*TS+8,y=q.y*TS+10,k=Math.max(0,1-(now-q.t)/600);
+    cx.fillStyle=q.c;cx.globalAlpha=.25+.15*p+.4*k;cx.beginPath();cx.ellipse(x,y,9+k*6,4.5+k*3,0,0,6.28);cx.fill();cx.globalAlpha=1;
+    cx.strokeStyle='#ffffff';cx.lineWidth=1;cx.beginPath();cx.ellipse(x,y,6,3,0,0,6.28);cx.stroke();cx.fillStyle=q.c;cx.beginPath();cx.ellipse(x,y,4,2,0,0,6.28);cx.fill();
+    if(k>0){cx.strokeStyle=q.c;cx.globalAlpha=k;cx.beginPath();cx.ellipse(x,y,10+(1-k)*14,(10+(1-k)*14)*.5,0,0,6.28);cx.stroke();cx.globalAlpha=1}})}
+/* 눈 뭉치기 · 눈송이 */
+const SNOWPILE=[[160,74],[176,88],[181,80],[154,92],[166,94],[185,86],[150,78]];const SNOW_CD={};
+function gatherSnow(sp){const k=sp.join(','),now=Date.now();if((SNOW_CD[k]||0)>now){toast('이 눈더미는 조금 뒤에 다시 쌓여요');return}SNOW_CD[k]=now+45000;const n=1+(Math.random()<.4?1:0);itAdd('snow',n);let msg='⛄ 눈뭉치 +'+n;if(Math.random()<.08){itAdd('flake',1);msg+=' · ❄️ 반짝 눈송이!'}
+  toast(msg+' (눈뭉치 '+itN('snow')+')');Snd.chime(84,.2);for(let i=0;i<10;i++)parts.push({x:sp[0]*TS+8,y:sp[1]*TS+6,vx:(Math.random()-.5)*30,vy:-20-Math.random()*20,life:.8,t:0,c:'#ffffff',g:60,s:2});saveState()}
+/* 소복마을 털실 가게 · 눈사람 */
+const SKI_COST={flake:50,cloth:10,g:30000000},SM_NEED=[5,8,10],SM_PARTS={nose:['당근 코',50000],arms:['나뭇가지 팔',80000],scarf:['빨간 목도리',300000],hat:['검은 모자',800000],star:['반짝 별 장식',3000000]};
+let SNOWMEN=[];const mySm=()=>Net.me?SNOWMEN.find(x=>x.n===Net.me.name):null;
+function openSnowSign(){Snd.sfx('ui');const sm=mySm(),st=sm?sm.st:-1;
+  let h='<div class="sec">🧣 털실 가게 · 스키복</div><div style="font-size:13px;line-height:1.6">'+(S.ski?'<b>스키복이 있어요!</b> 소복섬에서도 춥지 않아요.':'스키복이 없으면 소복섬에서 걸음이 느려지고 입질도 늦어요. 만들기는 아주 어려워요.<br>재료: 반짝 눈송이 <b>'+itN('flake')+'/'+SKI_COST.flake+'</b> · 꽃잎 돛천 <b>'+itN('cloth')+'/'+SKI_COST.cloth+'</b> · 골드 <b>'+fmtShort(SKI_COST.g)+'</b><br><small class="muted">반짝 눈송이: 소복섬에서 낚거나 눈더미를 뭉치면 가끔 · 눈사람을 톡 치면 가끔</small>')+'</div>'+
+    (S.ski?'':'<button class="btn pink sm" data-snow="ski" style="margin-top:6px"'+(itN('flake')>=SKI_COST.flake&&itN('cloth')>=SKI_COST.cloth&&S.gold>=SKI_COST.g?'':' disabled')+'>스키복 만들기</button>')+
+    '<div class="sec" style="margin-top:12px">⛄ 내 눈사람 <span class="cnt">눈뭉치 '+itN('snow')+'개</span></div>';
+  if(!ONLINE||!Net.me)h+='<div class="muted">눈사람은 온라인에서 만들어요</div>';
+  else if(st<0)h+='<div style="font-size:13px">눈뭉치 '+SM_NEED[0]+'개로 아랫단부터 굴려요. 다 만들면 마을 광장에 모두가 볼 수 있게 서 있어요.</div><button class="btn mint sm" data-snow="new" style="margin-top:6px"'+(itN('snow')>=SM_NEED[0]?'':' disabled')+'>눈사람 시작하기</button>';
+  else{h+='<div style="font-size:13px">'+['아랫단만 있어요','몸통까지 올렸어요','머리까지 다 만들었어요!'][Math.min(2,st)]+'</div>'+(st<2?'<button class="btn mint sm" data-snow="up" style="margin-top:6px"'+(itN('snow')>=SM_NEED[st+1]?'':' disabled')+'>'+(st===0?'몸통':'머리')+' 올리기 (눈뭉치 '+SM_NEED[st+1]+')</button>':'');
+    if(st>=2)h+='<div class="sec">꾸미기</div><div class="cpgrid">'+Object.keys(SM_PARTS).map(k=>{const on=(sm.parts||[]).indexOf(k)>=0;return'<button class="cpc'+(on?' on':'')+'" data-snow="p:'+k+'"'+(on?' disabled':'')+'><b>'+SM_PARTS[k][0]+'</b><small>'+(on?'달았어요':fmtShort(SM_PARTS[k][1])+' 골드')+'</small></button>'}).join('')+'</div>'}
+  h+='<div class="muted" style="font-size:12px;margin-top:8px">누구의 눈사람이든 톡 치면 오르골 소리 · 따뜻한 코코아 (10분 동안 춥지 않아요 · 30분에 한 번)</div>';openSheet('소복마을',h)}
+const SM_SPOTS=[[160,92],[163,92],[166,91],[169,92],[172,92],[175,91],[158,90],[178,90],[161,94],[171,94],[174,94],[164,95]];
+function smSend(sm){Net.send({t:'sm_set',x:sm.x,y:sm.y,st:sm.st,parts:sm.parts||[]})}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-snow]');if(!t)return;e.stopPropagation();const v=t.dataset.snow;Snd.sfx('tap');
+  if(v==='ski'){if(itN('flake')<SKI_COST.flake||itN('cloth')<SKI_COST.cloth||S.gold<SKI_COST.g)return;askConfirm('스키복을 만들까요?',askPrice(SKI_COST.g,' + 눈송이 '+SKI_COST.flake+' · 돛천 '+SKI_COST.cloth),'만들기',()=>{itAdd('flake',-SKI_COST.flake);itAdd('cloth',-SKI_COST.cloth);S.gold-=SKI_COST.g;S.ski=1;saveState(true);showBanner('🎿 스키복 완성! 이제 소복섬에서도 따뜻해요');Snd.sfx('gate');if(P)sparkFx(P.x,P.y-14,30,['#ffffff','#a0d0ff','#ff9ab0']);if(ONLINE&&Net.me)Net.send({t:'ski_done'});openSnowSign()});return}
+  if(v==='new'){if(itN('snow')<SM_NEED[0])return;const taken=new Set(SNOWMEN.map(x=>x.x+','+x.y)),sp=SM_SPOTS.find(q=>!taken.has(q.join(',')));if(!sp){toast('광장에 자리가 없어요');return}itAdd('snow',-SM_NEED[0]);saveState();smSend({x:sp[0],y:sp[1],st:0,parts:[]});toast('⛄ 데굴데굴… 아랫단 완성!');setTimeout(openSnowSign,500);return}
+  const sm=mySm();if(!sm)return;
+  if(v==='up'){const need=SM_NEED[sm.st+1];if(itN('snow')<need)return;itAdd('snow',-need);saveState();smSend(Object.assign({},sm,{st:sm.st+1}));toast(sm.st+1>=2?'⛄ 눈사람 완성! 꾸며 줘요':'⛄ 몸통을 올렸어요');Snd.chime(79,.3);setTimeout(openSnowSign,500);return}
+  if(v.indexOf('p:')===0){const k=v.slice(2),g=SM_PARTS[k][1],buy=()=>{if(S.gold<g){toast('골드가 부족해요');return}S.gold-=g;saveState(true);smSend(Object.assign({},sm,{parts:(sm.parts||[]).concat([k])}));Snd.sfx('buy');setTimeout(openSnowSign,500)};if(g>=ASK_MIN)askConfirm(SM_PARTS[k][0]+' 달까요?',askPrice(g),'달기',buy);else buy()}},true);
+function nearSnowman(){if(!onWinter())return null;let b=null,bd=22;SNOWMEN.forEach(s=>{const d=Math.hypot(s.x*TS+8-P.x,s.y*TS+8-P.y);if(d<bd){bd=d;b=s}});return b}
+const SM_TAP={};
+function tapSnowman(s){const now=Date.now();[72,76,79,84].forEach((m,i)=>setTimeout(()=>Snd.chime(m,.28),i*120));for(let i=0;i<8;i++)parts.push({x:s.x*TS+8,y:s.y*TS-6,vx:(Math.random()-.5)*20,vy:-16,life:1,t:0,heart:true,g:4});
+  if((SM_TAP[s.n]||0)>now){toast(s.n+'의 눈사람: 히힛, 간지러워요');return}SM_TAP[s.n]=now+30*60000;S.cocoa=now+10*60000;let msg='☕ '+s.n+'의 눈사람이 따뜻한 코코아를 줬어요 (10분 동안 춥지 않아요)';if(Math.random()<.12){itAdd('flake',1);msg+=' · ❄️ 반짝 눈송이 +1'}toast(msg);saveState()}
+function smDrawables(list){if(!P||P.x<142*TS||P.y<60*TS||P.y>=100*TS)return;SNOWMEN.forEach(s=>list.push({y:s.y*TS+15,fn:()=>{const x=s.x*TS+8,y=s.y*TS+15,st=s.st|0,pa=s.parts||[];
+  cx.fillStyle='rgba(120,140,180,.25)';cx.beginPath();cx.ellipse(x,y,9,3,0,0,6.28);cx.fill();const ball=(cy,r)=>{cx.fillStyle='#ffffff';cx.beginPath();cx.arc(x,cy,r,0,6.28);cx.fill();cx.strokeStyle='#b8c8e0';cx.lineWidth=1;cx.stroke()};
+  ball(y-6,7);if(st>=1)ball(y-16,5.5);if(st>=2){ball(y-24,4.5);cx.fillStyle='#2a2a33';cx.fillRect(x-2,y-26,1,1);cx.fillRect(x+1,y-26,1,1);cx.fillRect(x-1,y-22,3,1)}
+  if(pa.indexOf('nose')>=0){cx.fillStyle='#ff8a30';cx.fillRect(x,y-24,4,1)}if(pa.indexOf('arms')>=0){cx.fillStyle='#7a5030';cx.fillRect(x-11,y-18,6,1);cx.fillRect(x+5,y-18,6,1);cx.fillRect(x-12,y-20,1,2);cx.fillRect(x+11,y-20,1,2)}
+  if(pa.indexOf('scarf')>=0){cx.fillStyle='#e04a4a';cx.fillRect(x-5,y-21,10,2);cx.fillRect(x+2,y-21,2,5)}if(pa.indexOf('hat')>=0){cx.fillStyle='#2a2a33';cx.fillRect(x-5,y-29,10,1);cx.fillRect(x-3,y-34,6,5)}
+  if(pa.indexOf('star')>=0){cx.fillStyle='#ffd34d';cx.fillRect(x-1,y-38,3,3);if(Math.random()<.1)parts.push({x:x,y:y-37,vx:0,vy:-6,life:.6,t:0,c:'#fff6b0',g:0,s:1})}}}))}
+const SM_TAGS=[];
+function smTags(cX,cY){const ox=(innerWidth-VW*SC)/2,oy=(innerHeight-VH*SC)/2;let i=0;if(P&&P.x>=142*TS&&P.y>=60*TS&&P.y<100*TS)SNOWMEN.forEach(s=>{const sx=ox+(s.x*TS+8-cX)*SC,sy=oy+(s.y*TS+18-cY)*SC;if(sx<-80||sx>innerWidth+80||sy<-40||sy>innerHeight+40)return;let el=SM_TAGS[i];if(!el){el=document.createElement('div');el.className='ntag ttag';$('tags').appendChild(el);SM_TAGS[i]=el}i++;const t=s.n+'의 눈사람';if(el.textContent!==t){el.textContent=t;el.style.borderColor=nameCol(s.n)}el.hidden=false;el.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,0)'});for(;i<SM_TAGS.length;i++)SM_TAGS[i].hidden=true}
+/* 섬 분위기: 소복섬엔 늘 눈 · 추우면 화면 가장자리가 하얗게 · 달콤섬엔 설탕 반짝이 */
+const SNOWF=[];function dwFx(dt){if(onWinter()){while(SNOWF.length<60)SNOWF.push({x:Math.random()*VW,y:Math.random()*VH,s:14+Math.random()*20,w:Math.random()*6});cx.fillStyle='rgba(255,255,255,.9)';SNOWF.forEach(f=>{f.y+=f.s*dt;f.x+=Math.sin(wt+f.w)*8*dt;if(f.y>VH){f.y=-3;f.x=Math.random()*VW}cx.fillRect(Math.round(f.x),Math.round(f.y),2,2)});
+    if(!warmNow()){const g=cx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.3,VW/2,VH/2,Math.max(VW,VH)*.7);g.addColorStop(0,'rgba(200,230,255,0)');g.addColorStop(1,'rgba(200,230,255,.55)');cx.fillStyle=g;cx.fillRect(0,0,VW,VH)}}
+  else if(onDessert()&&Math.random()<dt*6){parts.push({x:camX+Math.random()*VW,y:camY+Math.random()*VH,vx:0,vy:-6,life:1,t:0,c:['#ffd0e8','#fff6b0','#c8f0ff'][(Math.random()*3)|0],g:0,s:2})}}
 function regionName(){
   const tx=P.x/TS,ty=P.y/TS;
   if(ty>=100)return'먼바다 배낚시';
   if(ty>=63&&tx>=31&&tx<70)return'물안개 숲 섬';
+  if(ty>=60&&tx>=92&&tx<142)return'달콤섬';
+  if(ty>=60&&tx>=142)return'소복섬 · 소복마을';
   if(tx>=72&&ty<32){const i=deckAt(tx|0,ty|0),x=i>=0&&shipList()[i];return i<0?'꽃배 선단':x?(shipMine(i)?'내 꽃배':x.name+'의 꽃배'):'빈 꽃배'}
   if(tx>=62&&tx<66&&ty>=31&&ty<50)return'꽃배 부두';
   if(tx>=GARDEN.x0&&ty>=15&&ty<31)return'꽃밭 언덕';
@@ -3295,6 +3383,10 @@ function pressAct(){
     else if(a.type==='shop'){Snd.sfx('ui');openShop()}
     else if(a.type==='isleshop'){Snd.sfx('ui');openIsleShop()}
     else if(a.type==='isleforge'){Snd.sfx('ui');openBoat()}
+    else if(a.type==='ferry')openFerry();
+    else if(a.type==='snowman')tapSnowman(a.sm);
+    else if(a.type==='snowpile')gatherSnow(a.sp);
+    else if(a.type==='snowsign')openSnowSign();
     else if(a.type==='lantern'){if(!ONLINE||!Net.me){toast('온라인에서 띄울 수 있어요');return}openLantern()}
     else if(a.type==='lib'){Snd.sfx('ui');openDex()}
     else if(a.type==='boutique'){Snd.sfx('ui');openBoutique()}
@@ -3415,6 +3507,7 @@ function onAqMsg(m){if(m.t==='aq'){AQ.view=m;if(m.note)toast(m.note);if(aqOpenNo
   if(m.t==='shb'){S.shb=m.shb||{};if(m.sold!==undefined){coinRain(m.g);showBanner('✨ 반짝 '+fishName(m.sold)+' → '+fmt(m.g)+' 골드!')}if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='가방')renderBag();saveState();return true}
   if(m.t==='shiny_news'){const t='✨ '+m.who+' 님이 반짝 '+fishName(m.id)+'을(를) 낚았어요!';showBanner(t);nlogAdd('vil',t);if(P)sparkFx(P.x,P.y-30,24,['#fff6b0','#ffffff','#ffd34d','#b9a6ee']);Snd.sfx('page');return true}
   if(m.t==='pt_result'){ptResult(m);return true}
+  if(m.t==='snowmen'){SNOWMEN=m.list||[];return true}
   if(m.t==='lans'){LANS=m.list||[];if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='소원 등불')openLantern();return true}
   if(m.t==='egg_ok'){S.egg=Object.assign({},S.egg||{},{[m.k]:Date.now()});(m.cos||[]).forEach(id=>{if(!owns(id))S.cos.own.push(id)});saveState(true);showBanner(m.k==='ruby30'?'🐕💎 루비가 숨겨 둔 보물을 찾았어요! 1억 골드 · 칭호 「루비의 영원한 산책 친구」':'🐈✨ 고양이들의 감사 선물! 2천만 골드 · 솜씨 재료 30 · 칭호 「고양이 화장실의 수호자」');if(P)sparkFx(P.x,P.y-20,40,['#ff6a8a','#ffd34d','#ffffff']);Snd.sfx('gate');return true}
   if(m.t==='dayk'){DAYK=m;dkTick();if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='오늘의 낚시왕')openDayK();return true}
@@ -3691,7 +3784,7 @@ function closeResult(){if(F.mode!=='result'||F.t<.5)return;F.mode='idle';$('resu
 function updateFishing(dt){
   F.t+=dt;
   switch(F.mode){
-    case'cast':if(F.t>=.5){F.mode='wait';F.t=0;F.wait=(easyMode()?1.5+Math.random()*3:2+Math.random()*4)*ST.wait*(F.zone===8?.6:F.zone===7?seaWait():1)*fogBite();F.ripT=0;const b=bobberPos();ripple(b[0],b[1]);splashFx(b[0],b[1]);bobLand(S.cos.look.bob,b[0],b[1])}break;
+    case'cast':if(F.t>=.5){F.mode='wait';F.t=0;F.wait=(easyMode()?1.5+Math.random()*3:2+Math.random()*4)*ST.wait*(F.zone===8?.6:F.zone===7?seaWait():1)*fogBite()*coldWait();F.ripT=0;const b=bobberPos();ripple(b[0],b[1]);splashFx(b[0],b[1]);bobLand(S.cos.look.bob,b[0],b[1])}break;
     case'wait':F.wait-=dt;F.ripT-=dt;if(F.ripT<=0){F.ripT=1.5;const b=bobberPos();ripple(b[0],b[1])}
       if(F.afk){if(F.wait<=0)afkBite();break}
       if(F.wait<=0)startNibble();break;
@@ -4359,7 +4452,7 @@ function jobMods(){
   ST.sell*=1+(typeof cpSell==='function'?cpSell():0)+.1*rk('mer','price')+(buffOn('grill')?.1:0)+(buffOn('peach')?.05:0)+(buffOn('pie')?.1:0)+(arkSt()>=5?.1:0);
 }
 const afkCap=()=>AFK_CAP+10*rk('fish','afk')+(typeof cpAfk==='function'?cpAfk():0);
-const walkSpeed=()=>1+.05*rk('com','speed');
+const walkSpeed=()=>(1+.05*rk('com','speed'))*(typeof coldMul==='function'?coldMul():1);
 const petCdMs=()=>(10-2*rk('com','hand'))*60000;
 const gearGold=g=>Math.round(g*(1-.06*rk('mer','disc')));
 const enhCost=L=>Math.round(ENH.cost(L)*(1-.1*rk('mer','enh'))*zoneDiscOf(S.zones));
@@ -4417,6 +4510,7 @@ Object.assign(ITEMS,{
  orange:{n:'귤',ic:'🍊',d:'상큼한 귤. 물결호 재료 · 상점에서 팔아요',npc:3500},
  cherry:{n:'체리',ic:'🍒',d:'반짝이는 체리. 물결호 재료 · 상점에서 팔아요',npc:8000},
  pie:{n:'과일 꿀파이',ic:'🥧',d:'과일 꿀파이. 상점에서 좋은 값에 팔려요',npc:12000},
+ snow:{n:'눈뭉치',ic:'⛄',d:'소복섬 눈더미에서 뭉쳐요 · 눈사람 재료',npc:100},flake:{n:'반짝 눈송이',ic:'❄️',d:'소복섬에서 가끔 · 스키복 재료',npc:30000},
  fl_tulip:{n:'튤립',ic:'🌷',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:140000},fl_sun:{n:'해바라기',ic:'🌻',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:270000},fl_cosmos:{n:'코스모스',ic:'🌸',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:180000},
  fl_lav:{n:'라벤더',ic:'🪻',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:450000},fl_rose:{n:'장미',ic:'🌹',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:900000},fl_hydr:{n:'수국',ic:'💠',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:1350000},
  fl_lily:{n:'백합',ic:'🤍',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:2200000},fl_rb:{n:'무지개꽃',ic:'🌈',d:'두 가지 꽃을 나란히 피우면 가끔 · 벌집에 무지개꿀',npc:6000000},
@@ -4860,7 +4954,7 @@ function conquerMsg(z){Snd.sfx('page');setTimeout(()=>toast('🏆 「'+ZONES[z-1
 const SZRW={tk:[15,20,25,30,40,30],all:50}; // server.js SZRW_TK · SZ_ALL_TK와 같아야 해요
 const sdS=()=>{if(!S.sdex||typeof S.sdex!=='object')S.sdex={};return S.sdex};
 const sdHas=id=>(sdS()[id]|0)>0;
-function sdAdd(id,n){const d=sdS();d[id]=(d[id]|0)+n}
+function sdAdd(id,n){if(typeof dwCatchDrop==='function')dwCatchDrop(id);const d=sdS();d[id]=(d[id]|0)+n}
 const sdTotal=()=>Object.keys(sdS()).filter(k=>sdS()[k]>0).length;
 const szrwS=()=>Array.isArray(S.szrw)?S.szrw:(S.szrw=[]);
 const szDone=z=>zoneIds(z).every(sdHas);
@@ -5291,6 +5385,8 @@ function drawTile(x,y){
   if(t==='g')cx.drawImage(SP.grass[h],px_,py_);
   else if(t==='p')cx.drawImage(SP.path[h%2],px_,py_);
   else if(t==='s')cx.drawImage(SP.sand[h%2],px_,py_);
+  else if(t==='c')cx.drawImage(SP.cream[h%2],px_,py_);
+  else if(t==='n')cx.drawImage(SP.snowt[h%2],px_,py_);
   else if(t==='k'){cx.drawImage(SP.plank,px_,py_)}
   else if(t==='f'){cx.drawImage(SP.grass[h],px_,py_);cx.drawImage(soilCan(),px_,py_)}
   else if(t==='F'){cx.drawImage(SP.plank,px_,py_);cx.drawImage(soilCan(),px_,py_)}
@@ -5483,7 +5579,7 @@ function render(dt){
   if(SHK.t>0){SHK.t-=dt;cX+=Math.round((Math.random()-.5)*SHK.a*2);cY+=Math.round((Math.random()-.5)*SHK.a*2)}
   cx.save();cx.translate(-cX,-cY);
   const x0=Math.max(0,Math.floor(cX/TS)),x1=Math.min(MW-1,Math.floor((cX+VW)/TS)),y0=Math.max(0,Math.floor(cY/TS)),y1=Math.min(MH-1,Math.floor((cY+VH)/TS));
-  drawBG(x0,x1,y0,y1);
+  drawBG(x0,x1,y0,y1);drawPlates();
   const SEAV=atSeaView();if(SEAV)drawSeaUnder(dt,cX,cY);
   // 물 위 연잎 · 파문
   W.deco.forEach(d=>{if(d.k==='lily'&&d.x>=x0&&d.x<=x1&&d.y>=y0&&d.y<=y1)cx.drawImage(SP.lily[d.v],d.x*TS+2,d.y*TS+4+Math.round(Math.sin(wt+d.x)*.6))});
@@ -5501,7 +5597,7 @@ function render(dt){
   drawFishBoat(drawables);
   W.buildings.forEach(b=>drawables.push({y:(b.y+1)*TS,fn:()=>cx.drawImage(SP.house[b.id],b.x*TS+(b.w*TS-48)/2,(b.y+1)*TS-50)}));
   W.props.forEach(p=>{const s=p.kind==='litter'?SP.litter[litterDirty()?1:0]:SP[p.kind];if(!s)return;drawables.push({y:p.y*TS+15,fn:()=>{cx.drawImage(s,p.x*TS+(TS-s.width)/2,p.y*TS+16-s.height);if(p.kind==='litter'&&litterDirty())litterFlies(p.x*TS+8,p.y*TS+6)}})});
-  natDrawables(drawables,x0,x1,y0,y1);trapDrawables(drawables,x0,x1,y0,y1);evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
+  natDrawables(drawables,x0,x1,y0,y1);trapDrawables(drawables,x0,x1,y0,y1);smDrawables(drawables);evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
   drawables.push({y:P.y,fn:drawPlayer});
   drawOthers(dt,drawables);
   updatePets(dt);updateSparks(dt);
@@ -5533,8 +5629,8 @@ function render(dt){
   petals.forEach(p=>{p.ph+=dt;p.y+=p.s*dt;p.x+=Math.sin(p.ph*1.3)*10*dt+4*dt;if(p.y>14.6*TS){p.y=Math.random()*3*TS;p.x=Math.random()*MW*TS}
     if(p.x<cX-4||p.x>cX+VW+4||p.y<cY-4||p.y>cY+VH+4)return;cx.fillStyle='rgba(255,196,214,.9)';cx.fillRect(Math.round(p.x),Math.round(p.y),2,1)});
   cx.restore();
-  drawWeather(dt);mistFog();
-  placeTags(cX,cY);shipTags(cX,cY);trapTags(cX,cY);
+  drawWeather(dt);mistFog();dwFx(dt);
+  placeTags(cX,cY);shipTags(cX,cY);trapTags(cX,cY);smTags(cX,cY);
   // 하루 색조
   const c=dtn.c;if(c[0]<255||c[1]<255||c[2]<255){cx.globalCompositeOperation='multiply';cx.fillStyle='rgb('+c[0]+','+c[1]+','+c[2]+')';cx.fillRect(0,0,VW,VH);cx.globalCompositeOperation='source-over'}
   // 밤 가로등 불빛
@@ -5593,7 +5689,7 @@ function update(dt){
   walkTick(dt);petTick();bugTick(dt);
   updateFishing(dt);
   const a=nearAction();updateActBtn(a);
-  recastTick();
+  recastTick();if(P)plateTick();
   // BGM
   const want=F.mode==='idle'||F.mode==='result'?(isNight(dayTint().ph)?'night':'town'):'fish';
   const wantT=F.mode==='idle'||F.mode==='result'?want:'fish';
@@ -5667,7 +5763,7 @@ function actCands(a0){const c=[];if(a0)c.push(a0);
   const tr=nearTree();if(tr&&!treeCut(tr))add(wildTree(tr)&&axeLv()?{type:'chop',tree:tr,label:'벌목'}:{type:'tree',tree:tr,label:'흔들기'});
   return c}
 function nearAction(){const a0=nearAction0(),c=actCands(a0);ACT_CANDS=c;if(ACT_PICK){const x=c.find(y=>y.type===ACT_PICK);if(x)return x;ACT_PICK=null}return a0}
-const ACT_KIND=t=>!t?'':t==='fish'?'fish':t==='trap'||t==='trapset'?'gather':/^(pet|walk|wish|litter)$/.test(t)?'pet':/^(tree|chop|nat_.*|garden)$/.test(t)?'gather':/^(bench|stand)$/.test(t)?'sit':/^(player|wow)$/.test(t)?'social':'talk';
+const ACT_KIND=t=>!t?'':t==='fish'?'fish':t==='trap'||t==='trapset'||t==='snowpile'?'gather':/^(pet|walk|wish|litter)$/.test(t)?'pet':/^(tree|chop|nat_.*|garden)$/.test(t)?'gather':/^(bench|stand)$/.test(t)?'sit':/^(player|wow)$/.test(t)?'social':'talk';
 const KIND_COL={fish:'#ff8fb1',pet:'#ffb43a',gather:'#5cbf6a',sit:'#5aaee8',talk:'#9a83e6',social:'#ef7fc8'};
 const KIND_IC={fish:'<svg viewBox="0 0 24 14" width="24" height="14"><path d="M2 7c3-5 10-6 15-2l4-3v10l-4-3c-5 4-12 3-15-2z" fill="currentColor"/><circle cx="7" cy="6" r="1.2" fill="#fff"/></svg>',
  pet:'<svg viewBox="0 0 20 18" width="20" height="18"><ellipse cx="10" cy="12" rx="5" ry="4.5" fill="currentColor"/><circle cx="4" cy="7" r="2.2" fill="currentColor"/><circle cx="8" cy="3.5" r="2.2" fill="currentColor"/><circle cx="12" cy="3.5" r="2.2" fill="currentColor"/><circle cx="16" cy="7" r="2.2" fill="currentColor"/></svg>',
@@ -5730,7 +5826,7 @@ const MMAP={base:null,t:0,lbl:0};
 const nameHue=n=>{let h=0;for(const c of String(n||''))h=(h*131+c.codePointAt(0))>>>0;return h%360};
 const nameCol=n=>'hsl('+nameHue(n)+',78%,58%)';
 function mmBase(){if(MMAP.base)return MMAP.base;const c=document.createElement('canvas');c.width=MW;c.height=MH;const x=c.getContext('2d'),im=x.createImageData(MW,MH),d=im.data;
-  const C={g:[168,214,150],p:[232,214,168],s:[240,224,176],k:[196,160,112],f:[160,120,80],F:[196,160,112],w:[124,190,232]};
+  const C={c:[255,214,228],n:[240,246,255],g:[168,214,150],p:[232,214,168],s:[240,224,176],k:[196,160,112],f:[160,120,80],F:[196,160,112],w:[124,190,232]};
   for(let y=0;y<MH;y++)for(let X=0;X<MW;X++){const t=W.T[y][X];let col=C[t]||[200,210,190];if(t==='w'&&W.Z[y][X]>=6&&W.Z[y][X]!==8)col=[150,190,220];if(t!=='w'&&W.SOL[y][X])col=[150,180,130];const i=(y*MW+X)*4;d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=255}
   x.putImageData(im,0,0);x.fillStyle='rgb(206,170,214)';W.buildings.forEach(b=>x.fillRect(b.x,b.y-1,b.w,b.h+1));MMAP.base=c;return c}
 function mmOn(){return!S.mmOff}
@@ -6199,10 +6295,10 @@ function renderDex(){
   const pz=FISH[ids[0]].zone,szOn=pz<=6&&!sea&&!FISH[ids[0]].get&&!FISH[ids[0]].isy&&!FISH[ids[0]].v2&&!FISH[ids[0]].myth&&!FISH[ids[0]].pty&&!FISH[ids[0]].mk;
   const N=FISH.length;
   let h='<div class="stamps-top"><div class="st1"><b>🐟 '+dexTotalAll()+'</b><small>만남</small></div><div class="st2"><b>🎣 '+sdTotal()+'</b><small>손맛</small></div><div class="st3"><b>✨ '+shTotal()+'</b><small>반짝</small></div><div class="stn"><small>전체</small><b>'+N+'종</b></div></div>'+rankStrip('sd','🎣 손맛 순위');
-  const zs=ZONE_SHORT.map((n,z)=>[n,z*4]).concat(SEASONS.length?[['축제',MAIN_PAGES]]:[]).concat([['안개 섬',MAIN_PAGES+SEASONS.length],['배낚시',MAIN_PAGES+SEASONS.length+2],['시장',MAIN_PAGES+SEASONS.length+5],['신화',MAIN_PAGES+SEASONS.length+6],['마을 2탄',V2_PAGE0],['섬 연못',ISX_PAGE0],['섬 계곡',ISX_PAGE0+4],['산호초',ISX_PAGE0+8],['숲 호수',ISY_P[13]],['반딧불',ISY_P[14]],['고래 만',ISY_P[15]],['갯것',GET_PAGE0]]);
+  const zs=ZONE_SHORT.map((n,z)=>[n,z*4]).concat(SEASONS.length?[['축제',MAIN_PAGES]]:[]).concat([['안개 섬',MAIN_PAGES+SEASONS.length],['배낚시',MAIN_PAGES+SEASONS.length+2],['시장',MAIN_PAGES+SEASONS.length+5],['신화',MAIN_PAGES+SEASONS.length+6],['마을 2탄',V2_PAGE0],['섬 연못',ISX_PAGE0],['섬 계곡',ISX_PAGE0+4],['산호초',ISX_PAGE0+8],['숲 호수',ISY_P[13]],['반딧불',ISY_P[14]],['고래 만',ISY_P[15]],['달콤섬',DW_P[16]],['소복섬',DW_P[18]],['갯것',GET_PAGE0]]);
   h+='<div class="zj">'+zs.map((a,i)=>{const on=p>=a[1]&&(i===zs.length-1||p<zs[i+1][1]);return'<button data-pz="'+a[1]+'"'+(on?' class="on"':'')+'>'+a[0]+'</button>'}).join('')+'</div>';
   const isl=!sea&&!ps,p0=FISH[ids[0]];
-  const info=p0.isy?'물안개 숲 섬 · 「'+ZONES[p0.zone-1].name+'」 · 안개 섬 다리 건너':p0.get?'통발로만 잡혀요 · 낚시터마다 4종 · 직접 걷어 올리면 손맛 도장 · 밤낮과 계절은 실제 한국 시각 기준':p0.v2?'마을 2탄 · 「'+ZONES[p0.zone-1].name+'」 새 물고기':p0.isx?'안개 섬 · 「'+ZONES[p0.zone-1].name+'」'+(hasZone(6)?'':' (섬에 가 본 사람만)'):p0.myth?'낚시터마다 1종 · 시간과 날씨가 딱 맞을 때 아주 가끔':p0.pty?'4명이 모여야 나가는 배낚시':p0.mk?'시장 물고기 · 하루 '+MK_DAY+'마리':isl?'2부 · 물결호를 타고 가는 섬'+(hasZone(6)?'':' (아직 못 가 봤어요)'):sea?mdText(sea.from)+' ~ '+mdText(sea.to)+(seasonOn(sea)?' · 지금 축제 중!':' · 축제 기간에만 나와요'):'';
+  const info=p0.dw?(p0.zone<=17?'달콤섬':'소복섬')+' · 「'+ZONES[p0.zone-1].name+'」 · 고래 만 부두에서 배를 타요':p0.isy?'물안개 숲 섬 · 「'+ZONES[p0.zone-1].name+'」 · 안개 섬 다리 건너':p0.get?'통발로만 잡혀요 · 낚시터마다 4종 · 직접 걷어 올리면 손맛 도장 · 밤낮과 계절은 실제 한국 시각 기준':p0.v2?'마을 2탄 · 「'+ZONES[p0.zone-1].name+'」 새 물고기':p0.isx?'안개 섬 · 「'+ZONES[p0.zone-1].name+'」'+(hasZone(6)?'':' (섬에 가 본 사람만)'):p0.myth?'낚시터마다 1종 · 시간과 날씨가 딱 맞을 때 아주 가끔':p0.pty?'4명이 모여야 나가는 배낚시':p0.mk?'시장 물고기 · 하루 '+MK_DAY+'마리':isl?'2부 · 물결호를 타고 가는 섬'+(hasZone(6)?'':' (아직 못 가 봤어요)'):sea?mdText(sea.from)+' ~ '+mdText(sea.to)+(seasonOn(sea)?' · 지금 축제 중!':' · 축제 기간에만 나와요'):'';
   const rc=rw&&COS_BY[rw],szr=szOn?COS.filter(c=>c.sz===pz):[],szGot=szOn&&szrwS().indexOf(pz)>=0;
   h+='<div class="pager" style="margin-top:10px"><button class="btn ghost sm" data-pg="-1"'+(p===0?' disabled':'')+'>◀</button><div class="t"><div style="font-size:17px">'+PAGE_TITLES[p]+'</div>'+
     '<div class="muted">🐟 '+got+' · 🎣 '+ids.filter(sdHas).length+' · ✨ '+ids.filter(shHas).length+' / '+ids.length+'</div>'+(info?'<div class="muted" style="font-size:12px">'+info+'</div>':'')+
@@ -6566,7 +6662,7 @@ const trapCount=()=>{if(!S.trap)return 0;return Math.min(trapMax(),Math.floor((D
    만남 도감만 채워요 (손맛은 직접 낚아야 해요). 전설 · 신화 · 보스는 안 들어와요 */
 const TRAP_W=[70,22,7,1];   // 흔함 · 보통 · 희귀 · 영웅
 const TRAP_BAIT={b_dough:{n:'반죽 미끼',x:1.5,uses:2},b_shine:{n:'반짝 미끼',x:2.5,uses:3},b_shine_p:{n:'명품 반짝 미끼',x:3.5,uses:4},b_legend:{n:'전설 미끼',x:5,uses:5}};
-const trapZones=()=>[1,2,3,4,5,8,6,9,10,11,13,14,15].filter(z=>z===8?hasZone(3):z>=9?hasZone(6):hasZone(z));
+const trapZones=()=>[1,2,3,4,5,8,6,9,10,11,13,14,15,16,17,18,19].filter(z=>z===8?hasZone(3):z>=9?hasZone(6):hasZone(z));
 const TRAP_POOL={};function trapPool(z,rar){const k=z+'-'+rar;return TRAP_POOL[k]||(TRAP_POOL[k]=FISH.filter(f=>f.zone===z&&f.rar===rar&&!f.boss&&!f.myth&&!f.season&&!f.pty&&!f.get))}
 function claimTrap(){
   const n=trapCount();if(!n)return;const z=S.trapZ&&trapZones().indexOf(S.trapZ)>=0?S.trapZ:1,bt=S.trapB&&TRAP_BAIT[S.trapB.k],got={};let fresh=0,bonus=[];
@@ -6665,6 +6761,7 @@ function trapRoll(tr,at){const n=trapN(tr,at),key=tr.seed+':'+tr.t0+':'+n+':'+tr
     out.push({id:f.id,len:Math.max(1,Math.round(f.len*(.7+R()*.6)))})}
   TR_CACHE[tr.n]={k:key,v:out};return out}
 /* 걷어 올리기: 서버가 돌려준 통발 기록으로 계산해서 가방 · 도감에 (갯것은 손맛 도감에도) */
+function dwCatchDrop(id){const f=FISH[id];if(f&&(f.zone===18||f.zone===19)&&Math.random()<.1){itAdd('flake',1);setTimeout(()=>toast('❄️ 반짝 눈송이 +1 (스키복 재료)'),900)}}
 function trapApply(tr,at){const list=trapRoll(tr,at),got={};let fresh=0,sd=0;const sds=sdS();
   list.forEach(c=>{const f=FISH[c.id];if(!S.dex[f.id])fresh++;got[f.id]=(got[f.id]||0)+1;S.inv[f.id]=(S.inv[f.id]||0)+1;
     const e=S.dex[f.id]||(S.dex[f.id]={n:0,best:0});e.n++;e.best=Math.max(e.best,c.len);S.stats.catches++;enhOnCatch(f.id,1);
@@ -7181,12 +7278,14 @@ const CUR_GUIDE='<div style="font-size:13px;line-height:1.7">'+
  '· 배낚시는 <b>한 주 12번</b>, 안개 조각은 <b>한 주 120개</b> (몰아서 해도 돼요)<br>· 벌목은 <b>기력</b> (하루 15씩 · 3일치까지), 석청 바위는 <b>20시간마다</b> 다시 차요<br>· 장소별 첫 낚시 선물은 마을 일 선물로 옮겼어요<br>'+
  '<div class="wishc" style="margin-top:8px">📋 <b>메뉴 → 오늘</b> (또는 오른쪽 위 🔹🌰🎫)에서 언제든 확인해요</div></div>';
 function openCurGuide(){Snd.sfx('page');openSheet('📦 재화 · 숙제 정리 안내',CUR_GUIDE)}
-setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.cur2)return;if(ONLINE&&!Net.me)return;S.cur2=1;S.upd1109=1;S.upd1109b=1;S.upd1109c=1;S.upd1109d=1;saveState(true);openCurGuide()},2500);
+setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.cur2)return;if(ONLINE&&!Net.me)return;S.cur2=1;S.upd1109=1;S.upd1109b=1;S.upd1109c=1;S.upd1109d=1;S.upd1109e=1;saveState(true);openCurGuide()},2500);
 /* 2026-11-09 업데이트 안내 (짧게) */
 const UPD1109='<div class="upd">'+
  '<div class="updh">🪤 통발이 바뀌었어요</div><ul><li>낚시터 물가에 직접 놓아요. 물가에서 오른쪽 아래 <b>바꾸기 → 통발 놓기</b></li><li>남의 통발도 다가가서 들여다보고 한마디 남길 수 있어요</li><li>새 <b>갯것 40종</b>은 통발로만 잡히고 <b>손맛 도감</b>에 들어가요</li><li>치장 상점 「통발」 탭에 통발 치장이 생겼어요</li><li>예전 통발에 모여 있던 물고기는 자동으로 받았어요</li></ul>'+
  '<div class="updh">화면</div><ul><li>오른쪽 위 미니맵 (✕로 끄고, 메뉴에서 다시 켜요)</li><li>오른쪽 아래 버튼이 하는 일마다 색이 달라요. 무엇을 할지 바닥에 표시돼요</li><li>알림이 나뉘어요: 마을 소식은 위쪽 띠, 친구 일은 왼쪽 카드, 놓친 건 메뉴 → 소식함</li><li>교환소 · 수족관에서 물고기를 이름 · 등급으로 찾고 정렬해요</li><li>10만 골드 넘는 물건은 한 번 더 물어봐요</li></ul>'+
  '<div class="updh">바뀐 규칙</div><ul><li>하루가 20분으로 길어지고 노을도 길어졌어요. 날씨도 20분마다</li><li>배낚시는 3명부터 출항 · 기다리는 동안 배 위에서 낚시 가능</li><li>먹는 버프는 없앴어요 (과일 · 요리는 팔거나 재료로)</li><li>전설 · 반짝 물고기 값이 크게 올랐어요</li><li>안전 강화는 +17부터 골드가 많이 들어요</li><li>펫 간식 · 장난감은 하루 5번까지</li><li>안개 섬 부두의 물결호에서 섬 장비 · 방수 등불을 올려요</li></ul></div>';
+const UPD1109E='<div class="upd"><div class="updh">🍰⛄ 달콤섬 · 소복섬이 함께 열렸어요</div><ul><li>물안개 숲 섬 <b>고래 만 부두</b>에서 「달콤 · 소복 배」를 타요</li><li>새 낚시터 4곳 (시럽 호수 · 사탕 바다 · 얼음 호수 · 눈꽃 바다) · 새 물고기 <b>80종</b> (도감 819종)</li><li><b>소복마을 방울 발판</b>: 밟으면 오르골 소리가 나요. 두 줄을 걸어서 노래를 만들어 봐요</li><li><b>눈사람</b>: 눈더미를 뭉쳐 눈사람을 쌓고 꾸며요. 마을 광장에 모두 보이고, 톡 치면 따뜻한 코코아</li><li><b>추위</b>: 스키복이 없으면 소복섬에서 걸음이 느려지고 입질이 늦어요. 스키복은 털실 가게에서 (아주 어려워요!)</li></ul></div>';
+setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.upd1109e||!S.upd1109d)return;if(ONLINE&&!Net.me)return;S.upd1109e=1;saveState(true);Snd.sfx('page');openSheet('3차 업데이트 ③',UPD1109E)},5000);
 const UPD1109D='<div class="upd"><div class="updh">🌫️ 물안개 숲 섬이 열렸어요</div><ul><li>안개 섬 동쪽 <b>다리</b>를 건너면 새 섬이에요 (안개 섬에 가 본 사람 누구나)</li><li>새 낚시터 3곳: <b>물안개 숲 호수 · 반딧불 개울 · 고래 만</b> · 새 물고기 <b>100종</b> (도감 739종)</li><li>섬에 안개가 끼면 물고기가 덜 경계해서 <b>입질이 빨라요</b></li><li>섬에서는 낚싯대 <b>+17부터 단계마다 쉬워져요</b> (최대 30%) · 권장 강화도 새로 맞췄어요</li><li><b>섬 대장간</b>에서 섬 장비 · 방수 등불을 올려요</li><li>고래 만 남쪽 부두에서 <b>소원 등불</b>을 띄워요 (안개 조각 3개 · 하루 동안 모두의 하늘에)</li><li>고래 만엔 가끔 돌고래가 뛰고 고래가 물을 뿜어요</li></ul></div>';
 setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.upd1109d||!S.upd1109c)return;if(ONLINE&&!Net.me)return;S.upd1109d=1;saveState(true);Snd.sfx('page');openSheet('3차 업데이트 ②',UPD1109D)},4500);
 const UPD1109C='<div class="upd"><div class="updh">3차 첫 번째</div><ul><li><b>가방</b>: 위에 장착 칸이 생겼어요. 칸을 누르면 그 종류만 골라 입어요. 물고기는 칸으로 보여요</li><li><b>배낚시 보스</b>: 연타 대신 리듬! 물고기가 링에 닿을 때 톡. 모두 각자 14번 이상 맞혀야 잡혀요 · 놓치면 모두에게 보여요</li><li><b>배낚시 결과판</b>: 누가 몇 마리 · 몇 번 놓쳤는지 · 얼마 벌었는지 모두에게 · MVP는 강화권 +2</li><li>배낚시 보상이 크게 늘었어요 (최대 300만 골드 + 보스마다 50만)</li></ul></div>';
