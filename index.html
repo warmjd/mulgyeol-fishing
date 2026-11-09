@@ -2323,7 +2323,7 @@ const COS=[
  {id:'tee',k:'outfit',name:'기본 티셔츠',price:0},{id:'stripe',k:'outfit',name:'줄무늬 티',price:600},{id:'apron',k:'outfit',name:'카페 앞치마',price:1200},
  {id:'overall',k:'outfit',name:'멜빵바지',price:1500},{id:'raincoat',k:'outfit',name:'노란 우비',price:2500},{id:'hoodie',k:'outfit',name:'후드 티',price:3000},
  {id:'star',k:'outfit',name:'별무늬 티',price:6000},{id:'suit',k:'outfit',name:'멋쟁이 정장',price:20000},
- {id:'o_tux',k:'outfit',name:'💒 예식 턱시도',price:500000},{id:'o_wdress',k:'outfit',name:'💒 순백 웨딩드레스',price:500000,fx:'petal'},{id:'h_veil',k:'hat',name:'💒 면사포',price:200000},{id:'h_fcrown',k:'hat',name:'💐 꽃 화관',price:150000},
+ {id:'o_tux',k:'outfit',name:'💒 예식 턱시도',price:100000000},{id:'o_wdress',k:'outfit',name:'💒 순백 웨딩드레스',price:100000000,fx:'petal'},{id:'h_veil',k:'hat',name:'💒 면사포',price:200000},{id:'h_fcrown',k:'hat',name:'💐 꽃 화관',price:150000},
  {id:'ring_silver',k:'ring',name:'은빛 결혼반지',price:200000},{id:'ring_pearl',k:'ring',name:'진주 결혼반지',price:800000},{id:'ring_dia',k:'ring',name:'다이아 결혼반지',price:3000000},{id:'ring_star',k:'ring',name:'별빛 결혼반지',price:10000000},{id:'ring_rainbow',k:'ring',name:'무지개 결혼반지',price:30000000},
  {id:'vest',k:'outfit',name:'낚시 조끼',reward:7},{id:'sailor',k:'outfit',name:'세일러복',reward:11},{id:'wave',k:'outfit',name:'파도 무늬 티',reward:15},
  {id:'lotus',k:'hat',name:'연꽃 왕관',zone:1},{id:'pondrobe',k:'outfit',name:'연못 요정 드레스',zone:1,fx:'petal'},
@@ -2872,6 +2872,7 @@ const Snd=(()=>{
     bell2(){const t=ctx.currentTime;[0,.08,.16].forEach((d,i)=>{bell(sfxBus,2093+i*90,t+d,.4,.06);bell(sfxBus,2637,t+d+.03,.3,.04)})},
     thunder(){const t=ctx.currentTime;nz(sfxBus,t,.08,'highpass',3000,1500,.2,1);nz(sfxBus,t+.05,1.4,'lowpass',500,50,.3,.7)},
     meteor(){const t=ctx.currentTime;glide(sfxBus,1600,200,t,.4,.06,'sine');nz(sfxBus,t+.4,.9,'lowpass',700,60,.3,.7)},
+    sail(){const t=ctx.currentTime;nz(sfxBus,t,1.6,'lowpass',600,250,.06,.8);[72,76,79,84,88].forEach((m,i)=>bell(sfxBus,mtof(m),t+.15+i*.13,1.4,.045));glide(sfxBus,330,392,t+.1,.9,.03,'sine')},
     wood(){const t=ctx.currentTime;glide(sfxBus,440,380,t,.05,.14,'square');glide(sfxBus,330,300,t+.09,.05,.08,'square')},
     /* 배낚시: 갈매기 · 파도 · 뱃고동 */
     gull(){const t=ctx.currentTime;[0,.16].forEach((d,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.setValueAtTime(1900-i*150,t+d);o.frequency.exponentialRampToValueAtTime(1100,t+d+.14);
@@ -4092,7 +4093,7 @@ const BOATS=[
  {k:'jeju',x:19*TS+12,y:40*TS+10,lb:'제주행',to:'jeju',on:()=>JEJU_ON(),at:(tx,ty)=>tx>=16&&tx<=17&&ty>=39&&ty<=41},
  {k:'jeju',x:70*TS+8,y:49*TS+12,lb:'마을행',to:'home',at:(tx,ty)=>tx>=72&&tx<=73&&ty===51}];
 function boatNear(){if(!P||HUNT.on)return null;const tx=(P.x/TS)|0,ty=(P.y/TS)|0;for(const b of BOATS){if(b.on&&!b.on())continue;if(b.at(tx,ty))return{type:'x',fn:()=>boatGo(b),label:{des:'🍰 ',xmas:'🎄 ',jeju:'🍊 '}[b.k]+b.lb+'<br>배 타기'}}return null}
-function boatGo(b){Snd.sfx('horn');const go=()=>{if(b.to==='jeju'){forceTp(78*TS+8,51*TS+12,'🍊 제주 이벤트 섬에 도착했어요! 혼저옵서예');Snd.sfx('splash');return}if(b.to==='home'){forceTp(17*TS+8,46*TS+12,'⛵ 마을 부두로 돌아왔어요');return}
+function boatGo(b){Snd.sfx('sail');const go=()=>{if(b.to==='jeju'){forceTp(78*TS+8,51*TS+12,'🍊 제주 이벤트 섬에 도착했어요! 혼저옵서예');Snd.sfx('splash');return}if(b.to==='home'){forceTp(17*TS+8,46*TS+12,'⛵ 마을 부두로 돌아왔어요');return}
   const d=FERRY[b.to];S.dwStory=1;forceTp(d[0],d[1],'⛵ '+d[2]+'에 도착했어요');saveState(true);Snd.sfx('splash');if(b.to!=='mist')arriveFx(b.to);if(b.to==='win'&&!S.ski)setTimeout(()=>toast('🥶 으슬으슬… 스키복이 없으면 걸음이 느려지고 입질도 늦어요. 소복마을 털실 가게에서 만들어요'),1500)};
   if(b.to==='des'||b.to==='win'){if(!S.dwStory){openSheet('달콤 · 소복 배',STORY_DW+'<button class="btn pink" style="width:100%;margin-top:10px" data-boatgo="'+BOATS.indexOf(b)+'">'+(b.to==='des'?'🍰 달콤섬으로 출발!':'🎄 소복마을로 출발!')+'</button>');return}}
   sailFx(b);setTimeout(go,650)}
@@ -4101,12 +4102,15 @@ function sailFx(b){b.leave=wt;for(let i=0;i<24;i++)parts.push({x:b.x+(Math.rando
 /* ✨ 화면 밀도: 물결 반짝임 · 흘러가는 구름 그림자 */
 function ambDraw(){if(!P||HUNT.on)return;const x0=Math.max(0,((P.x-VW/2)/TS|0)-1),x1=Math.min(MW-1,((P.x+VW/2)/TS|0)+1),y0=Math.max(0,((P.y-VH/2)/TS|0)-1),y1=Math.min(MH-1,((P.y+VH/2)/TS|0)+1);
   for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){if(W.T[y][x]!=='w')continue;const h=(x*73856093^y*19349663)>>>0,ph=(wt*.9+(h%1000)/160)%6;if(ph>1.2)continue;const a=Math.sin(ph/1.2*Math.PI);cx.fillStyle='rgba(255,255,255,'+(a*.75)+')';const gx=x*TS+(h%11)+2,gy=y*TS+((h>>4)%11)+2;cx.fillRect(gx,gy,3+((h>>8)%3),1);if(a>.7)cx.fillRect(gx+1,gy-1,1,1)}
-  for(let i=0;i<4;i++){const cxp=((wt*6+i*397)%(VW+400))-200+P.x-VW/2,cyp=P.y-VH/2+((i*211)%VH);cx.fillStyle='rgba(40,60,90,.06)';cx.beginPath();cx.ellipse(cxp,cyp,60+i*12,22+i*4,0,0,6.28);cx.ellipse(cxp+40,cyp+8,40,16,0,0,6.28);cx.fill()}}
+}
 /* 🏠 집이 살아 있어요: 굴뚝 연기 · 저녁엔 창문 불빛 */
 function houseLife(b,hx,hy){const ph=dayTint().ph,eve=ph>.7||ph<.06,h=(b.x*31+b.y*17)%10;
   if(Math.random()<FXDT*(eve?1.2:.6))parts.push({x:hx+36+(Math.random()-.5)*2,y:hy+2,vx:4+Math.random()*3,vy:-9-Math.random()*4,life:2.2,t:0,c:eve?'rgba(200,200,215,.55)':'rgba(240,240,248,.6)',g:-1,s:2+(Math.random()<.4?1:0)});
 }
-function boatDrawables(list){list.push({y:-2e6,fn:ambDraw});if(!P)return;BOATS.forEach(b=>{if(b.on&&!b.on())return;if(Math.abs(b.x-P.x)>VW+60||Math.abs(b.y-P.y)>VH+60)return;list.push({y:b.y+8,fn:()=>drawBoat(b)})})}
+function topMeadow(){if(!P||P.y>VH*1.2)return;const X0=Math.max(0,Math.floor((P.x-VW)/TS)),X1=Math.min(MW-1,Math.ceil((P.x+VW)/TS));
+  for(let tx=X0;tx<=X1;tx++){const w=W.T[0][tx]==='w';cx.fillStyle=w?'#7cbce0':'#b8dc9c';cx.fillRect(tx*TS,-220,TS,220);if(w)continue;for(let k=0;k<3;k++){const h=((tx*7+k)*2654435761)>>>0;cx.fillStyle=h%5===0?['#ffd0e0','#ffffff','#fff0a0'][h%3]:'rgba(120,170,100,.35)';cx.fillRect(tx*TS+(h%14),-24-(h>>6)%190,h%5===0?2:1,2)}
+    const h=(tx*40503)>>>0;cx.fillStyle='#7cbc78';cx.beginPath();cx.arc(tx*TS+8,-6,10+(h%3),0,6.28);cx.fill();cx.fillStyle='#94cc88';cx.beginPath();cx.arc(tx*TS+5,-9,5,0,6.28);cx.fill();if(h%4===0){cx.fillStyle=['#ffb0c8','#ffffff','#ffe070'][h%3];cx.fillRect(tx*TS+9,-10,2,2)}}}
+function boatDrawables(list){list.push({y:-3e6,fn:topMeadow},{y:-2e6,fn:ambDraw});if(!P)return;BOATS.forEach(b=>{if(b.on&&!b.on())return;if(Math.abs(b.x-P.x)>VW+60||Math.abs(b.y-P.y)>VH+60)return;list.push({y:b.y+8,fn:()=>drawBoat(b)})})}
 function drawBoat(b){const bob=Math.sin(wt*1.6+b.x)*1.2,X=Math.round(b.x),Y=Math.round(b.y+bob),k=b.k,x=cx;
   x.fillStyle='rgba(30,60,100,.18)';x.beginPath();x.ellipse(X,Y+8,26,5,0,0,6.28);x.fill();
   x.strokeStyle='rgba(255,255,255,.55)';x.lineWidth=1;for(let i=0;i<2;i++){const o=((wt*10+i*12)%24);x.beginPath();x.ellipse(X,Y+8,24+o*.6,4+o*.15,0,.2,2.9);x.stroke()}
@@ -6350,12 +6354,12 @@ function render(dt){
   const tx=P.x-VW/2,ty=P.y-VH/2-4,ck=1-Math.exp(-dt*6);
   camX+=(tx-camX)*ck;camY+=(ty-camY)*ck;
   const mxX=MW*TS-VW,mxY=MH*TS-VH;
-  camX=Math.max(0,Math.min(mxX,camX));camY=Math.max(0,Math.min(mxY,camY));
+  const TOPP=Math.round(VH*.34);camX=Math.max(0,Math.min(mxX,camX));camY=Math.max(-TOPP,Math.min(mxY,camY));
   if(MW*TS<VW)camX=mxX/2;
   const lx=tx-camX,ly=ty-camY;
   if(Math.abs(lx-camLX)>.8)camLX=Math.round(lx);if(Math.abs(ly-camLY)>.8)camLY=Math.round(ly);
   let cX=(camX<=0||camX>=mxX)?Math.round(camX):Math.max(0,Math.min(mxX,Math.round(P.x)-(VW>>1)-camLX));
-  let cY=(camY<=0||camY>=mxY)?Math.round(camY):Math.max(0,Math.min(mxY,Math.round(P.y)-(VH>>1)-4-camLY));
+  let cY=(camY<=-TOPP||camY>=mxY)?Math.round(camY):Math.max(-TOPP,Math.min(mxY,Math.round(P.y)-(VH>>1)-4-camLY));
   cx.fillStyle='#d6ecd0';cx.fillRect(0,0,VW,VH);
   if(SHK.t>0){SHK.t-=dt;cX+=Math.round((Math.random()-.5)*SHK.a*2);cY+=Math.round((Math.random()-.5)*SHK.a*2)}
   cx.save();cx.translate(-cX,-cY);
