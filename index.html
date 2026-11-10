@@ -2907,6 +2907,7 @@ const Snd=(()=>{
     gate(){const t=ctx.currentTime;nz(sfxBus,t,.8,'lowpass',500,150,.16,.8);pad(sfxBus,[60,64,67,71],t+.1,1.4,.16);S.buy()},
     page(){const t=ctx.currentTime;[72,76,79,84,88,91,96].forEach((m,i)=>bell(sfxBus,mtof(m),t+i*.1,1,.065))},
     pop(){const t=ctx.currentTime;glide(sfxBus,500,1300,t,.07,.12,'sine');nz(sfxBus,t,.04,'highpass',2500,4000,.04,1)},
+    meow(){const t=ctx.currentTime,b=680+Math.random()*160;glide(sfxBus,b,b*1.35,t,.12,.07,'triangle');glide(sfxBus,b*1.35,b*.8,t+.12,.22,.06,'triangle');glide(sfxBus,b*2.7,b*1.6,t+.05,.2,.015,'sine')},
     jelly(){const t=ctx.currentTime;glide(sfxBus,200,85,t,.28,.17,'sine');glide(sfxBus,300,130,t+.06,.24,.08,'triangle');glide(sfxBus,140,260,t+.2,.12,.05,'sine')},
     drip(){const t=ctx.currentTime;glide(sfxBus,800,1600,t,.08,.1,'sine');glide(sfxBus,650,1300,t+.15,.08,.08,'sine');glide(sfxBus,900,1800,t+.32,.07,.05,'sine');nz(sfxBus,t,.4,'lowpass',700,250,.05,.7)},
     crunch(){const t=ctx.currentTime;for(let i=0;i<4;i++)nz(sfxBus,t+i*.035,.04,'bandpass',2600-i*200,1500,.08,2)},
@@ -4341,7 +4342,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y);
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1110e',UPD_LOG=[
+const UPD_VER='1110f',UPD_LOG=[
+ ['11/10 밤','🐾',[['냥이들의 마을 여행','루비 · 고양이들이 온 마을과 섬을 돌아다녀요 · 물을 만나면 작은 배를 타요 ⛵'],['우연히 만나요','마주치면 인사하고 가끔 선물도 · 냥이끼리 만나면 수다 ㅋㅋㅋ'],['냥이 어디 있지?','냥이 정보에서 📍지금 위치 · 🗺️ 길 안내 · 미니맵에 발자국']]],
  ['11/10 저녁','⚔️',[['💪 전투력','레벨 + 장비로 계산 · ⚔️ 용사 왕과 용사 순위는 이제 전투력 1등'],['사냥터 친구 상태','머리 위에 체력 · 정화 진행률 · 전투력'],['사냥 중 츄리가 눌리던 버그 수정',''],['🤝 함께 사냥','같은 사냥터에서 가까이 싸우면 1명당 경험치 +30% · 칩·드랍 +20% (3명까지)'],['사냥터 친구가 제 모습으로 보여요','옷 · 무기 · 이름 · 레벨 (예전엔 내 모습 복제처럼 보였어요)'],['용사의 길 치장 4세트','전사 · 용사 · 성기사 · 하늘섬 모험가 (치장 상점 · 1,200만~6,000만 골드)'],['등에 메는 무기','용사의 대검 · 기사의 둥근 방패'],['🎡 은비 룰렛 새로 열림','빨강 · 파랑 ×2 · 황금 ×9'],['거북이 경주 · 하이로우 문 닫음','슬롯 룰렛은 그대로예요']]],
  ['11/10 오후','🫧',[['사냥은 이제 “구출 작전”','갇힌 친구들을 다 구하면(물결 3번) 꿈의 주인 등장 → 깨우면 정화 완료'],['⭐ 별점','4분 안에 · 피해 적게 · 첫 별 셋이면 칩 + 10% 주문서'],['몬스터가 무리로 와요','몸에 닿기만 해도 아파요 · 이제 잘 안 밀려나요'],['보스가 화나요','체력 절반이면 분노 · 물결 벽 · 소용돌이 탄막'],['구르기 2번 충전','숨이 차면 못 굴러요'],['🎒 가방 → ⚔️ 장비','낚시로 주운 장비를 가방에서 바로 보고 껴요'],['착용 레벨','좋은 장비일수록 용사 레벨이 필요해요 🔒'],['🧩 세트 효과','같은 계열 2·4·6개'],['새 장비 비교','주울 때 ▲ 표시로 바로 알려줘요']]],
  ['11/10','⚔️',[['사냥터가 훨씬 어려워졌어요','내려찍기·돌진·탄환·탄막 · 빨간 표시엔 🌀구르기'],['사냥터는 순서대로','앞 보스를 잡고 권장 방어를 넘겨야 다음 문이 열려요'],['사냥 결과표','나올 때 잡은 수·받은 피해·얻은 장비를 보여줘요'],['단련 → 기본 능력치','쓴 칩은 돌려드렸어요 · 회복약은 이제 힐링포션'],['주문서 등급 표시','일반급 · 💎희귀급 · 🌟전설급'],['새 장비 등급','태초보다 위가 있다는 소문이… 🌌'],['1등만의 효과','반짝·월척·용사·은비랜드 1위 주변에 특별한 빛']]],
@@ -4807,8 +4809,8 @@ function nurungStep(a,dt){
   const rich=ONLINE&&Net.me?RICH:'나';let t=null;
   if(rich&&(rich==='나'||(Net.me&&rich===Net.me.name)))t=P;else if(rich)others.forEach(o=>{if(o.seen&&o.name===rich)t=o});
   if(!t)return false;
-  const tx=Math.max((YARD.x0+1)*TS,Math.min(YARD.x1*TS,t.x-14*(a.face||1))),ty=Math.max((YARD.y0+1)*TS,Math.min(YARD.y1*TS+8,t.y+4));
-  if(Math.hypot(t.x-a.x,t.y-a.y)>360||!petWalkable(tx,ty))return false;
+  const tx=t.x-14*(a.face||1),ty=t.y+4;
+  if(Math.hypot(t.x-a.x,t.y-a.y)>200||!petWalkable(tx,ty)||a.boat)return false;
   const dx=tx-a.x,dy=ty-a.y,d=Math.hypot(dx,dy);
   if(d>6){const sp=Math.min(d*3,a.p.speed+30)*dt,nx=a.x+dx/d*sp,ny=a.y+dy/d*sp;if(petWalkable(nx,ny)){a.x=nx;a.y=ny}a.state='walk';a.anim+=dt;if(Math.abs(dx)>2)a.face=dx<0?-1:1}
   else{if(a.state!=='sit'){a.state='sit';a.t=3}a.face=t.x<a.x?-1:1;if(Math.random()<dt*.15)parts.push({x:a.x-3,y:a.y-14,vx:0,vy:-12,life:1,t:0,heart:true,g:0})}
@@ -4819,36 +4821,85 @@ function petStuck(a,dt){const ok=isFollower(a)?(x,y)=>!blockedAt(x,y):petWalkabl
   for(let r=8;r<=160;r+=8)for(let k=0;k<16;k++){const ang=k/16*6.28,x=a.x+Math.cos(ang)*r,y=a.y+Math.sin(ang)*r;if(ok(x,y)){
     parts.push({x:a.x,y:a.y-8,vx:0,vy:-14,life:.8,t:0,heart:true,g:0});a.x=x;a.y=y;a.state='sit';a.t=2;return true}}
   return false}
-function petWalkable(x,y){return!blockedAt(x,y)&&x>YARD.x0*TS&&x<(YARD.x1+1)*TS&&y>YARD.y0*TS&&y<(YARD.y1+1)*TS}
+function petWalkable(x,y){return catLand(x,y)}
+/* ===================== 🐾 냥이들의 마을 여행 (2026-11-10): 루비 · 고양이들이 온 마을을 돌아다니고, 물을 만나면 작은 배를 타요 ===================== */
+const catSolT=(tx,ty)=>!W.inb(tx,ty)||!!W.SOL[ty][tx],catWaterT=(tx,ty)=>W.inb(tx,ty)&&W.T[ty][tx]==='w';
+function catLand(x,y){const hw=3,c=[[x-hw,y],[x+hw,y],[x-hw,y-3],[x+hw,y-3]];return c.every(q=>{const tx=Math.floor(q[0]/TS),ty=Math.floor(q[1]/TS);return!catSolT(tx,ty)})}
+function catWater(x,y){const c=[[x-4,y],[x+4,y],[x,y-3]];return c.every(q=>catWaterT(Math.floor(q[0]/TS),Math.floor(q[1]/TS)))}
+const CAT_POI=[[16,25,'마을 마당'],[39,21,'축제 광장'],[24,40,'잔잔한 연못'],[64,96,'고래 만 부두'],[97,82,'달콤섬'],[117,90,'초코 분수'],[147,82,'소복마을'],[168,71,'소복 트리'],[78,51,'제주 섬'],[88,80,'안개 섬'],[45,60,'꽃밭 언덕'],[120,40,'꽃배 바다'],[30,90,'노을 바닷가'],[150,110,'눈꽃 바다']];
+function catPOI(){for(let k=0;k<30;k++){const q=CAT_POI[(Math.random()*CAT_POI.length)|0];for(let r=0;r<8;r++){const x=(q[0]+(Math.random()-.5)*r*2)*TS+8,y=(q[1]+(Math.random()-.5)*r*2)*TS+12;if(catLand(x,y))return{x,y,n:q[2]}}}return{x:16*TS,y:25*TS,n:'마을 마당'}}
+function catPlace(x,y){let best=null,bd=1e9;CAT_POI.forEach(q=>{const d=Math.hypot(q[0]*TS-x,q[1]*TS-y);if(d<bd){bd=d;best=q[2]}});if(bd<14*TS)return best;const tx=(x/TS)|0,ty=(y/TS)|0;for(let r=1;r<14;r++)for(let dy=-r;dy<=r;dy+=r)for(let dx=-r;dx<=r;dx++){if(catWaterT(tx+dx,ty+dy)&&W.Z&&W.Z[ty+dy]){const z=W.Z[ty+dy][tx+dx];if(z)return ZN(z)}}return best||'어딘가'}
+const CAT_HI=['어? 너 여기서 뭐해 ㅋㅋㅋ','쉿! 나 몰래 여행 중이야','우리 또 만났네?! ㅋㅋ','여기 경치 좋지?','배 타고 왔다옹~','냄새 따라왔는데 너였구나','앗 들켰다 ㅋㅋㅋ','오늘 바람 좋다냥','같이 놀래?','물고기 냄새… 너지?'];
+const CAT_PAIR=[['안녕 ㅋㅋ','어 너도 여행 중?'],['여기서 만나네!','운명이다냥 ㅋㅋㅋ'],['배 시합 할래?','지는 사람 츄르 사기!'],['어디 가?','몰라 그냥 ㅋㅋ'],['하이파이브!','짝! ㅋㅋㅋ'],['저기 물고기 봤어?','나도 나도!']];
+const CAT_GIFT=[['조개껍데기',80,200],['반짝 조약돌',120,300],['작은 물고기',150,400],['꽃잎',60,150],['솔방울',60,160]];
+const catBoatCol={ruby:['#e85a6e','#b8384c'],dot:['#9ad0f0','#6aa8d0'],nurung:['#ffb050','#d08030'],kkam:['#a088e0','#7058b8'],churi:['#ffd84a','#d0a828']};
+let CAT_INIT=false;
+function catInit(){if(CAT_INIT||!W||!W.T)return;CAT_INIT=true;pets.forEach((a,i)=>{if(i===0&&Math.random()<.5)return;const q=catPOI();a.x=q.x;a.y=q.y;a.state='sit';a.t=3+Math.random()*10})}
+function catShore(a){const tx=(a.x/TS)|0,ty=(a.y/TS)|0;for(let r=2;r<30;r++)for(let k=0;k<24;k++){const ang=k/24*6.28+r,x=(tx+Math.cos(ang)*r)*TS+8,y=(ty+Math.sin(ang)*r)*TS+12;if(catLand(x,y))return{x,y,n:''}}return null}
+function catSay(a,txt,t){a.say={txt,t:t||2.6}}
+function catNewDest(a){const far=Math.random()<.55;if(far){a.dest=catPOI()}else{for(let k=0;k<12;k++){const x=a.x+(Math.random()-.5)*260,y=a.y+(Math.random()-.5)*180;if(catLand(x,y)){a.dest={x,y,n:''};break}}}if(!a.dest)a.dest=catPOI();a.state='walk';a.t=240;a.stuck=0}
+function catTravel(a,dt){const p=a.p;a.meetCD=(a.meetCD||0)-dt;if(a.say){a.say.t-=dt;if(a.say.t<=0)a.say=null}
+  if(a.state==='greet'){a.gt-=dt;if(a.gt<=0){a.state=a.boat?'walk':'sit';a.t=a.boat?120:2}return}
+  if(a.state!=='walk'){if(a.t<0)catNewDest(a);return}
+  if(!a.dest)return catNewDest(a);
+  const dx=a.dest.x-a.x,dy=a.dest.y-a.y,d=Math.hypot(dx,dy);a.anim+=dt;
+  a.pgT=(a.pgT||0)+dt;if(a.pgT>7){if(a.pgD!=null&&a.pgD-d<20){if(a.boat){const L=catShore(a);a.dest=L||catPOI()}else{a.dest=null;a.state='sit';a.t=1;a.pgT=0;a.pgD=null;return}}a.pgT=0;a.pgD=d}
+  if(a.t<0&&!a.boat){a.dest=null;a.state='sit';a.t=2;return}
+  if(d<8&&!a.boat){a.dest=null;a.state=Math.random()<p.sleepy*1.5?'sleep':'sit';a.t=(a.state==='sleep'?25:12)+Math.random()*25;return}
+  const sp=(a.boat?30:Math.max(18,p.speed*1.5))*dt,base=Math.atan2(dy,dx);let moved=false;
+  for(const off of [0,.5,-.5,1,-1,1.6,-1.6,2.3,-2.3]){const ang=base+off*(a.side||1),nx=a.x+Math.cos(ang)*sp,ny=a.y+Math.sin(ang)*sp;
+    if(a.boat){if(catWater(nx,ny)){a.x=nx;a.y=ny;moved=true}else if(catLand(nx,ny)){a.boat=false;a.x=nx;a.y=ny;moved=true;for(let i=0;i<8;i++)parts.push({x:a.x,y:a.y-2,vx:(Math.random()-.5)*30,vy:-10-Math.random()*10,life:.5,t:0,c:'#ffffff',g:60,s:1});if(Math.random()<.3)catSay(a,'도착! 🐾')}}
+    else{if(catLand(nx,ny)){a.x=nx;a.y=ny;moved=true}else if(off===0||Math.abs(off)<=.5){const wx=a.x+Math.cos(ang)*10,wy=a.y+Math.sin(ang)*10;if(catWater(wx,wy)){a.boat=true;a.x=wx;a.y=wy;moved=true;for(let i=0;i<10;i++)parts.push({x:a.x,y:a.y,vx:(Math.random()-.5)*30,vy:-14,life:.6,t:0,c:'#cfeeff',g:60,s:1});if(Math.random()<.35)catSay(a,pick(['배 타자~ ⛵','출항이다냥!','노 젓기 시작!']))}}}
+    if(moved){if(Math.abs(Math.cos(ang))>.2)a.face=Math.cos(ang)<0?-1:1;break}}
+  if(!moved){a.stuck=(a.stuck||0)+dt;if(a.stuck>.6)a.side=-(a.side||1);if(a.stuck>3){a.dest=null;a.state='sit';a.t=1}}else a.stuck=Math.max(0,a.stuck-dt);
+  a.t-=0;if(a.t<-1e3)a.t=0}
+/* 우연히 만나요: 나 ↔ 냥이 · 냥이 ↔ 냥이 */
+function catMeets(dt){if(!P)return;const now=Date.now();
+  pets.forEach(a=>{if(a.forced||isFollower(a)||a.state==='greet'||(a.meetCD||0)>0)return;const d=Math.hypot(a.x-P.x,a.y-P.y);if(d>34||HUNT.on)return;
+    a.meetCD=120;a.state='greet';a.gt=3;a.face=P.x<a.x?-1:1;a.react=1.2;catSay(a,pick(CAT_HI),3);Snd.sfx('meow');for(let i=0;i<3;i++)parts.push({x:a.x-3+i*3,y:a.y-14,vx:(i-1)*6,vy:-14,life:1.2,t:0,heart:true,g:0});
+    laughFx(a.x,a.y-22);try{gainHeart(a.p.id,1)}catch(e){}
+    const pl=catPlace(a.x,a.y),L=S.catLog||(S.catLog={}),r=L[a.p.id]||(L[a.p.id]={n:0,pl:[]});r.n++;const fresh=pl&&!r.pl.includes(pl);if(fresh)r.pl.push(pl);
+    let msg='🐾 '+a.p.name+'를 '+pl+'에서 우연히 만났어요!'+(fresh?' (새 장소 · '+r.pl.length+'곳)':'');
+    if(Math.random()<.3){const g=pick(CAT_GIFT),v=g[1]+((Math.random()*(g[2]-g[1]))|0);S.gold+=v;msg+=' · '+a.p.name+'가 '+g[0]+'을(를) 줬어요 +'+v+'골드';Snd.sfx('coin')}
+    toast(msg);if(fresh&&r.pl.length%5===0)showBanner('🐾 '+a.p.name+'를 '+r.pl.length+'곳에서 만났어요! 여행 친구 인정 ㅋㅋ');try{if(fresh)diaryAdd('🐾',a.p.name+'를 '+pl+'에서 만났어요')}catch(e){}saveState()});
+  for(let i=0;i<pets.length;i++)for(let j=i+1;j<pets.length;j++){const a=pets[i],b=pets[j];if(a.forced||b.forced||isFollower(a)||isFollower(b))continue;if((a.ccT||0)>now||(b.ccT||0)>now)continue;if(Math.hypot(a.x-b.x,a.y-b.y)>22)continue;
+    a.ccT=b.ccT=now+150000;const pr=pick(CAT_PAIR);[a,b].forEach((c,k)=>{c.state='greet';c.gt=3.4;c.face=(k?a:b).x<c.x?-1:1;c.react=1});catSay(a,pr[0],1.7);setTimeout(()=>catSay(b,pr[1],2),1100);setTimeout(()=>laughFx((a.x+b.x)/2,Math.min(a.y,b.y)-24),1500);
+    if(P&&Math.hypot(a.x-P.x,a.y-P.y)<VW*.6)Snd.sfx('meow')}}
+function laughFx(x,y){for(let i=0;i<3;i++)CAT_TXT.push({x:x+(i-1)*8,y,t:0,txt:'ㅋ'})}
+const CAT_TXT=[];
+function catTxtDraw(){for(let i=CAT_TXT.length-1;i>=0;i--){const q=CAT_TXT[i];q.t+=FXDT||.016;if(q.t>1.2){CAT_TXT.splice(i,1);continue}cx.globalAlpha=Math.min(1,(1.2-q.t)*2);cx.font='bold 8px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#fff';const yy=q.y-q.t*14+Math.sin(q.t*12+q.x)*1.5;cx.strokeText(q.txt,q.x,yy);cx.fillStyle='#ff6a9a';cx.fillText(q.txt,q.x,yy);cx.globalAlpha=1}}
+function catBubble(a,img){if(!a.say)return;const t=a.say.txt;cx.font='bold 7px sans-serif';const w=cx.measureText(t).width+8,x=Math.round(a.x-w/2),y=Math.round(a.y-img.height-(a.boat?6:0)-31);cx.globalAlpha=Math.min(1,a.say.t*3);cx.fillStyle='rgba(255,255,255,.95)';cx.strokeStyle='#d8c8e8';cx.lineWidth=1;cx.beginPath();cx.roundRect?cx.roundRect(x,y,w,11,5):cx.rect(x,y,w,11);cx.fill();cx.stroke();cx.beginPath();cx.moveTo(a.x-2,y+11);cx.lineTo(a.x,y+14);cx.lineTo(a.x+2,y+11);cx.fill();cx.fillStyle='#5a4a7a';cx.textAlign='center';cx.fillText(t,a.x,y+8.5);cx.globalAlpha=1}
+function catBoatDraw(a,img){const c=catBoatCol[a.p.id]||['#c89060','#8a5a30'],bob=Math.sin(wt*3+a.x*.1)*1.2,X=Math.round(a.x),Y=Math.round(a.y+bob),f=a.face<0?-1:1;
+  cx.strokeStyle='rgba(255,255,255,.6)';cx.lineWidth=1;for(let i=0;i<2;i++){const o=(wt*8+i*7)%14;cx.beginPath();cx.ellipse(X-f*(6+o),Y+2,3+o*.4,1+o*.1,0,0,6.28);cx.stroke()}
+  cx.drawImage(SP.pet[a.p.id].sit,Math.round(X-img.width/2),Math.round(Y-img.height-2));
+  cx.fillStyle=c[0];cx.beginPath();cx.moveTo(X-10,Y-4);cx.lineTo(X+10,Y-4);cx.lineTo(X+7,Y+2);cx.lineTo(X-7,Y+2);cx.closePath();cx.fill();cx.fillStyle=c[1];cx.fillRect(X-7,Y,14,2);cx.fillStyle='#fff';cx.fillRect(X-10,Y-4,20,1);
+  const oa=Math.sin(wt*5)*.5;cx.strokeStyle='#8a5a30';cx.lineWidth=1.2;cx.beginPath();cx.moveTo(X+f*3,Y-6);cx.lineTo(X+f*(9+oa*3),Y+2+oa*2);cx.stroke();
+  if(a.p.id==='ruby'||Math.sin(a.x*.37)>0){cx.fillStyle='#8a5a30';cx.fillRect(X-f*6,Y-14,1,10);cx.fillStyle='#fff';cx.beginPath();cx.moveTo(X-f*6+(f>0?1:0),Y-14);cx.lineTo(X-f*6+(f>0?1:0),Y-7);cx.lineTo(X-f*6-f*6,Y-7);cx.closePath();cx.fill()}}
+
 function updatePets(dt){
   pets.forEach(a=>{
     const p=a.p;a.t-=dt;a.heartT-=dt;if(a.react>0)a.react-=dt;
     if(a.forced)return; // 산책 이벤트가 직접 움직여요
-    if(!isFollower(a)&&p.id!=='nurung'&&(a.x<(YARD.x0-2)*TS||a.x>(YARD.x1+2)*TS||a.y<(YARD.y0-2)*TS||a.y>(YARD.y1+2)*TS)){a.x=(16+pets.indexOf(a)*2)*TS;a.y=(25+(pets.indexOf(a)%2))*TS;a.state='sit';a.t=3}
-    if(petStuck(a,dt))return; // 벤치 · 통 같은 데 끼면 가까운 빈자리로 폴짝
+    if(!a.boat&&a.state!=='greet'&&petStuck(a,dt))return; // 벤치 · 통 같은 데 끼면 가까운 빈자리로 폴짝
     if(isFollower(a)){followStep(a,dt);return} // 루비 · Lv10 이상 짝꿍: 나를 따라와요
     if(a.p.id==='nurung'&&nurungStep(a,dt))return; // 누릉이: 마을 제일 부자를 졸졸
     // 내가 벤치에 앉아 있으면 가까운 고양이들이 옆으로 와요
     if(P.sit&&a.state!=='walk'&&Math.hypot(P.x-a.x,P.y-a.y)<120&&Math.hypot(P.x-a.x,P.y-a.y)>26&&Math.random()<dt*.3){
       const ang=Math.random()*6.28;a.tx=P.x+Math.cos(ang)*18;a.ty=P.y+8+Math.sin(ang)*6;if(petWalkable(a.tx,a.ty)){a.state='walk';a.t=8}}
-    if(a.state==='walk'){
-      const dx=a.tx-a.x,dy=a.ty-a.y,d=Math.hypot(dx,dy),s=p.speed*dt;a.anim+=dt;a.face=dx<0?-1:1;
-      if(d<1.5||a.t<0){a.state=Math.random()<p.sleepy?'sleep':'sit';a.t=(a.state==='sleep'?14:5)+Math.random()*10}
-      else{const nx=a.x+dx/d*s,ny=a.y+dy/d*s;if(petWalkable(nx,ny)){a.x=nx;a.y=ny}else a.t=-1}
-    }else if(a.t<0){
-      for(let k=0;k<8;k++){const tx=a.x+(Math.random()-.5)*140,ty=a.y+(Math.random()-.5)*90;if(petWalkable(tx,ty)){a.tx=tx;a.ty=ty;a.state='walk';a.t=12;break}}
-      if(a.state!=='walk')a.t=2;
-    }
+    if(a.state==='walk'&&a.tx&&!a.dest&&Math.hypot(a.tx-a.x,a.ty-a.y)<120){a.dest={x:a.tx,y:a.ty,n:''};a.tx=0}
+    catTravel(a,dt);
   });
+  catInit();catMeets(dt);
 }
 function drawPet(a){
   const s=SP.pet[a.p.id],L=a.face<0;let img;
+  if(a.boat){catBoatDraw(a,s.sit);catBubble(a,s.sit);return}
   if(a.state==='walk')img=(L?s.walkL:s.walk)[((a.anim*6)|0)%2];else if(a.state==='sleep')img=L?s.sleepL:s.sleep;else img=s.sit;
   cx.fillStyle='rgba(60,50,100,.14)';cx.beginPath();cx.ellipse(Math.round(a.x),Math.round(a.y)-1,img.width*.38,2,0,0,6.28);cx.fill();
   const sk=a.shake>0?Math.round((Math.random()-.5)*3):0;
   const hop=a.react>0?Math.round(Math.abs(Math.sin(a.react*11))*4):0;
   cx.drawImage(img,Math.round(a.x-img.width/2)+sk,Math.round(a.y-img.height)-(sk?Math.abs(sk):0)-hop);
-  if(a.p.id==='ruby')drawWishBubble(a,img);
+  if(a.p.id==='ruby')drawWishBubble(a,img);catBubble(a,img);
   if(a.state==='sleep'){const ph=(wt*.7+a.x*.01)%1;[0,.5].forEach(o=>{const k=(ph+o)%1;cx.globalAlpha=Math.sin(k*Math.PI)*.9;cx.fillStyle='#8a80d8';cx.font='bold '+(5+k*3|0)+'px sans-serif';cx.textAlign='left';cx.fillText('z',a.x+img.width/2-2+k*5,a.y-img.height-1-k*9)});cx.globalAlpha=1}
   else if(a.state!=='walk'&&/cat|kitten/.test(a.p.kind)){if(!a.p._tc){try{const d=img.getContext('2d').getImageData(img.width>>1,img.height-4,1,1).data;a.p._tc='rgb('+d[0]+','+d[1]+','+d[2]+')'}catch(e){a.p._tc='#d8873e'}}const tx=Math.round(a.x-(L?-1:1)*(img.width/2-1)),ty=Math.round(a.y-3),sw=Math.sin(wt*(a.p.sleepy>.2?2:4)+a.x)*2;cx.fillStyle=a.p._tc;cx.fillRect(tx,ty-1,1,2);cx.fillRect(tx+(L?1:-1),ty-3,1,2);cx.fillRect(tx+(L?1:-1)+Math.round(sw*.5),ty-5,1,2);cx.fillRect(tx+(L?2:-2)+Math.round(sw),ty-6,1,1)}
 }
@@ -5175,6 +5226,7 @@ function openPetsOverview(){
 function openPetSheet(id){
   const p=PETS.find(x=>x.id===id),st=petSt(id),pr=lvProg(st.xp),hh=heartOf(id),m=pm(),isPt=m.pt===id,a=actorOf(id);
   let h='<div class="pethead"><img src="'+petImgURL(id)+'" alt=""><div style="flex:1;min-width:0"><div style="font-size:18px">'+esc(p.name)+(isPt?' <b class="pbadge">짝꿍</b>':'')+'</div><div class="muted" style="font-size:12px">'+esc(p.desc)+'</div></div><div class="lvb">Lv<b>'+pr.L+'</b></div></div>';
+  if(a){const r=(S.catLog||{})[id]||{n:0,pl:[]};h+='<div class="wishc" style="background:#f3f8ff;border-color:#c8dcf4;margin-bottom:8px">📍 지금 <b>'+esc(catPlace(a.x,a.y))+'</b> '+(a.boat?'근처에서 ⛵ 배 타는 중':a.state==='sleep'?'에서 쿨쿨':'에 있어요')+'<div class="muted" style="font-size:11.5px;margin-top:3px">🐾 우연히 만난 횟수 '+r.n+'번 · 만난 장소 '+r.pl.length+'곳'+(r.pl.length?' ('+r.pl.slice(-4).map(esc).join(', ')+')':'')+'</div><button class="btn ghost sm" data-pfind="'+id+'" style="margin-top:6px">🗺️ 지도에 표시</button></div>'}
   h+='<div class="pstat"><span>경험치</span><div class="bar"><i style="width:'+Math.round(pr.p*100)+'%;background:var(--lav)"></i></div><span class="v">'+(pr.L>=PLV.MAX?'MAX':fmt(pr.cur)+'/'+fmt(pr.need))+'</span></div>';
   h+='<div class="pstat"><span>오늘 ♥</span><div class="bar"><i style="width:'+hh+'%;background:var(--pink)"></i></div><span class="v">'+hh+'/100</span></div>';
   h+='<div class="muted" style="font-size:11px;margin:2px 0 10px">♥는 매일 자정에 비워져요. 쓰다듬기 +4 · 산책 +30 · 냄새 소원 +20 · 채운 ♥ 1개 = 경험치 5'+(isPt?' · 켜 둔 1분마다 경험치 +1':'')+'</div>';
@@ -6602,7 +6654,7 @@ function render(dt){
   drawables.push({y:P.y,fn:drawPlayer});
   drawOthers(dt,drawables);
   updatePets(dt);updateSparks(dt);
-  pets.forEach(a=>drawables.push({y:a.y,fn:()=>drawPet(a)}));cpDrawables(drawables,dt);
+  pets.forEach(a=>drawables.push({y:a.y,fn:()=>drawPet(a)}));drawables.push({y:1e7-1,fn:catTxtDraw});cpDrawables(drawables,dt);
   if(WK){const r=actorOf('ruby');if(r)drawables.push({y:Math.max(P.y,r.y)+.1,fn:drawLeash})}
   updateDrops(dt);drops.forEach(d=>drawables.push({y:d.y-1,fn:()=>drawDrop(d)}));
   drawables.push({y:-1e9,fn:drawSparks});
@@ -6848,6 +6900,7 @@ function mmTick(){const wrap=$('mmap');if(!wrap)return;const vis=!!P&&$('title')
   if(GUIDE){const sx=(GUIDE.x/TS-ox)*K,sy=(GUIDE.y/TS-oy)*K;x.strokeStyle='#ff6e9a';x.lineWidth=2;x.beginPath();x.arc(Math.max(4,Math.min(cv.width-4,sx)),Math.max(4,Math.min(cv.height-4,sy)),4,0,6.28);x.stroke()}
   const lbl=performance.now()<MMAP.lbl;x.font='9px sans-serif';x.textAlign='center';
   others.forEach(o=>{if(!o.seen)return;const q=dot(o.x,o.y,nameCol(o.name),3.2,'#ffffff');if(q&&lbl){x.fillStyle='rgba(40,30,70,.75)';const w=x.measureText(o.name).width+6;x.fillRect(q[0]-w/2,q[1]-15,w,11);x.fillStyle='#fff';x.fillText(o.name,q[0],q[1]-6)}});
+  pets.forEach(a=>{const q=dot(a.x,a.y,a.p.id==='ruby'?'#3a3440':(catBoatCol[a.p.id]||['#ffb050'])[0],2.4,'#ffffff');if(q&&lbl){x.fillStyle='#5a4a7a';x.font='8px sans-serif';x.fillText(a.p.name,q[0],q[1]-4)}});
   dot(P.x,P.y,'#ffffff',4,'#4a3d6b')}
 setInterval(mmTick,200);
 document.addEventListener('click',e=>{const t=e.target;if(!t||!t.closest)return;if(t.closest('#mmX')){e.stopPropagation();S.mmOff=1;saveState();Snd.sfx('tap');mmTick();return}if(t.closest('#mmTog')){e.stopPropagation();S.mmOff=0;saveState();Snd.sfx('tap');mmTick();return}if(t.closest('#mmap')){MMAP.lbl=performance.now()+3000;Snd.sfx('tap')}},true);
@@ -7479,6 +7532,7 @@ $('sheetbody').addEventListener('click',e=>{
   if(t.dataset.fg){if(t.dataset.fg==='hall'){openHall();return}forgeGo(+t.dataset.fg);return}
   if(t.dataset.pop){const o=others.get(PF.id);if(!o)return;Net.send({t:'pop',id:PF.id,v:+t.dataset.pop});Snd.sfx('tap');return}
   if(t.dataset.pt){Snd.sfx('tap');openPetSheet(t.dataset.pt);return}
+  if(t.dataset.pfind){const c=actorOf(t.dataset.pfind);if(c){GUIDE={x:c.x,y:c.y,pet:t.dataset.pfind,n:petName(t.dataset.pfind),ic:'🐾'};S.mmOff=false;closeSheet();toast('🐾 화살표를 따라가면 '+petName(t.dataset.pfind)+'를 만날 수 있어요 (계속 움직여요!)')}return}
   if(t.dataset.ptset){setPartner(t.dataset.ptset);return}
   if(t.dataset.pw){doWish(t.dataset.pw==='full');return}
   if(t.dataset.pp){const a=actorOf(t.dataset.pp);if(a){petPet(a);openPetSheet(t.dataset.pp)}return}
@@ -8470,8 +8524,9 @@ function goGuide(id){const g=GO_PLACES.find(x=>x[0]===id),p=goPos(id);if(!g||!p)
 function guideTick(){let el=$('guide');if(!GUIDE){if(el)el.hidden=true;const x=$('guideX');if(x)x.hidden=true;return}
   if(!el){el=document.createElement('div');el.id='guide';el.innerHTML='<i>➤</i><span></span>';document.body.appendChild(el);el.onclick=()=>{GUIDE=null;el.hidden=true;toast('길 안내를 껐어요')};const x=document.createElement('button');x.id='guideX';x.textContent='길 안내 끄기 ✕';x.onclick=e=>{e.stopPropagation();GUIDE=null;el.hidden=true;x.hidden=true;Snd.sfx('tap')};document.body.appendChild(x)}
   {const x=$('guideX');if(x)x.hidden=false}
+  if(GUIDE.pet){const c=actorOf(GUIDE.pet);if(c){GUIDE.x=c.x;GUIDE.y=c.y}}
   const dx=GUIDE.x-P.x,dy=GUIDE.y-P.y,d=Math.hypot(dx,dy);
-  if(d<20){toast(GUIDE.ic+' '+GUIDE.n+' 도착! 오른쪽 버튼을 눌러요');GUIDE=null;el.hidden=true;{const x=$('guideX');if(x)x.hidden=true}Snd.sfx('page');return}
+  if(d<(GUIDE.pet?34:20)){toast(GUIDE.ic+' '+GUIDE.n+' 도착! 오른쪽 버튼을 눌러요');GUIDE=null;el.hidden=true;{const x=$('guideX');if(x)x.hidden=true}Snd.sfx('page');return}
   const a=Math.atan2(dy,dx),r=Math.min(innerWidth,innerHeight)*.22;el.hidden=uiOpen;el.style.transform='translate('+Math.round(innerWidth/2+Math.cos(a)*r)+'px,'+Math.round(innerHeight/2+Math.sin(a)*r)+'px) translate(-50%,-50%)';
   el.firstChild.style.transform='rotate('+a+'rad)';el.lastChild.textContent=GUIDE.ic+' '+GUIDE.n+' '+Math.round(d/TS)+'칸'}
 setInterval(()=>{try{if(typeof P!=='undefined'&&P)guideTick()}catch(e){}},120);
