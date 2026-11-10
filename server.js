@@ -1034,7 +1034,7 @@ function onMsg(ws, me, m) {
     case 'cel': { const now = Date.now(); if (now - (me.celT || 0) < 800) break; me.celT = now; const k = String(m.k || ''); if (!['fw', 'big', 'sp', 'pt', 'cf', 'bub', 'bal', 'lan'].includes(k)) break; broadcast({ t: 'cel', k, x: m.x | 0, y: m.y | 0, id: me.id }, ws); break; }
     case 'mar_req': case 'mar_ans': case 'mar_w': case 'mar_go': case 'mar_end': case 'wed_join': case 'wed_msg': case 'wed_list': case 'wed_done': marMsg(ws, me, m); break;
     case 'wf_get': case 'wf_catch': case 'wf_claim': case 'gift_send': case 'gift_list': case 'gift_take': withLock(me.key, async () => socMsg(ws, me, m)).catch(e => console.error('soc', e.message)); break;
-    case 'hpos': { const f = m.f | 0; me.hp_ = f < 0 ? null : { f: Math.min(20, f), x: m.x | 0, y: m.y | 0, at: Date.now() }; broadcast({ t: 'hpos', n: me.name, f: f < 0 ? -1 : Math.min(20, f), x: m.x | 0, y: m.y | 0, lv: m.lv | 0, d: ['down', 'up', 'left', 'right'].includes(m.d) ? m.d : 'down', mv: m.mv ? 1 : 0, sw: m.sw ? 1 : 0, wt: cleanText(m.wt, 6) }, ws); break; }   // ⚔️ 같은 사냥터 친구 보기   // ⚔️ 같은 사냥터 친구 보기
+    case 'hpos': { const f = m.f | 0; me.hp_ = f < 0 ? null : { f: Math.min(20, f), x: m.x | 0, y: m.y | 0, at: Date.now() }; broadcast({ t: 'hpos', n: me.name, f: f < 0 ? -1 : Math.min(20, f), x: m.x | 0, y: m.y | 0, lv: m.lv | 0, hp: Math.max(0, m.hp | 0), mh: Math.max(1, m.mh | 0), pg: Math.max(0, Math.min(100, m.pg | 0)), cp: Math.max(0, m.cp | 0), d: ['down', 'up', 'left', 'right'].includes(m.d) ? m.d : 'down', mv: m.mv ? 1 : 0, sw: m.sw ? 1 : 0, wt: cleanText(m.wt, 6) }, ws); break; }   // ⚔️ 같은 사냥터 친구 보기   // ⚔️ 같은 사냥터 친구 보기
     case 'npc_done': withLock(me.key, async () => {   // 👵🍰⛄ NPC 부탁 (3차-5): 단계마다 한 번만
       const s = me.save; if (!s) return; const N = { grand: [3e6, 8e6, 3e7, 't_npc1'], sugar: [5e6, 1e7, 5e7, 't_npc2'], sobok: [5e6, 1.5e7, 8e7, 't_npc3'] }[m.id]; const st = m.st | 0; if (!N || st < 0 || st > 2) return;
       const d = s.npcd && typeof s.npcd === 'object' ? s.npcd : (s.npcd = {}); if ((d[m.id] | 0) > st) return; d[m.id] = st + 1;
@@ -1777,6 +1777,8 @@ const scrKind = it => it.t === 'w' ? 'w' : 'a', scrLeft = it => it.us === undefi
 function scrMig(h) { const S = h.scr && typeof h.scr === 'object' ? h.scr : (h.scr = {}); if (h.sc) { S.w100 = (S.w100 | 0) + (h.sc | 0); h.sc = 0; } if (h.bsc) { S.w60 = (S.w60 | 0) + (h.bsc | 0); h.bsc = 0; } if (h.mat) { let n = 0; for (const k in h.mat) n += h.mat[k] | 0; if (n) S.a100 = (S.a100 | 0) + Math.ceil(n / 3); delete h.mat; } return S; }
 const rollScr = () => { const x = Math.random() * 100, p = x < 60 ? 100 : x < 92 ? 60 : 10; return (Math.random() < .45 ? 'w' : 'a') + p; };
 const IT_REQ_G = [0, 1, 3, 6, 10, 15, 22, 30, 40], rqOf = (n, g) => 1 + (n | 0) * 4 + (IT_REQ_G[g | 0] | 0), itReq = it => it.rq != null ? it.rq | 0 : 1;   // 레벨 제한은 새로 나온 장비부터 (예전 장비는 제한 없음)   // 🎚️ 착용 레벨: 계열(n)·등급(g)이 높을수록 용사 레벨이 필요
+/* 💪 전투력 (index.html cpCalc와 같아요) */
+function cpOf(save) { if (!save || !save.hu) return 0; const lv = Math.max(1, save.hu.lv | 0), h = save.hunt && typeof save.hunt === 'object' ? save.hunt : {}, R = rpgSum(h, lv); const atk = 2 + lv + (h.sw ? 3 : 0) + R.atk, def = Math.floor(lv * .4) + R.def, hp = 30 + lv * 6 + R.hp * 4, cri = Math.min(1, .1 + R.cri * .02), spd = Math.min(60, R.spd * 1.5); return Math.round(atk * (1 + cri) * 10 + def * 15 + hp * 1.2 + spd * 4 + lv * 20); }
 function rpgSum(h, lv) { const S = { atk: 0, def: 0, hp: 0, cri: 0, spd: 0, luk: 0, chip: 0, dr: 0 }; const inv = Array.isArray(h.inv) ? h.inv : []; for (const k of RPG_SLOTS) { const it = inv[h['eq' + k]]; if (!it || it.t !== k) continue; if (lv != null && itReq(it) > lv) continue; S[RPG_MAIN[k]] += (it.b | 0) + enhB(it); for (const o of it.o || []) if (S[o[0]] !== undefined) S[o[0]] += o[1] | 0; } return S; }
 function invPut(h, item) { h.inv = Array.isArray(h.inv) ? h.inv : []; h.inv.push(item); if (h.inv.length <= 60) return; const eqs = RPG_SLOTS.map(k => h['eq' + k]); let lo = -1; h.inv.forEach((x2, i2) => { if (!eqs.includes(i2) && (lo < 0 || x2.g * 100 + x2.b < h.inv[lo].g * 100 + h.inv[lo].b)) lo = i2; }); if (lo >= 0) invDel(h, lo); }
 function invDel(h, i) { h.inv.splice(i, 1); for (const k of RPG_SLOTS) { const ek = 'eq' + k; if (h[ek] === i) h[ek] = null; else if (h[ek] > i) h[ek]--; } }
@@ -2402,7 +2404,7 @@ const rosterCache = new Map();   // key -> {name, job, lv, sit}
 let vNote = null, rosterSig = '', rosterT = 0, vBoat = null;
 function rosterSet(key, name, save) {
   const j = save && save.job, job = j && ['fish', 'sch', 'cra', 'tam', 'mer'].includes(j.id) ? j.id : '';
-  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), gt: gtN(save), sh: shN(save), dex: dexIds(save && save.dex), help: save && save.help ? save.help.n | 0 : 0, hl: (save && save.hu && save.hu.lv) | 0, mar: (save && save.mar && save.mar.p) || '', jr: jrOf(save, job), jx: (save && save.job && save.job.xp && save.job.xp[job]) | 0 });
+  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), gt: gtN(save), sh: shN(save), dex: dexIds(save && save.dex), help: save && save.help ? save.help.n | 0 : 0, hl: cpOf(save), mar: (save && save.mar && save.mar.p) || '', jr: jrOf(save, job), jx: (save && save.job && save.job.xp && save.job.xp[job]) | 0 });
   if (save && save.boat && !vBoat) vBoat = { by: name };
   rosterSoon();
 }
@@ -2423,14 +2425,14 @@ function sdKingCheck(init) {
 }
 const kingPub = () => sdKing ? { name: sdKing.name, n: sdKing.n, since: sdKing.since } : null;
 /* 🌊 월척 왕 (거대 개체 종 수) · ✨ 반짝 왕 (반짝 종 수) (2026-11-09): 손맛 왕처럼 1등만, 같으면 지금 왕이 지켜요 */
-const xKing = { gt: null, sh: null, hl: null }, XK_NAME = { gt: ['🌊 월척 왕', '종 월척'], sh: ['✨ 반짝 왕', '종 반짝'], hl: ['⚔️ 용사 왕', '레벨'] };
+const xKing = { gt: null, sh: null, hl: null }, XK_NAME = { gt: ['🌊 월척 왕', '종 월척'], sh: ['✨ 반짝 왕', '종 반짝'], hl: ['⚔️ 용사 왕', '전투력'] };
 function xKingCheck(f, init) {
-  let best = null; for (const [k, r] of rosterCache) { const n = r[f] | 0; if (n > (f === 'hl' ? 4 : 0) && (!best || n > best.n)) best = { key: k, name: r.name, n }; }
+  let best = null; for (const [k, r] of rosterCache) { const n = r[f] | 0; if (n > (f === 'hl' ? 199 : 0) && (!best || n > best.n)) best = { key: k, name: r.name, n }; }
   if (!best) return; const cur = xKing[f];
   if (cur && rosterCache.has(cur.key)) { const c = rosterCache.get(cur.key)[f] | 0; cur.n = c; cur.name = rosterCache.get(cur.key).name; if (best.key !== cur.key && best.n <= c) return; }
   if (cur && best.key === cur.key) return;
   xKing[f] = { key: best.key, name: best.name, n: best.n, since: Date.now() };
-  if (!init && rosterCache.size > 1) broadcast({ t: 'news', text: XK_NAME[f][0] + ' 탄생! ' + best.name + ' 님 (' + (f === 'hl' ? 'Lv' + best.n : best.n + XK_NAME[f][1]) + ')' });
+  if (!init && rosterCache.size > 1) broadcast({ t: 'news', text: XK_NAME[f][0] + ' 탄생! ' + best.name + ' 님 (' + (f === 'hl' ? '전투력 ' + best.n : best.n + XK_NAME[f][1]) + ')' });
 }
 const xKingPub = () => { const o = {}; { const eb = Object.entries((V && V.ebTop) || {}).sort((a, b) => b[1] - a[1])[0]; o.eb = eb && eb[1] > 0 ? { name: eb[0], n: eb[1] } : null; } for (const f of ['gt', 'sh', 'hl']) { xKingCheck(f, !xKingCheck.ready); const k = xKing[f]; o[f] = k ? { name: k.name, n: k.n } : null; } xKingCheck.ready = 1; return o; };
 /* 🎣 하루 낚시왕 (2026-11-09): 오늘 직접 낚은 마릿수 · 반짝 50마리 · 신화 100마리로 쳐요 · 한국 자정에 1등에게 1천만 골드 */
