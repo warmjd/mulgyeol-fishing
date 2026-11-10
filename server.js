@@ -203,7 +203,7 @@ LOOK_IDS.bk.push(["k_wizard", "k_shell", "k_dragon", "k_seraph", "k_dark", "k_na
 LOOK_IDS.fa.push(["f_monocle", "f_heart", "f_bandaid", "f_goggle", "f_freckle"]);
 const ENH_TITLE_NEED = { t_enh10: 10, t_enh15: 15, t_enh20: 20, t_enh25: 25, t_enh30: 30 };
 LOOK_IDS.rod.push('r_music', 'r_cat', 'r_choco', 'r_jelly', 'r_snowflake', 'r_whale', 'r_phoenix', 'r_starlight');
-LOOK_IDS.o.push('o_tux', 'o_wdress'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
+LOOK_IDS.o.push('o_tux', 'o_wdress', 'o_warrior', 'o_hero', 'o_paladin', 'o_skyexp'); LOOK_IDS.hat.push('h_warhorn', 'h_herocirc', 'h_paladin', 'h_skygog'); LOOK_IDS.bk.push('k_warfur', 'k_hero', 'k_paladin', 'k_scout', 'k_gsword', 'k_shield'); LOOK_IDS.fa.push('f_warpaint', 'f_scar'); LOOK_IDS.ti.push('t_warrior', 't_hero', 't_paladin'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
 LOOK_IDS.ti.push('t_enh25', 't_enh30', ...['fish', 'sch', 'cra', 'tam', 'mer'].flatMap(j => [4, 5, 6].map(r => 't_j' + j + r)));
 for (const j of ['fish', 'sch', 'cra', 'tam', 'mer']) { LOOK_IDS.rod.push('jr4_' + j, 'jr6_' + j); LOOK_IDS.bob.push('jb5_' + j); }   // 강화 칭호는 서버 기록으로 확인
 const FREE = new Set(['straw', 'nohat', 'tee', 'bamboo', 'basicbob', '']);
@@ -1078,7 +1078,7 @@ function onMsg(ws, me, m) {
     }); break;
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
     /* ----- 은비랜드 ----- */
-    case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'eb_hilo': case 'eb_vip': ebMsg(ws, me, m); break;
+    case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'eb_hilo': case 'eb_wheel': case 'eb_vip': ebMsg(ws, me, m); break;
     /* ----- 오늘의 일 세 가지 다 하면 강화권 1장 (하루 한 번) ----- */
     case 'jtask_all': case 'vday_claim': withLock(me.key, async () => {   // 🏘️ 오늘의 마을 일 (2026-11-05): 세 가지 중 두 가지 → 강화권 3 · 도토리 3 · 선물 하나 · 하루 한 몫, 3일치까지 쌓여요
       const s = me.save; if (!s) return; const v = vdayOf(s);
@@ -1626,6 +1626,8 @@ const EB = {
   RATE: 10, BUY_DAY: 20000, BETS: [10, 50, 100, 500, 1000],
   SLOT_W: [30, 24, 18, 12, 8, 4], SLOT3: [5, 10, 24, 60, 150, 0], SLOT2: [0, .4, .7, 1, 2, 4], JP_CUT: .03, JP_BASE: 2000,
   RACE_W: [.34, .26, .18, .13, .09], RACE_X: [2.6, 3.5, 5, 6.9, 10],
+  /* 🎡 은비 룰렛 (2026-11-10): 20칸 = 빨강 9 · 파랑 9 · 황금 2 → 빨강/파랑 ×2 · 황금 ×9 (모두 환급 90%) · 거북이 경주 · 하이로우는 문 닫음 */
+  WHEEL: ['g', 'r', 'b', 'r', 'b', 'r', 'b', 'r', 'b', 'r', 'g', 'b', 'r', 'b', 'r', 'b', 'r', 'b', 'r', 'b'], WHEEL_X: { r: 2, b: 2, g: 9 },
   VIP: [[5000, '브론즈', 50], [30000, '실버', 200], [150000, '골드', 800], [600000, '다이아', 2000]],
   SHOP: { ebcrown: 40000, ebsuit: 60000, ebwings: 80000, hc20: 20000, hc21: 20000, t_ebvip: 30000 }
 };
@@ -1655,6 +1657,8 @@ function ebMsg(ws, me, m) {
       if (own.includes(id)) return err('이미 가지고 있어요'); if ((e.c | 0) < price) return err('칩이 모자라요');
       e.c -= price; const got = giveCos(s, [id]); send(ws, { t: 'cos_got', ids: got }); return done({ note: '경품 교환 완료!' });
     }
+    if (m.t === 'eb_race' || m.t === 'eb_hilo') return err('🐢🃏 그 게임은 문을 닫았어요 · 🎡 룰렛을 즐겨 봐요');
+    if (m.t === 'eb_wheel' && !['r', 'b', 'g'].includes(m.pick)) return;
     const bet = m.bet | 0; if (!EB.BETS.includes(bet)) return; if ((e.c | 0) < bet) return err('칩이 모자라요');
     if ((e.loss | 0) >= EB_LOSS_CAP) return err('🐰 은비: 오늘은 여기까지! 내일 다시 놀러 와요 (하루에 잃을 수 있는 칩을 다 썼어요)');
     e.c -= bet; e.wag = (e.wag | 0) + bet; const v0 = ebVip(e.wag - bet), v1 = ebVip(e.wag);
@@ -1666,6 +1670,9 @@ function ebMsg(ws, me, m) {
         else win = Math.floor(bet * EB.SLOT3[r[0]]);
       } else { const c = {}; r.forEach(x => c[x] = (c[x] | 0) + 1); for (const x in c) if (c[x] === 2) win = Math.floor(bet * EB.SLOT2[x]); }
       extra.reels = r;
+    } else if (m.t === 'eb_wheel') {
+      const seg = (Math.random() * EB.WHEEL.length) | 0, col = EB.WHEEL[seg]; if (col === m.pick) win = Math.floor(bet * EB.WHEEL_X[col]); extra.wheel = { seg, pick: m.pick };
+      if (col === 'g' && win && bet >= 500) broadcast({ t: 'news', text: '🎡✨ ' + me.name + ' 님이 은비 룰렛 황금 칸을 맞혔어요! +' + fmtN(win) + '칩' });
     } else if (m.t === 'eb_race') {
       const pick = m.pick | 0; if (pick < 0 || pick > 4) { e.c += bet; e.wag -= bet; return; }
       const w = ebPick(EB.RACE_W); if (w === pick) win = Math.floor(bet * EB.RACE_X[pick]); extra.race = { pick, win: w };

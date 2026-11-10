@@ -1281,6 +1281,7 @@ function drawHood(b,dir,id){
 }
 function drawMask(b,dir,id){
   const side=dir==='side',up=dir==='up',x0=side?5:4,w=side?6:8;
+  if(id==='h_paladin'){const s=[226,230,240],sd=[160,166,186],g=[255,206,84],w2=[255,255,255];fillR(b,x0,1,w,10,s);fillR(b,x0+1,0,w-2,1,s);fillR(b,x0,10,w,1,sd);if(!up){fillR(b,side?8:5,7,side?3:6,1,[40,50,90]);if(!side){fillR(b,7,2,2,4,g);fillR(b,6,3,4,1,g)}}if(side){px(b,4,3,w2);px(b,3,2,w2);px(b,3,4,w2);px(b,2,3,w2)}else{[[3,4],[2,3],[2,5],[1,4],[1,2]].forEach(q=>{px(b,q[0],q[1],w2);px(b,15-q[0],q[1],w2)})}px(b,side?6:7,1,lighten(s,.5));return}
   if(id==='pumpkin'){const o=[250,150,50],od=[214,110,30],y=[255,230,110];fillR(b,x0,2,w,9,o);fillR(b,x0+1,1,w-2,1,o);for(let x=x0+1;x<x0+w;x+=2)fillR(b,x,2,1,9,od);fillR(b,7,0,2,2,[110,170,80]);
     if(!up){const e=side?[9]:[6,9];e.forEach(x=>{px(b,x,6,y);px(b,x,7,y);px(b,x-1,7,y)});const m0=side?8:5,m1=side?10:10;for(let x=m0;x<=m1;x++)px(b,x,9,x%2?y:[150,70,20])}}
   else if(id==='ghosthead'){const w2=[250,250,255],s=[214,218,236];fillR(b,x0,1,w,10,w2);fillR(b,x0,10,w,1,s);if(!up){const e=side?[9]:[6,9];e.forEach(x=>{px(b,x,6,[40,36,52]);px(b,x,7,[40,36,52])});px(b,side?9:7,9,[40,36,52]);if(!side)px(b,8,9,[40,36,52])}}
@@ -2562,6 +2563,15 @@ const SET_TIER={'별바다 마법사':1,'심해 왕국':2,'드래곤':3,'천상'
  ['h_santa','hat','산타 모자',1000000,'겨울 한정',null,'xmas'],['h_rudolph','hat','루돌프 머리띠',800000,'겨울 한정',null,'winter'],['o_santa','outfit','산타 코트',2000000,'겨울 한정','snow','xmas'],['o_snow','outfit','눈꽃 요정 드레스',3000000,'겨울 한정','snow','winter'],['k_snow','back','눈꽃 망토',3000000,'겨울 한정','snow','winter'],
  ['f_monocle','face','외눈 안경',300000,'데일리'],['f_heart','face','하트 볼터치',250000,'데일리'],['f_bandaid','face','밴드',150000,'데일리'],['f_goggle','face','미래 고글',600000,'스트리트'],['f_freckle','face','주근깨',150000,'데일리']
 ].forEach(r=>COS.push({id:r[0],k:r[1],name:r[2],price:r[3],set:r[4],fx:r[5]||undefined,lim:r[6]||'',nw:NEW_DAY,tier:SET_TIER[r[4]]}));
+/* ⚔️ 용사의 길 (2026-11-10): 사냥터 시대의 전사 · 용사 · 성기사 · 하늘섬 모험가 (오리지널 디자인) */
+Object.assign(SET_TIER,{'전사':3,'용사':3,'성기사':3,'하늘섬 모험가':3});
+[
+ ['h_warhorn','hat','전사의 뿔 투구',12000000,'전사'],['o_warrior','outfit','전사의 가죽 갑옷',20000000,'전사','ember'],['k_warfur','back','전사의 털 망토',25000000,'전사'],['f_warpaint','face','전사의 물감',8000000,'전사'],['t_warrior','title','전장의 전사',10000000,'전사'],
+ ['h_herocirc','hat','용사의 서클릿',15000000,'용사'],['o_hero','outfit','용사의 튜닉',30000000,'용사','gold'],['k_hero','back','용사의 진홍 망토',35000000,'용사','gold'],['k_gsword','back','용사의 대검',60000000,'용사','gold'],['t_hero','title','꿈을 구하는 용사',30000000,'용사'],
+ ['h_paladin','hat','성기사의 날개 투구',25000000,'성기사'],['o_paladin','outfit','성기사의 판금 갑옷',45000000,'성기사','feather'],['k_paladin','back','성기사의 푸른 망토',40000000,'성기사','feather'],['k_shield','back','기사의 둥근 방패',50000000,'성기사'],['t_paladin','title','빛의 성기사',50000000,'성기사'],
+ ['h_skygog','hat','하늘섬 모험가 고글',15000000,'하늘섬 모험가'],['o_skyexp','outfit','하늘섬 모험가 조끼',28000000,'하늘섬 모험가','leaf'],['k_scout','back','새벽 정찰대 망토',35000000,'하늘섬 모험가'],['f_scar','face','모험가의 흉터',8000000,'하늘섬 모험가']
+].forEach(r=>COS.push({id:r[0],k:r[1],name:r[2],price:r[3],set:r[4],fx:r[5]||undefined,lim:'',nw:'2026-11-10',tier:SET_TIER[r[4]]}));
+MASKS.h_paladin=1;
 /* 헤어스타일 8~15번 */
 const HSTYLES3=[['웨이브 롱',300000],['히메컷',400000],['투블럭',250000],['하이 포니테일',350000],['한 갈래 땋은 머리',500000],['트윈 드릴',1000000],['리젠트',400000],['별빛 롱헤어',2000000]];
 HSTYLES3.forEach((h,i)=>{HSTYLES.push(h[0]);COS.push({id:'hs'+(8+i),k:'hstyle',name:h[0],hs:8+i,price:h[1],nw:NEW_DAY})});
@@ -2578,6 +2588,11 @@ function drawHairStyle3(b,dir,hs,hair,top){const side=dir==='side',up=dir==='up'
   }}
 function drawHat3(b,dir,id,hair,hairTop){const side=dir==='side',up=dir==='up';
   switch(id){
+    case'h_warhorn':{const m=[150,152,165],md=[105,106,120],iv=[245,236,210],ivd=[200,186,150];fillR(b,4,2,8,4,m);fillR(b,5,1,6,1,m);fillR(b,4,5,8,1,md);for(let x=5;x<11;x+=2)px(b,x,5,[200,200,210]);
+      if(side){px(b,7,1,iv);px(b,7,0,iv);px(b,6,0,ivd)}else{px(b,3,3,iv);px(b,2,2,iv);px(b,2,1,iv);px(b,1,0,ivd);px(b,12,3,iv);px(b,13,2,iv);px(b,13,1,iv);px(b,14,0,ivd)}if(!up&&!side){px(b,7,6,md);px(b,8,6,md)}break}
+    case'h_herocirc':{hairTop();const g=[255,206,84],gd=[210,150,40],bl=[90,170,255],r=[210,40,60];fillR(b,side?5:4,4,side?6:8,1,g);if(!up&&!side){px(b,7,3,g);px(b,8,3,g);px(b,7,4,bl);px(b,8,4,bl);px(b,4,4,gd);px(b,11,4,gd)}else if(side)px(b,9,4,bl);
+      if(up){px(b,7,5,r);px(b,8,5,r);px(b,6,6,r);px(b,9,7,r);px(b,6,7,r);px(b,9,6,r)}else if(side){px(b,4,5,r);px(b,3,6,r);px(b,3,7,r)}break}
+    case'h_skygog':{hairTop();const lb=[140,90,50],br=[220,170,70],ln=[130,226,236];fillR(b,side?5:4,4,side?6:8,1,lb);if(!up){if(side){fillR(b,8,3,3,2,br);px(b,9,3,ln)}else{fillR(b,4,3,3,2,br);fillR(b,9,3,3,2,br);px(b,5,3,ln);px(b,10,3,ln);px(b,5,4,[255,255,255])}}break}
     case'h_wizard':{const p=[50,60,140],pd=[36,44,110],y=[255,226,110];fillR(b,1,5,14,1,p);fillR(b,3,4,10,1,p);fillR(b,4,3,8,1,pd);fillR(b,5,2,6,1,p);fillR(b,6,1,4,1,p);fillR(b,8,0,3,1,p);px(b,side?12:11,1,p);px(b,6,2,y);px(b,9,1,y);px(b,4,4,y);px(b,11,4,y);if(!up)px(b,7,3,y);break}
     case'h_coral':{hairTop();const c=[255,130,110],l=[255,190,170],w=[255,255,255];fillR(b,4,3,8,1,c);[[4,0],[6,1],[9,1],[11,0]].forEach(q=>{if(side&&q[0]>9)return;fillR(b,q[0],q[1],1,3,c);px(b,q[0],q[1],l)});px(b,5,1,c);px(b,10,1,c);if(!up){px(b,7,2,w);px(b,8,2,w)}break}
     case'h_dragon':{hairTop();const r=[120,30,40],g=[255,206,84];if(side){px(b,6,2,r);px(b,5,1,r);px(b,4,0,g)}else{px(b,4,2,r);px(b,3,1,r);px(b,3,0,g);px(b,11,2,r);px(b,12,1,r);px(b,12,0,g)}fillR(b,5,3,6,1,[170,40,50]);if(!up){px(b,7,3,g);px(b,8,3,g)}break}
@@ -2603,6 +2618,14 @@ function drawHat3(b,dir,id,hair,hairTop){const side=dir==='side',up=dir==='up';
 function drawOutfit3(b,dir,id,sh,shD,pants){const side=dir==='side',back=dir==='up',tx=side?5:4,tw=side?6:8,arms=c=>{if(!side){fillR(b,3,12,1,4,c);fillR(b,12,12,1,4,c)}};
   const coat=(c,d,len)=>{fillR(b,tx,11,tw,len,c);fillR(b,tx,10+len,tw,1,d);arms(c)};
   switch(id){
+    case'o_warrior':{const l=[150,96,54],ld=[110,66,36],f=[236,226,204],k=[70,46,30],sv=[210,214,224];coat(l,ld,7);if(!side){fillR(b,3,11,2,1,f);fillR(b,11,11,2,1,f);px(b,3,12,f);px(b,12,12,f)}else fillR(b,tx,11,tw,1,f);
+      fillR(b,tx,15,tw,1,k);if(!back&&!side){px(b,7,15,sv);px(b,8,15,sv);for(let i=0;i<4;i++)px(b,5+i,12+i,ld)}if(back)for(let i=0;i<4;i++)px(b,10-i,12+i,ld);fillR(b,5,18,6,1,ld);break}
+    case'o_hero':{const c=[52,86,178],cd=[36,60,130],w=[250,250,255],g=[255,206,84],br=[120,78,44];coat(c,cd,8);if(!side){px(b,3,15,g);px(b,12,15,g)}fillR(b,tx,15,tw,1,br);fillR(b,tx,18,tw,1,g);
+      if(!back&&!side){px(b,7,11,w);px(b,8,11,w);px(b,7,15,g);px(b,8,15,g);px(b,7,13,g);px(b,8,13,g);px(b,6,13,[255,236,150]);px(b,9,13,[255,236,150]);px(b,7,12,[255,236,150])}break}
+    case'o_paladin':{const s=[208,214,228],sd=[150,158,180],t=[244,247,255],bl=[60,100,200],g=[255,206,84];coat(s,sd,8);if(!side){fillR(b,3,11,1,2,g);fillR(b,12,11,1,2,g)}
+      if(!back){const x0=side?6:6,w0=side?3:4;fillR(b,x0,12,w0,6,t);fillR(b,x0,12,1,6,bl);fillR(b,x0+w0-1,12,1,6,bl);if(!side){px(b,7,14,g);px(b,8,14,g);px(b,7,13,g);px(b,8,15,g);px(b,8,13,g);px(b,7,15,g)}}else{fillR(b,6,12,4,6,t);px(b,7,14,bl);px(b,8,14,bl)}fillR(b,tx,18,tw,1,g);break}
+    case'o_skyexp':{const cr=[246,236,212],cd=[214,200,170],v=[56,150,150],vd=[36,110,112],br=[130,84,48],g=[220,170,70];fillR(b,tx,11,tw,7,cr);fillR(b,tx,17,tw,1,cd);if(!side){fillR(b,3,12,1,3,cr);fillR(b,12,12,1,3,cr);px(b,3,15,[255,214,180]);px(b,12,15,[255,214,180])}
+      if(side){fillR(b,tx,11,2,6,v)}else{fillR(b,tx,11,2,6,v);fillR(b,tx+tw-2,11,2,6,v);fillR(b,tx,16,2,1,vd);fillR(b,tx+tw-2,16,2,1,vd)}if(!back&&!side){for(let i=0;i<5;i++)px(b,6+i,11+i,br);px(b,10,16,g)}fillR(b,5,18,6,1,[90,80,70]);break}
     case'o_wizard':{const c=[50,60,140],c2=[70,80,170],y=[255,226,110];dress(b,dir,c2,c,y,tx,tw);[[4,17],[9,16],[11,18],[6,15],[7,18]].forEach(q=>px(b,q[0],q[1],[255,250,220]));break}
     case'o_mermaid':{const t=[150,230,220],s=[60,170,170],s2=[90,200,190],p=[255,255,255];dress(b,dir,t,s,[220,250,255],tx,tw);for(let y=15;y<20;y++)for(let x=2;x<14;x++)if((x+y)%3===0)px(b,x,y,s2);if(!back&&!side){px(b,6,12,p);px(b,9,12,p)}break}
     case'o_dragon':{const r=[150,30,40],d=[100,20,30],g=[255,206,84];coat(r,d,7);for(let y=12;y<17;y+=2)for(let x=tx;x<tx+tw;x+=2)px(b,x+(y%4?1:0),y,d);if(!side){px(b,3,11,g);px(b,12,11,g)}fillR(b,tx,15,tw,1,g);if(!back&&!side)px(b,7,13,[255,120,60]),px(b,8,13,[255,120,60]);break}
@@ -2630,6 +2653,13 @@ function drawBack3(b,dir,id){const side=dir==='side',up=dir==='up';
     if(side){L.forEach(p=>px(b,p[0]+1,p[1]+dy,c));px(b,2,10+dy,l);return}
     L.forEach(p=>{px(b,p[0],p[1]-(up?1:0)+dy,c);px(b,15-p[0],p[1]-(up?1:0)+dy,c)});px(b,1,11-(up?1:0)+dy,l);px(b,14,11-(up?1:0)+dy,l);if(up){fillR(b,3,10,1,4,c);fillR(b,12,10,1,4,c)}};
   switch(id){
+    case'k_warfur':cape([126,92,66],[236,226,204],()=>{fillR(b,3,10,10,1,[236,226,204]);for(let x=3;x<13;x+=2)px(b,x,18,[96,70,50])});if(!up&&!side){px(b,3,10,[236,226,204]);px(b,12,10,[236,226,204])}break;
+    case'k_hero':cape([190,30,52],[255,206,84],()=>{fillR(b,3,18,10,1,[255,206,84]);fillR(b,4,10,8,1,[150,20,40])});if(!up&&!side){px(b,3,10,[255,206,84]);px(b,12,10,[255,206,84])}break;
+    case'k_paladin':cape([44,74,166],[255,206,84],()=>{fillR(b,3,18,10,1,[255,206,84]);fillR(b,7,12,2,5,[255,255,255]);fillR(b,6,13,4,1,[255,255,255])});if(!up&&!side){px(b,3,10,[255,206,84]);px(b,12,10,[255,206,84])}break;
+    case'k_scout':{const c=[72,82,104],d=[52,60,80],sv=[220,226,240];cape(c,d,()=>{fillR(b,4,9,8,2,c);px(b,7,13,sv);px(b,8,14,sv);px(b,7,15,sv);px(b,6,14,sv);px(b,9,14,sv);px(b,7,14,[160,200,255])});if(!up&&!side){px(b,3,10,c);px(b,12,10,c);px(b,4,10,sv)}break}
+    case'k_gsword':{const bl=[222,228,242],bd=[160,170,196],g=[255,206,84],gr=[110,70,44];if(up){for(let i=0;i<10;i++){px(b,3+i,18-i,bl);px(b,4+i,18-i,bd)}fillR(b,11,8,3,1,g);px(b,12,7,g);px(b,13,6,gr);px(b,14,5,gr);px(b,15,4,g)}
+      else if(side){fillR(b,3,8,2,11,bl);px(b,4,18,bd);fillR(b,2,8,4,1,g);fillR(b,3,5,2,3,gr);px(b,3,4,g)}else{px(b,12,9,g);px(b,13,9,g);px(b,11,9,g);px(b,13,8,gr);px(b,14,7,gr);px(b,14,6,g);px(b,3,17,bl);px(b,2,18,bl)}break}
+    case'k_shield':{const bl=[50,90,180],g=[255,206,84],sv=[226,230,240];if(up){fillR(b,4,11,8,7,bl);fillR(b,5,10,6,1,g);fillR(b,5,18,6,1,g);fillR(b,3,12,1,5,g);fillR(b,12,12,1,5,g);fillR(b,7,13,2,3,sv);px(b,6,14,sv);px(b,9,14,sv)}else if(side){fillR(b,2,11,2,7,bl);fillR(b,1,12,1,5,g)}else{px(b,2,12,g);px(b,2,13,bl);px(b,2,14,bl);px(b,2,15,g)}break}
     case'k_wizard':cape([50,60,140],[255,226,110],()=>{[[4,12],[9,14],[6,16],[11,17],[5,18]].forEach(q=>px(b,q[0],q[1],[255,250,200]))});break;
     case'k_shell':wing([255,220,236],[255,255,255]);if(!side){px(b,0,14,[255,200,220]);px(b,15,14,[255,200,220])}break;
     case'k_dragon':wing([150,30,40],[255,120,60],1);break;
@@ -2650,6 +2680,8 @@ function drawBack3(b,dir,id){const side=dir==='side',up=dir==='up';
   return true}
 function drawFace3(b,dir,id){const side=dir==='side',E=side?[9]:[6,9];
   switch(id){
+    case'f_warpaint':{const c=[70,120,220];if(side){px(b,9,9,c);px(b,10,9,c);px(b,10,10,c)}else{px(b,5,9,c);px(b,6,9,c);px(b,9,9,c);px(b,10,9,c);px(b,7,6,[210,60,60]);px(b,8,6,[210,60,60])}break}
+    case'f_scar':{const c=[206,120,120];if(side){px(b,10,7,c);px(b,10,8,c);px(b,11,9,c)}else{px(b,10,7,c);px(b,10,9,c);px(b,11,10,c)}break}
     case'f_monocle':{const g=[255,206,84];px(b,side?10:9,7,g);px(b,side?8:8,8,g);px(b,side?10:10,8,g);px(b,side?9:9,9,g);px(b,side?10:10,10,g);break}
     case'f_heart':{const p=[255,90,140];if(side){px(b,8,9,p)}else{px(b,5,9,p);px(b,10,9,p)}break}
     case'f_bandaid':{const c=[240,200,150];fillR(b,side?8:9,9,2,1,c);break}
@@ -3152,7 +3184,7 @@ let ST={};
 /* 마을의 응원: 손맛 도감이 마을 1등의 절반이 안 되면 행운 +20%, 1/4이 안 되면 +35% (헤비 유저를 따라잡게) */
 
 /* 🏆 어디서든 순위 (2026-11-05): 도감 · 은비랜드 · 강화소 · 직업 · 짧게 한 줄 + 은비랜드 최근 대박 기록 */
-const RANKS={},RANK_REQ={},MEDAL=['🥇','🥈','🥉'],EB_GAME={slot:'🎰 슬롯',race:'🐢 경주',hilo:'🃏 하이로우'};
+const RANKS={},RANK_REQ={},MEDAL=['🥇','🥈','🥉'],EB_GAME={slot:'🎰 슬롯',wheel:'🎡 은비 룰렛',race:'🐢 경주',hilo:'🃏 하이로우'};
 const rankFmt=(k,v)=>k==='sd'||k==='sh'||k==='gt'||k==='dex'?v+'종':k==='hunt'?'Lv'+v:k==='help'?v+'번':k==='enh'?'+'+v:k==='eb'?fmtK(v)+'칩':k.indexOf('job:')===0?JR[JR.reduce((r,x,i)=>v>=x.x?i:r,0)].n+' '+fmt(v):fmt(v);
 function rankNeed(k){if(!ONLINE||!Net.me)return;if(Date.now()-(RANK_REQ[k]||0)>15000){RANK_REQ[k]=Date.now();Net.send({t:'rank_get',k})}}
 function rankStrip(k,title){rankNeed(k);const R=RANKS[k];let h='<div class="rstrip" data-rk="'+k+'" data-t="'+esc(title)+'"><b>'+title+'</b> ';
@@ -4298,7 +4330,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y);
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1110b',UPD_LOG=[
+const UPD_VER='1110c',UPD_LOG=[
+ ['11/10 저녁','⚔️',[['용사의 길 치장 4세트','전사 · 용사 · 성기사 · 하늘섬 모험가 (치장 상점 · 1,200만~6,000만 골드)'],['등에 메는 무기','용사의 대검 · 기사의 둥근 방패'],['🎡 은비 룰렛 새로 열림','빨강 · 파랑 ×2 · 황금 ×9'],['거북이 경주 · 하이로우 문 닫음','슬롯 룰렛은 그대로예요']]],
  ['11/10 오후','🫧',[['사냥은 이제 “구출 작전”','갇힌 친구들을 다 구하면(물결 3번) 꿈의 주인 등장 → 깨우면 정화 완료'],['⭐ 별점','4분 안에 · 피해 적게 · 첫 별 셋이면 칩 + 10% 주문서'],['몬스터가 무리로 와요','몸에 닿기만 해도 아파요 · 이제 잘 안 밀려나요'],['보스가 화나요','체력 절반이면 분노 · 물결 벽 · 소용돌이 탄막'],['구르기 2번 충전','숨이 차면 못 굴러요'],['🎒 가방 → ⚔️ 장비','낚시로 주운 장비를 가방에서 바로 보고 껴요'],['착용 레벨','좋은 장비일수록 용사 레벨이 필요해요 🔒'],['🧩 세트 효과','같은 계열 2·4·6개'],['새 장비 비교','주울 때 ▲ 표시로 바로 알려줘요']]],
  ['11/10','⚔️',[['사냥터가 훨씬 어려워졌어요','내려찍기·돌진·탄환·탄막 · 빨간 표시엔 🌀구르기'],['사냥터는 순서대로','앞 보스를 잡고 권장 방어를 넘겨야 다음 문이 열려요'],['사냥 결과표','나올 때 잡은 수·받은 피해·얻은 장비를 보여줘요'],['단련 → 기본 능력치','쓴 칩은 돌려드렸어요 · 회복약은 이제 힐링포션'],['주문서 등급 표시','일반급 · 💎희귀급 · 🌟전설급'],['새 장비 등급','태초보다 위가 있다는 소문이… 🌌'],['1등만의 효과','반짝·월척·용사·은비랜드 1위 주변에 특별한 빛']]],
  ['11/09','🎁',[['주간 낚시 대회','매주 한 물고기를 가장 크게 낚은 사람이 우승'],['낚시 일기 · 우편함 · 사진 찍기','메뉴 아래쪽에 있어요'],['장비 & 주문서','낚시하다 장비·주문서가 딸려 올라와요 · 꿈의 문 → 장비'],['섬마다 다른 배','🍰디저트 배 · 🎄크리스마스 배 · 🍊귤 배'],['새 낚싯대 8종','낚싯대마다 고유 효과'],['통발 치장 대량 추가','스킨 41종 · 깃발 12종']]],
@@ -4308,7 +4341,7 @@ function openUpd(){Snd.sfx('page');S.updSeen=UPD_VER;saveState(true);const d=$('
   UPD_LOG.forEach(([dt,ic,L],k)=>{h+='<div style="margin:10px 0 4px;font-weight:800;font-size:13px;color:#8a6a40">'+ic+' '+dt+(k===0?' <span style="background:#ff4a5a;color:#fff;border-radius:6px;padding:0 5px;font-size:10px">NEW</span>':'')+'</div>';
     L.forEach(([t,x])=>{h+='<div style="background:#fffaf0;border:1.5px solid #f0e2c8;border-radius:10px;padding:7px 10px;margin:4px 0"><b style="font-size:13px">'+t+'</b><div style="font-size:11.5px;margin-top:1px;color:#8a7f70">'+x+'</div></div>'})});
   openSheet('📰 업데이트 소식',h)}
-setInterval(()=>{if(P&&!HUNT.on&&!S.upd1110p&&S.upd1109o&&$('title')&&$('title').hidden&&$('sheetwrap').hidden&&(!ONLINE||Net.me)){S.upd1110p=1;openUpd()}},9000);
+setInterval(()=>{if(P&&!HUNT.on&&S.updAuto!==UPD_VER&&S.upd1109o&&$('title')&&$('title').hidden&&$('sheetwrap').hidden&&(!ONLINE||Net.me)){S.updAuto=UPD_VER;S.upd1110p=1;openUpd()}},9000);
 setInterval(()=>{const d=$('updDot');if(d)d.hidden=!P||S.updSeen===UPD_VER},2000);
 function pressAct(){
   if(HUNT.on){huAttack();return}
@@ -9216,8 +9249,9 @@ function vilClick(t){
 const EB={RATE:10,BUY_DAY:20000,BETS:[10,50,100,500,1000],SYM:['🐟','🐠','🐡','🦑','🐋','⭐'],SLOT3:[5,10,24,60,150,0],SLOT2:[0,.4,.7,1,2,4],
   RACE_X:[2.6,3.5,5,6.9,10],RACE_N:['느릿이','엉금이','번쩍이','쌩쌩이','로켓이'],RACE_C:['#7cc8a0','#f0b060','#8ab0f0','#e890b0','#b090e0'],
   VIP:[[5000,'브론즈',50],[30000,'실버',200],[150000,'골드',800],[600000,'다이아',2000]],
-  SHOP:[['ebwings',80000],['ebsuit',60000],['ebcrown',40000],['t_ebvip',30000],['hc20',20000],['hc21',20000]]};
-const EBS={tab:'slot',bet:50,data:null,busy:false,last:null,pick:0,reels:[5,5,5],spinT:0};
+  SHOP:[['ebwings',80000],['ebsuit',60000],['ebcrown',40000],['t_ebvip',30000],['hc20',20000],['hc21',20000]],
+  WHEEL:['g','r','b','r','b','r','b','r','b','r','g','b','r','b','r','b','r','b','r','b'],WX:{r:2,b:2,g:9},WC:{r:'#e8364e',b:'#3a6ad8',g:'#ffc83a'},WN:{r:'빨강',b:'파랑',g:'황금'}};
+const EBS={tab:'slot',bet:50,data:null,busy:false,last:null,pick:0,wpick:'r',wang:0,reels:[5,5,5],spinT:0};
 const ebOpenNow=()=>!$('sheetwrap').hidden&&$('sheettitle').textContent==='🎰 은비랜드';
 const cardName=n=>['','A','2','3','4','5','6','7','8','9','10','J','Q','K'][n]||'?';
 function openEb(){if(!ONLINE||!Net.me){toast('은비랜드는 온라인에서 열려요');return}EBS.last=null;Snd.sfx('page');openSheet('🎰 은비랜드','<div class="muted" style="padding:20px;text-align:center">불러오는 중…</div>');Net.flushSave(true);Net.send({t:'eb_info'})}
@@ -9227,17 +9261,22 @@ function onEbMsg(m){
   EBS.data=m;if(m.note)toast(m.note);
   if(m.reels){ebSpinTo(m);return true}
   if(m.race){ebRace(m);return true}
+  if(m.wheel){ebWheelTo(m);return true}
   if(m.hilo){EBS.busy=false;EBS.last=m;Snd.sfx(m.win?'buy':'miss');if(m.win)toast('🃏 '+cardName(m.hilo.to)+'! +'+fmt(m.win)+'칩');}
   if(ebOpenNow())renderEb();return true}
 function ebHead(d){const v=d.vip;return'<div class="eb-head"><div><small>내 칩</small><b>🎲 '+fmt(d.c)+'</b></div><div><small>마을 잭팟</small><b class="jp">⭐ '+fmt(d.jp)+'</b></div><div><small>VIP</small><b>'+(v>=0?EB.VIP[v][1]:'—')+'</b></div></div>'}
 function renderEb(){
   const d=EBS.data;if(!d)return;let h=ebHead(d)+rankStrip('eb','🏆 최고 당첨');rankNeed('eb');h+=ebTicker();
-  h+='<div class="tabs scroll">'+[['slot','🎰 슬롯'],['race','🐢 경주'],['hilo','🃏 하이로우'],['coin','🎲 칩'],['shop','🎁 경품'],['rank','🏆 기록']].map(t=>'<button class="tab'+(EBS.tab===t[0]?' on':'')+'" data-ebt="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+  h+='<div class="tabs scroll">'+[['slot','🎰 슬롯 룰렛'],['wheel','🎡 은비 룰렛'],['coin','🎲 칩'],['shop','🎁 경품'],['rank','🏆 기록']].map(t=>'<button class="tab'+(EBS.tab===t[0]?' on':'')+'" data-ebt="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
   const bets='<div class="fchips">'+EB.BETS.map(b=>'<button class="fchip'+(EBS.bet===b?' on':'')+'" data-ebb="'+b+'"'+(d.c>=b?'':' disabled')+'>'+fmt(b)+'</button>').join('')+'</div>';
   if(EBS.tab==='slot'){const r=EBS.reels;
     h+='<div class="ebslot"><div class="reels">'+r.map(x=>'<span>'+EB.SYM[x]+'</span>').join('')+'</div><div class="eb-res">'+(EBS.last&&EBS.last.reels&&!EBS.busy?(EBS.last.win?(EBS.last.jack?'🎉 잭팟!! ':'')+'+'+fmt(EBS.last.win)+'칩':'꽝'):'&nbsp;')+'</div></div>'+bets+
       '<button class="btn pink big" data-eb="slot"'+(EBS.busy||d.c<EBS.bet?' disabled':'')+'>'+(EBS.busy?'돌아가는 중…':'돌리기 · '+fmt(EBS.bet)+'칩')+'</button>'+
       '<details class="more"><summary>배당표</summary><div class="ptab2">'+EB.SYM.map((s,i)=>'<div>'+s+s+s+' <b>'+(i===5?'잭팟':'×'+EB.SLOT3[i])+'</b>'+(EB.SLOT2[i]?' · '+s+s+' ×'+EB.SLOT2[i]:'')+'</div>').join('')+'</div><p class="note">⭐⭐⭐ 잭팟은 마을 모두가 키워요 (슬롯 판돈의 3%). 500칩 이상 걸면 잭팟을 다 받아요.</p></details>'}
+  if(EBS.tab==='wheel'){const L=EBS.last&&EBS.last.wheel&&!EBS.busy?EBS.last:null;
+    h+='<div class="ebslot" style="padding:10px"><canvas id="ebwheel" width="260" height="260" style="width:220px;height:220px;display:block;margin:0 auto"></canvas><div class="eb-res">'+(L?(L.win?'🎉 '+EB.WN[EB.WHEEL[L.wheel.seg]]+'! +'+fmt(L.win)+'칩':'아쉬워요… '+EB.WN[EB.WHEEL[L.wheel.seg]]+' 칸'):'어느 색에 멈출까요?')+'</div></div>';
+    h+='<div class="fg-btns" style="grid-template-columns:repeat(3,1fr)">'+['r','b','g'].map(k=>'<button class="btn'+(EBS.wpick===k?' pink':' ghost')+'" data-ebw="'+k+'" style="border:3px solid '+EB.WC[k]+'">'+(k==='g'?'⭐ ':'')+EB.WN[k]+' ×'+EB.WX[k]+'</button>').join('')+'</div>'+bets+
+      '<button class="btn pink big" data-eb="wheel"'+(EBS.busy||d.c<EBS.bet?' disabled':'')+'>'+(EBS.busy?'빙글빙글…':EB.WN[EBS.wpick]+'에 '+fmt(EBS.bet)+'칩')+'</button><p class="note">20칸: 빨강 9 · 파랑 9 · 황금 2 · 500칩 이상 걸고 황금을 맞히면 마을에 소식이 퍼져요</p>'}
   if(EBS.tab==='race'){h+='<canvas id="ebrace" width="300" height="150" class="race"></canvas><div class="eb-res">'+(EBS.last&&EBS.last.race&&!EBS.busy?(EBS.last.win?'🏁 '+EB.RACE_N[EBS.last.race.win]+' 우승! +'+fmt(EBS.last.win)+'칩':'🏁 '+EB.RACE_N[EBS.last.race.win]+' 우승… 아쉬워요'):'응원할 거북이를 골라요')+'</div>';
     h+='<div class="turtles">'+EB.RACE_N.map((n,i)=>'<button class="fchip'+(EBS.pick===i?' on':'')+'" data-ebp="'+i+'"><i style="background:'+EB.RACE_C[i]+'"></i>'+n+' ×'+EB.RACE_X[i]+'</button>').join('')+'</div>'+bets+
       '<button class="btn pink big" data-eb="race"'+(EBS.busy||d.c<EBS.bet?' disabled':'')+'>'+(EBS.busy?'달리는 중…':EB.RACE_N[EBS.pick]+'에게 '+fmt(EBS.bet)+'칩')+'</button>'}
@@ -9253,25 +9292,38 @@ function renderEb(){
       (v>=0?'<button class="btn mint" data-eb="vip" style="width:100%;margin-top:8px"'+(d.vd?' disabled':'')+'>'+(d.vd?'오늘 VIP 보너스 받음 ✓':'오늘의 VIP 보너스 🎲 '+EB.VIP[v][2])+'</button>':'<p class="note">칩을 쓸수록 VIP 등급이 올라요. 브론즈부터 매일 보너스 칩 · 하루에 바꿀 수 있는 칩도 늘어나요</p>')}
   if(EBS.tab==='rank'){h+=rankFull('eb','🏆 은비랜드 최고 당첨 (한 번에 딴 칩)')}
   if(EBS.tab==='shop'){h+='<div class="cgrid">'+EB.SHOP.map(it=>{const c=COS_BY[it[0]],have=owns(it[0]),ic=cosIcon(it[0]);return'<div class="ccard'+(have?' have':'')+'">'+(ic?'<img class="ci" src="'+ic+'" alt="">':'<span class="ttl sm">「」</span>')+'<div class="cn">'+(c.k==='title'?'「'+esc(c.name)+'」':esc(c.name))+'</div>'+(have?'<span class="lock">가지고 있어요</span>':'<button class="btn xs pink" data-ebs="'+it[0]+'"'+(d.c>=it[1]?'':' disabled')+'>🎲 '+fmtK(it[1])+'</button>')+'</div>'}).join('')+'</div><p class="note">여기서만 바꿀 수 있는 은비랜드 한정 치장이에요.</p>'}
-  body().innerHTML=h;if(EBS.tab==='race')ebDrawRace(EBS.raceT||null);
+  body().innerHTML=h;if(EBS.tab==='race')ebDrawRace(EBS.raceT||null);if(EBS.tab==='wheel')ebDrawWheel(EBS.wang);
 }
 function ebClick(t){
   if(t.dataset.ebt){EBS.tab=t.dataset.ebt;EBS.last=null;Snd.sfx('tap');renderEb();return true}
   if(t.dataset.ebb){EBS.bet=+t.dataset.ebb;Snd.sfx('tap');renderEb();return true}
   if(t.dataset.ebp){EBS.pick=+t.dataset.ebp;Snd.sfx('tap');renderEb();return true}
+  if(t.dataset.ebw){EBS.wpick=t.dataset.ebw;Snd.sfx('tap');renderEb();return true}
   if(t.dataset.ebc){Net.flushSave(true);Net.send({t:'eb_buy',n:+t.dataset.ebc});Snd.sfx('coin');return true}
   if(t.dataset.ebs){Net.send({t:'eb_shop',id:t.dataset.ebs});Snd.sfx('buy');return true}
   const k=t.dataset.eb;if(!k)return false;if(EBS.busy)return true;
   if(k==='vip'){Net.send({t:'eb_vip'});return true}
   EBS.busy=true;EBS.last=null;
   if(k==='slot'){Net.send({t:'eb_slot',bet:EBS.bet});ebSpinAnim();}
-  else if(k==='race'){Net.send({t:'eb_race',bet:EBS.bet,pick:EBS.pick});}
-  else Net.send({t:'eb_hilo',bet:EBS.bet,g:k});
+  else if(k==='wheel'){Net.send({t:'eb_wheel',bet:EBS.bet,pick:EBS.wpick});ebWheelSpin()}
+  else return true;
   Snd.sfx('cast');renderEb();setTimeout(()=>{if(EBS.busy){EBS.busy=false;if(ebOpenNow())renderEb()}},7000);return true}
 /* 슬롯: 서버 결과가 오기 전부터 빙글빙글, 결과가 오면 한 칸씩 멈춰요 */
 function ebSpinAnim(){EBS.spinT=performance.now();(function tick(){if(!EBS.busy||!ebOpenNow())return;const el=document.querySelectorAll('.reels span');el.forEach((s,i)=>{if(!(EBS.stop>i))s.textContent=EB.SYM[(Math.random()*6)|0]});requestAnimationFrame(tick)})()}
 function ebSpinTo(m){EBS.stop=0;const r=m.reels;[0,1,2].forEach(i=>setTimeout(()=>{EBS.reels[i]=r[i];EBS.stop=i+1;const el=document.querySelectorAll('.reels span')[i];if(el){el.textContent=EB.SYM[r[i]];el.classList.add('pop')}Snd.sfx('tap');
   if(i===2){EBS.busy=false;EBS.stop=0;EBS.last=m;Snd.sfx(m.jack?'page':m.win?'buy':'miss');if(m.win)toast((m.jack?'🎉 잭팟!! ':'🎰 ')+'+'+fmt(m.win)+'칩');if(ebOpenNow())renderEb()}},500+i*380))}
+/* 🎡 은비 룰렛: 결과 오기 전부터 돌고, 서버가 정한 칸에서 천천히 멈춰요 */
+function ebDrawWheel(a){const c=$('ebwheel');if(!c)return;const x=c.getContext('2d'),N=EB.WHEEL.length,R=118,cx0=130,cy0=132;x.clearRect(0,0,260,260);
+  x.save();x.translate(cx0,cy0);x.fillStyle='#5a2a6a';x.beginPath();x.arc(0,0,R+8,0,6.29);x.fill();
+  for(let i=0;i<N;i++){const a0=a+i*6.2832/N-Math.PI/2-3.1416/N,a1=a0+6.2832/N;x.fillStyle=EB.WC[EB.WHEEL[i]];x.beginPath();x.moveTo(0,0);x.arc(0,0,R,a0,a1);x.closePath();x.fill();x.strokeStyle='rgba(255,255,255,.7)';x.lineWidth=1.5;x.stroke();
+    if(EB.WHEEL[i]==='g'){const m=(a0+a1)/2;x.fillStyle='#fff';x.font='bold 15px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('★',Math.cos(m)*R*.78,Math.sin(m)*R*.78)}}
+  for(let i=0;i<24;i++){const q=i/24*6.2832;x.fillStyle=((performance.now()/120|0)+i)%2?'#fff6b0':'#ffb84a';x.beginPath();x.arc(Math.cos(q)*(R+4),Math.sin(q)*(R+4),2.4,0,6.29);x.fill()}
+  x.fillStyle='#fff';x.beginPath();x.arc(0,0,20,0,6.29);x.fill();x.fillStyle='#e8364e';x.font='bold 13px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('은비',0,1);x.restore();
+  x.fillStyle='#3a2a4a';x.beginPath();x.moveTo(cx0-11,2);x.lineTo(cx0+11,2);x.lineTo(cx0,24);x.closePath();x.fill();x.fillStyle='#ffd84a';x.beginPath();x.moveTo(cx0-7,4);x.lineTo(cx0+7,4);x.lineTo(cx0,18);x.closePath();x.fill()}
+function ebWheelSpin(){EBS.wTo=null;let last=performance.now();(function tick(now){if(EBS.wTo||!EBS.busy||!ebOpenNow()||EBS.tab!=='wheel')return;EBS.wang+=(now-last)/1000*9;last=now;ebDrawWheel(EBS.wang);requestAnimationFrame(tick)})(last)}
+function ebWheelTo(m){const N=EB.WHEEL.length,seg=m.wheel.seg,step=6.2832/N,cur=EBS.wang%6.2832,tgt=-seg*step+(Math.random()-.5)*step*.6;let d=((tgt-cur)%6.2832+6.2832)%6.2832+6.2832*3;const a0=EBS.wang,t0=performance.now(),D=2600;EBS.wTo=1;let lastTick=-1;
+  (function tick(now){const k=Math.min(1,(now-t0)/D),e=1-Math.pow(1-k,3);EBS.wang=a0+d*e;if(ebOpenNow()&&EBS.tab==='wheel')ebDrawWheel(EBS.wang);const si=Math.floor(EBS.wang/step);if(si!==lastTick){lastTick=si;if(k<.97)Snd.sfx('tap')}if(k<1)return requestAnimationFrame(tick);
+    EBS.busy=false;EBS.last=m;const col=EB.WHEEL[seg];Snd.sfx(m.win?(col==='g'?'page':'buy'):'miss');if(m.win)toast('🎡 '+EB.WN[col]+'! +'+fmt(m.win)+'칩');if(ebOpenNow())renderEb()})(t0)}
 /* 거북이 경주: 서버가 정한 우승 거북이가 마지막에 앞서도록 그려요 */
 function ebRace(m){const w=m.race.win,sp=EB.RACE_N.map((_,i)=>i===w?1:.78+Math.random()*.18),t0=performance.now(),D=2600;EBS.raceT={sp,p:0};
   (function tick(now){const p=Math.min(1,(now-t0)/D);EBS.raceT.p=p;if(ebOpenNow()&&EBS.tab==='race')ebDrawRace(EBS.raceT);if(p<1)return requestAnimationFrame(tick);
