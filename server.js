@@ -203,7 +203,8 @@ LOOK_IDS.bk.push(["k_wizard", "k_shell", "k_dragon", "k_seraph", "k_dark", "k_na
 LOOK_IDS.fa.push(["f_monocle", "f_heart", "f_bandaid", "f_goggle", "f_freckle"]);
 const ENH_TITLE_NEED = { t_enh10: 10, t_enh15: 15, t_enh20: 20, t_enh25: 25, t_enh30: 30 };
 LOOK_IDS.rod.push('r_music', 'r_cat', 'r_choco', 'r_jelly', 'r_snowflake', 'r_whale', 'r_phoenix', 'r_starlight');
-LOOK_IDS.o.push('o_tux', 'o_wdress', 'o_warrior', 'o_hero', 'o_paladin', 'o_skyexp'); LOOK_IDS.hat.push('h_warhorn', 'h_herocirc', 'h_paladin', 'h_skygog'); LOOK_IDS.bk.push('k_warfur', 'k_hero', 'k_paladin', 'k_scout', 'k_gsword', 'k_shield'); LOOK_IDS.fa.push('f_warpaint', 'f_scar'); LOOK_IDS.ti.push('t_warrior', 't_hero', 't_paladin'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
+LOOK_IDS.o.push('o_tux', 'o_wdress', 'o_warrior', 'o_hero', 'o_paladin', 'o_skyexp'); LOOK_IDS.hat.push('h_warhorn', 'h_herocirc', 'h_paladin', 'h_skygog'); LOOK_IDS.bk.push('k_warfur', 'k_hero', 'k_paladin', 'k_scout', 'k_gsword', 'k_shield'); LOOK_IDS.fa.push('f_warpaint', 'f_scar'); LOOK_IDS.ti.push('t_warrior', 't_hero', 't_paladin');
+LOOK_IDS.o.push('o_moondress', 'o_sakura', 'o_darkarmor', 'o_hunter'); LOOK_IDS.hat.push('h_moonpin', 'h_sakura', 'h_darkhelm', 'h_hunterhood'); LOOK_IDS.bk.push('k_moonwing', 'k_bigribbon', 'k_darkcape', 'k_axe', 'k_quiver'); LOOK_IDS.fa.push('f_glitter', 'f_blush'); LOOK_IDS.ti.push('t_moonfairy', 't_sakura', 't_darkknight', 't_hunter'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
 LOOK_IDS.ti.push('t_enh25', 't_enh30', ...['fish', 'sch', 'cra', 'tam', 'mer'].flatMap(j => [4, 5, 6].map(r => 't_j' + j + r)));
 for (const j of ['fish', 'sch', 'cra', 'tam', 'mer']) { LOOK_IDS.rod.push('jr4_' + j, 'jr6_' + j); LOOK_IDS.bob.push('jb5_' + j); }   // 강화 칭호는 서버 기록으로 확인
 const FREE = new Set(['straw', 'nohat', 'tee', 'bamboo', 'basicbob', '']);
@@ -1663,6 +1664,7 @@ function ebMsg(ws, me, m) {
       e.c -= price; const got = giveCos(s, [id]); send(ws, { t: 'cos_got', ids: got }); return done({ note: '경품 교환 완료!' });
     }
     if (m.t === 'eb_race' || m.t === 'eb_hilo') return err('🐢🃏 그 게임은 문을 닫았어요 · 🎡 룰렛을 즐겨 봐요');
+    { const now2 = Date.now(), gap = m.t === 'eb_wheel' ? 3600 : 2200; if (now2 - (me.ebSpinT || 0) < gap) return err('🎰 잠깐만요, 아직 돌아가는 중이에요'); me.ebSpinT = now2; }   // 🕰️ 연타 방지 (서버에서도)
     if (m.t === 'eb_wheel' && !['r', 'b', 'g'].includes(m.pick)) return;
     const bet = m.bet | 0; if (!EB.BETS.includes(bet)) return; if ((e.c | 0) < bet) return err('칩이 모자라요');
     if ((e.loss | 0) >= EB_LOSS_CAP) return err('🐰 은비: 오늘은 여기까지! 내일 다시 놀러 와요 (하루에 잃을 수 있는 칩을 다 썼어요)');
