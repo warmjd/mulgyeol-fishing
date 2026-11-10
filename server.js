@@ -1042,11 +1042,18 @@ function onMsg(ws, me, m) {
       if (st === 2) broadcast({ t: 'news', text: '💝 ' + me.name + ' 님이 ' + ({ grand: '파도 할멈', sugar: '디저트 요정 슈가', sobok: '소복옹' }[m.id]) + '의 마지막 부탁까지 들어줬어요!' });
     }); break;
     case 'fdrop': case 'it_scr': case 'it_dis': case 'sc_buy': withLock(me.key, async () => rpgMsg(ws, me, m)).catch(e => console.error('rpg', e.message)); break;
-    case 'hunt_buy': case 'hunt_kill': case 'hunt_pot': case 'hunt_die': case 'hunt_eq': case 'hunt_ex': withLock(me.key, async () => {   // ⚔️ 사냥터 (3차-4): 장비는 은비랜드 칩으로만 · 처치하면 칩 · 아주 가끔 상점에 없는 것
+    case 'hunt_buy': case 'hunt_kill': case 'hunt_pot': case 'hunt_die': case 'hunt_eq': case 'hunt_ex': case 'hunt_star': withLock(me.key, async () => {   // ⚔️ 사냥터 (3차-4): 장비는 은비랜드 칩으로만 · 처치하면 칩 · 아주 가끔 상점에 없는 것
       const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); const e = ebOf(s);
       h.inv = Array.isArray(h.inv) ? h.inv : [];
-      if (m.t === 'hunt_eq') { const i = m.i | 0, it = h.inv[i]; if (!it) return; if (!RPG_SLOTS.includes(it.t)) return; const ek = 'eq' + it.t; h[ek] = h[ek] === i ? null : i; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c }); }
+      if (m.t === 'hunt_eq') { const i = m.i | 0, it = h.inv[i]; if (!it) return; if (!RPG_SLOTS.includes(it.t)) return; const ek = 'eq' + it.t; const lv = (s.hu && s.hu.lv) | 0 || 1; if (h[ek] !== i && itReq(it) > lv) return send(ws, { t: 'news', text: '🔒 용사 Lv' + itReq(it) + '부터 낄 수 있어요 (지금 Lv' + lv + ')' }); h[ek] = h[ek] === i ? null : i; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c }); }
       if (m.t === 'hunt_ex') { if ((h.dr | 0) < 20) return; h.dr -= 20; queueSave(me.key, s); await giveTk(me.key, 1, '💤 꿈조각 20개 → 낚시 강화권 1장'); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '강화권 1장으로 바꿨어요!' }); }
+      if (m.t === 'hunt_star') {   // ⭐ 사냥터 별점: 처음 깨면 칩 · 처음 별 3개면 칩 + 10% 주문서
+        const fi = Math.max(0, Math.min(9, m.fi | 0)), st = Math.max(1, Math.min(3, m.s | 0)); h.star = h.star && typeof h.star === 'object' ? h.star : {}; const prev = h.star[fi] | 0; if (st <= prev) return;
+        const now = Date.now(); if (now - (me.hsT || 0) < 60000) return; me.hsT = now; h.star[fi] = st; let c = 0, note = '';
+        if (!prev) { c += 5e4 * (fi + 1); note = '🌟 첫 정화 보상 · 칩 ' + (5e4 * (fi + 1)).toLocaleString(); }
+        if (st === 3) { c += 2e5 * (fi + 1); const SC = scrMig(h), id = Math.random() < .5 ? 'w10' : 'a10'; SC[id] = (SC[id] | 0) + 1; note = '⭐⭐⭐ 첫 별 셋! 칩 ' + c.toLocaleString() + ' + ' + (id[0] === 'w' ? '무기' : '방어구') + ' 주문서 10% 🌟'; }
+        e.c = (e.c | 0) + c; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note });
+      }
       if (m.t === 'hunt_pot') { if ((h.pot | 0) > 0) { h.pot--; queueSave(me.key, s); } return; }
       if (m.t === 'hunt_die') { const lost = Math.floor((e.c | 0) * .03); e.c -= lost; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c }); }
       if (h.w || h.a || h.b) { let ref = 0; for (const k of ['w', 'a', 'b']) { for (let i = 1; i <= (h[k] | 0); i++) ref += HUNT_PRICE[k][i] | 0; h[k] = 0; } e.c = (e.c | 0) + ref; queueSave(me.key, s); send(ws, { t: 'news', text: '💪 단련이 없어지고 기본 능력치로 바뀌었어요 · 칩 ' + ref.toLocaleString() + '개를 돌려드렸어요' }); }   // 단련 폐지 → 전액 환불
@@ -1058,7 +1065,7 @@ function onMsg(ws, me, m) {
         e.c -= c; h[k] = nx; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '장비를 샀어요!' });
       }
       const now = Date.now(); if (now - (me.hkT || 0) < 250) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(10, m.t | 0)), red = !!m.red;
-      const el = !!m.el, bo = !!m.boss; const RS = rpgSum(h); let c = Math.round([100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100)); e.c = (e.c | 0) + c; const got = []; if (Math.random() < (bo ? .5 : el ? .08 : .015)) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push('scr:' + id); } 
+      const el = !!m.el, bo = !!m.boss; const RS = rpgSum(h, (s.hu && s.hu.lv) | 0 || 1); let c = Math.round([100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100)); e.c = (e.c | 0) + c; const got = []; if (Math.random() < (bo ? .5 : el ? .08 : .015)) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push('scr:' + id); } 
       if (!h.sw && r >= 2 && Math.random() < (bo ? .05 : .003 * (r + 1))) { h.sw = 1; got.push('sw'); broadcast({ t: 'news', text: '⚔️✨ ' + me.name + ' 님이 사냥터에서 「전설의 낚싯바늘 검」을 주웠어요!! (상점에 없어요)' }); }
       const own = (s.cos && s.cos.own) || [];
       if (!own.includes('t_hunt1') && Math.random() < .004) got.push(...giveCos(s, ['t_hunt1']));
@@ -1759,7 +1766,8 @@ const SCR_P = { 100: 1, 60: .6, 10: .1 }, SCR_G = { 100: 1, 60: 2, 10: 5 }, SCR_
 const scrKind = it => it.t === 'w' ? 'w' : 'a', scrLeft = it => it.us === undefined ? SCR_SLOTS[it.g | 0] : it.us | 0;
 function scrMig(h) { const S = h.scr && typeof h.scr === 'object' ? h.scr : (h.scr = {}); if (h.sc) { S.w100 = (S.w100 | 0) + (h.sc | 0); h.sc = 0; } if (h.bsc) { S.w60 = (S.w60 | 0) + (h.bsc | 0); h.bsc = 0; } if (h.mat) { let n = 0; for (const k in h.mat) n += h.mat[k] | 0; if (n) S.a100 = (S.a100 | 0) + Math.ceil(n / 3); delete h.mat; } return S; }
 const rollScr = () => { const x = Math.random() * 100, p = x < 60 ? 100 : x < 92 ? 60 : 10; return (Math.random() < .45 ? 'w' : 'a') + p; };
-function rpgSum(h) { const S = { atk: 0, def: 0, hp: 0, cri: 0, spd: 0, luk: 0, chip: 0, dr: 0 }; const inv = Array.isArray(h.inv) ? h.inv : []; for (const k of RPG_SLOTS) { const it = inv[h['eq' + k]]; if (!it || it.t !== k) continue; S[RPG_MAIN[k]] += (it.b | 0) + enhB(it); for (const o of it.o || []) if (S[o[0]] !== undefined) S[o[0]] += o[1] | 0; } return S; }
+const IT_REQ_G = [0, 1, 3, 6, 10, 15, 22, 30, 40], itReq = it => 1 + (it.n | 0) * 4 + (IT_REQ_G[it.g | 0] | 0);   // 🎚️ 착용 레벨: 계열(n)·등급(g)이 높을수록 용사 레벨이 필요
+function rpgSum(h, lv) { const S = { atk: 0, def: 0, hp: 0, cri: 0, spd: 0, luk: 0, chip: 0, dr: 0 }; const inv = Array.isArray(h.inv) ? h.inv : []; for (const k of RPG_SLOTS) { const it = inv[h['eq' + k]]; if (!it || it.t !== k) continue; if (lv != null && itReq(it) > lv) continue; S[RPG_MAIN[k]] += (it.b | 0) + enhB(it); for (const o of it.o || []) if (S[o[0]] !== undefined) S[o[0]] += o[1] | 0; } return S; }
 function invPut(h, item) { h.inv = Array.isArray(h.inv) ? h.inv : []; h.inv.push(item); if (h.inv.length <= 60) return; const eqs = RPG_SLOTS.map(k => h['eq' + k]); let lo = -1; h.inv.forEach((x2, i2) => { if (!eqs.includes(i2) && (lo < 0 || x2.g * 100 + x2.b < h.inv[lo].g * 100 + h.inv[lo].b)) lo = i2; }); if (lo >= 0) invDel(h, lo); }
 function invDel(h, i) { h.inv.splice(i, 1); for (const k of RPG_SLOTS) { const ek = 'eq' + k; if (h[ek] === i) h[ek] = null; else if (h[ek] > i) h[ek]--; } }
 const ZT = { 1: 0, 2: 1, 3: 2, 4: 3, 5: 3, 6: 4, 7: 4, 8: 4, 9: 4, 10: 5, 11: 5, 12: 5, 13: 6, 14: 6, 15: 7, 16: 7, 17: 7, 18: 8, 19: 8, 20: 6, 21: 9 };
@@ -1768,7 +1776,7 @@ async function rpgMsg(ws, me, m) {
   const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); h.inv = Array.isArray(h.inv) ? h.inv : []; const mat = h.mat && typeof h.mat === 'object' ? h.mat : (h.mat = {}); const now = Date.now();
   const out = x => { queueSave(me.key, s); send(ws, Object.assign({ t: 'rpg', hunt: h }, x)); };
   if (m.t === 'fdrop') {   // 🎣 낚시하다 딸려 올라오는 것들
-    if (now - (me.fdT || 0) < 2500) return; me.fdT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), z = m.z | 0, tier = ZT[z] | 0, luk = 1 + Math.min(100, rpgSum(h).luk) / 100, got = [];
+    if (now - (me.fdT || 0) < 2500) return; me.fdT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), z = m.z | 0, tier = ZT[z] | 0, luk = 1 + Math.min(100, rpgSum(h, (s.hu && s.hu.lv) | 0 || 1).luk) / 100, got = [];
     const SC = scrMig(h); if (Math.random() < (.07 + r * .015) * luk) { const id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push({ k: 'scr', id }); }
     if (Math.random() < (.02 + r * .008) * luk) { const it = mkItem(tier, rollG([55, 26, 12, 5, 1.6, .35, .05, .006, .0007])); invPut(h, it); got.push({ k: 'item', item: it }); if (it.g >= 7) broadcast({ t: 'news', text: '🌌🌌 ' + me.name + ' 님 낚싯줄에 전설 너머의 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] + '이(가)!!! 마을이 술렁여요' }); else if (it.g >= 4) broadcast({ t: 'news', text: '🎣🎁 ' + me.name + ' 님 낚싯줄에 ' + RPG_GN[it.g] + ' ' + RPG_SN[it.t] + '이(가) 걸려 올라왔어요!' }); }
     if (Math.random() < .002 * luk) { const own = (s.cos && s.cos.own) || [], pool = TRAP_SKINS.concat(TRAP_FLAGS).filter(id => id !== 'tp_bamboo' && id !== 'tf_none' && !own.includes(id)); if (pool.length) { const id = pool[(Math.random() * pool.length) | 0]; giveCos(s, [id]); got.push({ k: 'cos', id }); send(ws, { t: 'cos_got', ids: [id] }); broadcast({ t: 'news', text: '🎣✨ ' + me.name + ' 님이 낚시하다 통발 치장을 건졌어요!' }); } }
