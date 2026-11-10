@@ -1755,7 +1755,7 @@ const RPG_MATS = ['teddy', 'fluff', 'chick', 'donut', 'choco', 'shell', 'star', 
 const rollG = w => { const tot = w.reduce((a, b) => a + b, 0); let x = Math.random() * tot; for (let g = 0; g < w.length; g++) { x -= w[g]; if (x <= 0) return g; } return 0; };
 function mkItem(tier, g, sl) {
   tier = Math.max(0, Math.min(10, tier | 0)); g = Math.max(0, Math.min(8, g | 0)); sl = RPG_SLOTS.includes(sl) ? sl : ['w', 'w', 'w', 'a', 'a', 'h', 'r', 'g', 's', 'c', 'n'][(Math.random() * 11) | 0];
-  const it = { t: sl, g, b: [1, 2, 3, 5, 8, 13, 21, 34, 55][g] + Math.floor(tier / 2) * (g >= 7 ? 2 : 1), n: tier, v: (Math.random() * 5) | 0, e: 0, o: [] };
+  const it = { t: sl, g, b: [1, 2, 3, 5, 8, 13, 21, 34, 55][g] + Math.floor(tier / 2) * (g >= 7 ? 2 : 1), n: tier, v: (Math.random() * 5) | 0, e: 0, o: [], rq: 0 }; it.rq = rqOf(tier, g);
   if (sl === 'w') it.wt = RPG_WT[(Math.random() * RPG_WT.length) | 0];
   const no = [0, 1, 1, 2, 2, 3, 4, 5, 6][g], pool = RPG_SUB.slice(); for (let i = 0; i < no; i++) { const k = pool.splice((Math.random() * pool.length) | 0, 1)[0]; it.o.push([k, Math.max(1, Math.round((1 + tier * .4) * (1 + g * .4) * (.4 + Math.random() * .6)))]); }
   return it;
@@ -1766,7 +1766,7 @@ const SCR_P = { 100: 1, 60: .6, 10: .1 }, SCR_G = { 100: 1, 60: 2, 10: 5 }, SCR_
 const scrKind = it => it.t === 'w' ? 'w' : 'a', scrLeft = it => it.us === undefined ? SCR_SLOTS[it.g | 0] : it.us | 0;
 function scrMig(h) { const S = h.scr && typeof h.scr === 'object' ? h.scr : (h.scr = {}); if (h.sc) { S.w100 = (S.w100 | 0) + (h.sc | 0); h.sc = 0; } if (h.bsc) { S.w60 = (S.w60 | 0) + (h.bsc | 0); h.bsc = 0; } if (h.mat) { let n = 0; for (const k in h.mat) n += h.mat[k] | 0; if (n) S.a100 = (S.a100 | 0) + Math.ceil(n / 3); delete h.mat; } return S; }
 const rollScr = () => { const x = Math.random() * 100, p = x < 60 ? 100 : x < 92 ? 60 : 10; return (Math.random() < .45 ? 'w' : 'a') + p; };
-const IT_REQ_G = [0, 1, 3, 6, 10, 15, 22, 30, 40], itReq = it => 1 + (it.n | 0) * 4 + (IT_REQ_G[it.g | 0] | 0);   // 🎚️ 착용 레벨: 계열(n)·등급(g)이 높을수록 용사 레벨이 필요
+const IT_REQ_G = [0, 1, 3, 6, 10, 15, 22, 30, 40], rqOf = (n, g) => 1 + (n | 0) * 4 + (IT_REQ_G[g | 0] | 0), itReq = it => it.rq != null ? it.rq | 0 : 1;   // 레벨 제한은 새로 나온 장비부터 (예전 장비는 제한 없음)   // 🎚️ 착용 레벨: 계열(n)·등급(g)이 높을수록 용사 레벨이 필요
 function rpgSum(h, lv) { const S = { atk: 0, def: 0, hp: 0, cri: 0, spd: 0, luk: 0, chip: 0, dr: 0 }; const inv = Array.isArray(h.inv) ? h.inv : []; for (const k of RPG_SLOTS) { const it = inv[h['eq' + k]]; if (!it || it.t !== k) continue; if (lv != null && itReq(it) > lv) continue; S[RPG_MAIN[k]] += (it.b | 0) + enhB(it); for (const o of it.o || []) if (S[o[0]] !== undefined) S[o[0]] += o[1] | 0; } return S; }
 function invPut(h, item) { h.inv = Array.isArray(h.inv) ? h.inv : []; h.inv.push(item); if (h.inv.length <= 60) return; const eqs = RPG_SLOTS.map(k => h['eq' + k]); let lo = -1; h.inv.forEach((x2, i2) => { if (!eqs.includes(i2) && (lo < 0 || x2.g * 100 + x2.b < h.inv[lo].g * 100 + h.inv[lo].b)) lo = i2; }); if (lo >= 0) invDel(h, lo); }
 function invDel(h, i) { h.inv.splice(i, 1); for (const k of RPG_SLOTS) { const ek = 'eq' + k; if (h[ek] === i) h[ek] = null; else if (h[ek] > i) h[ek]--; } }
