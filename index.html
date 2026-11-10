@@ -4860,12 +4860,12 @@ function petWalkable(x,y){return catLand(x,y)}
 /* ===================== 🐾 냥이들의 마을 여행 (2026-11-10): 루비 · 고양이들이 온 마을을 돌아다니고, 물을 만나면 작은 배를 타요 ===================== */
 const catSolT=(tx,ty)=>!W.inb(tx,ty)||!!W.SOL[ty][tx],catWaterT=(tx,ty)=>W.inb(tx,ty)&&W.T[ty][tx]==='w';
 function catLand(x,y){const hw=3,c=[[x-hw,y],[x+hw,y],[x-hw,y-3],[x+hw,y-3]];return c.every(q=>{const tx=Math.floor(q[0]/TS),ty=Math.floor(q[1]/TS);return!catSolT(tx,ty)})}
-function catWater(x,y){const c=[[x-4,y],[x+4,y],[x,y-3]];return c.every(q=>catWaterT(Math.floor(q[0]/TS),Math.floor(q[1]/TS)))}
+function catWater(x,y){const c=[[x,y],[x-2,y],[x+2,y]];return c.every(q=>catWaterT(Math.floor(q[0]/TS),Math.floor(q[1]/TS)))}
 const CAT_POI=[[16,25,'마을 마당'],[39,21,'축제 광장'],[24,40,'잔잔한 연못'],[64,96,'고래 만 부두'],[97,82,'달콤섬'],[117,90,'초코 분수'],[147,82,'소복마을'],[168,71,'소복 트리'],[78,51,'제주 섬'],[88,80,'안개 섬'],[45,60,'꽃밭 언덕'],[120,40,'꽃배 바다'],[30,90,'노을 바닷가'],[150,110,'눈꽃 바다']];
 function catPOI(){for(let k=0;k<30;k++){const q=CAT_POI[(Math.random()*CAT_POI.length)|0];for(let r=0;r<8;r++){const x=(q[0]+(Math.random()-.5)*r*2)*TS+8,y=(q[1]+(Math.random()-.5)*r*2)*TS+12;if(catLand(x,y))return{x,y,n:q[2]}}}return{x:16*TS,y:25*TS,n:'마을 마당'}}
 function catPlace(x,y){let best=null,bd=1e9;CAT_POI.forEach(q=>{const d=Math.hypot(q[0]*TS-x,q[1]*TS-y);if(d<bd){bd=d;best=q[2]}});if(bd<14*TS)return best;const tx=(x/TS)|0,ty=(y/TS)|0;for(let r=1;r<14;r++)for(let dy=-r;dy<=r;dy+=r)for(let dx=-r;dx<=r;dx++){if(catWaterT(tx+dx,ty+dy)&&W.Z&&W.Z[ty+dy]){const z=W.Z[ty+dy][tx+dx];if(z)return ZN(z)}}return best||'어딘가'}
-const CAT_HI=['어? 너 여기서 뭐해 ㅋㅋㅋ','쉿! 나 몰래 여행 중이야','우리 또 만났네?! ㅋㅋ','여기 경치 좋지?','배 타고 왔다옹~','냄새 따라왔는데 너였구나','앗 들켰다 ㅋㅋㅋ','오늘 바람 좋다냥','같이 놀래?','물고기 냄새… 너지?'];
-const CAT_PAIR=[['안녕 ㅋㅋ','어 너도 여행 중?'],['여기서 만나네!','운명이다냥 ㅋㅋㅋ'],['배 시합 할래?','지는 사람 츄르 사기!'],['어디 가?','몰라 그냥 ㅋㅋ'],['하이파이브!','짝! ㅋㅋㅋ'],['저기 물고기 봤어?','나도 나도!']];
+const CAT_HI=['어, 너구나…','여기 바람이 좋아서 왔어','오늘 물빛 예쁘지?','배 타고 조금 멀리 와 봤어','너도 산책 중이야?','여기서 보니 반갑다','조용해서 좋다, 여기','노을 보러 가는 길이야','같이 잠깐 앉았다 갈래?','물고기 냄새가 나서… 너였구나'];
+const CAT_PAIR=[['안녕, 오랜만이야','응… 잘 지냈어?'],['여기서 만나네','바람이 데려다줬나 봐'],['어디 가는 길이야?','그냥, 물 따라'],['저기 노을 봤어?','응, 오늘은 분홍색이야'],['배 타는 거 무섭지 않아?','조금… 그래도 좋아'],['같이 쉬었다 갈까','응, 잠깐만']];
 const CAT_GIFT=[['조개껍데기',80,200],['반짝 조약돌',120,300],['작은 물고기',150,400],['꽃잎',60,150],['솔방울',60,160]];
 const catBoatCol={ruby:['#e85a6e','#b8384c'],dot:['#9ad0f0','#6aa8d0'],nurung:['#ffb050','#d08030'],kkam:['#a088e0','#7058b8'],churi:['#ffd84a','#d0a828']};
 let CAT_INIT=false;
@@ -4883,10 +4883,13 @@ function catTravel(a,dt){const p=a.p;a.meetCD=(a.meetCD||0)-dt;if(a.say){a.say.t
   if(d<8&&!a.boat){a.dest=null;a.state=Math.random()<p.sleepy*1.5?'sleep':'sit';a.t=(a.state==='sleep'?25:12)+Math.random()*25;return}
   const sp=(a.boat?30:Math.max(18,p.speed*1.5))*dt,base=Math.atan2(dy,dx);let moved=false;
   for(const off of [0,.5,-.5,1,-1,1.6,-1.6,2.3,-2.3]){const ang=base+off*(a.side||1),nx=a.x+Math.cos(ang)*sp,ny=a.y+Math.sin(ang)*sp;
-    if(a.boat){if(catWater(nx,ny)){a.x=nx;a.y=ny;moved=true}else if(catLand(nx,ny)){a.boat=false;a.x=nx;a.y=ny;moved=true;for(let i=0;i<8;i++)parts.push({x:a.x,y:a.y-2,vx:(Math.random()-.5)*30,vy:-10-Math.random()*10,life:.5,t:0,c:'#ffffff',g:60,s:1});if(Math.random()<.3)catSay(a,'도착! 🐾')}}
-    else{if(catLand(nx,ny)){a.x=nx;a.y=ny;moved=true}else if(off===0||Math.abs(off)<=.5){const wx=a.x+Math.cos(ang)*10,wy=a.y+Math.sin(ang)*10;if(catWater(wx,wy)){a.boat=true;a.x=wx;a.y=wy;moved=true;for(let i=0;i<10;i++)parts.push({x:a.x,y:a.y,vx:(Math.random()-.5)*30,vy:-14,life:.6,t:0,c:'#cfeeff',g:60,s:1});if(Math.random()<.35)catSay(a,pick(['배 타자~ ⛵','출항이다냥!','노 젓기 시작!']))}}}
+    if(a.boat){let lx=null,ly=null;if(!catWater(nx,ny)){for(const r of [4,7,10]){const qx=a.x+Math.cos(ang)*r,qy=a.y+Math.sin(ang)*r;if(catLand(qx,qy)){lx=qx;ly=qy;break}}}if(lx==null&&catWater(nx,ny)){a.x=nx;a.y=ny;moved=true}else if(lx!=null){a.boat=false;a.x=lx;a.y=ly;moved=true;for(let i=0;i<8;i++)parts.push({x:a.x,y:a.y-2,vx:(Math.random()-.5)*30,vy:-10-Math.random()*10,life:.5,t:0,c:'#ffffff',g:60,s:1});if(Math.random()<.3)catSay(a,'다 왔다…')}}
+    else{if(catLand(nx,ny)){a.x=nx;a.y=ny;moved=true}else if(off===0||Math.abs(off)<=.5){const wx=a.x+Math.cos(ang)*10,wy=a.y+Math.sin(ang)*10;if(catWater(wx,wy)){a.boat=true;a.x=wx;a.y=wy;moved=true;for(let i=0;i<10;i++)parts.push({x:a.x,y:a.y,vx:(Math.random()-.5)*30,vy:-14,life:.6,t:0,c:'#cfeeff',g:60,s:1});if(Math.random()<.35)catSay(a,pick(['조금만 건너가 볼까','물결이 잔잔하네','천천히 가자']))}}}
     if(moved){if(Math.abs(Math.cos(ang))>.2)a.face=Math.cos(ang)<0?-1:1;break}}
-  if(!moved){a.stuck=(a.stuck||0)+dt;if(a.stuck>.6)a.side=-(a.side||1);if(a.stuck>3){a.dest=null;a.state='sit';a.t=1}}else a.stuck=Math.max(0,a.stuck-dt);
+  if(!moved){a.stuck=(a.stuck||0)+dt;if(a.stuck>.6)a.side=-(a.side||1);
+    if(a.boat&&a.stuck>.8){for(let r=6;r<=18&&a.boat;r+=4)for(let q=0;q<8;q++){const an=q*.785,nx=a.x+Math.cos(an)*r,ny=a.y+Math.sin(an)*r;if(catLand(nx,ny)){a.boat=false;a.x=nx;a.y=ny;a.stuck=0;for(let i=0;i<6;i++)parts.push({x:a.x,y:a.y-2,vx:(Math.random()-.5)*20,vy:-8,life:.5,t:0,c:'#ffffff',g:50,s:1});break}}
+      if(a.boat&&a.stuck>2.5){const L=catShore(a);if(L&&Math.hypot(L.x-a.x,L.y-a.y)<64){a.boat=false;a.x=L.x;a.y=L.y;a.stuck=0}else{a.dest=L||catPOI();a.stuck=0}}}
+    if(!a.boat&&a.stuck>3){a.dest=null;a.state='sit';a.t=1}}else a.stuck=Math.max(0,a.stuck-dt);
   a.t-=0;if(a.t<-1e3)a.t=0}
 /* 우연히 만나요: 나 ↔ 냥이 · 냥이 ↔ 냥이 */
 function catMeets(dt){if(!P)return;const now=Date.now();
@@ -4896,13 +4899,13 @@ function catMeets(dt){if(!P)return;const now=Date.now();
     const pl=catPlace(a.x,a.y),L=S.catLog||(S.catLog={}),r=L[a.p.id]||(L[a.p.id]={n:0,pl:[]});r.n++;const fresh=pl&&!r.pl.includes(pl);if(fresh)r.pl.push(pl);
     let msg='🐾 '+a.p.name+'를 '+pl+'에서 우연히 만났어요!'+(fresh?' (새 장소 · '+r.pl.length+'곳)':'');
     if(Math.random()<.3){const g=pick(CAT_GIFT),v=g[1]+((Math.random()*(g[2]-g[1]))|0);S.gold+=v;msg+=' · '+a.p.name+'가 '+g[0]+'을(를) 줬어요 +'+v+'골드';Snd.sfx('coin')}
-    toast(msg);if(fresh&&r.pl.length%5===0)showBanner('🐾 '+a.p.name+'를 '+r.pl.length+'곳에서 만났어요! 여행 친구 인정 ㅋㅋ');try{if(fresh)diaryAdd('🐾',a.p.name+'를 '+pl+'에서 만났어요')}catch(e){}saveState()});
+    toast(msg);if(fresh&&r.pl.length%5===0)showBanner('🐾 '+a.p.name+'와 '+r.pl.length+'곳에서 마주쳤어요. 어느새 여행 친구가 됐나 봐요');try{if(fresh)diaryAdd('🐾',a.p.name+'를 '+pl+'에서 만났어요')}catch(e){}saveState()});
   for(let i=0;i<pets.length;i++)for(let j=i+1;j<pets.length;j++){const a=pets[i],b=pets[j];if(a.forced||b.forced||isFollower(a)||isFollower(b))continue;if((a.ccT||0)>now||(b.ccT||0)>now)continue;if(Math.hypot(a.x-b.x,a.y-b.y)>22)continue;
     a.ccT=b.ccT=now+150000;const pr=pick(CAT_PAIR);[a,b].forEach((c,k)=>{c.state='greet';c.gt=3.4;c.face=(k?a:b).x<c.x?-1:1;c.react=1});catSay(a,pr[0],1.7);setTimeout(()=>catSay(b,pr[1],2),1100);setTimeout(()=>laughFx((a.x+b.x)/2,Math.min(a.y,b.y)-24),1500);
     if(P&&Math.hypot(a.x-P.x,a.y-P.y)<VW*.6)Snd.sfx('meow')}}
-function laughFx(x,y){for(let i=0;i<3;i++)CAT_TXT.push({x:x+(i-1)*8,y,t:0,txt:'ㅋ'})}
+function laughFx(x,y){const g=['♪','✿','♡'];for(let i=0;i<2;i++)CAT_TXT.push({x:x+(i-.5)*9,y,t:-i*.25,txt:g[(Math.random()*3)|0]})}
 const CAT_TXT=[];
-function catTxtDraw(){for(let i=CAT_TXT.length-1;i>=0;i--){const q=CAT_TXT[i];q.t+=FXDT||.016;if(q.t>1.2){CAT_TXT.splice(i,1);continue}cx.globalAlpha=Math.min(1,(1.2-q.t)*2);cx.font='bold 8px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#fff';const yy=q.y-q.t*14+Math.sin(q.t*12+q.x)*1.5;cx.strokeText(q.txt,q.x,yy);cx.fillStyle='#ff6a9a';cx.fillText(q.txt,q.x,yy);cx.globalAlpha=1}}
+function catTxtDraw(){for(let i=CAT_TXT.length-1;i>=0;i--){const q=CAT_TXT[i];q.t+=FXDT||.016;if(q.t>1.8){CAT_TXT.splice(i,1);continue}if(q.t<0)continue;cx.globalAlpha=Math.min(.85,(1.8-q.t),q.t*3);cx.font='bold 8px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#fff';const yy=q.y-q.t*9+Math.sin(q.t*3+q.x)*1.2;cx.strokeText(q.txt,q.x+Math.sin(q.t*2)*2,yy);cx.fillStyle='#e890b0';cx.fillText(q.txt,q.x+Math.sin(q.t*2)*2,yy);cx.globalAlpha=1}}
 function catBubble(a,img){if(!a.say)return;const t=a.say.txt;cx.font='bold 7px sans-serif';const w=cx.measureText(t).width+8,x=Math.round(a.x-w/2),y=Math.round(a.y-img.height-(a.boat?6:0)-31);cx.globalAlpha=Math.min(1,a.say.t*3);cx.fillStyle='rgba(255,255,255,.95)';cx.strokeStyle='#d8c8e8';cx.lineWidth=1;cx.beginPath();cx.roundRect?cx.roundRect(x,y,w,11,5):cx.rect(x,y,w,11);cx.fill();cx.stroke();cx.beginPath();cx.moveTo(a.x-2,y+11);cx.lineTo(a.x,y+14);cx.lineTo(a.x+2,y+11);cx.fill();cx.fillStyle='#5a4a7a';cx.textAlign='center';cx.fillText(t,a.x,y+8.5);cx.globalAlpha=1}
 function catBoatDraw(a,img){const c=catBoatCol[a.p.id]||['#c89060','#8a5a30'],bob=Math.sin(wt*3+a.x*.1)*1.2,X=Math.round(a.x),Y=Math.round(a.y+bob),f=a.face<0?-1:1;
   cx.strokeStyle='rgba(255,255,255,.6)';cx.lineWidth=1;for(let i=0;i<2;i++){const o=(wt*8+i*7)%14;cx.beginPath();cx.ellipse(X-f*(6+o),Y+2,3+o*.4,1+o*.1,0,0,6.28);cx.stroke()}
