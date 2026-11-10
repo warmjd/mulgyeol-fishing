@@ -9257,7 +9257,7 @@ function vilClick(t){
 
 /* ========== 은비랜드 (축제 광장): 골드 → 칩 · 슬롯 · 거북이 경주 · 하이로우 · 경품 교환소 ==========
    결과는 서버가 정해요. server.js EB와 같아야 해요 */
-const EB={RATE:10,BUY_DAY:20000,BETS:[10,50,100,500,1000],SYM:['🐟','🐠','🐡','🦑','🐋','⭐'],SLOT3:[5,10,24,60,150,0],SLOT2:[0,.4,.7,1,2,4],
+const EB={RATE:10,BUY_DAY:20000,BETS:[10,50,100,500,1000,5000,10000],SYM:['🐟','🐠','🐡','🦑','🐋','⭐'],SLOT3:[5,10,24,60,150,0],SLOT2:[0,.4,.7,1,2,4],
   RACE_X:[2.6,3.5,5,6.9,10],RACE_N:['느릿이','엉금이','번쩍이','쌩쌩이','로켓이'],RACE_C:['#7cc8a0','#f0b060','#8ab0f0','#e890b0','#b090e0'],
   VIP:[[5000,'브론즈',50],[30000,'실버',200],[150000,'골드',800],[600000,'다이아',2000]],
   SHOP:[['ebwings',80000],['ebsuit',60000],['ebcrown',40000],['t_ebvip',30000],['hc20',20000],['hc21',20000]],
@@ -9279,7 +9279,7 @@ function ebHead(d){const v=d.vip;return'<div class="eb-head"><div><small>내 칩
 function renderEb(){
   const d=EBS.data;if(!d)return;let h=ebHead(d)+rankStrip('eb','🏆 최고 당첨');rankNeed('eb');h+=ebTicker();
   h+='<div class="tabs scroll">'+[['slot','🎰 슬롯 룰렛'],['wheel','🎡 은비 룰렛'],['coin','🎲 칩'],['shop','🎁 경품'],['rank','🏆 기록']].map(t=>'<button class="tab'+(EBS.tab===t[0]?' on':'')+'" data-ebt="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
-  const bets='<div class="fchips">'+EB.BETS.map(b=>'<button class="fchip'+(EBS.bet===b?' on':'')+'" data-ebb="'+b+'"'+(d.c>=b?'':' disabled')+'>'+fmt(b)+'</button>').join('')+'</div>';
+  const bets='<div class="fchips">'+EB.BETS.map(b=>'<button class="fchip'+(EBS.bet===b?' on':'')+'" data-ebb="'+b+'"'+(d.c>=b?'':' disabled')+'>'+(b>=10000?(b/10000)+'만':fmt(b))+'</button>').join('')+'</div>';
   if(EBS.tab==='slot'){const r=EBS.reels;
     h+='<div class="ebslot"><div class="reels">'+r.map(x=>'<span>'+EB.SYM[x]+'</span>').join('')+'</div><div class="eb-res">'+(EBS.last&&EBS.last.reels&&!EBS.busy?(EBS.last.win?(EBS.last.jack?'🎉 잭팟!! ':'')+'+'+fmt(EBS.last.win)+'칩':'꽝'):'&nbsp;')+'</div></div>'+bets+
       '<button class="btn pink big" data-eb="slot"'+(EBS.busy||d.c<EBS.bet?' disabled':'')+'>'+(EBS.busy?'돌아가는 중…':'돌리기 · '+fmt(EBS.bet)+'칩')+'</button>'+
