@@ -1034,6 +1034,8 @@ function onMsg(ws, me, m) {
     case 'cel': { const now = Date.now(); if (now - (me.celT || 0) < 800) break; me.celT = now; const k = String(m.k || ''); if (!['fw', 'big', 'sp', 'pt', 'cf', 'bub', 'bal', 'lan'].includes(k)) break; broadcast({ t: 'cel', k, x: m.x | 0, y: m.y | 0, id: me.id }, ws); break; }
     case 'mar_req': case 'mar_ans': case 'mar_w': case 'mar_go': case 'mar_end': case 'wed_join': case 'wed_msg': case 'wed_list': case 'wed_done': marMsg(ws, me, m); break;
     case 'wf_get': case 'wf_catch': case 'wf_claim': case 'gift_send': case 'gift_list': case 'gift_take': withLock(me.key, async () => socMsg(ws, me, m)).catch(e => console.error('soc', e.message)); break;
+    case 'hs_get': send(ws, { t: 'hs', list: hsPub() }); break;
+    case 'hs_cast': hsCast(ws, me, m); break;
     case 'hpos': { const f = m.f | 0; me.hp_ = f < 0 ? null : { f: Math.min(20, f), x: m.x | 0, y: m.y | 0, at: Date.now() }; broadcast({ t: 'hpos', n: me.name, f: f < 0 ? -1 : Math.min(20, f), x: m.x | 0, y: m.y | 0, lv: m.lv | 0, hp: Math.max(0, m.hp | 0), mh: Math.max(1, m.mh | 0), pg: Math.max(0, Math.min(100, m.pg | 0)), cp: Math.max(0, m.cp | 0), d: ['down', 'up', 'left', 'right'].includes(m.d) ? m.d : 'down', mv: m.mv ? 1 : 0, sw: m.sw ? 1 : 0, wt: cleanText(m.wt, 6) }, ws); break; }   // ⚔️ 같은 사냥터 친구 보기   // ⚔️ 같은 사냥터 친구 보기
     case 'npc_done': withLock(me.key, async () => {   // 👵🍰⛄ NPC 부탁 (3차-5): 단계마다 한 번만
       const s = me.save; if (!s) return; const N = { grand: [3e6, 8e6, 3e7, 't_npc1'], sugar: [5e6, 1e7, 5e7, 't_npc2'], sobok: [5e6, 1.5e7, 8e7, 't_npc3'] }[m.id]; const st = m.st | 0; if (!N || st < 0 || st > 2) return;
@@ -1788,7 +1790,7 @@ async function rpgMsg(ws, me, m) {
   const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); h.inv = Array.isArray(h.inv) ? h.inv : []; const mat = h.mat && typeof h.mat === 'object' ? h.mat : (h.mat = {}); const now = Date.now();
   const out = x => { queueSave(me.key, s); send(ws, Object.assign({ t: 'rpg', hunt: h }, x)); };
   if (m.t === 'fdrop') {   // 🎣 낚시하다 딸려 올라오는 것들
-    if (now - (me.fdT || 0) < 2500) return; me.fdT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), z = m.z | 0, tier = ZT[z] | 0, luk = 1 + Math.min(100, rpgSum(h, (s.hu && s.hu.lv) | 0 || 1).luk) / 100, got = [];
+    if (now - (me.fdT || 0) < 2500) return; me.fdT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), z = m.z | 0, tier = ZT[z] | 0, hsB = hsBoost(me, 'loot') ? 2 : 1, luk = (1 + Math.min(100, rpgSum(h, (s.hu && s.hu.lv) | 0 || 1).luk) / 100) * hsB, got = [];
     const SC = scrMig(h); if (Math.random() < (.07 + r * .015) * luk) { const id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push({ k: 'scr', id }); }
     if (Math.random() < (.02 + r * .008) * luk) { const it = mkItem(tier, rollG([55, 26, 12, 5, 1.6, .35, .05, .006, .0007])); invPut(h, it); got.push({ k: 'item', item: it }); if (it.g >= 7) broadcast({ t: 'news', text: '🌌🌌 ' + me.name + ' 님 낚싯줄에 전설 너머의 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] + '이(가)!!! 마을이 술렁여요' }); else if (it.g >= 4) broadcast({ t: 'news', text: '🎣🎁 ' + me.name + ' 님 낚싯줄에 ' + RPG_GN[it.g] + ' ' + RPG_SN[it.t] + '이(가) 걸려 올라왔어요!' }); }
     if (Math.random() < .002 * luk) { const own = (s.cos && s.cos.own) || [], pool = TRAP_SKINS.concat(TRAP_FLAGS).filter(id => id !== 'tp_bamboo' && id !== 'tf_none' && !own.includes(id)); if (pool.length) { const id = pool[(Math.random() * pool.length) | 0]; giveCos(s, [id]); got.push({ k: 'cos', id }); send(ws, { t: 'cos_got', ids: [id] }); broadcast({ t: 'news', text: '🎣✨ ' + me.name + ' 님이 낚시하다 통발 치장을 건졌어요!' }); } }
@@ -1810,6 +1812,35 @@ async function rpgMsg(ws, me, m) {
 /* ---------- 💒 물결 예식장: 혼인 신고 · 10분 결혼식 · 영원한 방명록 · 반지로 곁에 가기 ---------- */
 const WED_OUT = ['o_tux', 'o_wdress'], RING_IDS = ['ring_silver', 'ring_pearl', 'ring_dia', 'ring_star', 'ring_rainbow'], FAIRY_XY = [65 * 16 + 8, 4 * 16 + 12], WED_LEN = 600000;
 let MARP = null, WLIVE = null;
+
+/* ---------- ✨ 물빛 포인트 (2026-11-10): 낚시터 물 위에 가끔 빛나는 자리 · 모두에게 똑같이 보여요 ----------
+   찌가 포인트(가운데 ±1칸)에 떨어지면 효과: shiny 반짝 ×2 · giant 거대 ×2 · loot 장비·주문서 ×2 · myth 귀한 물고기 · school 입질 빨라요 · legend 전부
+   후보 자리는 지도에서 미리 뽑은 물 칸 (index.html 지도와 같아요) */
+const HS_TILES = [[4,22,1],[6,22,1],[2,23,1],[4,23,1],[6,23,1],[8,23,1],[2,24,1],[4,24,1],[6,24,1],[8,24,1],[2,25,1],[4,25,1],[6,25,1],[8,25,1],[4,26,1],[6,26,1],[32,17,2],[32,18,2],[32,19,2],[31,20,2],[32,20,2],[32,21,2],[32,22,2],[32,23,2],[32,24,2],[32,25,2],[32,26,2],[32,27,2],[54,38,3],[22,40,3],[52,40,3],[24,41,3],[51,41,3],[21,42,3],[43,42,3],[69,42,3],[34,43,3],[56,43,3],[25,44,3],[47,44,3],[14,45,3],[45,45,3],[14,46,3],[69,46,3],[4,50,4],[61,50,4],[22,51,4],[12,52,4],[12,53,4],[19,54,4],[22,55,4],[9,57,4],[13,58,4],[112,59,4],[166,59,4],[112,60,4],[160,60,4],[179,60,4],[115,61,4],[157,61,4],[14,3,5],[18,3,5],[12,4,5],[16,4,5],[20,4,5],[8,5,5],[12,5,5],[16,5,5],[20,5,5],[24,5,5],[10,6,5],[14,6,5],[18,6,5],[22,6,5],[10,7,5],[14,7,5],[9,64,6],[54,64,6],[48,65,6],[40,66,6],[19,67,6],[57,67,6],[58,68,6],[61,69,6],[35,71,6],[31,73,6],[1,76,6],[2,79,6],[1,84,6],[32,87,6],[29,90,6],[39,95,6],[12,101,7],[104,101,7],[153,101,7],[182,101,7],[119,102,7],[171,102,7],[109,103,7],[167,103,7],[111,104,7],[175,104,7],[10,108,7],[6,111,7],[11,113,7],[27,115,7],[9,118,7],[14,122,7],[2,43,8],[7,43,8],[2,44,8],[7,44,8],[2,45,8],[7,45,8],[3,46,8],[4,46,8],[5,46,8],[6,46,8],[4,47,8],[5,47,8],[10,76,9],[11,76,9],[10,77,9],[11,77,9],[24,74,10],[24,75,10],[24,76,10],[24,77,10],[24,78,10],[24,79,10],[24,80,10],[25,81,10],[25,84,10],[25,85,10],[24,86,10],[24,87,10],[24,88,10],[24,89,10],[24,90,10],[24,91,10],[5,93,11],[25,93,11],[29,93,11],[8,94,11],[26,94,11],[8,95,11],[26,95,11],[10,96,11],[14,96,11],[18,96,11],[22,96,11],[9,97,11],[13,97,11],[17,97,11],[21,97,11],[10,98,11],[79,15,12],[169,15,12],[139,31,12],[74,32,12],[77,32,12],[109,32,12],[73,33,12],[76,33,12],[79,33,12],[169,33,12],[75,34,12],[78,34,12],[139,34,12],[74,35,12],[77,35,12],[109,35,12],[41,75,13],[43,75,13],[45,75,13],[39,76,13],[41,76,13],[43,76,13],[45,76,13],[47,76,13],[39,77,13],[41,77,13],[43,77,13],[45,77,13],[47,77,13],[41,78,13],[43,78,13],[45,78,13],[56,72,14],[56,73,14],[56,74,14],[56,75,14],[56,76,14],[57,77,14],[57,78,14],[57,79,14],[57,80,14],[57,81,14],[56,82,14],[56,83,14],[56,85,14],[56,86,14],[56,87,14],[56,88,14],[82,64,15],[66,73,15],[88,75,15],[87,77,15],[68,79,15],[65,81,15],[82,82,15],[83,83,15],[66,85,15],[87,86,15],[69,88,15],[69,90,15],[70,92,15],[56,95,15],[56,96,15],[53,97,15],[117,76,16],[114,77,16],[116,77,16],[118,77,16],[120,77,16],[113,78,16],[115,78,16],[117,78,16],[119,78,16],[121,78,16],[113,79,16],[115,79,16],[117,79,16],[119,79,16],[121,79,16],[114,80,16],[99,64,17],[113,64,17],[127,64,17],[104,65,17],[97,66,17],[135,66,17],[95,68,17],[97,69,17],[139,70,17],[139,72,17],[93,90,17],[137,92,17],[95,94,17],[133,95,17],[134,96,17],[131,97,17],[171,75,18],[168,76,18],[170,76,18],[172,76,18],[174,76,18],[167,77,18],[169,77,18],[171,77,18],[173,77,18],[175,77,18],[167,78,18],[169,78,18],[171,78,18],[173,78,18],[175,78,18],[168,79,18],[149,64,19],[163,64,19],[180,64,19],[154,65,19],[187,65,19],[184,66,19],[185,67,19],[189,68,19],[146,70,19],[144,72,19],[192,89,19],[191,92,19],[149,94,19],[189,95,19],[189,96,19],[185,97,19],[81,42,20],[85,42,20],[78,43,20],[90,43,20],[76,45,20],[74,47,20],[73,48,20],[73,49,20],[95,50,20],[95,52,20],[74,54,20],[75,55,20],[77,57,20],[80,58,20],[81,59,20],[85,59,20]];
+const HS_KINDS = [['shiny', 22], ['giant', 22], ['loot', 22], ['myth', 12], ['school', 20], ['legend', 2]], HS_NAME = { shiny: '✨ 반짝 물결', giant: '🌊 거대한 그림자', loot: '🎁 보물 거품', myth: '🔮 신비한 소용돌이', school: '🐟 물고기 떼', legend: '🌈 전설의 포인트' }, HS_USES = 6;
+let HS = [], hsSeq = 1;
+const hsPub = () => HS.map(h => ({ id: h.id, x: h.x, y: h.y, z: h.z, k: h.k, until: h.until }));
+function hsTick() {
+  const now = Date.now(), before = HS.length; HS = HS.filter(h => h.until > now); let ch = HS.length !== before;
+  const want = 3 + (players.size >= 6 ? 1 : 0);
+  while (HS.length < want) {
+    let t = null; for (let k = 0; k < 30; k++) { const c = HS_TILES[(Math.random() * HS_TILES.length) | 0]; if (!HS.some(h => h.z === c[2] || Math.hypot(h.x - c[0], h.y - c[1]) < 12)) { t = c; break; } } if (!t) break;
+    let r = Math.random() * 100, k = 'school'; for (const [kk, w] of HS_KINDS) { r -= w; if (r <= 0) { k = kk; break; } }
+    const h = { id: hsSeq++, x: t[0], y: t[1], z: t[2], k, until: now + (180 + Math.random() * 120) * 1000, used: {} }; HS.push(h); ch = true;
+    if (k === 'legend') broadcast({ t: 'news', text: '🌈 어딘가 낚시터에 전설의 포인트가 떠올랐어요!! 무지개 기둥을 찾아요' });
+  }
+  if (ch) broadcast({ t: 'hs', list: hsPub() });
+}
+setInterval(hsTick, 15000); setTimeout(hsTick, 2000);
+function hsCast(ws, me, m) {
+  if (m.off) { me.hsOn = null; return; }
+  const h = HS.find(q => q.id === (m.id | 0)), now = Date.now(); if (!h || h.until < now) return send(ws, { t: 'hs_no', text: '포인트가 사라졌어요' });
+  if (Math.max(Math.abs((m.x | 0) - h.x), Math.abs((m.y | 0) - h.y)) > 1) return;
+  const n = h.used[me.key] | 0; if (n >= HS_USES) return send(ws, { t: 'hs_no', text: '이 포인트는 ' + HS_USES + '번 다 썼어요 · 다른 포인트를 찾아봐요' });
+  h.used[me.key] = n + 1; me.hsOn = { k: h.k, until: now + 90000 };
+  send(ws, { t: 'hs_ok', id: h.id, k: h.k, left: HS_USES - n - 1 });
+}
+const hsBoost = (me, k) => !!(me.hsOn && Date.now() < me.hsOn.until && (me.hsOn.k === k || me.hsOn.k === 'legend'));
 const liveByName = n => { for (const [ws, p] of players) if (p.name === n) return [ws, p]; return null; };
 const nearFairy = p => Math.hypot(p.x - FAIRY_XY[0], p.y - FAIRY_XY[1]) < 110;
 const ownRing = s => { const own = (s && s.cos && s.cos.own) || []; return RING_IDS.filter(r => own.includes(r)).pop() || ''; };
@@ -2043,7 +2074,7 @@ function stampMigrate(ws, s) {
 }
 function shinyRoll(ws, me, s, oldSd) {
   const nsd = s.sdex || {}, sh = s.shiny && typeof s.shiny === 'object' ? s.shiny : (s.shiny = {}), got = [], first = [];
-  for (const k in nsd) { const id = +k; if (isGet(id)) continue; let dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); const p = (isMyth(id) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1); while (dn-- > 0) if (Math.random() < p) { if (!(sh[id] | 0)) first.push(id); sh[id] = (sh[id] | 0) + 1; got.push(id); } }
+  for (const k in nsd) { const id = +k; if (isGet(id)) continue; let dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); const p = (isMyth(id) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1); while (dn-- > 0) if (Math.random() < p) { if (!(sh[id] | 0)) first.push(id); sh[id] = (sh[id] | 0) + 1; got.push(id); } }
   if (!got.length) return;
   const b = objOf(s, 'shb'); for (const id of got) b[id] = (b[id] | 0) + 1;
   const tk = first.length ? stampGive(null, s, 'sh', first, 1, '') : 0;
