@@ -140,11 +140,15 @@ ISY_ZR.push(...ISY_ZR2);
 /* 3차-5 축제 5세트 20종 · 제주 8종 · 깊은 물 6종 (819~852) — index.html FEST2 · JEJU_RAW · HID_RAW와 같은 순서 */
 ISY_ZR.push(...[[5, 0], [5, 1], [5, 2], [5, 4], [1, 0], [1, 1], [1, 2], [1, 4], [16, 0], [16, 1], [16, 2], [16, 4], [2, 0], [2, 1], [2, 2], [2, 4], [3, 0], [3, 1], [3, 2], [4, 4], [20, 0], [20, 0], [20, 1], [20, 1], [20, 2], [20, 2], [20, 3], [20, 4], [21, 2], [21, 2], [21, 3], [21, 3], [21, 4], [21, 4]]);
 const isIsy = id => id >= ISY_FIRST && id < ISY_FIRST + ISY_ZR.length;
-const FISH_MAX = ISY_FIRST + ISY_ZR.length;
+/* 🌌 초월 물고기 6종 (853~858): 태초 3 · 무한 2 · 창세 1 — 어느 낚시터에서든 직접 낚을 때 아주 아주 가끔 (index.html ULT_RAW와 같은 순서) */
+const ULT_FIRST = ISY_FIRST + ISY_ZR.length, ULT_G = [6, 6, 6, 7, 7, 8], ULT_PRICE = [5e7, 5e7, 5e7, 2e8, 2e8, 5e8], ULT_GN = { 6: '태초', 7: '무한', 8: '창세' };
+const isUlt = id => id >= ULT_FIRST && id < ULT_FIRST + ULT_G.length;
+const FISH_MAX = ULT_FIRST + ULT_G.length;
 const ZONE_PRICE = [8, 30, 90, 280, 950, 2000, 400, 100, 1200, 1500, 2600, 400, 3000, 3400, 4200, 7000, 8000, 10000, 12000, 3000, 9000], RAR_MULT = [1, 2.2, 5, 20, 120];   // 2026-11-09: 영웅 · 전설 값 올림 (index.html RARITY와 같아요)
 const rarOf = i => i < 8 ? 0 : i < 14 ? 1 : i < 18 ? 2 : i < 19 ? 3 : 4;
 function fishPrice(id) {
   let z, r;
+  if (isUlt(id)) return ULT_PRICE[id - ULT_FIRST];
   if (id < 100) { z = Math.floor(id / 20); r = rarOf(id % 20); }
   else if (id < FISH_N) { z = Math.floor((id - 100) / 20); r = rarOf((id - 100) % 20); }
   else if (isGet(id)) { z = GET_ZR[id - GET_FIRST][0] - 1; r = GET_ZR[id - GET_FIRST][1]; }
@@ -1087,7 +1091,7 @@ function onMsg(ws, me, m) {
       if (got.some(x => x.startsWith('t_'))) send(ws, { t: 'cos_got', ids: got.filter(x => x.startsWith('t_')) });
       h.dr = (h.dr | 0) + Math.round([1, 1, 2, 3, 5][r] * (bo ? 10 : el ? 2 : 1) * (1 + Math.min(200, RS.dr * 2) / 100));
       let item = null; if (Math.random() < (bo ? 1 : el ? .3 : .05 + r * .02) * (1 + Math.min(100, RS.luk) / 100) * pb) { const gw = tier >= 10 ? (bo ? [0, 10, 35, 30, 19, 5, 1, .12, .015] : [20, 35, 25, 13, 6, .9, .1, .004, .0004]) : bo ? [10, 30, 35, 18, 6.7, .3, 0, .01, 0] : [60, 25, 10, 4, .95, .05, 0, 0, 0];
-        item = mkItem(tier, rollG(gw)); invPut(h, item); if (item.g >= 4) broadcast({ t: 'news', text: '🎁 ' + me.name + ' 님이 꿈방울에서 ' + RPG_GN[item.g] + ' ' + RPG_SN[item.t] + '을(를) 주웠어요!' }); }
+        item = mkItem(tier, rollG(gw)); invPut(h, item); if (item.g >= 4) broadcast({ t: 'big', g: item.g, text: (item.g >= 6 ? '🌌🌌 ' : '🎁 ') + me.name + ' 님이 사냥터에서 【' + RPG_GN[item.g] + '】 ' + RPG_SN[item.t] + '을(를) 주웠어요!' }); }
       queueSave(me.key, s); send(ws, { t: 'hunt', hunt: h, c: e.c, gain: c, drop: got, item, pt });
     }); break;
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
@@ -1684,14 +1688,13 @@ function ebMsg(ws, me, m) {
     if (m.t === 'eb_slot') {
       ebJP += bet * EB.JP_CUT; vMark(); const r = [ebPick(EB.SLOT_W), ebPick(EB.SLOT_W), ebPick(EB.SLOT_W)];
       if (r[0] === r[1] && r[1] === r[2]) {
-        if (r[0] === 5) { win = Math.floor(ebJP * Math.min(1, bet / 500)); ebJP = Math.max(EB.JP_BASE, ebJP - win); extra.jack = true; const got = giveCos(s, ['t_jackpot']); if (got.length) send(ws, { t: 'cos_got', ids: got }); broadcast({ t: 'news', text: '🎰 잭팟!! ' + me.name + ' 님이 은비랜드에서 ' + fmtN(win) + '칩을 터뜨렸어요!' }); }
+        if (r[0] === 5) { win = Math.floor(ebJP * Math.min(1, bet / 500)); ebJP = Math.max(EB.JP_BASE, ebJP - win); extra.jack = true; const got = giveCos(s, ['t_jackpot']); if (got.length) send(ws, { t: 'cos_got', ids: got }); broadcast({ t: 'big', g: 9, text: '🎰 잭팟!! ' + me.name + ' 님이 은비랜드에서 ' + fmtN(win) + '칩을 터뜨렸어요!' }); }
         else win = Math.floor(bet * EB.SLOT3[r[0]]);
       } else { const c = {}; r.forEach(x => c[x] = (c[x] | 0) + 1); for (const x in c) if (c[x] === 2) win = Math.floor(bet * EB.SLOT2[x]); }
       extra.reels = r;
     } else if (m.t === 'eb_egg') {
       let r = Math.random(), k = 0; for (let i = 6; i >= 1; i--) { r -= EB.EGG_P[i]; if (r < 0) { k = i; break; } }
       win = Math.floor(bet * EB.EGG_X[k]); extra.egg = k;
-      if (k >= 5) { broadcast({ t: 'news', text: (k === 6 ? '🐲🌈 ' : '🦄✨ ') + me.name + ' 님의 알에서 「' + EB.EGG_N[k] + '」가 태어났어요! ×' + EB.EGG_X[k] + ' · +' + fmtN(win) + '칩' }); }
     } else if (m.t === 'eb_wheel') {
       const seg = (Math.random() * EB.WHEEL.length) | 0, col = EB.WHEEL[seg]; if (col === m.pick) win = Math.floor(bet * EB.WHEEL_X[col]); extra.wheel = { seg, pick: m.pick };
       if (col === 'g' && win && bet >= 500) broadcast({ t: 'news', text: '🎡✨ ' + me.name + ' 님이 은비 룰렛 황금 칸을 맞혔어요! +' + fmtN(win) + '칩' });
@@ -1708,7 +1711,8 @@ function ebMsg(ws, me, m) {
     e.loss = (e.loss | 0) + bet - win; const step = Math.floor(Math.max(0, e.loss) / EB_CONS);
     if (step > (e.cons | 0)) { const back = (step - (e.cons | 0)) * EB_CONS / 10; e.cons = step; e.c += back; extra.note = '🐰 은비의 위로 칩 +' + fmtN(back) + ' · 오늘은 운이 조금 없네요'; }
     ebRecord(me.name, m.t.slice(3), bet, win, !!extra.jack);
-    if (win >= 5000 && !extra.jack && !(extra.egg >= 5)) broadcast({ t: 'news', text: '🎰 ' + me.name + ' 님이 은비랜드에서 ' + fmtN(win) + '칩을 땄어요!' }, ws);
+    { const x = bet ? win / bet : 0; if (!extra.jack && x >= 60) { extra.big = 1; broadcast({ t: 'big', g: 9, text: (m.t === 'eb_egg' ? (extra.egg === 6 ? '🐲🌈 ' : '🦄✨ ') + me.name + ' 님의 알에서 「' + EB.EGG_N[extra.egg] + '」가 태어났어요!' : '🎰✨ ' + me.name + ' 님 슬롯 대박!') + ' ×' + Math.round(x) + ' · +' + fmtN(win) + '칩' }); } }
+    if (win >= 5000 && !extra.jack && !extra.big) broadcast({ t: 'news', text: '🎰 ' + me.name + ' 님이 은비랜드에서 ' + fmtN(win) + '칩을 땄어요!' }, ws);
     done(Object.assign(extra, { bet, win }));
   }).catch(er => console.error('eb', er.message));
 }
@@ -1814,7 +1818,7 @@ async function rpgMsg(ws, me, m) {
   if (m.t === 'fdrop') {   // 🎣 낚시하다 딸려 올라오는 것들
     if (now - (me.fdT || 0) < 2500) return; me.fdT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), z = m.z | 0, tier = ZT[z] | 0, hsB = hsBoost(me, 'loot') ? 2 : 1, luk = (1 + Math.min(100, rpgSum(h, (s.hu && s.hu.lv) | 0 || 1).luk) / 100) * hsB, got = [];
     const SC = scrMig(h); if (Math.random() < (.07 + r * .015) * luk) { const id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push({ k: 'scr', id }); }
-    if (Math.random() < (.02 + r * .008) * luk) { const it = mkItem(tier, rollG([55, 26, 12, 5, 1.6, .35, .05, .006, .0007])); invPut(h, it); got.push({ k: 'item', item: it }); if (it.g >= 7) broadcast({ t: 'news', text: '🌌🌌 ' + me.name + ' 님 낚싯줄에 전설 너머의 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] + '이(가)!!! 마을이 술렁여요' }); else if (it.g >= 4) broadcast({ t: 'news', text: '🎣🎁 ' + me.name + ' 님 낚싯줄에 ' + RPG_GN[it.g] + ' ' + RPG_SN[it.t] + '이(가) 걸려 올라왔어요!' }); }
+    if (Math.random() < (.02 + r * .008) * luk) { const it = mkItem(tier, rollG([55, 26, 12, 5, 1.6, .35, .05, .006, .0007])); invPut(h, it); got.push({ k: 'item', item: it }); if (it.g >= 4) broadcast({ t: 'big', g: it.g, text: (it.g >= 6 ? '🌌🌌 ' : '🎣🎁 ') + me.name + ' 님 낚싯줄에 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] + '이(가) 걸려 올라왔어요!' }); }
     if (Math.random() < .002 * luk) { const own = (s.cos && s.cos.own) || [], pool = TRAP_SKINS.concat(TRAP_FLAGS).filter(id => id !== 'tp_bamboo' && id !== 'tf_none' && !own.includes(id)); if (pool.length) { const id = pool[(Math.random() * pool.length) | 0]; giveCos(s, [id]); got.push({ k: 'cos', id }); send(ws, { t: 'cos_got', ids: [id] }); broadcast({ t: 'news', text: '🎣✨ ' + me.name + ' 님이 낚시하다 통발 치장을 건졌어요!' }); } }
     if (!got.length) return; return out({ fd: got });
   }
@@ -1901,7 +1905,7 @@ function raidEnd(R) {
 function raidClaim(ws, me) {
   const R = raidState(), p = R.pend[me.key]; if (!p) return; delete R.pend[me.key]; vMark();
   withLock(me.key, async () => { const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); h.inv = Array.isArray(h.inv) ? h.inv : []; const e = ebOf(s), lv = Math.max(1, (s.hu && s.hu.lv) | 0);
-    e.c = (e.c | 0) + p.c; let it = null; if (p.item) { it = mkItem(Math.min(10, Math.max(1, Math.floor(lv / 4))), rollG([0, 5, 20, 35, 28, 9, 3, .3, .04])); invPut(h, it); }
+    e.c = (e.c | 0) + p.c; let it = null; if (p.item) { it = mkItem(Math.min(10, Math.max(1, Math.floor(lv / 4))), rollG([0, 5, 20, 35, 28, 9, 3, .3, .04])); invPut(h, it); if (it.g >= 4) broadcast({ t: 'big', g: it.g, text: (it.g >= 6 ? '🌌🌌 ' : '🌅 ') + me.name + ' 님이 레이드 보상으로 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] + '을(를) 받았어요!' }); }
     const SC = scrMig(h); SC.w10 = (SC.w10 | 0) + 1; if (p.scr > 1) SC.a10 = (SC.a10 | 0) + 1; if (p.ti) giveCos(s, ['t_raid1']); queueSave(me.key, s);
     send(ws, { t: 'hunt', hunt: h, c: e.c, note: '🌅 레이드 보상 (기여 ' + p.sh + '%) · 칩 ' + p.c.toLocaleString() + (it ? ' · 【' + RPG_GN[it.g] + '】 장비' : '') + ' · 10% 주문서 ' + p.scr + '장' + (p.ti ? ' · 칭호 「악몽을 끝낸 자」' : '') });
   }).catch(e => console.error('raid', e.message));
@@ -2104,7 +2108,7 @@ function vilMsg(ws, me, m) {
   if (m.t === 'vf_put') return withLock(me.key, async () => {
     const s = me.save, g = Math.floor(Number(m.g) || 0); if (!s || !V || g < 10000) return;
     if (vSt() >= VF.length) return err('모든 시설을 다 지었어요!'); if (!hasKey(s, 'g', g)) return err('골드가 모자라요');
-    await changeBag(me.key, { g: -g }, null); V.fund.g += g; V.don[me.name] = (V.don[me.name] || 0) + g;
+    await changeBag(me.key, { g: -g }, null); V.fund.g += g; const dTop0 = (Object.entries(V.don).sort((a, b) => b[1] - a[1])[0] || [])[0]; V.don[me.name] = (V.don[me.name] || 0) + g; if (dTop0 !== me.name && Object.entries(V.don).sort((a, b) => b[1] - a[1])[0][0] === me.name) broadcast({ t: 'news', text: '💗 ' + me.name + ' 님이 마을에 가장 많이 기부한 사람이 됐어요! (' + fmtN(V.don[me.name]) + ' 골드)' });
     const tot = V.don[me.name], ti = []; if (tot >= 1e6) ti.push('t_vf1'); if (tot >= 1e7) ti.push('t_vf2'); if (ti.length) { const got = giveCos(s, ti); if (got.length) send(ws, { t: 'cos_got', ids: got }); }
     while (vSt() < VF.length && V.fund.g >= VF[vSt()].g) { V.fund.g -= VF[vSt()].g; V.fund.st++; const f = VF[V.fund.st - 1]; broadcast({ t: 'news', text: '🏗️ 마을 발전 기금으로 축제 광장에 「' + f.name + '」이(가) 생겼어요! ' + f.eff }); }
     if (vSt() >= VF.length) V.fund.g = 0;
@@ -2196,7 +2200,11 @@ function mythCheck(me, s, oldSd) {
   const nsd = s.sdex || {};
   for (let i = 0; i < MYTH_Z.length; i++) { const id = MYTH_FIRST + i; if ((nsd[id] | 0) > (oldSd[id] | 0)) {
     const first = V && !(V.myth && V.myth[id]); if (V && first) { V.myth = V.myth || {}; V.myth[id] = me.name; vMark(); }
-    giveCos(s, ['t_myth']); broadcast({ t: 'myth_news', who: me.name, id, first });
+    giveCos(s, ['t_myth']); broadcast({ t: 'myth_news', who: me.name, id, first, g: 5, price: MYTH_PRICE[i] });
+  } }
+  for (let i = 0; i < ULT_G.length; i++) { const id = ULT_FIRST + i; if ((nsd[id] | 0) > (oldSd[id] | 0)) {
+    const first = V && !(V.myth && V.myth[id]); if (V && first) { V.myth = V.myth || {}; V.myth[id] = me.name; vMark(); }
+    giveCos(s, ['t_myth']); broadcast({ t: 'myth_news', who: me.name, id, first, g: ULT_G[i], price: ULT_PRICE[i] });
   } }
 }
 /* 마을 기록: 물고기마다 마을에서 가장 큰 기록 (도감 최대 크기) */
@@ -2626,7 +2634,7 @@ function xKingCheck(f, init) {
   xKing[f] = { key: best.key, name: best.name, n: best.n, since: Date.now() };
   if (!init && rosterCache.size > 1) broadcast({ t: 'news', text: XK_NAME[f][0] + ' 탄생! ' + best.name + ' 님 (' + (f === 'hl' ? '전투력 ' + best.n : best.n + XK_NAME[f][1]) + ')' });
 }
-const xKingPub = () => { const o = {}; { const eb = Object.entries((V && V.ebTop) || {}).sort((a, b) => b[1] - a[1])[0]; o.eb = eb && eb[1] > 0 ? { name: eb[0], n: eb[1] } : null; } for (const f of ['gt', 'sh', 'hl']) { xKingCheck(f, !xKingCheck.ready); const k = xKing[f]; o[f] = k ? { name: k.name, n: k.n } : null; } xKingCheck.ready = 1; return o; };
+const xKingPub = () => { const o = {}; { const eb = Object.entries((V && V.ebTop) || {}).sort((a, b) => b[1] - a[1])[0]; o.eb = eb && eb[1] > 0 ? { name: eb[0], n: eb[1] } : null; } { const d = Object.entries((V && V.don) || {}).sort((a, b) => b[1] - a[1])[0]; o.don = d && d[1] > 0 ? { name: d[0], n: d[1] } : null; } for (const f of ['gt', 'sh', 'hl']) { xKingCheck(f, !xKingCheck.ready); const k = xKing[f]; o[f] = k ? { name: k.name, n: k.n } : null; } xKingCheck.ready = 1; return o; };
 /* 🎣 하루 낚시왕 (2026-11-09): 오늘 직접 낚은 마릿수 · 반짝 50마리 · 신화 100마리로 쳐요 · 한국 자정에 1등에게 1천만 골드 */
 const DAYK_G = 10000000;
 function dayPts(me, s, oldSd) { const nsd = s.sdex || {}; let pts = 0; for (const k in nsd) { const dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (dn) pts += dn * (isMyth(+k) ? 100 : 1); } return pts; }
