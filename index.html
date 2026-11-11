@@ -3028,7 +3028,6 @@ function genWorld(){
   /* 3차-5 제주 이벤트 섬 (마을 동쪽 먼바다) · 숨은 깊은 물 (달빛 호수 한가운데) */
   for(let y=40;y<63;y++)for(let x=72;x<98;x++){const dx=(x+.5-85)/9,dy=(y+.5-51)/7,d=dx*dx+dy*dy;if(d<=1){T[y][x]=d>.72?'s':'g';Z[y][x]=0}else if(d<=2.2&&T[y][x]==='w')Z[y][x]=20}
   for(let x=72;x<=76;x++)for(const y of[51,52]){T[y][x]='k';Z[y][x]=0}
-  for(let y=4;y<=7;y++)for(let x=14;x<=20;x++)if(T[y][x]==='w'&&Math.abs(x-17)<=2&&Math.abs(y-5.5)<=1.5)Z[y][x]=21;
   /* 3차-3 달콤섬 (동쪽) · 소복섬 (더 동쪽): 고래 만 부두에서 배로 가요 */
   for(let y=63;y<100;y++)for(let x=92;x<142;x++)if(T[y][x]==='w'&&Z[y][x]===6)Z[y][x]=17;
   for(let y=63;y<100;y++)for(let x=142;x<MW;x++)if(T[y][x]==='w'&&Z[y][x]===6)Z[y][x]=19;
@@ -3048,6 +3047,8 @@ function genWorld(){
   for(let y=41;y<=48;y++)for(let x=0;x<=9;x++)if(T[y][x]==='w'&&Math.hypot(x-4.5,y-44)<4.6)Z[y][x]=8;
   /* 달빛 호수 */
   for(let y=0;y<15;y++)for(let x=0;x<MW;x++){const dx=(x+.5-17)/11,dy=(y+.5-6)/3.7;if(dx*dx+dy*dy<=1){T[y][x]='w';Z[y][x]=5}}
+  /* 숨은 깊은 물: 달빛 호수를 그린 뒤에 표시해야 덮이지 않아요 (2026-11-11 버그 수정) */
+  for(let y=4;y<=7;y++)for(let x=14;x<=20;x++)if(T[y][x]==='w'&&Math.abs(x-17)<=2&&Math.abs(y-5.5)<=1.5)Z[y][x]=21;
   /* 연못 */
   for(let y=16;y<31;y++)for(let x=0;x<MW;x++){const dx=(x+.5-6)/5.3,dy=(y+.5-24.5)/3.8;if(dx*dx+dy*dy<=1){T[y][x]='w';Z[y][x]=1}}
   /* 시냇물 */
