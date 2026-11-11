@@ -366,7 +366,7 @@ input.tin:focus{outline:3px solid var(--lav);outline-offset:1px}
 .nrow.on{border-color:var(--mint);background:#f3fbf8}
 #wallet{position:fixed;right:max(12px,env(safe-area-inset-right,0px));top:calc(54px + env(safe-area-inset-top,0px));z-index:5;font:inherit;font-size:12.5px;line-height:1;padding:6px 10px;border:2px solid var(--line);background:rgba(255,250,242,.94);border-radius:999px;color:var(--ink);box-shadow:0 2px 0 rgba(120,100,170,.15);cursor:pointer}
 #wallet b{font-weight:700}#wallet i{font-style:normal;display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff7aa0;margin-left:4px;vertical-align:1px}
-#itpill{position:fixed;left:max(12px,env(safe-area-inset-left,0px));top:calc(54px + env(safe-area-inset-top,0px));z-index:5;font-size:14px;pointer-events:none}
+#itpill{position:fixed;left:max(12px,env(safe-area-inset-left,0px));top:calc(54px + env(safe-area-inset-top,0px));z-index:5;font-size:13px;pointer-events:auto;cursor:pointer;font-weight:700;border:2px solid #ffb0cc}#itpill.none{opacity:.85;border-style:dashed;font-weight:400}
 /* 동물 친구 2단계: 산책 · 짝꿍 · 펫 레벨 */
 #walkbar{position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:rgba(255,250,242,.95);border:2px solid #f0c8da;border-radius:999px;padding:5px 14px;font-size:13px;z-index:5;pointer-events:none;white-space:nowrap;box-shadow:0 2px 0 rgba(120,100,170,.15)}
 .pbadge{display:inline-block;background:var(--pink);color:#6b2a45;border-radius:999px;padding:0 7px;font-size:11px;font-weight:400;vertical-align:2px}
@@ -544,7 +544,7 @@ details.more summary::-webkit-details-marker{display:none}
 <div id="ticker"></div><div id="socbox"></div>
 <div id="mmap" hidden><canvas id="mmc" width="112" height="80"></canvas><button id="mmX" aria-label="미니맵 끄기">✕</button></div><button id="mmTog" hidden>지도</button>
 <div id="walkbar" hidden></div>
-<div class="pill" id="itpill" hidden></div>
+<div class="pill" id="itpill" hidden onclick="openBaitPick()"></div>
 <button id="wallet" hidden aria-label="내 재화 · 오늘"></button>
 <div id="ptbar" hidden></div>
 <button id="trapbtn" hidden></button>
@@ -4525,7 +4525,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y);
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1111m',UPD_LOG=[
+const UPD_VER='1111n',UPD_LOG=[
+ ['11/11 밤','🪱',[['🪱 미끼 끼우기가 쉬워졌어요','화면 왼쪽 위 미끼 버튼을 누르면 가진 미끼가 한눈에 · 바로 끼우기 · 미끼 사러 가기'],['사면 바로 끼워져요','끼운 미끼가 없을 때 상점에서 사면 자동으로 끼워요 · 다 쓰면 알려 줘요']]],
  ['11/11 밤','🍾',[['낚시 중 유리병 편지 없앰','낚시할 때 모르는 사람의 편지가 더 이상 걸려 오지 않아요']]],
  ['11/11 밤','🪱',[['🪱 물결 상점 미끼 8종','물결 상점 → 💎 미끼 탭 · 던질 때 1개씩 · 한 번에 한 종류'],['🌟 상점 전설 40만 · 🌌 신화 50만','전설 대폭↑ · 신화 확률 3배'],['💎 반짝 100만 · 👑 월척 50만','반짝 3배 · 월척 2배 (최대 60%)'],['📜 주문서 20만 · ⚔️ 장비 30만','낚시하다 딸려 오는 주문서 · 장비 3배'],['🌠 보물 150만 · 🌌 초월 200만','레전더리 이상 낚싯대·찌 5배 · 초월 물고기 3배 · 꿈을 사는 미끼']]],
  ['11/11 밤','🌠',[['✨ 전설 너머 낚싯대 10종 · 찌 6종','레전더리 → 미스틱 → 태초 → 무한 → 창세 · 물 · 불 · 바람 · 얼음 · 달 · 심해 · 우주'],['낚았을 때 고유 연출','해일 · 불꽃놀이 · 화산 분출 · 회오리 · 빙하 · 보름달과 달토끼 · 크라켄 촉수 · 블랙홀 · 무지개 용 · 창세의 빛'],['▶ 효과 보기','치장 상점 → 💎 낚싯대·찌 · 카드마다 효과 설명 · 누르면 내 캐릭터 앞에서 미리 보여 줘요'],['🌠 아주 아주 가끔 줍기','직접 낚을 때 · 사냥할 때 레전더리 이상 낚싯대 · 찌가 나올 수 있어요 (안 가진 것만) · 나오면 마을 모두에게 알려요'],['가장 비싼 건','창세의 낚싯대 15억 · 창세의 알 찌 10억']]],
@@ -5875,7 +5876,7 @@ function useItem(id){
 /* 미끼: 던질 때 1개 써요 (걸어두기는 미끼를 쓰지 않아요) */
 function castBait(){F.bait=null;F.baitBy=null;if(F.afk)return;const b=S.bait;if(b&&itN(b)>0){F.bait=b;F.baitId=b;
     if(S.enh.lv>=20&&/^b_legend/.test(b)&&S.lbFree){S.lbFree=0;toast('✨ +20 낚싯대: 전설 미끼를 한 번 더 썼어요 (안 줄어요)');return}
-    itAdd(b,-1);if(S.enh.lv>=20&&/^b_legend/.test(b))S.lbFree=1;const q=S.mk&&S.mk[b];if(Array.isArray(q)&&q.length)F.baitBy=q.shift()}}   // 친구가 만든 미끼면 그 이름을 기억해요
+    itAdd(b,-1);if(!itN(b))setTimeout(()=>toast('🪱 '+ITEMS[b].n+'를 다 썼어요 · 왼쪽 위 미끼 버튼에서 다시 골라요'),1200);if(S.enh.lv>=20&&/^b_legend/.test(b))S.lbFree=1;const q=S.mk&&S.mk[b];if(Array.isArray(q)&&q.length)F.baitBy=q.shift()}}   // 친구가 만든 미끼면 그 이름을 기억해요
 const KH=()=>new Date(Date.now()+9*3600e3).getUTCHours();
 const dayNum=()=>Math.floor((Date.now()+9*3600e3)/864e5);
 /* 오늘의 대박 시간 · 전설 시간: 날짜로 정해져서 모두에게 같아요. 도감 박사만 미리 볼 수 있어요 */
@@ -6110,7 +6111,16 @@ function renderCraft(){
   body().innerHTML=h;
 }
 function updateItemHud(){const el=$('itpill');if(!el)return;const b=S.bait&&itN(S.bait)>0?S.bait:null,bf=Object.keys(buffS()).filter(buffOn);
-  const t=(b?ITEMS[b].ic+'×'+itN(b):'')+(bf.length?' '+bf.map(k=>ITEMS[k].ic).join(''):'');el.hidden=!t;if(el.textContent!==t)el.textContent=t}
+  const t=(b?ITEMS[b].ic+' '+ITEMS[b].n.replace(/ 미끼$/,'')+' ×'+itN(b):'🪱 미끼 끼우기')+(bf.length?' '+bf.map(k=>ITEMS[k].ic).join(''):'');el.hidden=false;el.classList.toggle('none',!b);if(el.textContent!==t)el.textContent=t}
+/* 🪱 미끼 고르기 (2026-11-11): 화면 왼쪽 위 미끼 버튼 → 가진 미끼를 한눈에 · 바로 끼우기 · 상점 미끼 탭으로 */
+function openBaitPick(){Snd.sfx('ui');const ids=ITEM_IDS.filter(k=>ITEMS[k].bait&&itN(k)>0);
+  let h='<div class="muted" style="text-align:center;margin-bottom:8px">끼운 미끼는 던질 때마다 1개씩 써요 · 걸어두기엔 안 써요</div>';
+  h+=ids.length?ids.map(k=>{const I=ITEMS[k],on=S.bait===k;return'<div class="row'+(on?' on':'')+'" style="'+(on?'background:#fff0f6;border-radius:12px':'')+'"><span style="font-size:24px;width:32px;text-align:center">'+I.ic+'</span><div class="nm"><div><b>'+esc(I.n)+'</b> <span class="muted" style="font-size:12px">'+itN(k)+'개</span></div><div class="muted" style="font-size:12px">'+esc(I.d)+'</div></div><div class="go"><button class="btn sm '+(on?'pink':'mint')+'" data-bpk="'+k+'">'+(on?'끼움 ✓':'끼우기')+'</button></div></div>'}).join('')
+    :'<p class="note" style="text-align:center">가진 미끼가 없어요</p>';
+  h+='<div class="fg-btns">'+(S.bait?'<button class="btn ghost" data-bpk="_off">미끼 빼기</button>':'')+'<button class="btn pink" data-bpk="_shop">🛒 미끼 사러 가기</button></div>';
+  openSheet('🪱 미끼 고르기',h)}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-bpk]');if(!t)return;const k=t.dataset.bpk;Snd.sfx('tap');
+  if(k==='_shop'){closeSheet();shopTab='bait';openShop();return}if(k==='_off'){S.bait=null;toast('미끼를 뺐어요')}else{S.bait=k;toast(ITEMS[k].ic+' '+ITEMS[k].n+'를 끼웠어요 · 던질 때마다 1개')}saveState();updateItemHud();openBaitPick()});
 setInterval(()=>{updateItemHud();if(S.buff&&Object.keys(S.buff).some(k=>S.buff[k]&&S.buff[k]<Date.now()&&S.buff[k]>Date.now()-1100))recalc()},1000);
 
 /* ----- 위탁 판매 (온라인): 맡긴 물고기는 서버가 들고 있다가, 상인이 팔면 골드가 들어와요 ----- */
@@ -8239,7 +8249,7 @@ $('sheetbody').addEventListener('click',e=>{
   if((t.dataset.aq||t.dataset.aqv||t.dataset.aqp)&&aqClick(t))return;
   if(t.dataset.pt2){const m=pm();m.pt2=t.dataset.pt2;saveState(true);toast(petName(m.pt2)+'가 두 번째 짝꿍이 됐어요!');openPetSheet(m.pt2);return}
   if(t.dataset.tab){shopTab=t.dataset.tab;Snd.sfx('tap');renderShop();return}
-  if(t.dataset.bbuy){const [k,qs]=t.dataset.bbuy.split(':'),q=+qs,pr=(BAIT_SHOP.find(b=>b[0]===k)||[0,0])[1]*q,go=()=>{Net.flushSave&&Net.flushSave(true);Net.send({t:'bait_buy',id:k,n:q});setTimeout(()=>{if($('sheettitle').textContent==='물결 상점')renderShop()},900)};if(!ONLINE){toast('온라인에서 살 수 있어요');return}if(pr>=ASK_MIN)askConfirm(ITEMS[k].ic+' '+ITEMS[k].n+' '+q+'개 살까요?',askPrice(pr),'살게요',go);else go();return}
+  if(t.dataset.bbuy){const [k,qs]=t.dataset.bbuy.split(':'),q=+qs,pr=(BAIT_SHOP.find(b=>b[0]===k)||[0,0])[1]*q,go=()=>{Net.flushSave&&Net.flushSave(true);Net.send({t:'bait_buy',id:k,n:q});if(!S.bait||!itN(S.bait)){S.bait=k;setTimeout(()=>toast(ITEMS[k].ic+' '+ITEMS[k].n+'를 바로 끼웠어요 · 왼쪽 위 미끼 버튼에서 바꿔요'),700)}setTimeout(()=>{if($('sheettitle').textContent==='물결 상점')renderShop()},900)};if(!ONLINE){toast('온라인에서 살 수 있어요');return}if(pr>=ASK_MIN)askConfirm(ITEMS[k].ic+' '+ITEMS[k].n+' '+q+'개 살까요?',askPrice(pr),'살게요',go);else go();return}
   if(t.dataset.sell!==undefined){const id=+t.dataset.sell,f=FISH[id],first=!soldKnown(id),p=sell(id,1);if(p){soldMark(id);Snd.sfx('coin');saveState();renderShop();sellWow(f,p,first)}return}
   if(t.dataset.sellall){const res=reservedMats();let p=0,nw=0,top=null;Object.keys(S.inv).forEach(k=>{const q=(S.inv[k]||0)-(res[k]||0);if(q<=0)return;if(!soldKnown(+k))nw++;const f=FISH[k];if(!top||(f.myth?9:f.rar)>(top.myth?9:top.rar))top=f;p+=sell(+k,q);soldMark(+k)});if(p){Snd.sfx('buy');saveState();renderShop();coinRain(p);showBanner('💰 다 팔았어요! +'+fmt(p)+' 골드'+(nw?' · 처음 판 물고기 '+nw+'종':''))}return}
   if(t.dataset.up){upgrade(t.dataset.up);return}
