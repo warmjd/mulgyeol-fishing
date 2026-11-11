@@ -209,7 +209,7 @@ const ENH_TITLE_NEED = { t_enh10: 10, t_enh15: 15, t_enh20: 20, t_enh25: 25, t_e
 LOOK_IDS.rod.push('r_music', 'r_cat', 'r_choco', 'r_jelly', 'r_snowflake', 'r_whale', 'r_phoenix', 'r_starlight');
 LOOK_IDS.rod.push('rx_tide', 'rx_firework', 'rx_volcano', 'rx_typhoon', 'rx_glacier', 'rx_moon', 'rx_kraken', 'rx_blackhole', 'rx_rbdragon', 'rx_genesis'); LOOK_IDS.bob.push('bx_flame', 'bx_frost', 'bx_wind', 'bx_moonbun', 'bx_galaxy2', 'bx_egg');
 LOOK_IDS.o.push('o_tux', 'o_wdress', 'o_warrior', 'o_hero', 'o_paladin', 'o_skyexp'); LOOK_IDS.hat.push('h_warhorn', 'h_herocirc', 'h_paladin', 'h_skygog'); LOOK_IDS.bk.push('k_warfur', 'k_hero', 'k_paladin', 'k_scout', 'k_gsword', 'k_shield'); LOOK_IDS.fa.push('f_warpaint', 'f_scar'); LOOK_IDS.ti.push('t_warrior', 't_hero', 't_paladin');
-LOOK_IDS.ti.push('t_islfish', 't_islbest', 't_pole', 't_pila', 't_gym', 't_ortho', 't_rock');
+LOOK_IDS.ti.push('t_pioneer', 't_islfish', 't_islbest', 't_pole', 't_pila', 't_gym', 't_ortho', 't_rock');
 LOOK_IDS.hat.push('neonband', 'sweatband', 'bandage', 'climbhelm'); LOOK_IDS.o.push('o_polefit', 'o_pilafit', 'o_gymtank', 'o_doccoat'); LOOK_IDS.bk.push('yogamat', 'chalkbag');
 LOOK_IDS.o.push('o_moondress', 'o_sakura', 'o_darkarmor', 'o_hunter'); LOOK_IDS.hat.push('h_moonpin', 'h_sakura', 'h_darkhelm', 'h_hunterhood'); LOOK_IDS.bk.push('k_moonwing', 'k_bigribbon', 'k_darkcape', 'k_axe', 'k_quiver'); LOOK_IDS.fa.push('f_glitter', 'f_blush'); LOOK_IDS.ti.push('t_raid1'); LOOK_IDS.ti.push('t_moonfairy', 't_sakura', 't_darkknight', 't_hunter'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
 LOOK_IDS.ti.push('t_enh25', 't_enh30', ...['fish', 'sch', 'cra', 'tam', 'mer'].flatMap(j => [4, 5, 6].map(r => 't_j' + j + r)));
@@ -301,7 +301,7 @@ const ENH = {
   S: [1, 1, 2, 3, 4, 6, 9, 13, 18, 24, 16, 20, 25, 31, 38, 61, 72, 84, 98, 114, 130, 150, 170, 190, 215, 240, 270, 300, 340, 380],   // 강화 3.0 (2026-11-04): +11부터 별을 줄였어요
   cost: L => (L >= 17 ? Math.round(Math.min(30, 7 * Math.pow(1.5, L - 17)) * ENH.cost0(L) / 1000) * 1000 : ENH.cost0(L)),   // 2026-11-09: +17부터 안전 강화 골드를 크게 (7배 → 최대 30배)
   cost0: L => L < 10 ? Math.round(50 * Math.pow(1.28, L) / 10) * 10 : L < 20 ? Math.round(3000 * Math.pow(1.32, L - 10) / 100) * 100 : Math.round(3000 * Math.pow(1.32, L - 10) * Math.pow(1.4, L - 19) / 1000) * 1000,   // +10부터는 골드를 꽤 써요
-  DAILY: 3, FISH_CAP: 40, FISH_PER: 25, IDLE_MIN: 40, IDLE_CAP: 30,   /* 2026-11-09: 오래 켜 두면 하루 최대 30장 */ PIECE_CAP: 20, PIECE_PER: 5, TK_MAX: 999,
+  DAILY: 3, FISH_CAP: 40, FISH_PER: 25, IDLE_MIN: 40, IDLE_CAP: 30,   /* 2026-11-09: 오래 켜 두면 하루 최대 30장 */ PIECE_CAP: 20, PIECE_PER: 5, TK_MAX: 9999,
   PTS: [1, 2, 5, 15, 40]
 };
 ENH.K = ENH.P.map(p => Math.max(2, Math.round(1.8 / p)));   // 안전: 이만큼 연속 실패하면 다음은 확정
@@ -607,7 +607,7 @@ wss.on('connection', (ws) => {
         if (p.save) { const e = enhOf(p.save), out = []; enhDaily(e, out); enhSession(e, out); { const l0 = e.lv | 0; e.star = e.star | 0; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv); if (e.lv > l0) out.push('🎉 강화 3.0! 모아 둔 별로 +' + l0 + ' → +' + e.lv); } rankSet(key, p.name, e, p.look); sendEnh(ws, p, { note: out }); if (out.length) queueSave(key, p.save); }
         send(ws, { t: 'champ', c: champPub() });
         rosterSet(key, p.name, p.save); rosterSend(true);
-        if (p.save) withLock(key, async () => { stampMigrate(ws, p.save); queueSave(key, p.save); await welcomeBack(ws, p); }).catch(e => console.error('welcome', e.message));
+        if (p.save) withLock(key, async () => { stampMigrate(ws, p.save); queueSave(key, p.save); await welcomeBack(ws, p); cmpOffer(ws, p.save); }).catch(e => console.error('welcome', e.message));
         send(ws, { t: 'pt', p: ptPub(), today: ptToday(p.save) }); if (p.save) send(ws, { t: 'vday', b: vdayOf(p.save).b });
         send(ws, { t: 'ev', list: evList() }); send(ws, vPub()); send(ws, { t: 'traps', list: trapPub() }); send(ws, dkPub()); if (V && V.snowmen) send(ws, { t: 'snowmen', list: Object.values(V.snowmen) }); if (V && Array.isArray(V.lan)) send(ws, { t: 'lans', list: V.lan.filter(l => Date.now() - l.at < 864e5) }); if (p.save) send(ws, { t: 'med', med: medPub(p.save), wkc: p.save.wkc || null, medw: p.save.medw || null }); togCheck();
         if (p.save && Array.isArray(p.save.auh) && p.save.auh.length) withLock(key, () => holdRefund(key)).catch(e => console.error('hold', e.message));
@@ -661,7 +661,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {}, shxUsed = baitUsed(me.save, m.data, 'b_shx'), luxUsed = baitUsed(me.save, m.data, 'b_lux');
@@ -782,6 +782,7 @@ function onMsg(ws, me, m) {
       broadcast({ t: 'news', text: at === 'i' ? '🌫️⛵ ' + me.name + ' 님의 꽃배가 꽃을 싣고 안개 섬으로 떠났어요' : '🏘️⛵ ' + me.name + ' 님의 꽃배가 마을 꽃배 부두로 돌아왔어요' });
       break;
     }
+    case 'cmp_get': cmpGet(ws, me); break;
     case 'rank_get': { const k = String(m.k || ''), r = rankOf(k, me); if (r) send(ws, Object.assign({ t: 'rank', k }, r)); break; }
     case 'trust_buy': withLock(me.key, async () => {
       const s = me.save, id = String(m.id || ''), cost = TRUST_SHOP[id]; if (!s || !cost) return;   // 옛 화면용: 이제 도토리로 사요
@@ -2765,6 +2766,15 @@ function handBonus(ws, me, s, oldSd, e) {
   tk = Math.max(0, Math.min(tk, HB_TK_DAY - (h.t | 0))); h.t = (h.t | 0) + tk; h.g = (h.g || 0) + g; h.n = (h.n | 0) + n;
   if (tk) e.tk = Math.min(ENH.TK_MAX, e.tk + tk); const rev = applyInv(s, { g }); send(ws, { t: 'hb', g, tk, rev, enh: tk ? e : null });
 }
+/* 🙇 자동 낚시 사과 보상 (2026-11-12): 모두에게 반짝 3배 미끼 3개 · 예전 +20 자동 낚시를 못 써 본 친구(+20을 한 번도 못 찍은)에게 골드 3억 · 강화권 1000장 · 반짝 미끼 10개 더 · 칭호 */
+const CMP_END = Date.parse('2026-12-01T00:00:00+09:00');
+const cmpBig = s => ((s.enh && s.enh.max) | 0) < 20 && (((s.stats && s.stats.catches) | 0) >= 200);
+function cmpOffer(ws, s) { if (!s || s.cmp1112 || Date.now() > CMP_END) return; send(ws, { t: 'cmp', big: cmpBig(s) }); }
+function cmpGet(ws, me) { withLock(me.key, async () => { const s = me.save; if (!s || s.cmp1112 || Date.now() > CMP_END) return; const big = cmpBig(s); s.cmp1112 = 1;
+  const delta = big ? { g: 3e8, 'i:b_shx': 13 } : { 'i:b_shx': 3 }, rev = applyInv(s, delta), e = enhOf(s); if (big) e.tk = Math.min(ENH.TK_MAX, e.tk + 1000);
+  const cos = big ? giveCos(s, ['t_pioneer']) : []; queueSave(me.key, s);
+  send(ws, { t: 'delta', d: delta, rev, why: '🙇 사과 선물을 받았어요' + (big ? ' · 강화권 +1000' : '') }); sendEnh(ws, me); if (cos.length) send(ws, { t: 'cos_got', ids: cos });
+}).catch(e => console.error('cmp', e.message)); }
 function dayPts(me, s, oldSd) { const nsd = s.sdex || {}; let pts = 0; for (const k in nsd) { const dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (dn) pts += dn * (isMyth(+k) ? 100 : 1); } pts = Math.round(pts * (1 - .95 * (me.arx || 0))); return pts; }
 function dayAdd(key, name, n) { if (!V || !n) return; const d = kstDay(); if (!V.dk || V.dk.d !== d) { dayClose(); V.dk = { d, p: {} }; } const p = V.dk.p; p[key] = p[key] || { n: 0, name }; p[key].n += n; p[key].name = name; vMark(); dkSoon(); }
 function dayClose() { if (!V || !V.dk || V.dk.paid) return; const arr = Object.entries(V.dk.p).sort((a, b) => b[1].n - a[1].n); V.dk.paid = 1; if (!arr.length || V.dk.d === kstDay()) return; const [k, r] = arr[0];
