@@ -1752,6 +1752,7 @@ function rankOf(k, me) {
   const RV = { sh: r => r.sh | 0, gt: r => r.gt | 0, dex: r => (r.dex || []).length, hunt: r => r.hl | 0, vl: r => r.lv | 0, help: r => r.help | 0 };
   if (RV[k]) return top([...rosterCache.values()].map(r => ({ n: r.name, v: RV[k](r) })).filter(x => x.v > 0));
   if (k === 'enh') return top([...rankCache.values()].map(r => ({ n: r.name, v: r.lv | 0, m: r.max | 0 })).filter(x => x.v > 0));
+  if (k === 'don') return top(Object.entries((V && V.don) || {}).map(([n, v]) => ({ n, v: +v || 0 })).filter(x => x.v > 0));
   if (k === 'eb') return Object.assign(top(Object.entries((V && V.ebTop) || {}).map(([n, v]) => ({ n, v }))), { log: ((V && V.ebLog) || []).slice(0, 10) });
   if (k.startsWith('job:')) { const j = k.slice(4); if (!MAKER_JOBS.includes(j)) return null; return top([...rosterCache.values()].filter(r => r.job === j && (r.jx | 0) > 0).map(r => ({ n: r.name, v: r.jx | 0 }))); }
   return null;

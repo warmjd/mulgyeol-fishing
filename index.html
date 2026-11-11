@@ -3149,9 +3149,9 @@ function genWorld(){
   [[14,24],[20,24],[14,35],[20,35]].forEach(p=>prop('bench',p[0],p[1]));
   prop('litter',15,27); // 고양이 화장실
   // 축제 광장 소품: 가로등 · 벤치 · 행사 게시판
-  [[35,18],[47,18],[36,28],[47,28]].forEach(p=>prop('lamp',p[0],p[1]));[[39,28],[42,28]].forEach(p=>prop('bench',p[0],p[1]));prop('sign',39,19);[[46,24],[46,25]].forEach(p=>prop('barrel',p[0],p[1]));
+  [[35,18],[47,18],[36,28],[47,28]].forEach(p=>prop('lamp',p[0],p[1]));[[39,28],[42,28]].forEach(p=>prop('bench',p[0],p[1]));[[46,24],[46,25]].forEach(p=>prop('barrel',p[0],p[1]));
   [[24,20],[24,19],[10,20]].forEach(p=>prop('barrel',p[0],p[1]));
-  [[13,23],[26,23]].forEach(p=>prop('sign',p[0],p[1]));
+  [[13,23],[26,23]].forEach(p=>prop('sign',p[0],p[1]));prop('evb',21,23);   // 🎪 행사 게시판: 마을 광장 오른쪽 (일꾼 현황판 맞은편)
   /* 바다 쪽 소품 */
   [[3,36],[28,37],[8,37],[24,34]].forEach(p=>{if(T[p[1]][p[0]]==='s')prop('rock',p[0],p[1])});
   [[15,72],[19,72]].forEach(p=>prop('lamp',p[0],p[1]));[[9,76],[26,79],[11,92],[24,90],[7,85]].forEach(p=>{if(T[p[1]][p[0]]==='s')prop('rock',p[0],p[1])});
@@ -3279,7 +3279,7 @@ let ST={};
 
 /* 🏆 어디서든 순위 (2026-11-05): 도감 · 은비랜드 · 강화소 · 직업 · 짧게 한 줄 + 은비랜드 최근 대박 기록 */
 const RANKS={},RANK_REQ={},MEDAL=['🥇','🥈','🥉'],EB_GAME={slot:'🎰 슬롯',wheel:'🎡 은비 룰렛',race:'🐢 경주',hilo:'🃏 하이로우'};
-const rankFmt=(k,v)=>k==='sd'||k==='sh'||k==='gt'||k==='dex'?v+'종':k==='hunt'?'💪'+fmt(v):k==='help'?v+'번':k==='enh'?'+'+v:k==='eb'?fmtK(v)+'칩':k.indexOf('job:')===0?JR[JR.reduce((r,x,i)=>v>=x.x?i:r,0)].n+' '+fmt(v):fmt(v);
+const rankFmt=(k,v)=>k==='sd'||k==='sh'||k==='gt'||k==='dex'?v+'종':k==='hunt'?'💪'+fmt(v):k==='help'?v+'번':k==='enh'?'+'+v:k==='eb'?fmtK(v)+'칩':k==='don'?fmtK(v)+'골드':k.indexOf('job:')===0?JR[JR.reduce((r,x,i)=>v>=x.x?i:r,0)].n+' '+fmt(v):fmt(v);
 function rankNeed(k){if(!ONLINE||!Net.me)return;if(Date.now()-(RANK_REQ[k]||0)>15000){RANK_REQ[k]=Date.now();Net.send({t:'rank_get',k})}}
 function rankStrip(k,title){rankNeed(k);const R=RANKS[k];let h='<div class="rstrip" data-rk="'+k+'" data-t="'+esc(title)+'"><b>'+title+'</b> ';
   if(!ONLINE||!Net.me)return h+'<span class="muted">친구들과 하면 순위가 보여요</span></div>';
@@ -3476,7 +3476,7 @@ function nearAction0(){
   if(Math.abs(tx-26)+Math.abs(ty-23)<=1)return{type:'party',label:'배낚시<br>모집'};
   if(Math.abs(tx-7)+Math.abs(ty-37)<=1)return{type:'market',label:'시세판'};
   if(Math.abs(tx-13)+Math.abs(ty-23)<=1)return{type:'roster',label:'일꾼<br>현황판'};
-  if(Math.abs(tx-39)+Math.abs(ty-20)<=1)return{type:'evboard',label:'행사<br>게시판'};
+  if(Math.abs(tx-21)+Math.abs(ty-23)<=1)return{type:'evboard',label:'행사<br>게시판'};
   if(Math.abs(tx-15)+Math.abs(ty-27)<=1)return{type:'litter',label:litterDirty()?'화장실<br>청소':'화장실'};
   {const rp=nearPet();if(rp&&rp.p.id==='ruby'){if(wishReady())return{type:'wish',label:'냄새<br>맡게 하기'};if(!walkDone())return{type:'walk',label:'산책<br>가자!'}}}
   {const ev=nearEv(false);if(ev)return{type:'ev',ev:ev.id,label:evLabel(ev)}}
@@ -4084,7 +4084,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-celb],[dat
   else if(b.dataset.wedans){const[k,ok]=b.dataset.wedans.split('|');Net.send({t:k,ok:ok==='1'});closeSheet()}});
 
 /* ----- 명예의 전당 ----- */
-let HOF_TAB='sh';const HOF_TABS=[['wf','🏅 주간','주간 낚시 대회'],['sh','✨ 반짝','반짝이 물고기를 모은 종류'],['gt','👑 거대','거대 개체를 낚은 종류'],['dex','📖 도감','물고기 도감 종류'],['sd','🖐️ 손맛','손맛 도감 종류'],['enh','⚒️ 강화','낚싯대 강화 단계'],['hunt','⚔️ 용사','전투력 (레벨 + 장비)'],['help','🤝 도움','마을 의뢰를 도운 횟수'],['eb','🎰 은비랜드','한 번에 딴 칩']];
+let HOF_TAB='sh';const HOF_TABS=[['wf','🏅 주간','주간 낚시 대회'],['sh','✨ 반짝','반짝이 물고기를 모은 종류'],['gt','👑 거대','거대 개체를 낚은 종류'],['dex','📖 도감','물고기 도감 종류'],['sd','🖐️ 손맛','손맛 도감 종류'],['enh','⚒️ 강화','낚싯대 강화 단계'],['hunt','⚔️ 용사','전투력 (레벨 + 장비)'],['help','🤝 도움','마을 의뢰를 도운 횟수'],['eb','🎰 은비랜드','한 번에 딴 칩'],['don','💗 마을 기여','마을 발전 기금에 후원한 금액']];
 let HOF_OPEN_T=0;function openHof(){const st=$('sheettitle');if(!$('sheetwrap').hidden&&st&&/명예의 전당/.test(st.textContent))Snd.sfx('tap');else Snd.sfx('ui');const t=HOF_TABS.find(x=>x[0]===HOF_TAB)||HOF_TABS[0];openSheet('🏆 명예의 전당','<div class="muted" style="font-size:12.5px;margin-bottom:8px">물결마을에서 가장 빛나는 사람들이에요. 매일 바뀌어요! <a href="#" onclick="openDayK();return false">오늘의 낚시왕 보기 →</a></div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+HOF_TABS.map(x=>'<button class="btn '+(x[0]===t[0]?'pink':'ghost')+'" style="padding:5px 9px;font-size:12.5px" data-hoft="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+(t[0]==='wf'?wfHtml():rankFull(t[0],t[1]+' · '+t[2])))}
 
 /* ----- 결혼 ----- */
@@ -6958,7 +6958,7 @@ function render(dt){
   W.trees.forEach(t=>{if(t.x>=x0-2&&t.x<=x1+2&&t.y>=y0-2&&t.y<=y1+3){if(treeCut(t)){drawables.push({y:t.y*TS+15,fn:()=>{cx.fillStyle='#7a5636';cx.fillRect(t.x*TS+4,t.y*TS+9,8,5);cx.fillStyle='#c89a6a';cx.beginPath();cx.ellipse(t.x*TS+8,t.y*TS+9,4,1.6,0,0,6.28);cx.fill()}});return}const s=treeSpr(t),wob=shaking&&shaking.t===t?Math.round(Math.sin(shaking.time*40)*1.5):0;drawables.push({y:t.y*TS+15,fn:()=>cx.drawImage(s,t.x*TS+8-13+wob,t.y*TS+16-33)})}});
   drawFishBoat(drawables);
   W.buildings.forEach(b=>drawables.push({y:(b.y+1)*TS,fn:()=>{const hx=b.x*TS+(b.w*TS-48)/2,hy=(b.y+1)*TS-50;cx.drawImage(SP.house[b.id],hx,hy);houseLife(b,hx,hy)}}));
-  W.props.forEach(p=>{const s=p.kind==='litter'?SP.litter[litterDirty()?1:0]:SP[p.kind];if(!s)return;drawables.push({y:p.y*TS+15,fn:()=>{cx.drawImage(s,p.x*TS+(TS-s.width)/2,p.y*TS+16-s.height);if(p.kind==='litter'&&litterDirty())litterFlies(p.x*TS+8,p.y*TS+6)}})});
+  W.props.forEach(p=>{if(p.kind==='evb'){drawables.push({y:p.y*TS+15,fn:()=>evbDraw(p.x*TS,p.y*TS)});return}const s=p.kind==='litter'?SP.litter[litterDirty()?1:0]:SP[p.kind];if(!s)return;drawables.push({y:p.y*TS+15,fn:()=>{cx.drawImage(s,p.x*TS+(TS-s.width)/2,p.y*TS+16-s.height);if(p.kind==='litter'&&litterDirty())litterFlies(p.x*TS+8,p.y*TS+6)}})});
   natDrawables(drawables,x0,x1,y0,y1);trapDrawables(drawables,x0,x1,y0,y1);smDrawables(drawables);npcDrawables(drawables);jejuDrawables(drawables);decoDrawables(drawables,x0,x1,y0,y1);critDrawables(drawables);drawables.push({y:20*TS+12,fn:drawPortal});wedDrawables(drawables);boatDrawables(drawables);painterDraw(drawables);npcZ(drawables);evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
   drawables.push({y:P.y,fn:drawPlayer});
   drawOthers(dt,drawables);
@@ -7793,6 +7793,19 @@ let STP={},LOUNGE_L=[];const STS={shop:null,v:null,tab:'play',g:null};
 const stTitle=s=>ST_SHOP[s][0]+' '+ST_SHOP[s][1],stOpenNow=()=>!$('sheetwrap').hidden&&STS.shop&&$('sheettitle').textContent===stTitle(STS.shop);
 const stGoodN=id=>{const G=ST_GOODS[id];return G[2]==='c'?(COS_BY[id]?COS_BY[id].name:id):G[2]==='h'?HOME_FUR[id][0]:ISL_OBJ[id][0]};
 function stSign(){}   // 간판 글씨는 캔버스 대신 또렷한 글자(DOM)로 · placeTags → stSignsPlace
+/* 🎪 행사 게시판 (마을 광장): 알록달록 깃발 · 열린 행사가 있으면 별이 반짝 */
+function evbDraw(bx,by){const x=cx,t=performance.now(),n=EVS.length,r=(c,a,b,w,h)=>{x.fillStyle=c;x.fillRect(bx+a,by+b,w,h)};
+  x.fillStyle='rgba(0,0,0,.14)';x.beginPath();x.ellipse(bx+8,by+15,12,2.5,0,0,6.283);x.fill();
+  r('#8a5a3a',-3,-6,3,21);r('#8a5a3a',16,-6,3,21);r('#6a4028',-3,13,3,2);r('#6a4028',16,13,3,2);
+  r('#7a4a2a',-5,-17,26,15);r('#fff6e4',-4,-16,24,13);r('#ffe0ea',-4,-16,24,2);
+  [[-2,-13,'#ff9ab8'],[5,-12,'#9ad8ff'],[12,-13,'#ffe08a']].forEach(([a,b,c],i)=>{r(c,a,b,6,7);r('rgba(0,0,0,.18)',a+1,b+2,4,1);r('rgba(0,0,0,.18)',a+1,b+4,3,1);r('#e05a5a',a+2,b-1,2,1)});
+  r('#e05a5a',-6,-21,28,4);r('#ffffff',-6,-21,28,1);
+  for(let i=0;i<7;i++){const f=Math.round(Math.sin(t/260+i)*.8);r(['#ff6a8a','#ffd34d','#6ad08a','#6ab0ff','#c08aff','#ff9a40','#ff6a8a'][i],-6+i*4,-17+f,3,3);r(['#ff6a8a','#ffd34d','#6ad08a','#6ab0ff','#c08aff','#ff9a40','#ff6a8a'][i],-5+i*4,-14+f,1,1)}
+  if(n){[[-8,-24],[22,-22],[8,-28]].forEach(([a,b],i)=>{const k=(Math.sin(t/300+i*2)+1)/2;if(k>.35){x.globalAlpha=k;r('#fff8b0',a,b-1,1,3);r('#fff8b0',a-1,b,3,1);x.globalAlpha=1}})}}
+const EVBL={el:null};function evbPlace(ox,oy,cX,cY){let el=EVBL.el;if(!el){el=EVBL.el=document.createElement('div');el.className='stsg evbl';$('tags').appendChild(el)}
+  const sx=ox+(21*TS+8-cX)*SC,sy=oy+(23*TS-26-cY)*SC,vis=!HUNT.on&&sx>-120&&sx<innerWidth+120&&sy>-60&&sy<innerHeight+80;if(el.hidden===vis)el.hidden=!vis;if(!vis)return;
+  const n=EVS.length,k=n+'';if(el.k!==k){el.k=k;el.style.setProperty('--c','#ff8ab0');el.innerHTML='<b>🎪 행사 게시판</b>'+(n?'<i>'+n+'개 열림</i>':'')}
+  el.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,-100%)'}
 const STSG={};function stSignsPlace(ox,oy,cX,cY){const ph=dayTint().ph,eve=ph>.7||ph<.06;(W.buildings||[]).forEach(b=>{if(!b.st)return;let el=STSG[b.id];if(!el){el=STSG[b.id]=document.createElement('div');el.className='stsg';$('tags').appendChild(el)}
   const sx=ox+(b.x*TS+b.w*TS/2-cX)*SC,sy=oy+((b.y+1)*TS-52-cY)*SC,vis=sx>-120&&sx<innerWidth+120&&sy>-60&&sy<innerHeight+80;if(el.hidden===vis)el.hidden=!vis;if(!vis)return;
   const c=STP[b.st]||{},col=b.st==='roof'?'#ffd890':ST_COL[c.col|0],lab=b.st==='roof'?'☁️ 구름과자 라운지'+(LOUNGE_L.length?' · '+LOUNGE_L.length+'명':''):b.st==='alof'?'ALOF':ST_SHOP[b.st][1],
@@ -9310,7 +9323,7 @@ setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden|
 setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.upd1109||!S.cur2)return;if(ONLINE&&!Net.me)return;S.upd1109=1;saveState(true);Snd.sfx('page');openSheet('11월 9일 업데이트',UPD1109)},3000);
 /* ===== 길 안내: 메뉴에서 장소를 누르면 화살표가 그 건물 문까지 데려다줘요 ===== */
 const GO_PLACES=[['garden','🌷','꽃밭 언덕',[57,23],()=>{const n=bloomCount();return n?'활짝 '+n+'송이':'꽃 · 나무 · 꿀'}],['shipdock','⛵','꽃배 부두',[63,37],()=>{const i=myShip();return i<0?'내 꽃배 받기':myShipAt()==='i'?'내 배: 안개 섬':'내 배: 여기'}],['forge','🔨','강화소',null,()=>'+'+S.enh.lv+' · 강화권 '+S.enh.tk],['shop','🛒','물결 상점',null,()=>'팔기 · 장비'],['boutique','🎀','치장 상점',null,()=>S.btqSeen!==NEW_DAY?'🆕 신제품!':'옷 · 한정'],['trade','🔁','교환소',null,()=>'게시판 · 교환'],
- ['lib','📚','도감관',null,()=>'도감'],['evboard','🎪','행사 게시판',[39,21],()=>EVS.length?EVS.length+'개 열림':'행사'],['roster','📋','일꾼 현황판',[13,24],()=>'직업 · 예보'],['ebland','🎰','은비랜드',null,()=>'축제 광장'],
+ ['lib','📚','도감관',null,()=>'도감'],['evboard','🎪','행사 게시판',[21,24],()=>EVS.length?EVS.length+'개 열림':'행사'],['roster','📋','일꾼 현황판',[13,24],()=>'직업 · 예보'],['ebland','🎰','은비랜드',null,()=>'축제 광장'],
  ['aqua','🐠','수족관',null,()=>'축제 광장'],['hunthut','🌀','꿈의 문 (사냥터)',[17,21],()=>'물결 용사 Lv'+huS().lv],['home','🏠','우리 집',null,()=>'다리 옆'],['islport','🏝️','섬 나루터',[116,41],()=>'내 섬 · 친구 섬'],['street','🏙️','물결 생활 거리',[90,37],()=>'멤버 가게 6곳 · 라운지'],['party','⚓','물결 어선',[17,46],()=>PTY&&PTY.state==='lobby'?PTY.members.length+'명 탐':PTY&&PTY.state==='sea'?'바다 위':'배낚시'],['boat','⛵','물결호 부두',[17,57],()=>boatReady()?'안개 섬':'배 만들기']];
 let GUIDE=null;
 function goPos(id){const g=GO_PLACES.find(x=>x[0]===id);if(!g)return null;if(g[3])return[g[3][0]*TS+8,g[3][1]*TS+8];const d=W.doors[id];return d?[((d.x0+d.x1)/2)*TS+8,d.y*TS+10]:null}
@@ -9818,7 +9831,7 @@ function placeTags(cX,cY){
     const near=Math.hypot(a.x-P.x,a.y-P.y)<44&&!(F.mode==='result'&&HOLD),sx=ox+(Math.round(a.x)-cX)*SC,sy=oy+(Math.round(a.y)-15-cY)*SC;
     if(a.tag.hidden===near)a.tag.hidden=!near;if(near)a.tag.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,-100%)'});
   others.forEach(o=>{if(!o.seen){o.tag.hidden=true;if(o.bub)o.bub.hidden=true;return}put(o,o.x,o.y)});
-  stSignsPlace(ox,oy,cX,cY);
+  stSignsPlace(ox,oy,cX,cY);evbPlace(ox,oy,cX,cY);
 }
 function loginMsg(t,bad){const el=$('tMsg');el.textContent=t;el.style.color=bad?'#d9607e':'';if(bad)$('tStart').disabled=false}
 function doLogin(){
