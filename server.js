@@ -1207,7 +1207,7 @@ function onMsg(ws, me, m) {
           return ok(nm + ' 님 은비 칩 ' + (n > 0 ? '+' : '') + n + ' (지금 ' + e.c + ')'); }
         if (m.op === 'setsize') { const lv = Math.max(0, Math.min(3, m.n | 0)); if (m.kind === 'h') homeOf(s).lv = lv; else islOf(s).lv = lv; queueSave(key, s); await flushSave(key); if (l) l[1].save = s; return ok(nm + ' 님 ' + (m.kind === 'h' ? '집' : '섬') + ' 크기를 ' + lv + '단계로 맞췄어요'); }
         if (m.op === 'give') {
-          const k = String(m.k || ''), n = Math.max(-1e7, Math.min(1e7, m.n | 0)); if (!n) return;
+          const k = String(m.k || ''), lim = k === 'g' ? 1e9 : 1e7, n = Math.max(-lim, Math.min(lim, Math.round(+m.n || 0))); if (!n) return;
           if (k === 'tk') {
             const e = enhOf(s); e.tk = Math.max(0, Math.min(ENH.TK_MAX, e.tk + n)); queueSave(key, s); await flushSave(key);
             if (l) sendEnh(l[0], l[1], { note: ['운영자 선물: 강화권 ' + (n > 0 ? '+' : '') + n] }); else addMail(key, '운영자 선물: 강화권 ' + (n > 0 ? '+' : '') + n);
