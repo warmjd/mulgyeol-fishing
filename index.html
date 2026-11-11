@@ -9365,7 +9365,7 @@ const others=new Map(); // id → {name,color,look,x,y,tx,ty,d,m,b,anim,seen,tag
 const ME={tag:null,tagOn:false,bub:null,say:null,emo:null};
 function setTag(a,name,ti,e){
   if(!a.tag)return;const t=COS_BY[ti];
-  const jb=(KINGS.don&&KINGS.don.name===(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name))?'<span class="dheart" title="마을 기부 1위">💗</span>':''+(isXKing('sh',a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name)?'<span class="dheart sh" title="반짝 1위">✨</span>':'');   // 2026-11-11: 직업 별 대신 💗 마을 기부 1위
+  const jb=((KINGS.don&&KINGS.don.name===(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name))?'<span class="dheart" title="마을 기부 1위">💗</span>':'')+(isXKing('sh',a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name)?'<span class="dheart sh" title="반짝 1위">✨</span>':'');   // 2026-11-11: 직업 별 대신 💗 마을 기부 1위
   const st=typeof evStatus==='function'?evStatus(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name):'';
   const kg=isKingName(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name);
   const nmK=a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name,wk=isXKing('gt',nmK),sk=isXKing('sh',nmK);
