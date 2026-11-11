@@ -208,7 +208,8 @@ LOOK_IDS.fa.push(["f_monocle", "f_heart", "f_bandaid", "f_goggle", "f_freckle"])
 const ENH_TITLE_NEED = { t_enh10: 10, t_enh15: 15, t_enh20: 20, t_enh25: 25, t_enh30: 30 };
 LOOK_IDS.rod.push('r_music', 'r_cat', 'r_choco', 'r_jelly', 'r_snowflake', 'r_whale', 'r_phoenix', 'r_starlight');
 LOOK_IDS.o.push('o_tux', 'o_wdress', 'o_warrior', 'o_hero', 'o_paladin', 'o_skyexp'); LOOK_IDS.hat.push('h_warhorn', 'h_herocirc', 'h_paladin', 'h_skygog'); LOOK_IDS.bk.push('k_warfur', 'k_hero', 'k_paladin', 'k_scout', 'k_gsword', 'k_shield'); LOOK_IDS.fa.push('f_warpaint', 'f_scar'); LOOK_IDS.ti.push('t_warrior', 't_hero', 't_paladin');
-LOOK_IDS.ti.push('t_islfish', 't_islbest');
+LOOK_IDS.ti.push('t_islfish', 't_islbest', 't_pole', 't_pila', 't_gym', 't_ortho', 't_rock');
+LOOK_IDS.hat.push('neonband', 'sweatband', 'bandage', 'climbhelm'); LOOK_IDS.o.push('o_polefit', 'o_pilafit', 'o_gymtank', 'o_doccoat'); LOOK_IDS.bk.push('yogamat', 'chalkbag');
 LOOK_IDS.o.push('o_moondress', 'o_sakura', 'o_darkarmor', 'o_hunter'); LOOK_IDS.hat.push('h_moonpin', 'h_sakura', 'h_darkhelm', 'h_hunterhood'); LOOK_IDS.bk.push('k_moonwing', 'k_bigribbon', 'k_darkcape', 'k_axe', 'k_quiver'); LOOK_IDS.fa.push('f_glitter', 'f_blush'); LOOK_IDS.ti.push('t_raid1'); LOOK_IDS.ti.push('t_moonfairy', 't_sakura', 't_darkknight', 't_hunter'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
 LOOK_IDS.ti.push('t_enh25', 't_enh30', ...['fish', 'sch', 'cra', 'tam', 'mer'].flatMap(j => [4, 5, 6].map(r => 't_j' + j + r)));
 for (const j of ['fish', 'sch', 'cra', 'tam', 'mer']) { LOOK_IDS.rod.push('jr4_' + j, 'jr6_' + j); LOOK_IDS.bob.push('jb5_' + j); }   // 강화 칭호는 서버 기록으로 확인
@@ -696,6 +697,7 @@ wss.on('connection', (ws) => {
     const p = players.get(ws); if (!p) return;
     endTrade(p, p.name + ' 님이 마을을 떠났어요');
     players.delete(ws);
+    if (LOUNGE.delete(p.key)) broadcast({ t: 'lounge', list: [...LOUNGE.values()] });
     // 배낚시 중에 껐다 켜도 배에서 내리지 않아요 (다시 들어오면 갑판으로). 출항 전 대기 중이면 내려요
     if (party && party.members.includes(p.key)) { if (party.state === 'sea') ptSoon(); else ptRemove(p.key); }
     togCheck();
@@ -798,6 +800,7 @@ function onMsg(ws, me, m) {
     }
     case 'aq_buy': case 'aq_on': case 'cos_up': case 'pv_buy': case 'pv_list': spendMsg(ws, me, m); break;
     case 'home_get': case 'home_list': case 'home_like': case 'home_buy': case 'home_set': homeMsg(ws, me, m); break;
+    case 'st_q': case 'st_lounge': case 'st_get': case 'st_score': case 'st_cfg': case 'st_event': case 'st_buy': stMsg(ws, me, m); break;
     case 'isl_get': case 'isl_list': case 'isl_like': case 'isl_gb': case 'isl_buy': case 'isl_set': case 'isl_gbdel': case 'isl_koi': case 'isl_pics': case 'isl_cast': case 'isl_reel': islMsg(ws, me, m); break;
     case 'sh_sell': withLock(me.key, async () => {   // 가방 반짝 칸의 반짝 물고기 팔기: 보통의 10배 × 낚싯대 판매가
       const s = me.save, id = m.id | 0; if (!s || !validFish(id)) return; const b = objOf(s, 'shb'); if (!((b[id] | 0) > 0)) return send(ws, { t: 'news', text: '가방에 그 반짝 물고기가 없어요' });
@@ -2297,7 +2300,7 @@ function spendMsg(ws, me, m) {
 const HOME_ROOM = [[6, 5], [8, 6], [10, 7], [12, 8]], HOME_ROOM_G = [0, 1e6, 5e6, 2e7];
 const HOME_WALL = { w_cream: 0, w_mint: 3e4, w_pink: 3e4, w_sky: 5e4, w_stripe: 1e5, w_star: 3e5, w_wood: 2e5, w_night: 8e5, w_gold: 3e6 };
 const HOME_FLOOR = { f_wood: 0, f_tile: 4e4, f_check: 8e4, f_grass: 1.5e5, f_marble: 6e5, f_carpet: 3e5, f_cloud: 1.5e6, f_gold: 4e6 };
-const HOME_FUR = { chair: [2e4, 1, 1], table: [5e4, 2, 1], bed: [1.5e5, 2, 2], sofa: [2e5, 2, 1], lamp: [4e4, 1, 1], plant: [3e4, 1, 1], bigplant: [1.2e5, 1, 1], rug: [8e4, 2, 2], shelf: [1.5e5, 2, 1], wardrobe: [2.5e5, 1, 1],
+const HOME_FUR = { alof_lamp: [5e5, 1, 1], alof_sofa: [5e6, 2, 1], chair: [2e4, 1, 1], table: [5e4, 2, 1], bed: [1.5e5, 2, 2], sofa: [2e5, 2, 1], lamp: [4e4, 1, 1], plant: [3e4, 1, 1], bigplant: [1.2e5, 1, 1], rug: [8e4, 2, 2], shelf: [1.5e5, 2, 1], wardrobe: [2.5e5, 1, 1],
   tv: [4e5, 2, 1], tank: [6e5, 2, 1], fireplace: [1e6, 2, 1], piano: [2e6, 2, 1], clock: [1.5e5, 1, 1], bear: [1e5, 1, 1], cake: [6e4, 1, 1], trophy: [8e5, 1, 1], arcade: [1.2e6, 1, 1], starlamp: [5e5, 1, 1],
   goldfish: [3e6, 1, 1], fountain: [8e6, 2, 2], cherry: [5e6, 2, 2], throne: [1e7, 1, 1],
   chandelier: [2e7, 2, 1], canopy: [4e7, 2, 2], harp: [3e7, 1, 1], bigaq: [6e7, 2, 2], armor: [3e7, 1, 1], swordrack: [5e7, 2, 1], globe: [8e7, 1, 1], castle: [1e8, 2, 2] };
@@ -2331,7 +2334,7 @@ function homeMsg(ws, me, m) {
       if (m.k === 'room') { if (h.lv >= 3) return err('가장 넓은 집이에요'); g = HOME_ROOM_G[h.lv + 1]; }
       else if (m.k === 'wall') { if (!HOME_WALL.hasOwnProperty(id) || h.walls.includes(id)) return; g = HOME_WALL[id]; }
       else if (m.k === 'floor') { if (!HOME_FLOOR.hasOwnProperty(id) || h.floors.includes(id)) return; g = HOME_FLOOR[id]; }
-      else if (m.k === 'fur') { if (!HOME_FUR[id]) return; if ((h.own[id] | 0) >= 9) return err('9개까지 가질 수 있어요'); g = HOME_FUR[id][0]; }
+      else if (m.k === 'fur') { if (!HOME_FUR[id]) return; if (/^alof/.test(id)) return err('ALOF 가구 공장에서만 팔아요'); if ((h.own[id] | 0) >= 9) return err('9개까지 가질 수 있어요'); g = HOME_FUR[id][0]; }
       else return;
       if (!hasKey(s, 'g', g)) return err('골드가 모자라요'); if (g) await changeBag(me.key, { g: -g }, null);
       if (m.k === 'room') { h.lv++; broadcast({ t: 'news', text: '🏠 ' + me.name + ' 님의 집이 넓어졌어요!' }, ws); }
@@ -2350,7 +2353,7 @@ const ISL_OBJ = {   // [가격, 가로, 세로, 층(0 땅 · 1 물건)]
   tulr: [5e4, 1, 1, 1], tuly: [5e4, 1, 1, 1], tulp: [5e4, 1, 1, 1], daisy: [5e4, 1, 1, 1], sunf: [1e5, 1, 1, 1], lav: [1e5, 1, 1, 1], rose: [3e5, 1, 1, 1], glow: [1e6, 1, 1, 1],
   tent: [5e6, 2, 2, 1], cottage: [2e7, 3, 3, 1], greenh: [4e7, 3, 2, 1], rhouse: [5e7, 3, 3, 1], windm: [6e7, 2, 2, 1], light: [8e7, 2, 2, 1], castle2: [2e8, 4, 3, 1],
   fence: [3e4, 1, 1, 1], wfence: [5e4, 1, 1, 1], sign: [5e4, 1, 1, 1], mail: [1e5, 1, 1, 1], lamp: [2e5, 1, 1, 1], bench: [3e5, 2, 1, 1], fire: [5e5, 1, 1, 1], flag: [5e5, 1, 1, 1],
-  pic: [8e5, 2, 2, 1], swing: [1e6, 2, 1, 1], hammock: [2e6, 2, 1, 1], arch: [3e6, 2, 1, 1], cathouse: [3e6, 1, 1, 1], well: [3e6, 1, 1, 1], fount: [1e7, 2, 2, 1], statue: [2e7, 2, 2, 1], easel: [5e5, 1, 1, 1] };
+  pic: [8e5, 2, 2, 1], swing: [1e6, 2, 1, 1], hammock: [2e6, 2, 1, 1], arch: [3e6, 2, 1, 1], cathouse: [3e6, 1, 1, 1], well: [3e6, 1, 1, 1], fount: [1e7, 2, 2, 1], statue: [2e7, 2, 2, 1], easel: [5e5, 1, 1, 1], alof_bench: [3e6, 2, 1, 1], alof_cabin: [5e7, 3, 3, 1] };
 const islMax = id => ISL_OBJ[id][3] === 0 ? 320 : 40;
 const islOf = s => { const h = s.isl && typeof s.isl === 'object' ? s.isl : (s.isl = {}); h.lv = Math.max(0, Math.min(3, h.lv | 0));
   h.own = h.own && typeof h.own === 'object' ? h.own : {}; h.items = Array.isArray(h.items) ? h.items : []; h.gb = Array.isArray(h.gb) ? h.gb : []; return h; };
@@ -2419,7 +2422,7 @@ function islMsg(ws, me, m) {
     if (m.t === 'isl_buy') {
       let g = 0; const id = String(m.id || ''), n = m.n === 10 ? 10 : 1;
       if (m.k === 'land') { if (h.lv >= 3) return err('가장 큰 섬이에요'); g = ISL_G[h.lv + 1]; }
-      else if (m.k === 'obj') { if (!ISL_OBJ[id]) return; if ((h.own[id] | 0) + n > islMax(id)) return err(islMax(id) + '개까지 가질 수 있어요'); g = ISL_OBJ[id][0] * n; }
+      else if (m.k === 'obj') { if (!ISL_OBJ[id]) return; if (/^alof/.test(id)) return err('ALOF 가구 공장에서만 팔아요'); if ((h.own[id] | 0) + n > islMax(id)) return err(islMax(id) + '개까지 가질 수 있어요'); g = ISL_OBJ[id][0] * n; }
       else return;
       if (!hasKey(s, 'g', g)) return err('골드가 모자라요'); await changeBag(me.key, { g: -g }, null);
       if (m.k === 'land') { const [w0, h0] = ISL_SZ[h.lv]; h.lv++; const [w1, h1] = ISL_SZ[h.lv], dx = (w1 - w0) >> 1, dy = (h1 - h0) >> 1; if (h.lv > 1) h.items = h.items.map(i => [i[0], (i[1] | 0) + dx, (i[2] | 0) + dy]);
@@ -2433,6 +2436,62 @@ function islMsg(ws, me, m) {
         return { d: String(r.d || '').slice(0, 10), pl: cleanText(String(r.pl || ''), 20) || '어딘가', look: cleanLook(r.look, s, colorOf(me.key)), pets: (Array.isArray(r.pets) ? r.pets : []).slice(0, 3).map(x => String(x).slice(0, 16)), ph: typeof r.ph === 'number' ? r.ph : .4, sd: r.sd | 0 }; }); return done(); }
     if (m.t === 'isl_gbdel') { const i = m.i | 0; if (i >= 0 && i < h.gb.length) h.gb.splice(i, 1); return done(); }
   }).catch(e => console.error('isl', e.message));
+}
+/* ---------- 🏙️ 물결 생활 거리 (2026-11-11): 멤버 가게 6곳 + 구름과자 라운지 · 놀이는 언제나 무료 · 굿즈 매출의 10%는 사장님께
+   사장님 권한: 세일(0~50%) · 가게 한마디 · 추천 굿즈 · 간판 색 · 영업/휴무 · 하루 한 번 30분 깜짝 세일(마을 전체 알림) ---------- */
+const ST_OWNER = { pole: '꼬북린', pila: '은비땅', gym: '치킨', ortho: '조돌맹', rock: '', alof: '리치맨' };
+try { if (process.env.ST_OWNERS) Object.assign(ST_OWNER, JSON.parse(process.env.ST_OWNERS)); } catch (e) { }
+const ST_NAME = { pole: '꼬북린 폴댄스', pila: '은비땅 필라테스', gym: '치킨 헬스장', ortho: '조돌맹 정형외과', rock: '락트리 클라이밍', alof: 'ALOF 가구 공장' };
+const ST_GOODS = {   // id: [가게, 값, 종류 (c 치장 · h 우리 집 가구 · i 내 섬)]
+  neonband: ['pole', 3e6, 'c'], o_polefit: ['pole', 8e6, 'c'], t_pole: ['pole', 3e6, 'c'],
+  o_pilafit: ['pila', 8e6, 'c'], yogamat: ['pila', 3e6, 'c'], t_pila: ['pila', 3e6, 'c'],
+  o_gymtank: ['gym', 6e6, 'c'], sweatband: ['gym', 2e6, 'c'], t_gym: ['gym', 3e6, 'c'],
+  o_doccoat: ['ortho', 8e6, 'c'], bandage: ['ortho', 1e6, 'c'], t_ortho: ['ortho', 3e6, 'c'],
+  chalkbag: ['rock', 3e6, 'c'], climbhelm: ['rock', 4e6, 'c'], t_rock: ['rock', 3e6, 'c'],
+  alof_lamp: ['alof', 5e5, 'h'], alof_sofa: ['alof', 5e6, 'h'], alof_bench: ['alof', 3e6, 'i'], alof_cabin: ['alof', 5e7, 'i'] };
+const ST_GAME = { pole: 20000, pila: 120, gym: 600, rock: 8 };   // 점수 최댓값 (조작 방지)
+const LOUNGE = new Map();
+const stOf = id => { V.sts = V.sts || {}; const o = V.sts[id] || (V.sts[id] = {}); o.sale = Math.max(0, Math.min(50, o.sale | 0)); if (typeof o.open !== 'boolean') o.open = true; o.col = Math.max(0, Math.min(5, o.col | 0)); return o; };
+const stEv = o => (o.evUntil || 0) > Date.now();
+const stPrice = (id) => { const G = ST_GOODS[id], o = stOf(G[0]); return Math.max(1000, Math.round(G[1] * (1 - o.sale / 100) * (stEv(o) ? .7 : 1) / 1000) * 1000); };
+const stPubAll = () => { const o = {}; if (!V) return o; for (const id in ST_NAME) { const s = stOf(id); o[id] = { owner: ST_OWNER[id] || '', msg: s.msg || '', col: s.col, open: s.open, sale: s.sale, ev: stEv(s) ? s.evUntil : 0, pick: s.pick || '' }; } return o; };
+function stBoard(g) { const w = wfWeek(); if (!V.stw || V.stw.w !== w) { V.stw = { w, g: {} }; vMark(); } return V.stw.g[g] || (V.stw.g[g] = {}); }
+const stTop = g => Object.values(stBoard(g)).sort((a, b) => b.v - a.v || a.t - b.t).slice(0, 10);
+function stMsg(ws, me, m) {
+  const err = text => send(ws, { t: 'ev_err', text }); if (!V) return;
+  const shop = String(m.shop || ''); 
+  if (m.t === 'st_q') return send(ws, { t: 'st_pub', shops: stPubAll(), lounge: [...LOUNGE.values()] });
+  if (m.t === 'st_lounge') { if (m.on) LOUNGE.set(me.key, me.name); else LOUNGE.delete(me.key); return broadcast({ t: 'lounge', list: [...LOUNGE.values()] }); }
+  if (!ST_NAME[shop]) return;
+  const isOwner = ST_OWNER[shop] && ST_OWNER[shop].toLowerCase() === me.key, o = stOf(shop);
+  const pub = () => { const prices = {}; for (const id in ST_GOODS) if (ST_GOODS[id][0] === shop) prices[id] = stPrice(id);
+    send(ws, { t: 'st', shop, owner: ST_OWNER[shop] || '', mine: !!isOwner, cfg: stPubAll()[shop], prices, top: ST_GAME[shop] ? stTop(shop) : [], my: ST_GAME[shop] ? ((stBoard(shop)[me.key] || {}).v || 0) : 0,
+      day: isOwner ? (o.day && o.day.d === kstDay() ? o.day : { g: 0, n: 0 }) : null, tot: isOwner ? o.tot | 0 : null, log: isOwner ? (o.log || []).slice(-15) : null, evToday: o.evDay === kstDay() }); };
+  if (m.t === 'st_get') return pub();
+  if (m.t === 'st_score') { const max = ST_GAME[shop]; if (!max) return; const now = Date.now(); if (now - (me.stT || 0) < 2500) return; me.stT = now;
+    const v = Math.max(0, Math.min(max, Math.round(Number(m.v) * 10) / 10 || 0)), B = stBoard(shop), old = B[me.key];
+    if (!old || v > old.v) { const prev = stTop(shop)[0]; B[me.key] = { n: me.name, v, t: now }; vMark(); const top = stTop(shop)[0];
+      if (top && top.n === me.name && (!prev || prev.n !== me.name) && v > 0) broadcast({ t: 'news', text: '🏆 ' + me.name + ' 님이 이번 주 「' + ST_NAME[shop] + '」 1위가 됐어요!' }); }
+    return pub(); }
+  if (m.t === 'st_cfg') { if (!isOwner) return err('사장님만 바꿀 수 있어요');
+    if (m.sale != null) o.sale = Math.max(0, Math.min(50, m.sale | 0)); if (m.msg != null) o.msg = cleanText(m.msg, 24); if (m.col != null) o.col = Math.max(0, Math.min(5, m.col | 0));
+    if (m.open != null) o.open = !!m.open; if (m.pick != null) o.pick = ST_GOODS[m.pick] && ST_GOODS[m.pick][0] === shop ? m.pick : '';
+    vMark(); broadcast({ t: 'st_pub', shops: stPubAll() }); return pub(); }
+  if (m.t === 'st_event') { if (!isOwner) return; if (o.evDay === kstDay()) return err('깜짝 세일은 하루에 한 번이에요'); o.evDay = kstDay(); o.evUntil = Date.now() + 30 * 60e3; vMark();
+    broadcast({ t: 'big', g: 9, text: '🎉 ' + ST_NAME[shop] + ' 깜짝 세일! 30분 동안 모든 굿즈 30% 할인 · 사장님 ' + me.name }); broadcast({ t: 'st_pub', shops: stPubAll() }); return pub(); }
+  if (m.t === 'st_buy') { const id = String(m.id || ''), G = ST_GOODS[id]; if (!G || G[0] !== shop) return; if (!o.open) return err('오늘은 사장님이 휴무로 해 뒀어요');
+    const okey = ST_OWNER[shop] ? ST_OWNER[shop].toLowerCase() : '', keys = [me.key]; if (okey && okey !== me.key && rosterCache.has(okey)) keys.push(okey);
+    return withLocks(keys, async () => { const s = me.save; if (!s) return; const g = stPrice(id);
+      if (G[2] === 'c' && ((s.cos && s.cos.own) || []).includes(id)) return err('이미 가지고 있어요');
+      if (G[2] === 'h') { const h = homeOf(s); if ((h.own[id] | 0) >= 9) return err('9개까지 가질 수 있어요'); }
+      if (G[2] === 'i') { const h = islOf(s); if ((h.own[id] | 0) >= 40) return err('40개까지 가질 수 있어요'); }
+      if (!hasKey(s, 'g', g)) return err('골드가 모자라요'); await changeBag(me.key, { g: -g }, null);
+      if (G[2] === 'c') { giveCos(s, [id]); send(ws, { t: 'cos_got', ids: [id] }); } else if (G[2] === 'h') { const h = homeOf(s); h.own[id] = (h.own[id] | 0) + 1; } else { const h = islOf(s); h.own[id] = (h.own[id] | 0) + 1; }
+      queueSave(me.key, s); const rev = Math.floor(g * .1);
+      if (keys.length > 1) { await changeBag(okey, { g: rev }, null); const l = liveByKey(okey); if (l) send(l[0], { t: 'news', text: '🛍️ ' + me.name + ' 님이 내 가게에서 「' + (m.nm ? cleanText(m.nm, 20) : id) + '」을(를) 샀어요 · 매출 +' + fmtN(rev) + ' 골드' }); }
+      else if (!okey && V.fund) V.fund.g += rev;
+      if (okey !== me.key) { const d = o.day && o.day.d === kstDay() ? o.day : (o.day = { d: kstDay(), g: 0, n: 0 }); d.g += rev; d.n++; o.tot = (o.tot | 0) + rev; o.log = (o.log || []).concat([{ n: me.name, id, g: rev, at: Date.now() }]).slice(-30); }
+      vMark(); send(ws, { t: 'st_bought', id, g }); pub(); }).catch(e => console.error('st_buy', e.message)); }
 }
 
 const aqPub = (s, name, mine, liked) => ({ t: 'aq', name, slots: aqClean(s, s.aq), likes: s.aql | 0, mine, liked: !!liked, max: aqMax(s), deco: Array.isArray(s.aqd) ? s.aqd : [], on: s.aqon || {} });
