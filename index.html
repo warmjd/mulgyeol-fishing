@@ -3417,7 +3417,7 @@ function nearAction0(){
   {const ev=nearEv(true);if(ev)return{type:'ev',ev:ev.id,label:evLabel(ev)}}
   const bn=nearBench();if(bn)return{type:'bench',bench:bn,label:'앉기'};
   const pt=nearPet();if(pt)return{type:'pet',pet:pt,label:'쓰다듬기'};
-  const tr=nearTree();if(tr&&!treeCut(tr))return wildTree(tr)&&axeLv()?{type:'chop',tree:tr,label:'벌목'}:{type:'tree',tree:tr,label:'흔들기'};
+  const tr=nearTree();if(tr&&!treeCut(tr))return{type:'tree',tree:tr,label:'흔들기'};
   {const b=nearBug();if(b)return{type:'nat_bug',b,label:'잡기'}}
   if(ONLINE&&Net.me){let best=null,bd=22;others.forEach(o=>{if(!o.seen)return;const d=Math.hypot(o.x-P.x,o.y-P.y);if(d<bd){bd=d;best=o}});if(best)return{type:'player',id:best.id,label:'교환<br>신청'}}
   return null;
@@ -4381,8 +4381,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y);
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1111b',UPD_LOG=[
- ['11/11','🛍️',[['🌑 주간 레이드 · 악몽의 왕좌','꿈의 문 맨 아래 · 모두가 같은 체력을 함께 깎아요 · 쓰러뜨리면 기여만큼 칩 · 장비 · 10% 주문서 · 1등은 칭호 (용사 Lv10부터 · 매주 월요일 새로)'],['🍾 유리병 편지','메뉴에서 띄우면 누군가의 낚싯줄에 걸려요 · 이름은 비밀 · 답장도 돼요'],['🎨 떠돌이 화가','반나절마다 다른 곳에 이젤을 펴요 · 지금 이 순간을 그림으로 (메뉴 → 🖼️ 내 그림)'],['🏗️ 마을 발전 기금 4단계 추가','대관람차 1억 · 별빛 온실 2억 · 불꽃놀이 탑 3억 · 용사의 성문 5억'],['🏠 고급 가구 8종','샹들리에 · 캐노피 침대 · 대형 수족관 · 전설의 검 진열대 · 미니 물결 성 (최대 1억)'],['치장 상점이 편해졌어요','신제품은 날짜별로 · 🔍 이름 찾기 · 산 것 숨기기 · 싼 순/비싼 순'],['새 치장 4세트','🌙 달빛 요정 · 🌸 벚꽃 리본 · 🖤 흑기사(전투 도끼) · 🏹 몬스터 사냥꾼'],['은비랜드 연타 방지','한 판이 끝나야 다음 판을 돌릴 수 있어요']]],
+const UPD_VER='1111c',UPD_LOG=[
+ ['11/11','🛍️',[['전설 미끼가 안 사지던 버그 수정','잡화점은 이제 전설 미끼만 (하루 1개)'],['나무는 다시 흔들기가 기본','도끼가 있으면 「바꾸기」로 벌목'],['직업 바꾸기는 7일에 한 번','30만 골드'],['🌑 주간 레이드 · 악몽의 왕좌','꿈의 문 맨 아래 · 모두가 같은 체력을 함께 깎아요 · 쓰러뜨리면 기여만큼 칩 · 장비 · 10% 주문서 · 1등은 칭호 (용사 Lv10부터 · 매주 월요일 새로)'],['🍾 유리병 편지','메뉴에서 띄우면 누군가의 낚싯줄에 걸려요 · 이름은 비밀 · 답장도 돼요'],['🎨 떠돌이 화가','반나절마다 다른 곳에 이젤을 펴요 · 지금 이 순간을 그림으로 (메뉴 → 🖼️ 내 그림)'],['🏗️ 마을 발전 기금 4단계 추가','대관람차 1억 · 별빛 온실 2억 · 불꽃놀이 탑 3억 · 용사의 성문 5억'],['🏠 고급 가구 8종','샹들리에 · 캐노피 침대 · 대형 수족관 · 전설의 검 진열대 · 미니 물결 성 (최대 1억)'],['치장 상점이 편해졌어요','신제품은 날짜별로 · 🔍 이름 찾기 · 산 것 숨기기 · 싼 순/비싼 순'],['새 치장 4세트','🌙 달빛 요정 · 🌸 벚꽃 리본 · 🖤 흑기사(전투 도끼) · 🏹 몬스터 사냥꾼'],['은비랜드 연타 방지','한 판이 끝나야 다음 판을 돌릴 수 있어요']]],
  ['11/10 밤','🐾',[['🎣 꾹 눌러 멀리 던지기','톡 = 예전 거리 · 꾹 = 힘 막대가 오르내려요, 손을 떼는 순간만큼 멀리 (최대 +6칸)'],['✨ 물빛 포인트','낚시터 물 위에 가끔 빛나는 자리 · 모두에게 똑같이 보여요 · 찌가 떨어지면 반짝·거대·보물·귀한 물고기·입질 보너스 · 한 포인트 6번까지'],['냥이들의 마을 여행','루비 · 고양이들이 온 마을과 섬을 돌아다녀요 · 물을 만나면 작은 배를 타요 ⛵'],['우연히 만나요','마주치면 인사하고 가끔 선물도 · 냥이끼리 만나면 수다 ㅋㅋㅋ'],['냥이 어디 있지?','냥이 정보에서 📍지금 위치 · 🗺️ 길 안내 · 미니맵에 발자국']]],
  ['11/10 저녁','⚔️',[['💪 전투력','레벨 + 장비로 계산 · ⚔️ 용사 왕과 용사 순위는 이제 전투력 1등'],['사냥터 친구 상태','머리 위에 체력 · 정화 진행률 · 전투력'],['사냥 중 츄리가 눌리던 버그 수정',''],['🤝 함께 사냥','같은 사냥터에서 가까이 싸우면 1명당 경험치 +30% · 칩·드랍 +20% (3명까지)'],['사냥터 친구가 제 모습으로 보여요','옷 · 무기 · 이름 · 레벨 (예전엔 내 모습 복제처럼 보였어요)'],['용사의 길 치장 4세트','전사 · 용사 · 성기사 · 하늘섬 모험가 (치장 상점 · 1,200만~6,000만 골드)'],['등에 메는 무기','용사의 대검 · 기사의 둥근 방패'],['🎡 은비 룰렛 새로 열림','빨강 · 파랑 ×2 · 황금 ×9'],['거북이 경주 · 하이로우 문 닫음','슬롯 룰렛은 그대로예요']]],
  ['11/10 오후','🫧',[['사냥은 이제 “구출 작전”','갇힌 친구들을 다 구하면(물결 3번) 꿈의 주인 등장 → 깨우면 정화 완료'],['⭐ 별점','4분 안에 · 피해 적게 · 첫 별 셋이면 칩 + 10% 주문서'],['몬스터가 무리로 와요','몸에 닿기만 해도 아파요 · 이제 잘 안 밀려나요'],['보스가 화나요','체력 절반이면 분노 · 물결 벽 · 소용돌이 탄막'],['구르기 2번 충전','숨이 차면 못 굴러요'],['🎒 가방 → ⚔️ 장비','낚시로 주운 장비를 가방에서 바로 보고 껴요'],['착용 레벨','좋은 장비일수록 용사 레벨이 필요해요 🔒'],['🧩 세트 효과','같은 계열 2·4·6개'],['새 장비 비교','주울 때 ▲ 표시로 바로 알려줘요']]],
@@ -5486,7 +5486,7 @@ function upNode(job,id){const why=canUp(job,id);if(why){toast(why);Snd.sfx('no')
   const j=jS(),nd=nodeOf(job,id);if(job==='com')j.com[id]=(j.com[id]|0)+(nd.cost||1)/(nd.cost||1);else{const p=j.pts[job]||(j.pts[job]={});p[id]=(p[id]|0)+1}
   if(job!=='com'&&nd.cost){j.pts[job]._c=(j.pts[job]._c|0)+nd.cost-1} // 끝 노드는 3점
   recalc();saveState(true);rosterSoon();Snd.sfx('buy');toast(nd.n+' '+rk(job,id)+'단계!');openTree(job)}
-const JOB_CHANGE_G=1000,JOB_CHANGE_DAYS=1;   // 직업 바꾸기는 가볍게: 하루에 한 번 · 1,000골드
+const JOB_CHANGE_G=300000,JOB_CHANGE_DAYS=7;   // 직업 바꾸기는 가볍게: 하루에 한 번 · 1,000골드
 function pickJob(id){
   const j=jS();if(j.id===id)return;
   if(admOn()){const first=!j.id;j.id=id;j.t=0;j.ch=0;recalc();saveState(true);rosterSoon();Snd.sfx('buy');toast('🛠️ '+JOBS[id].ic+' '+JOBS[id].name+'(으)로 바꿨어요 (운영자 · 대기 없음)'+(first?'':' 예전에 찍은 포인트가 돌아왔어요'));openTree(id);return}
@@ -5937,9 +5937,9 @@ function renderCraft(){
         (lock?'':r.inF?'<button class="btn sm" data-cpk="'+r.id+'">물고기 고르기</button>':'<button class="btn sm" data-craft="'+r.id+'"'+(why?' disabled':'')+'>'+(why||'만들기')+'</button>')+'</div>'});
   }
   else if(craftTab==='npc'){
-    h+='<div class="muted" style="font-size:12px;margin-bottom:8px">잡화점은 기본 재료만 팔아요. 진주 · 깃털 · 솜씨 재료 · 솜씨 재료 · 솜씨 재료 · 반짝 미끼 · 부적은 그 직업 친구에게 받거나, 교환소에서 사거나, 하루만 그 직업이 돼서 직접 만들어요 (직업 바꾸기 1,000골드).</div>';const nd=S.npcd&&S.npcd.d===kstDay()?S.npcd:{};
-    ['flesh','shell','weed','b_dough','b_legend_n'].forEach(k=>{const I=ITEMS[k];
-      h+='<div class="row"><span style="font-size:22px;width:30px;text-align:center">'+I.ic+'</span><div class="nm"><div>'+I.n+' <span class="muted" style="font-size:12px">가진 것 '+itN(k)+'</span></div><div class="muted" style="font-size:12px">'+esc(I.d)+'</div></div><div class="go"><button class="btn sm ghost" data-npc="'+k+'"'+(S.gold<I.npc||nd[k]?' disabled':'')+'>'+(nd[k]?'오늘 삼':fmt(I.npc))+'</button></div></div>'})}
+    h+='<div class="muted" style="font-size:12px;margin-bottom:8px">잡화점은 이제 전설 미끼만 팔아요 (하루 1개). 장인이 만든 전설 미끼가 두 배로 잘 걸려요.</div>';if(0)h+='<div class="muted" style="font-size:12px;margin-bottom:8px">잡화점은 기본 재료만 팔아요. 진주 · 깃털 · 솜씨 재료 · 솜씨 재료 · 솜씨 재료 · 반짝 미끼 · 부적은 그 직업 친구에게 받거나, 교환소에서 사거나, 하루만 그 직업이 돼서 직접 만들어요 (직업 바꾸기 1,000골드).</div>';const nd=S.npcd&&S.npcd.d===kstDay()?S.npcd:{};
+    ['b_legend_n'].forEach(k=>{const I=ITEMS[k];
+      h+='<div class="row"><span style="font-size:22px;width:30px;text-align:center">'+I.ic+'</span><div class="nm"><div>'+I.n+' <span class="muted" style="font-size:12px">가진 것 '+itN(k)+'</span></div><div class="muted" style="font-size:12px">'+esc(I.d)+'</div></div><div class="go"><button class="btn sm ghost" data-npcb="'+k+'"'+(S.gold<I.npc||nd[k]?' disabled':'')+'>'+(nd[k]?'오늘 삼':fmt(I.npc))+'</button></div></div>'})}
   else if(craftTab==='imp'){const ib=S.imp&&S.imp.d===kstDay()?S.imp:{};
     h+='<div class="muted" style="font-size:12px;margin-bottom:8px">떠돌이 상인만 들여올 수 있는 물건이에요. 종류마다 하루 '+impDay()+'개. 친구에게 골드를 받고 넘겨 줘요.</div>';
     ['thread','sail','toy'].forEach(k=>{const I=ITEMS[k];h+='<div class="row"><span style="font-size:22px;width:30px;text-align:center">'+I.ic+'</span><div class="nm"><div>'+I.n+' <span class="muted" style="font-size:12px">오늘 '+(ib[k]|0)+'/'+impDay()+'</span></div><div class="muted" style="font-size:12px">'+esc(I.d)+' · 잡화점 '+fmt(I.npc)+'</div></div><div class="go"><button class="btn sm mint" data-imp="'+k+'">'+fmt(I.imp)+'</button></div></div>'})}
@@ -5973,7 +5973,7 @@ function craftClick(t){const D=t.dataset;
   if(D.craft){craft(D.craft);renderCraft();return true}
   if(D.cpk){craftPick=D.cpk==='back'?null:D.cpk;renderCraft();return true}
   if(D.cfish!==undefined){craft(craftPick,+D.cfish);renderCraft();return true}
-  if(D.npc){npcBuy(D.npc,false);renderCraft();return true}
+  if(D.npcb){npcBuy(D.npcb,false);renderCraft();return true}
   if(D.imp){npcBuy(D.imp,true);renderCraft();return true}
   if(D.cs){if(D.cs==='put'){consPick();return true}Net.flushSave(true);Net.send({t:'cs_'+D.cs,id:+D.v});Snd.sfx('tap');return true}
   if(D.csput!==undefined){Net.flushSave(true);Net.send({t:'cs_put',id:+D.csput,n:1});Snd.sfx('tap');return true}
@@ -6943,7 +6943,7 @@ function actCands(a0){const c=[];if(a0)c.push(a0);
   const cs=findCast();if(cs)add({type:'fish',label:'낚시',cast:cs});if(cs&&canSetTrap(cs))add({type:'trapset',label:'통발<br>놓기',cast:cs});
   const bn=nearBench();if(bn)add({type:'bench',bench:bn,label:'앉기'});
   const pt=nearPet();if(pt)add({type:'pet',pet:pt,label:'쓰다듬기'});
-  const tr=nearTree();if(tr&&!treeCut(tr))add(wildTree(tr)&&axeLv()?{type:'chop',tree:tr,label:'벌목'}:{type:'tree',tree:tr,label:'흔들기'});
+  const tr=nearTree();if(tr&&!treeCut(tr)){add({type:'tree',tree:tr,label:'흔들기'});if(wildTree(tr)&&axeLv())add({type:'chop',tree:tr,label:'벌목'})}
   return c}
 function nearAction(){const a0=nearAction0(),c=actCands(a0);ACT_CANDS=c;if(ACT_PICK){const x=c.find(y=>y.type===ACT_PICK);if(x)return x;ACT_PICK=null}return a0}
 const ACT_KIND=t=>!t?'':t==='fish'?'fish':t==='trap'||t==='trapset'||t==='snowpile'?'gather':/^(pet|walk|wish|litter)$/.test(t)?'pet':/^(tree|chop|nat_.*|garden)$/.test(t)?'gather':/^(bench|stand)$/.test(t)?'sit':/^(player|wow)$/.test(t)?'social':'talk';

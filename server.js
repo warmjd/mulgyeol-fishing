@@ -1071,7 +1071,7 @@ function onMsg(ws, me, m) {
         e.c -= c; h[k] = nx; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '장비를 샀어요!' });
       }
       const now = Date.now(); if (now - (me.hkT || 0) < 250) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(10, m.t | 0)), red = !!m.red;
-      const el = !!m.el, bo = !!m.boss; const RS = rpgSum(h, (s.hu && s.hu.lv) | 0 || 1);
+      const el = !!m.el; let bo = !!m.boss; if (bo) { if (now - (me.hbT || 0) < 40000) bo = false; else me.hbT = now; }   // 우두머리 처치는 40초에 한 번까지 (조작 방지) const RS = rpgSum(h, (s.hu && s.hu.lv) | 0 || 1);
       /* 🤝 함께 사냥: 같은 사냥터 · 가까이(약 16칸) 있는 친구 수 → 칩 · 드랍 보너스 (서버가 직접 세요) */
       let pt = 0; const H0 = me.hp_; if (H0 && now - H0.at < 3000) for (const [, q] of players) { const Q = q.hp_; if (q !== me && Q && Q.f === H0.f && now - Q.at < 3000 && Math.hypot(Q.x - H0.x, Q.y - H0.y) < 260) pt++; } pt = Math.min(3, pt); const pb = 1 + pt * .2;
       let c = Math.round(pb * [100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100)); e.c = (e.c | 0) + c; const got = []; if (Math.random() < (bo ? .5 : el ? .08 : .015) * pb) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push('scr:' + id); } 
