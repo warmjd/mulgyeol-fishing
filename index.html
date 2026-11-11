@@ -4524,7 +4524,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y);
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1111j',UPD_LOG=[
+const UPD_VER='1111k',UPD_LOG=[
+ ['11/11 밤','💎',[['💎 반짝 3배 미끼','물결 상점 → 💎 미끼 탭 · 1개 100만 · 던질 때 1개 · 그 판에 낚은 물고기 반짝 확률 3배']]],
  ['11/11 밤','🌠',[['✨ 전설 너머 낚싯대 10종 · 찌 6종','레전더리 → 미스틱 → 태초 → 무한 → 창세 · 물 · 불 · 바람 · 얼음 · 달 · 심해 · 우주'],['낚았을 때 고유 연출','해일 · 불꽃놀이 · 화산 분출 · 회오리 · 빙하 · 보름달과 달토끼 · 크라켄 촉수 · 블랙홀 · 무지개 용 · 창세의 빛'],['▶ 효과 보기','치장 상점 → 💎 낚싯대·찌 · 카드마다 효과 설명 · 누르면 내 캐릭터 앞에서 미리 보여 줘요'],['🌠 아주 아주 가끔 줍기','직접 낚을 때 · 사냥할 때 레전더리 이상 낚싯대 · 찌가 나올 수 있어요 (안 가진 것만) · 나오면 마을 모두에게 알려요'],['가장 비싼 건','창세의 낚싯대 15억 · 창세의 알 찌 10억']]],
  ['11/11 밤','🏙️',[['🏙️ 물결 생활 거리','모두의 정원 남쪽 바닷가 · 멤버 가게 6곳 + 구름과자 라운지 (메뉴 → 가 볼 곳)'],['💗 꼬북린 폴댄스 · 🧘 은비땅 필라테스','리듬 폴 스핀 · 코어 버티기'],['💪 치킨 헬스장 · 🧗 락트리 클라이밍','10초 벤치프레스 · 볼더링 V0~V7'],['🩻 조돌맹 정형외과 · 🏭 ALOF 가구 공장','엑스레이 찍기 · 집과 섬에 놓는 ALOF 한정 가구'],['놀이는 언제나 무료','이번 주 순위만 있어요 · 1위가 바뀌면 마을에 알려요'],['👑 사장님 매출','굿즈 값의 10%가 사장님께 · 세일 · 깜짝 세일 · 한마디 · 간판 색 · 추천 · 휴무를 사장님이 정해요'],['☁️ 구름과자 라운지','리치맨 · 치킨 · 꼬북린의 아늑한 옥상 아지트 · 누구나 쉬어 가요']]],
  ['11/11 저녁','🌌',[['🌌 초월 물고기 6종','태초 3 · 무한 2 · 창세 1 · 어느 낚시터에서든 직접 낚을 때 아주 아주 가끔'],['값이 몇억!','태초 5천만 · 무한 2억 · 창세 5억 골드 · 도감 → 🌌 초월'],['신화 이상은 값 공개','도감에서 신화 · 초월 물고기 값을 누구나 볼 수 있어요 · 낚으면 값까지 마을 모두에게 알려요'],['📣 대박 소식','은비랜드 ×60 이상 당첨 · 전설 등급 이상 장비를 얻으면 마을 모두에게 크게 알려요'],['💗 기부 1위','마을 발전 기금에 가장 많이 기부한 사람 이름 앞에 💗 (이름표의 직업 표시는 뺐어요)']]],
@@ -5797,6 +5798,7 @@ const ITEMS={
  sail:{n:'수입 돛',ic:'⛵',d:'수입품 · 배를 만들 때 (떠돌이 상인)',npc:30000,imp:15000},
  toy:{n:'펫 장난감',ic:'🧸',d:'짝꿍에게 주면 ♥+20 · 경험치 +150',npc:4000,imp:2000},
  map:{n:'항로 지도',ic:'🗺️',d:'먼바다 너머 섬으로 가는 길 (도감 박사)',npc:40000},
+ b_shx:{n:'반짝 3배 미끼',ic:'💎',d:'던질 때 1개 · 그 판에 낚은 물고기가 반짝일 확률 3배 (물결 상점)',bait:{}},
  b_dough:{n:'반죽 미끼',ic:'🪱',d:'한 번 던질 때 희귀 이상 1.3배',npc:150,bait:{rare:1.3}},
  b_shine:{n:'반짝 미끼',ic:'✨',d:'한 번 던질 때 희귀 이상 1.8배',npc:1500,bait:{rare:1.8}},
  shard:{n:'안개 조각',ic:'🔹',d:'안개 섬에서만 나와요 · 섬 장비와 등불 재료 · 주고받을 수 없어요',npc:0},
@@ -7983,9 +7985,12 @@ function sellWow(f,p,first){coinRain(p);
   else if(f.rar>=3)showBanner('💰 '+f.name+' → '+fmt(p)+' 골드!');
   else toast('+'+fmt(p)+' 골드')}
 function renderShop(){
-  const tabs='<div class="tabs"><button class="tab'+(shopTab==='sell'?' on':'')+'" data-tab="sell">물고기 팔기</button><button class="tab'+(shopTab==='gear'?' on':'')+'" data-tab="gear">장비 강화</button></div>';
+  const tabs='<div class="tabs"><button class="tab'+(shopTab==='sell'?' on':'')+'" data-tab="sell">물고기 팔기</button><button class="tab'+(shopTab==='gear'?' on':'')+'" data-tab="gear">장비 강화</button><button class="tab'+(shopTab==='bait'?' on':'')+'" data-tab="bait">💎 미끼</button></div>';
   let h=tabs;
-  if(shopTab==='sell'){
+  if(shopTab==='bait'){const k='b_shx',I=ITEMS[k],n=itN(k);
+    h+='<div class="wishc" style="background:linear-gradient(#f0f8ff,#fff);border-color:#a8d8f0;text-align:center;line-height:1.6"><div style="font-size:40px">💎</div><b>반짝 3배 미끼</b><br>던질 때마다 1개씩 써요<br>그 판에 낚은 물고기가 <b style="color:#e0608a">반짝일 확률 3배</b><br><span class="muted" style="font-size:12px">반짝 탐지 · +18 낚싯대 · 반짝 물결과 함께 겹쳐요</span></div>'+
+      '<div style="text-align:center;margin:8px 0">가진 것 <b>'+n+'개</b> '+(n?'<button class="btn sm '+(S.bait===k?'pink':'ghost')+'" data-use="'+k+'">'+(S.bait===k?'끼움 ✓':'끼우기')+'</button>':'')+'</div><div class="fg-btns">'+[1,5,10].map(q=>'<button class="btn pink" data-shx="'+q+'"'+(S.gold>=1e6*q?'':' disabled')+'>×'+q+' · '+fmtK(1e6*q)+'</button>').join('')+'</div>'}
+  else if(shopTab==='sell'){
     const res=reservedMats();let all=0,cnt=0;Object.keys(S.inv).forEach(k=>{const n=S.inv[k]-(res[k]||0);if(n>0){all+=n*sellPrice(FISH[k]);cnt+=n}});
     h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div class="muted" style="flex:1">'+(ENH_LV()?'🎣 낚싯대 <b style="color:#d0800a">+'+ENH_LV()+'</b> · 판매가 <b style="color:#d0800a">×'+enhSell(ENH_LV()).toFixed(2).replace(/0$/,'')+'</b>':'낚싯대를 강화하면 판매가가 단계마다 +25%')+'</div><button class="btn pink sm" data-sellall="1"'+(cnt?'':' disabled')+'>'+(cnt?cnt+'마리 다 팔기':'팔 것이 없어요')+'</button></div>'+invHtml(true);
   }else{
@@ -8099,6 +8104,20 @@ function openAdmin(){
       '<select class="tin" id="admK" style="flex:1 1 40%">'+opt('tk','강화권',ADM.k)+opt('g','골드',ADM.k)+ITEM_IDS.map(k=>opt('i:'+k,ITEMS[k].ic+' '+ITEMS[k].n,ADM.k)).join('')+'</select>'+
       '<input class="tin" id="admN" type="number" value="'+ADM.n+'" style="flex:1 1 30%" aria-label="개수 (빼려면 마이너스)"><button class="btn sm pink" data-adm="give" style="flex:1 1 30%">보내기</button></div>'+
       '<div class="muted" style="font-size:12px;margin-bottom:10px">빼려면 -5처럼 마이너스로 적어요. 접속하지 않은 친구도 다음에 들어오면 받아요.</div>';
+    {const cosOpt=['rod','bob','hat','outfit','back','face','title','dye','hstyle','trap','tflag','ring','p'].map(k=>{const L=COS.filter(c=>c.k===k);return L.length?'<optgroup label="'+({rod:'낚싯대',bob:'찌',hat:'모자',outfit:'옷',back:'망토·날개',face:'얼굴',title:'칭호',dye:'염색',hstyle:'헤어',trap:'통발',tflag:'통발 깃발',ring:'반지',p:'펫'}[k]||k)+'">'+L.map(c=>'<option value="'+c.id+'">'+(c.tier!=null&&TIERS[c.tier]?'['+TIERS[c.tier].n+'] ':'')+esc(c.name)+'</option>').join('')+'</optgroup>':''}).join(''),
+       objOpt='<optgroup label="🏠 우리 집 가구">'+Object.keys(HOME_FUR).map(id=>'<option value="h:'+id+'">'+esc(HOME_FUR[id][0])+'</option>').join('')+'</optgroup><optgroup label="🏝️ 내 섬 물건">'+Object.keys(ISL_OBJ).map(id=>'<option value="i:'+id+'">'+esc(ISL_OBJ[id][0])+'</option>').join('')+'</optgroup>',
+       fishOpt=FISH.map((f,i)=>'<option value="'+i+'">'+(f.ult?'['+ULT_GN[f.ult]+'] ':f.myth?'[신화] ':'')+esc(f.name)+'</option>').join(''),
+       sel=(id,o,st)=>'<select class="tin" id="'+id+'" style="'+(st||'flex:1 1 100%')+'">'+o+'</select>',row=x=>'<div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0">'+x+'</div>';
+     h+='<div class="sec">🎁 무엇이든 주기 <span class="cnt">위 「선물」의 친구 선택을 같이 써요</span></div>'+
+      row(sel('admCos',cosOpt,'flex:1 1 60%')+'<button class="btn sm pink" data-adm="givecos" style="flex:1 1 30%">치장 주기</button>')+
+      row('<button class="btn sm ghost" data-adm="givecosall" style="flex:1 1 100%">✨ 모든 치장 한꺼번에 주기</button>')+
+      row(sel('admObj',objOpt,'flex:1 1 55%')+'<input class="tin" id="admObjN" type="number" value="1" style="flex:1 1 15%"><button class="btn sm pink" data-adm="giveobj" style="flex:1 1 25%">가구 주기</button>')+
+      row(sel('admFish',fishOpt,'flex:1 1 55%')+'<input class="tin" id="admFishN" type="number" value="1" style="flex:1 1 15%"><button class="btn sm pink" data-adm="givefish" style="flex:1 1 25%">물고기 주기</button>')+
+      row(sel('admGg',HG_NAME.map((n,i)=>'<option value="'+i+'"'+(i===4?' selected':'')+'>'+n+'</option>').join(''),'flex:1 1 22%')+sel('admGt',Array.from({length:11},(_,i)=>'<option value="'+i+'"'+(i===10?' selected':'')+'>'+i+'단계</option>').join(''),'flex:1 1 22%')+
+        sel('admGs','<option value="rand">아무 부위</option>'+[['w','무기'],['a','갑옷'],['h','모자'],['r','반지'],['g','장갑'],['s','신발'],['c','망토'],['n','목걸이']].map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join(''),'flex:1 1 22%')+'<input class="tin" id="admGn" type="number" value="1" min="1" max="10" style="flex:1 1 12%"><button class="btn sm pink" data-adm="givegear" style="flex:1 1 100%">⚔️ 사냥 장비 주기</button>')+
+      row('<input class="tin" id="admChip" type="number" value="100000" style="flex:1 1 55%"><button class="btn sm pink" data-adm="givechip" style="flex:1 1 40%">🎰 은비 칩 주기</button>')+
+      row(sel('admSzK','<option value="i">🏝️ 섬 크기</option><option value="h">🏠 집 크기</option>','flex:1 1 35%')+sel('admSz','<option value="0">0 (없음/원룸)</option><option value="1">1</option><option value="2">2</option><option value="3">3 (가장 큼)</option>','flex:1 1 30%')+'<button class="btn sm pink" data-adm="setsize" style="flex:1 1 30%">맞추기</button>')+
+      '<div class="muted" style="font-size:12px;margin-bottom:10px">가구 · 물고기 · 칩은 마이너스로 빼기도 돼요 · 접속 안 한 친구는 다음에 들어오면 받아요</div>'}
     h+='<div class="sec">🚑 갇힘 · 이동 도구 <span class="cnt">위 「선물」의 친구 선택을 같이 써요</span></div><div class="warps">'+
       '<button data-adm="rescue">🏠 마을로 빼내기</button><button data-adm="summon">🧲 내 옆으로 소환</button><button data-adm="goto">🏃 그 친구에게 가기</button><button data-adm="ptreset">⚓ 오늘 배낚시 횟수 0으로</button><button data-adm="kick">🔌 연결 끊기 (다시 접속하게)</button></div>'+
       '<div class="muted" style="font-size:12px;margin:2px 0 10px">마을로 빼내기: 배낚시 중이면 배에서 내리고 광장으로 옮겨요. 접속 안 한 친구는 다음 접속 때 광장에서 시작해요.</div>';
@@ -8125,6 +8144,14 @@ function admClick(t){
   if(a==='notice'){const tx=($('admNote').value||'').trim();if(tx)Net.send({t:'adm',op:'notice',text:tx});$('admNote').value='';return true}
   if(a==='give'){ADM.to=$('admTo').value;ADM.k=$('admK').value;ADM.n=+$('admN').value|0;if(!ADM.n){toast('개수를 적어 주세요');return true}Net.flushSave(true);Net.send({t:'adm',op:'give',to:ADM.to,k:ADM.k,n:ADM.n});return true}
   if(a==='unjob'){Net.send({t:'adm',op:'unjob',to:v});return true}
+  {const to=($('admTo')&&$('admTo').value)||ADM.to,val=id=>$(id)?$(id).value:'';
+   if(a==='givecos'){Net.send({t:'adm',op:'givecos',to,id:val('admCos')});return true}
+   if(a==='givecosall'){askConfirm('모든 치장을 줄까요?',to+' 님에게 지금까지 만든 치장 전부','줄게요',()=>Net.send({t:'adm',op:'givecos',to,id:'*'}));return true}
+   if(a==='giveobj'){const [k,id]=val('admObj').split(':');Net.send({t:'adm',op:'giveobj',to,kind:k,id,n:+val('admObjN')|0});return true}
+   if(a==='givefish'){Net.flushSave(true);Net.send({t:'adm',op:'give',to,k:val('admFish'),n:+val('admFishN')|0});return true}
+   if(a==='givegear'){Net.send({t:'adm',op:'givegear',to,g:+val('admGg'),tier:+val('admGt'),sl:val('admGs'),n:+val('admGn')|0});return true}
+   if(a==='givechip'){Net.send({t:'adm',op:'givechip',to,n:+val('admChip')});return true}
+   if(a==='setsize'){Net.send({t:'adm',op:'setsize',to,kind:val('admSzK'),n:+val('admSz')});return true}}
   if(a==='setlv'){const to=($('admTo')&&$('admTo').value)||ADM.to;Net.send({t:'adm',op:'setlv',to,n:+$('admLv').value|0});return true}
   if(a==='petlv'){const L=Math.max(1,Math.min(99,+$('admPl').value|0)),st=petSt(partnerId());st.xp=PLV_CUM[L];saveState(true);toast('짝꿍 펫을 Lv'+L+'(으)로 맞췄어요');openAdmin();return true}
   if(a==='traphurry'){Net.send({t:'adm',op:'traphurry',h:+v});return true}
@@ -8201,6 +8228,7 @@ $('sheetbody').addEventListener('click',e=>{
   if((t.dataset.aq||t.dataset.aqv||t.dataset.aqp)&&aqClick(t))return;
   if(t.dataset.pt2){const m=pm();m.pt2=t.dataset.pt2;saveState(true);toast(petName(m.pt2)+'가 두 번째 짝꿍이 됐어요!');openPetSheet(m.pt2);return}
   if(t.dataset.tab){shopTab=t.dataset.tab;Snd.sfx('tap');renderShop();return}
+  if(t.dataset.shx){const q=+t.dataset.shx,go=()=>{Net.flushSave&&Net.flushSave(true);Net.send({t:'shx_buy',n:q});setTimeout(()=>{if($('sheettitle').textContent==='물결 상점')renderShop()},900)};if(!ONLINE){toast('온라인에서 살 수 있어요');return}askConfirm('💎 반짝 3배 미끼 '+q+'개 살까요?',askPrice(1e6*q),'살게요',go);return}
   if(t.dataset.sell!==undefined){const id=+t.dataset.sell,f=FISH[id],first=!soldKnown(id),p=sell(id,1);if(p){soldMark(id);Snd.sfx('coin');saveState();renderShop();sellWow(f,p,first)}return}
   if(t.dataset.sellall){const res=reservedMats();let p=0,nw=0,top=null;Object.keys(S.inv).forEach(k=>{const q=(S.inv[k]||0)-(res[k]||0);if(q<=0)return;if(!soldKnown(+k))nw++;const f=FISH[k];if(!top||(f.myth?9:f.rar)>(top.myth?9:top.rar))top=f;p+=sell(+k,q);soldMark(+k)});if(p){Snd.sfx('buy');saveState();renderShop();coinRain(p);showBanner('💰 다 팔았어요! +'+fmt(p)+' 골드'+(nw?' · 처음 판 물고기 '+nw+'종':''))}return}
   if(t.dataset.up){upgrade(t.dataset.up);return}

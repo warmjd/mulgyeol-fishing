@@ -165,7 +165,7 @@ function fishPrice(id) {
 }
 const validFish = id => Number.isInteger(id) && id >= 0 && id < FISH_MAX;
 const invOf = s => (s && s.inv) || {};
-const ITEM_IDS = ['flesh', 'scale', 'note', 'shell', 'weed', 'pearl', 'feather', 'thread', 'sail', 'toy', 'map', 'b_dough', 'b_shine', 'b_legend_n', 'b_legend', 'shard', 'soup', 'grill', 'snack', 'charm', 'knack'];   // index.html ITEMS와 같아야 해요
+const ITEM_IDS = ['b_shx', 'flesh', 'scale', 'note', 'shell', 'weed', 'pearl', 'feather', 'thread', 'sail', 'toy', 'map', 'b_dough', 'b_shine', 'b_legend_n', 'b_legend', 'shard', 'soup', 'grill', 'snack', 'charm', 'knack'];   // index.html ITEMS와 같아야 해요
 /* 2026-11-05 재료 정리: 직업 재료 다섯 가지는 「✨ 솜씨 재료」 하나로, 방수 판자 → 판자, 꽃 염료 → 꽃잎 돛천, 라벤더꿀 → 들꽃꿀 (index.html MERGE와 같아요) */
 const MERGE = { scale: 'knack', pearl: 'knack', feather: 'knack', note: 'knack', thread: 'knack', wplank: 'plank', dye: 'cloth', honey_lav: 'honey' };
 const mk = k => MERGE[k] || k;
@@ -664,7 +664,7 @@ wss.on('connection', (ws) => {
         for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
-        const oldSd = (me.save && me.save.sdex) || {};
+        const oldSd = (me.save && me.save.sdex) || {}, shxUsed = Math.max(0, (((me.save && me.save.items) || {}).b_shx | 0) - (((m.data && m.data.items) || {}).b_shx | 0));
         const sFixed = checkSdex(me.save, m.data, oldDex, newDex);   // 손맛 도감은 실제로 낚은 만큼만
         m.data.cosg = me.save && Array.isArray(me.save.cosg) ? me.save.cosg : [];   // 서버가 준 옷: 화면 저장에서 빠져도 다시 넣어요
         if (m.data.cosg.length) { const c = m.data.cos && typeof m.data.cos === 'object' ? m.data.cos : (m.data.cos = {}); c.own = Array.isArray(c.own) ? c.own : []; for (const id of m.data.cosg) if (!c.own.includes(id)) c.own.push(id); }
@@ -674,7 +674,7 @@ wss.on('connection', (ws) => {
         foldItems(m.data); me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data); shipSnap(me, m.data);
         if (first) togCheck();
         if (sFixed) send(ws, { t: 'sdex', sdex: m.data.sdex });   // 손맛 도감을 서버 기록에 맞춰요
-        if (!first) { shinyRoll(ws, me, m.data, oldSd); mythCheck(me, m.data, oldSd); luxFish(ws, me, m.data, oldSd); dayStar(me, m.data, oldSd); mentorCheck(me, m.data, oldSd); starCatch(ws, m.data, oldSd); stampCheck(ws, m.data, oldSd); recCheck(ws, me, oldDex, m.data, oldSd); }
+        if (!first) { shinyRoll(ws, me, m.data, oldSd, shxUsed); mythCheck(me, m.data, oldSd); luxFish(ws, me, m.data, oldSd); dayStar(me, m.data, oldSd); mentorCheck(me, m.data, oldSd); starCatch(ws, m.data, oldSd); stampCheck(ws, m.data, oldSd); recCheck(ws, me, oldDex, m.data, oldSd); }
         if (!first) {   // 섬 물고기를 직접 낚았으면 안개 조각
           const sh = shardRoll(m.data, oldSd);
           if (sh) { const rev = applyInv(m.data, { 'i:shard': sh }); send(ws, { t: 'delta', d: { 'i:shard': sh }, rev, shd: m.data.shd, why: '🔹 섬 물고기를 직접 낚았어요 (이번 주 ' + m.data.shd.n + '/' + shardDay() + ')' }); }
@@ -801,6 +801,8 @@ function onMsg(ws, me, m) {
     }
     case 'aq_buy': case 'aq_on': case 'cos_up': case 'pv_buy': case 'pv_list': spendMsg(ws, me, m); break;
     case 'home_get': case 'home_list': case 'home_like': case 'home_buy': case 'home_set': homeMsg(ws, me, m); break;
+    case 'shx_buy': withLock(me.key, async () => { const s = me.save; if (!s) return; const n = [1, 5, 10].includes(m.n) ? m.n : 1, g = SHX_PRICE * n; if (!hasKey(s, 'g', g)) return send(ws, { t: 'ev_err', text: '골드가 모자라요' });
+      await changeBag(me.key, { g: -g, 'i:b_shx': n }, '💎 반짝 3배 미끼'); }).catch(e => console.error('shx', e.message)); break;
     case 'st_q': case 'st_lounge': case 'st_get': case 'st_score': case 'st_cfg': case 'st_event': case 'st_buy': stMsg(ws, me, m); break;
     case 'isl_get': case 'isl_list': case 'isl_like': case 'isl_gb': case 'isl_buy': case 'isl_set': case 'isl_gbdel': case 'isl_koi': case 'isl_pics': case 'isl_cast': case 'isl_reel': islMsg(ws, me, m); break;
     case 'sh_sell': withLock(me.key, async () => {   // 가방 반짝 칸의 반짝 물고기 팔기: 보통의 10배 × 낚싯대 판매가
@@ -1189,6 +1191,20 @@ function onMsg(ws, me, m) {
           if (l) send(l[0], { t: 'job_free' }); else addMail(key, '운영자가 직업 바꾸기 대기를 풀어 줬어요. 지금 바로 바꿀 수 있어요');
           return ok(nm + ' 님 직업 대기를 풀었어요');
         }
+        /* 🎁 운영자 자유 선물 (2026-11-11): 치장 하나 · 전부, 집 가구 · 섬 물건, 사냥 장비(등급 · 단계 · 부위), 은비 칩, 섬 · 집 크기 */
+        if (m.op === 'givecos') { const all = [].concat(...Object.values(LOOK_IDS)).filter(Boolean), ids = m.id === '*' ? all : (all.includes(String(m.id)) ? [String(m.id)] : []); if (!ids.length) return ok('그런 치장은 없어요');
+          const got = giveCos(s, ids); queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'cos_got', ids: got }); } else addMail(key, '운영자 선물: 치장 ' + got.length + '개');
+          return ok(nm + ' 님에게 치장 ' + got.length + '개 줬어요' + (got.length < ids.length ? ' (이미 가진 ' + (ids.length - got.length) + '개 빼고)' : '')); }
+        if (m.op === 'giveobj') { const id = String(m.id || ''), n = Math.max(-99, Math.min(99, m.n | 0)) || 1, home = m.kind === 'h'; if (home ? !HOME_FUR[id] : !ISL_OBJ[id]) return ok('그런 물건은 없어요');
+          const h = home ? homeOf(s) : islOf(s); h.own[id] = Math.max(0, (h.own[id] | 0) + n); queueSave(key, s); await flushSave(key); if (l) l[1].save = s; if (!l) addMail(key, '운영자 선물: ' + (home ? '우리 집 가구' : '내 섬 물건') + '이 들어왔어요');
+          return ok(nm + ' 님 ' + (home ? '집' : '섬') + ' 「' + id + '」 ' + (n > 0 ? '+' : '') + n + ' (지금 ' + h.own[id] + '개)'); }
+        if (m.op === 'givegear') { const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); h.inv = Array.isArray(h.inv) ? h.inv : [];
+          const n = Math.max(1, Math.min(10, m.n | 0)), made = []; for (let i = 0; i < n; i++) { const it = mkItem(m.tier | 0, m.g | 0, m.sl === 'rand' ? null : m.sl); invPut(h, it); made.push(it); }
+          queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'rpg', hunt: h, note: '🎁 운영자 선물: 【' + RPG_GN[made[0].g] + '】 장비 ' + n + '개' }); } else addMail(key, '운영자 선물: 사냥 장비가 가방에 들어왔어요');
+          return ok(nm + ' 님에게 【' + RPG_GN[made[0].g] + '】 ' + made.map(it => RPG_SN[it.t]).join(' · ') + ' 줬어요 (' + (m.tier | 0) + '단계)'); }
+        if (m.op === 'givechip') { const e = ebOf(s), n = Math.max(-1e9, Math.min(1e9, Math.round(+m.n || 0))); e.c = Math.max(0, (e.c | 0) + n); queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], ebPub(s, l[1])); }
+          return ok(nm + ' 님 은비 칩 ' + (n > 0 ? '+' : '') + n + ' (지금 ' + e.c + ')'); }
+        if (m.op === 'setsize') { const lv = Math.max(0, Math.min(3, m.n | 0)); if (m.kind === 'h') homeOf(s).lv = lv; else islOf(s).lv = lv; queueSave(key, s); await flushSave(key); if (l) l[1].save = s; return ok(nm + ' 님 ' + (m.kind === 'h' ? '집' : '섬') + ' 크기를 ' + lv + '단계로 맞췄어요'); }
         if (m.op === 'give') {
           const k = String(m.k || ''), n = Math.max(-1e7, Math.min(1e7, m.n | 0)); if (!n) return;
           if (k === 'tk') {
@@ -2148,9 +2164,11 @@ function stampMigrate(ws, s) {
   if (a + c) send(ws, { t: 'enh', enh: enhOf(s), note: ['📖 도감이 도장 3개로 바뀌었어요! 지금까지 찍은 도장 보상: 강화권 +' + (a + c) + (a ? ' (예전 손맛은 절반)' : '')] });
   if (sh.length) send(ws, { t: 'shb', shb: b });
 }
-function shinyRoll(ws, me, s, oldSd) {
+const SHX_PRICE = 1e6;   // 💎 반짝 3배 미끼 (2026-11-11): 상점 1개 100만 · 던질 때 1개 · 그 판에 낚은 물고기 반짝 확률 3배
+function shinyRoll(ws, me, s, oldSd, shxN) {
+  let bx = Math.max(0, shxN | 0);
   const nsd = s.sdex || {}, sh = s.shiny && typeof s.shiny === 'object' ? s.shiny : (s.shiny = {}), got = [], first = [];
-  for (const k in nsd) { const id = +k; if (isGet(id)) continue; let dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); const p = (isMyth(id) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1) * (fireOn() ? 1.5 : 1); while (dn-- > 0) if (Math.random() < p) { if (!(sh[id] | 0)) first.push(id); sh[id] = (sh[id] | 0) + 1; got.push(id); } }
+  for (const k in nsd) { const id = +k; if (isGet(id)) continue; let dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); const p = (isMyth(id) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1) * (fireOn() ? 1.5 : 1); while (dn-- > 0) if (Math.random() < p * (bx-- > 0 ? 3 : 1)) { if (!(sh[id] | 0)) first.push(id); sh[id] = (sh[id] | 0) + 1; got.push(id); } }
   if (!got.length) return;
   const b = objOf(s, 'shb'); for (const id of got) b[id] = (b[id] | 0) + 1;
   const tk = first.length ? stampGive(null, s, 'sh', first, 1, '') : 0;
