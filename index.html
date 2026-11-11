@@ -507,6 +507,7 @@ details.more summary::-webkit-details-marker{display:none}
 .sthead{background:linear-gradient(#2a1e3a,#3a2a4e);border-radius:16px;padding:14px 10px 10px;text-align:center;margin-bottom:8px;color:#fff}.sthead.al{background:#f4f4f4;color:#1a1a1a;border:2px solid #1a1a1a}.stsign{font-size:22px;font-weight:800;letter-spacing:1px}.stsign.alof{font-family:'Arial Black',Arial,sans-serif;font-weight:900;font-size:34px;letter-spacing:4px;background:#fff;color:#111;display:inline-block;padding:2px 14px;border:3px solid #111}
 .stsub{font-size:12px;margin-top:6px;opacity:.95}.stmsg{font-size:13px;margin:4px 0}.stchips{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-top:6px}.stchips span{font-size:11px;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.18)}.sthead.al .stchips span{background:#e4e4e4}.stchips .on{color:#7cffa0}.sthead.al .stchips .on{color:#1a8a3a}.stchips .sale,.stchips .ev{background:#ff5a8a!important;color:#fff}
 .stcv{width:100%;height:auto;border-radius:14px;display:block;touch-action:none;image-rendering:pixelated;background:#222}.stsg{position:absolute;left:0;top:0;pointer-events:none;text-align:center;white-space:nowrap;z-index:1}.stsg b{display:inline-block;font-size:11px;font-weight:800;color:#fff;background:rgba(40,28,56,.78);padding:2px 8px;border-radius:8px;border:1.5px solid var(--c)}.stsg.eve b{color:var(--c);text-shadow:0 0 6px var(--c);box-shadow:0 0 8px var(--c)}.stsg.al b{background:#fff;color:#111;border:2px solid #111;font-family:'Arial Black',Arial,sans-serif;font-weight:900;letter-spacing:2px;box-shadow:none;text-shadow:none}.stsg i{display:block;font-style:normal;font-size:10px;font-weight:700;color:#fff;background:#ff5a8a;border-radius:99px;padding:0 6px;margin:2px auto 0;width:max-content}.stsg i.off{background:#9a9aaa}
+.bbrow{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;margin-top:4px}.bbrow .btn{width:auto!important;margin:0!important;padding:6px 2px!important;font-size:12px}
 .sigd{font-size:11px;color:#7a5cff;margin:3px 0;line-height:1.35}
 .stbox{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0}.stbox div{background:#fff6fa;border:2px solid #f6d6e6;border-radius:12px;padding:6px;text-align:center}.stbox small{display:block;font-size:11px;color:#8a7a9a}.stbox b{font-size:16px;color:#e0608a}
 .stpick{box-shadow:0 0 0 3px #ffd34d inset}.stpk{font-size:10px;color:#c07a10;font-weight:700}.stti{font-size:13px;font-weight:800;color:#7a5cff;padding:12px 0}
@@ -2235,7 +2236,7 @@ const ULT_RAW=[['태초의 빛고래','whale','#fff4d8',0,1500,'세상에 처음
  ['무한 고리 해파리','jelly','#a8e8ff',1,120,'몸 안에서 빛의 고리가 끝없이 돌고 돈다. 보고 있으면 시간이 멈춘다.',{pc:'#ffffff'}],
  ['창세의 근원어','angel','#ffffff',0,999,'모든 물고기의 첫 번째 조상. 이 물고기가 꿈을 꾸어 바다가 생겼다고 한다.',{pc:'#a0f0ff'}]];
 const ULT_IDS=ULT_RAW.map((r,i)=>{const f=addFish(0,4,i,r);f.myth=true;f.ult=ULT_G[i];f.price=ULT_PRICE[i];f.diff=1;return f.id});
-function ultRoll(){if(F.afk||!ONLINE)return null;const m=(ENH_LV()>=20?1.5:1)*(F.hsK==='legend'?3:1);for(const g of[8,7,6])if(Math.random()<ULT_P[g]*m){const L=ULT_IDS.filter(id=>FISH[id].ult===g);return FISH[L[(Math.random()*L.length)|0]]}return null}
+function ultRoll(){if(F.afk||!ONLINE)return null;const m=(ENH_LV()>=20?1.5:1)*(F.hsK==='legend'?3:1)*(F.bait==='b_ult'?3:1);for(const g of[8,7,6])if(Math.random()<ULT_P[g]*m){const L=ULT_IDS.filter(id=>FISH[id].ult===g);return FISH[L[(Math.random()*L.length)|0]]}return null}
 
 /* 축제 기간 (한국 시간 월-일, 해를 넘겨도 됨) */
 const kstMD=()=>{const d=new Date(Date.now()+9*3600e3);return String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')};
@@ -4524,8 +4525,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y);
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1111k',UPD_LOG=[
- ['11/11 밤','💎',[['💎 반짝 3배 미끼','물결 상점 → 💎 미끼 탭 · 1개 100만 · 던질 때 1개 · 그 판에 낚은 물고기 반짝 확률 3배']]],
+const UPD_VER='1111l',UPD_LOG=[
+ ['11/11 밤','🪱',[['🪱 물결 상점 미끼 8종','물결 상점 → 💎 미끼 탭 · 던질 때 1개씩 · 한 번에 한 종류'],['🌟 상점 전설 40만 · 🌌 신화 50만','전설 대폭↑ · 신화 확률 3배'],['💎 반짝 100만 · 👑 월척 50만','반짝 3배 · 월척 2배 (최대 60%)'],['📜 주문서 20만 · ⚔️ 장비 30만','낚시하다 딸려 오는 주문서 · 장비 3배'],['🌠 보물 150만 · 🌌 초월 200만','레전더리 이상 낚싯대·찌 5배 · 초월 물고기 3배 · 꿈을 사는 미끼']]],
  ['11/11 밤','🌠',[['✨ 전설 너머 낚싯대 10종 · 찌 6종','레전더리 → 미스틱 → 태초 → 무한 → 창세 · 물 · 불 · 바람 · 얼음 · 달 · 심해 · 우주'],['낚았을 때 고유 연출','해일 · 불꽃놀이 · 화산 분출 · 회오리 · 빙하 · 보름달과 달토끼 · 크라켄 촉수 · 블랙홀 · 무지개 용 · 창세의 빛'],['▶ 효과 보기','치장 상점 → 💎 낚싯대·찌 · 카드마다 효과 설명 · 누르면 내 캐릭터 앞에서 미리 보여 줘요'],['🌠 아주 아주 가끔 줍기','직접 낚을 때 · 사냥할 때 레전더리 이상 낚싯대 · 찌가 나올 수 있어요 (안 가진 것만) · 나오면 마을 모두에게 알려요'],['가장 비싼 건','창세의 낚싯대 15억 · 창세의 알 찌 10억']]],
  ['11/11 밤','🏙️',[['🏙️ 물결 생활 거리','모두의 정원 남쪽 바닷가 · 멤버 가게 6곳 + 구름과자 라운지 (메뉴 → 가 볼 곳)'],['💗 꼬북린 폴댄스 · 🧘 은비땅 필라테스','리듬 폴 스핀 · 코어 버티기'],['💪 치킨 헬스장 · 🧗 락트리 클라이밍','10초 벤치프레스 · 볼더링 V0~V7'],['🩻 조돌맹 정형외과 · 🏭 ALOF 가구 공장','엑스레이 찍기 · 집과 섬에 놓는 ALOF 한정 가구'],['놀이는 언제나 무료','이번 주 순위만 있어요 · 1위가 바뀌면 마을에 알려요'],['👑 사장님 매출','굿즈 값의 10%가 사장님께 · 세일 · 깜짝 세일 · 한마디 · 간판 색 · 추천 · 휴무를 사장님이 정해요'],['☁️ 구름과자 라운지','리치맨 · 치킨 · 꼬북린의 아늑한 옥상 아지트 · 누구나 쉬어 가요']]],
  ['11/11 저녁','🌌',[['🌌 초월 물고기 6종','태초 3 · 무한 2 · 창세 1 · 어느 낚시터에서든 직접 낚을 때 아주 아주 가끔'],['값이 몇억!','태초 5천만 · 무한 2억 · 창세 5억 골드 · 도감 → 🌌 초월'],['신화 이상은 값 공개','도감에서 신화 · 초월 물고기 값을 누구나 볼 수 있어요 · 낚으면 값까지 마을 모두에게 알려요'],['📣 대박 소식','은비랜드 ×60 이상 당첨 · 전설 등급 이상 장비를 얻으면 마을 모두에게 크게 알려요'],['💗 기부 1위','마을 발전 기금에 가장 많이 기부한 사람 이름 앞에 💗 (이름표의 직업 표시는 뺐어요)']]],
@@ -4748,7 +4749,7 @@ function shinyLocal(f){if(ONLINE)return;const p=(f.myth?1/60:f.rar>=4?1/150:1/30
 const rarTagF=f=>f.ult?'<span class="tag" style="background:'+ULT_COL[f.ult]+';color:#4a2a6a">'+ULT_GN[f.ult]+'</span>':f.myth?'<span class="tag" style="background:linear-gradient(90deg,#7a5cff,#ff6ec8,#ffd34d)">신화</span>':rarTag(f.rar);
 /* 신화: 낚시터마다 1종. 조건이 겹칠 때 아주 가끔 (미끼 없이) */
 const MYTH_P=.015;
-function mythRoll(zone,c){const f=MYTH_IDS.map(id=>FISH[id]).find(f=>f.zone===zone);if(!f)return null;if(!condOk(f,c))return null;if(f.fest&&!(VIL&&VIL.fest))return null;return Math.random()<MYTH_P*(1+(ST.luck-1)*.5)*(ENH_LV()>=20?3:ENH_LV()>=15?2:1)?f:null}
+function mythRoll(zone,c){const f=MYTH_IDS.map(id=>FISH[id]).find(f=>f.zone===zone);if(!f)return null;if(!condOk(f,c))return null;if(f.fest&&!(VIL&&VIL.fest))return null;return Math.random()<MYTH_P*(1+(ST.luck-1)*.5)*(ENH_LV()>=20?3:ENH_LV()>=15?2:1)*(!F.afk&&F.bait==='b_myth'?3:1)?f:null}
 /* ----- 마을 기록 (행사 허브 탭) ----- */
 let VREC=null;
 function renderRec(){if(!VREC){Net.send({t:'rec_list'});return'<div class="muted" style="padding:16px;text-align:center">기록을 모으는 중…</div>'}
@@ -4961,7 +4962,7 @@ function finishCatch(){
   if(F.perfect){F.len=Math.round(F.len*1.1);S.combo=Math.min(5,(S.combo|0)+1)}else if(F.reeled)S.combo=0;
   const had=!!S.dex[id],wasT=tierOf(id),oldBest=S.dex[id]?S.dex[id].best|0:0;F.best=false;
   F.big=f.rar>=4&&rk('fish','cap')||Math.random()<.08*rk('fish','big');if(F.big){F.len=Math.round(f.len*(1.5+Math.random()*.5));itAdd('scale',(f.rar>=4?5:1)+(jobId()==='fish'?topB('fish'):0))}const wasDone=[];for(let p=0;p<PAGES;p++)wasDone[p]=pageDone(p);
-  F.giant=!f.boss&&Math.random()<((F.hsK==='giant'||F.hsK==='legend')?Math.max(.06,giantP(S.enh.lv)*2):giantP(S.enh.lv));if(F.giant)F.len=Math.round(f.len*(2+Math.random()*.6));   // 👑 거대 개체 (+5부터)
+  F.giant=!f.boss&&Math.random()<Math.min(F.bait==='b_giant'?.6:1,((F.hsK==='giant'||F.hsK==='legend')?Math.max(.06,giantP(S.enh.lv)*2):giantP(S.enh.lv))*(F.bait==='b_giant'?2:1));if(F.giant)F.len=Math.round(f.len*(2+Math.random()*.6));   // 👑 거대 개체 (+5부터)
   F.wol=!F.giant&&!f.boss&&((ENH_LV()>=10&&Math.random()<.15)||Math.random()<.05*rk('fish','big'));if(skOn('focus'))F.len=Math.round(F.len*1.2);if(F.wol)F.len=Math.round(F.len*1.3);   // 🌕 월척 (+10부터)
   F.net=f.rar===0&&!F.giant&&ENH_LV()>=7?2:0;   // 🕸️ 그물 (+7부터): 흔한 물고기 2마리 더
   const sd0=sdHas(id);S.inv[id]=(S.inv[id]||0)+1+(F.giant?2:0)+F.net;sdAdd(id,1+F.net);if(!sd0&&!ONLINE){S.enh.tk+=stampTk(id,'sd');toast('🎣 손맛 도장! 강화권 +'+stampTk(id,'sd'))}if((S.rest|0)>0){S.rest--;if(!S.rest)setTimeout(()=>toast('🌙 휴식 행운을 다 썼어요'),2500);vilHud()}
@@ -5798,7 +5799,14 @@ const ITEMS={
  sail:{n:'수입 돛',ic:'⛵',d:'수입품 · 배를 만들 때 (떠돌이 상인)',npc:30000,imp:15000},
  toy:{n:'펫 장난감',ic:'🧸',d:'짝꿍에게 주면 ♥+20 · 경험치 +150',npc:4000,imp:2000},
  map:{n:'항로 지도',ic:'🗺️',d:'먼바다 너머 섬으로 가는 길 (도감 박사)',npc:40000},
- b_shx:{n:'반짝 3배 미끼',ic:'💎',d:'던질 때 1개 · 그 판에 낚은 물고기가 반짝일 확률 3배 (물결 상점)',bait:{}},
+ b_shx:{n:'반짝 3배 미끼',ic:'💎',d:'그 판에 낚은 물고기가 반짝일 확률 3배',bait:{}},
+ b_legend_s:{n:'상점 전설 미끼',ic:'🌟',d:'장인 전설 미끼와 같은 힘 · 전설이 잘 걸려요',bait:{rare:1.5,leg:15}},
+ b_myth:{n:'신화 미끼',ic:'🌌',d:'신화 물고기가 걸릴 확률 3배',bait:{}},
+ b_giant:{n:'월척 미끼',ic:'👑',d:'거대 물고기(월척) 확률 2배 · 최대 60%',bait:{}},
+ b_scr:{n:'주문서 미끼',ic:'📜',d:'낚시하다 주문서가 딸려 올 확률 3배',bait:{}},
+ b_gear:{n:'장비 미끼',ic:'⚔️',d:'낚시하다 장비가 딸려 올 확률 3배 · 좋은 등급이 조금 더 잘 나와요',bait:{}},
+ b_lux:{n:'보물 미끼',ic:'🌠',d:'레전더리 이상 낚싯대 · 찌가 나올 확률 5배 · 아주 아주 가끔 · 꿈을 사는 미끼',bait:{}},
+ b_ult:{n:'초월 미끼',ic:'🌌',d:'태초 · 무한 · 창세 물고기 확률 3배 · 아주 아주 가끔 · 꿈을 사는 미끼',bait:{}},
  b_dough:{n:'반죽 미끼',ic:'🪱',d:'한 번 던질 때 희귀 이상 1.3배',npc:150,bait:{rare:1.3}},
  b_shine:{n:'반짝 미끼',ic:'✨',d:'한 번 던질 때 희귀 이상 1.8배',npc:1500,bait:{rare:1.8}},
  shard:{n:'안개 조각',ic:'🔹',d:'안개 섬에서만 나와요 · 섬 장비와 등불 재료 · 주고받을 수 없어요',npc:0},
@@ -7974,6 +7982,7 @@ function bobPrevStart(){if(BPV.on)return;BPV.on=true;BPV.P=[];let last=performan
 
 /* ----- 상점 ----- */
 let shopTab='sell';
+const BAIT_SHOP=[['b_legend_s',4e5],['b_myth',5e5],['b_shx',1e6],['b_giant',5e5],['b_scr',2e5],['b_gear',3e5],['b_lux',1.5e6],['b_ult',2e6]];   // server.js BAIT_SHOP와 같아요
 function openShop(){openSheet('물결 상점','');renderShop()}
 /* 상점의 설렘: 처음 파는 물고기는 값이 ??? · 팔아 보면 그때 알아요 */
 const soldKnown=id=>{if(!S.soldK||typeof S.soldK!=='object'){S.soldK={};if((S.stats&&S.stats.sold)>0)Object.keys(S.dex).forEach(k=>S.soldK[k]=1)}return!!S.soldK[id]};   // 예전부터 하던 친구는 이미 아는 물고기는 값을 알아요
@@ -7987,9 +7996,10 @@ function sellWow(f,p,first){coinRain(p);
 function renderShop(){
   const tabs='<div class="tabs"><button class="tab'+(shopTab==='sell'?' on':'')+'" data-tab="sell">물고기 팔기</button><button class="tab'+(shopTab==='gear'?' on':'')+'" data-tab="gear">장비 강화</button><button class="tab'+(shopTab==='bait'?' on':'')+'" data-tab="bait">💎 미끼</button></div>';
   let h=tabs;
-  if(shopTab==='bait'){const k='b_shx',I=ITEMS[k],n=itN(k);
-    h+='<div class="wishc" style="background:linear-gradient(#f0f8ff,#fff);border-color:#a8d8f0;text-align:center;line-height:1.6"><div style="font-size:40px">💎</div><b>반짝 3배 미끼</b><br>던질 때마다 1개씩 써요<br>그 판에 낚은 물고기가 <b style="color:#e0608a">반짝일 확률 3배</b><br><span class="muted" style="font-size:12px">반짝 탐지 · +18 낚싯대 · 반짝 물결과 함께 겹쳐요</span></div>'+
-      '<div style="text-align:center;margin:8px 0">가진 것 <b>'+n+'개</b> '+(n?'<button class="btn sm '+(S.bait===k?'pink':'ghost')+'" data-use="'+k+'">'+(S.bait===k?'끼움 ✓':'끼우기')+'</button>':'')+'</div><div class="fg-btns">'+[1,5,10].map(q=>'<button class="btn pink" data-shx="'+q+'"'+(S.gold>=1e6*q?'':' disabled')+'>×'+q+' · '+fmtK(1e6*q)+'</button>').join('')+'</div>'}
+  if(shopTab==='bait'){const cur=S.bait&&itN(S.bait)>0?S.bait:null;
+    h+='<div class="wishc" style="background:linear-gradient(#f0f8ff,#fff);border-color:#a8d8f0;text-align:center;line-height:1.6">지금 끼운 미끼 · '+(cur?'<b>'+ITEMS[cur].ic+' '+esc(ITEMS[cur].n)+'</b> 남은 <b>'+itN(cur)+'개</b>':'<b>없음</b>')+'<br><span class="muted" style="font-size:12px">던질 때마다 1개씩 · 한 번에 한 종류만 · 걸어두기엔 안 써요</span></div>';
+    BAIT_SHOP.forEach(([k,pr])=>{const I=ITEMS[k],n=itN(k);h+='<div class="row" style="align-items:flex-start;flex-wrap:wrap"><span style="font-size:24px;width:32px;text-align:center">'+I.ic+'</span><div class="nm"><div><b>'+esc(I.n)+'</b> <span class="muted" style="font-size:12px">가진 것 '+n+'</span></div><div class="muted" style="font-size:12px">'+esc(I.d)+'</div></div>'+
+      '<div class="bbrow">'+(n?'<button class="btn xs '+(S.bait===k?'pink':'ghost')+'" data-use="'+k+'">'+(S.bait===k?'끼움 ✓':'끼우기')+'</button>':'')+[1,5,10].map(q=>'<button class="btn xs '+(q===1?'pink':'mint')+'" data-bbuy="'+k+':'+q+'"'+(S.gold>=pr*q?'':' disabled')+'>×'+q+' · '+fmtK(pr*q)+'</button>').join('')+'</div></div>'})}
   else if(shopTab==='sell'){
     const res=reservedMats();let all=0,cnt=0;Object.keys(S.inv).forEach(k=>{const n=S.inv[k]-(res[k]||0);if(n>0){all+=n*sellPrice(FISH[k]);cnt+=n}});
     h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div class="muted" style="flex:1">'+(ENH_LV()?'🎣 낚싯대 <b style="color:#d0800a">+'+ENH_LV()+'</b> · 판매가 <b style="color:#d0800a">×'+enhSell(ENH_LV()).toFixed(2).replace(/0$/,'')+'</b>':'낚싯대를 강화하면 판매가가 단계마다 +25%')+'</div><button class="btn pink sm" data-sellall="1"'+(cnt?'':' disabled')+'>'+(cnt?cnt+'마리 다 팔기':'팔 것이 없어요')+'</button></div>'+invHtml(true);
@@ -8228,7 +8238,7 @@ $('sheetbody').addEventListener('click',e=>{
   if((t.dataset.aq||t.dataset.aqv||t.dataset.aqp)&&aqClick(t))return;
   if(t.dataset.pt2){const m=pm();m.pt2=t.dataset.pt2;saveState(true);toast(petName(m.pt2)+'가 두 번째 짝꿍이 됐어요!');openPetSheet(m.pt2);return}
   if(t.dataset.tab){shopTab=t.dataset.tab;Snd.sfx('tap');renderShop();return}
-  if(t.dataset.shx){const q=+t.dataset.shx,go=()=>{Net.flushSave&&Net.flushSave(true);Net.send({t:'shx_buy',n:q});setTimeout(()=>{if($('sheettitle').textContent==='물결 상점')renderShop()},900)};if(!ONLINE){toast('온라인에서 살 수 있어요');return}askConfirm('💎 반짝 3배 미끼 '+q+'개 살까요?',askPrice(1e6*q),'살게요',go);return}
+  if(t.dataset.bbuy){const [k,qs]=t.dataset.bbuy.split(':'),q=+qs,pr=(BAIT_SHOP.find(b=>b[0]===k)||[0,0])[1]*q,go=()=>{Net.flushSave&&Net.flushSave(true);Net.send({t:'bait_buy',id:k,n:q});setTimeout(()=>{if($('sheettitle').textContent==='물결 상점')renderShop()},900)};if(!ONLINE){toast('온라인에서 살 수 있어요');return}if(pr>=ASK_MIN)askConfirm(ITEMS[k].ic+' '+ITEMS[k].n+' '+q+'개 살까요?',askPrice(pr),'살게요',go);else go();return}
   if(t.dataset.sell!==undefined){const id=+t.dataset.sell,f=FISH[id],first=!soldKnown(id),p=sell(id,1);if(p){soldMark(id);Snd.sfx('coin');saveState();renderShop();sellWow(f,p,first)}return}
   if(t.dataset.sellall){const res=reservedMats();let p=0,nw=0,top=null;Object.keys(S.inv).forEach(k=>{const q=(S.inv[k]||0)-(res[k]||0);if(q<=0)return;if(!soldKnown(+k))nw++;const f=FISH[k];if(!top||(f.myth?9:f.rar)>(top.myth?9:top.rar))top=f;p+=sell(+k,q);soldMark(+k)});if(p){Snd.sfx('buy');saveState();renderShop();coinRain(p);showBanner('💰 다 팔았어요! +'+fmt(p)+' 골드'+(nw?' · 처음 판 물고기 '+nw+'종':''))}return}
   if(t.dataset.up){upgrade(t.dataset.up);return}
