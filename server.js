@@ -665,13 +665,14 @@ wss.on('connection', (ws) => {
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {}, shxUsed = baitUsed(me.save, m.data, 'b_shx'), luxUsed = baitUsed(me.save, m.data, 'b_lux');
+        { let tn = 0; const nsd0 = (m.data && m.data.sdex) || {}; for (const k in nsd0) tn += Math.max(0, (nsd0[k] | 0) - (oldSd[k] | 0)); const an = Math.max(0, ((m.data && m.data.rcx) | 0) - ((me.save && me.save.rcx) | 0)); me.arx = tn ? Math.min(1, an / tn) : 0; }
         { const q = me.bq || (me.bq = {}); for (const k of ['b_scr', 'b_gear']) q[k] = Math.min(500, (q[k] | 0) + baitUsed(me.save, m.data, k)); }   // 주문서 · 장비 미끼: 쓴 만큼 다음 낚시 딸림에 적용
         const sFixed = checkSdex(me.save, m.data, oldDex, newDex);   // 손맛 도감은 실제로 낚은 만큼만
         m.data.cosg = me.save && Array.isArray(me.save.cosg) ? me.save.cosg : [];   // 서버가 준 옷: 화면 저장에서 빠져도 다시 넣어요
         if (m.data.cosg.length) { const c = m.data.cos && typeof m.data.cos === 'object' ? m.data.cos : (m.data.cos = {}); c.own = Array.isArray(c.own) ? c.own : []; for (const id of m.data.cosg) if (!c.own.includes(id)) c.own.push(id); }
         const e = enhOf(m.data), out = [];
         enhDaily(e, out);
-        if (!first) { let pts = 0, cnt = 0; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) { pts += dn * ENH.PTS[fishRar(+k)]; cnt += dn; } } if (pts) enhAddPoints(e, pts, out); if (cnt) wkAdd('fish', cnt); }
+        if (!first) { let pts = 0, cnt = 0; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) { pts += dn * ENH.PTS[fishRar(+k)]; cnt += dn; } } pts = Math.round(pts * (1 - .9 * (me.arx || 0))); if (pts) enhAddPoints(e, pts, out); if (cnt) wkAdd('fish', cnt); }
         foldItems(m.data); me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data); shipSnap(me, m.data);
         if (first) togCheck();
         if (sFixed) send(ws, { t: 'sdex', sdex: m.data.sdex });   // 손맛 도감을 서버 기록에 맞춰요
@@ -2167,9 +2168,9 @@ function stampMigrate(ws, s) {
 const SHX_PRICE = 1e6, BAIT_SHOP = { b_legend_s: 4e5, b_myth: 5e5, b_shx: 1e6, b_giant: 5e5, b_scr: 2e5, b_gear: 3e5, b_lux: 1.5e6, b_ult: 2e6 };   // 🪱 물결 상점 미끼 (index.html BAIT_SHOP와 같아요)
 const baitUsed = (o, nw, k) => Math.max(0, (((o && o.items) || {})[k] | 0) - (((nw && nw.items) || {})[k] | 0));   // 💎 반짝 3배 미끼 (2026-11-11): 상점 1개 100만 · 던질 때 1개 · 그 판에 낚은 물고기 반짝 확률 3배
 function shinyRoll(ws, me, s, oldSd, shxN) {
-  let bx = Math.max(0, shxN | 0);
+  let bx = Math.max(0, shxN | 0); const ax = 1 - .95 * (me.arx || 0);
   const nsd = s.sdex || {}, sh = s.shiny && typeof s.shiny === 'object' ? s.shiny : (s.shiny = {}), got = [], first = [];
-  for (const k in nsd) { const id = +k; if (isGet(id)) continue; let dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); const p = (isMyth(id) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1) * (fireOn() ? 1.5 : 1); while (dn-- > 0) if (Math.random() < p * (bx-- > 0 ? 3 : 1)) { if (!(sh[id] | 0)) first.push(id); sh[id] = (sh[id] | 0) + 1; got.push(id); } }
+  for (const k in nsd) { const id = +k; if (isGet(id)) continue; let dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); const p = (isMyth(id) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1) * (fireOn() ? 1.5 : 1); while (dn-- > 0) if (Math.random() < p * ax * (bx-- > 0 ? 3 : 1)) { if (!(sh[id] | 0)) first.push(id); sh[id] = (sh[id] | 0) + 1; got.push(id); } }
   if (!got.length) return;
   const b = objOf(s, 'shb'); for (const id of got) b[id] = (b[id] | 0) + 1;
   const tk = first.length ? stampGive(null, s, 'sh', first, 1, '') : 0;
@@ -2239,7 +2240,7 @@ function luxRoll(ws, me, s, n, where) {   // n번 굴려서 하나라도 나오�
   broadcast({ t: 'big', g: pick[1] + 2, text: (pick[1] >= 5 ? '🌌🌠 ' : '🌠 ') + me.name + ' 님이 ' + (where === 'hunt' ? '사냥하다가' : '낚시하다가') + ' 【' + LUX_TN[pick[1]] + '】 「' + pick[2] + '」를 주웠어요!! (상점가 ' + fmtN(pick[3]) + ' 골드)' });
   return pick[0];
 }
-function luxFish(ws, me, s, oldSd, boost) { const nsd = s.sdex || {}; let n = 0; for (const k in nsd) n += Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (!n) return; const b = Math.min(n, boost | 0); if (b) luxRoll(ws, me, s, b * 5, 'fish'); if (n - b) luxRoll(ws, me, s, n - b, 'fish'); }
+function luxFish(ws, me, s, oldSd, boost) { const nsd = s.sdex || {}; let n = 0; for (const k in nsd) n += Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); n = Math.round(n * (1 - (me.arx || 0))); if (!n) return; const b = Math.min(n, boost | 0); if (b) luxRoll(ws, me, s, b * 5, 'fish'); if (n - b) luxRoll(ws, me, s, n - b, 'fish'); }
 function mythCheck(me, s, oldSd) {
   const nsd = s.sdex || {};
   for (let i = 0; i < MYTH_Z.length; i++) { const id = MYTH_FIRST + i; if ((nsd[id] | 0) > (oldSd[id] | 0)) {
@@ -2737,7 +2738,7 @@ function xKingCheck(f, init) {
 const xKingPub = () => { const o = {}; { const eb = Object.entries((V && V.ebTop) || {}).sort((a, b) => b[1] - a[1])[0]; o.eb = eb && eb[1] > 0 ? { name: eb[0], n: eb[1] } : null; } { const d = Object.entries((V && V.don) || {}).sort((a, b) => b[1] - a[1])[0]; o.don = d && d[1] > 0 ? { name: d[0], n: d[1] } : null; } for (const f of ['gt', 'sh', 'hl']) { xKingCheck(f, !xKingCheck.ready); const k = xKing[f]; o[f] = k ? { name: k.name, n: k.n } : null; } xKingCheck.ready = 1; return o; };
 /* 🎣 하루 낚시왕 (2026-11-09): 오늘 직접 낚은 마릿수 · 반짝 50마리 · 신화 100마리로 쳐요 · 한국 자정에 1등에게 1천만 골드 */
 const DAYK_G = 10000000;
-function dayPts(me, s, oldSd) { const nsd = s.sdex || {}; let pts = 0; for (const k in nsd) { const dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (dn) pts += dn * (isMyth(+k) ? 100 : 1); } return pts; }
+function dayPts(me, s, oldSd) { const nsd = s.sdex || {}; let pts = 0; for (const k in nsd) { const dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (dn) pts += dn * (isMyth(+k) ? 100 : 1); } pts = Math.round(pts * (1 - .95 * (me.arx || 0))); return pts; }
 function dayAdd(key, name, n) { if (!V || !n) return; const d = kstDay(); if (!V.dk || V.dk.d !== d) { dayClose(); V.dk = { d, p: {} }; } const p = V.dk.p; p[key] = p[key] || { n: 0, name }; p[key].n += n; p[key].name = name; vMark(); dkSoon(); }
 function dayClose() { if (!V || !V.dk || V.dk.paid) return; const arr = Object.entries(V.dk.p).sort((a, b) => b[1].n - a[1].n); V.dk.paid = 1; if (!arr.length || V.dk.d === kstDay()) return; const [k, r] = arr[0];
   changeBag(k, { g: DAYK_G }, '🎣 어제의 낚시왕! 1천만 골드').catch(() => { }); addMail(k, '🎣 ' + V.dk.d + ' 하루 낚시왕! ' + r.n + '마리 · 1천만 골드를 받았어요');

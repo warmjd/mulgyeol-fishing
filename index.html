@@ -2242,7 +2242,7 @@ const ULT_RAW=[['태초의 빛고래','whale','#fff4d8',0,1500,'세상에 처음
  ['무한 고리 해파리','jelly','#a8e8ff',1,120,'몸 안에서 빛의 고리가 끝없이 돌고 돈다. 보고 있으면 시간이 멈춘다.',{pc:'#ffffff'}],
  ['창세의 근원어','angel','#ffffff',0,999,'모든 물고기의 첫 번째 조상. 이 물고기가 꿈을 꾸어 바다가 생겼다고 한다.',{pc:'#a0f0ff'}]];
 const ULT_IDS=ULT_RAW.map((r,i)=>{const f=addFish(0,4,i,r);f.myth=true;f.ult=ULT_G[i];f.price=ULT_PRICE[i];f.diff=1;return f.id});
-function ultRoll(){if(F.afk||!ONLINE)return null;const m=(ENH_LV()>=20?1.5:1)*(F.hsK==='legend'?3:1)*(F.bait==='b_ult'?3:1);for(const g of[8,7,6])if(Math.random()<ULT_P[g]*m){const L=ULT_IDS.filter(id=>FISH[id].ult===g);return FISH[L[(Math.random()*L.length)|0]]}return null}
+function ultRoll(){if(F.afk||!ONLINE)return null;const m=(ENH_LV()>=20?1.5:1)*(F.hsK==='legend'?3:1)*(F.bait==='b_ult'?3:1)*(autoOn()?.05:1);for(const g of[8,7,6])if(Math.random()<ULT_P[g]*m){const L=ULT_IDS.filter(id=>FISH[id].ult===g);return FISH[L[(Math.random()*L.length)|0]]}return null}
 
 /* 축제 기간 (한국 시간 월-일, 해를 넘겨도 됨) */
 const kstMD=()=>{const d=new Date(Date.now()+9*3600e3);return String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0')};
@@ -3352,7 +3352,7 @@ function rollFish(zone,c){
   if(zone===8){if(mkLeft()<=0){if(!mkWarned){mkWarned=1;toast('오늘 시장 물고기는 다 잡았어요 (하루 '+MK_DAY+'마리). 이제 보통 바닷물고기가 걸려요')}return rollFish(3,c)}
     const r=Math.random(),rr=r<.6?0:r<.9?1:2,pl=POOL['8-'+rr];return pl[(Math.random()*pl.length)|0]}
   if(F.legNext&&zone>=1&&zone<=6){F.legNext=false;const lg=(POOL[zone+'-4']||[]).filter(f=>condOk(f,c));const all=POOL[zone+'-4']||[];const pk=lg.length?lg:all;if(pk.length){toast('🌟 전설의 손!');return pk[(Math.random()*pk.length)|0]}}
-  const mo=rollMods(zone);if(zone===6)mo.rare*=1+.08*lampLv();if(pathed(zone))mo.rare*=1.1;if(ENH_LV()>=22)mo.rare*=1.1;if(boomOn())mo.rare*=2;if(zone===7)mo.rare*=seaRare();   // 🔮 대박 예보
+  const mo=rollMods(zone);if(zone===6)mo.rare*=1+.08*lampLv();if(pathed(zone))mo.rare*=1.1;if(ENH_LV()>=22)mo.rare*=1.1;if(autoOn())mo.rare*=.5;if(boomOn())mo.rare*=2;if(zone===7)mo.rare*=seaRare();   // 🔮 대박 예보
   const ws=RARITY.map((r,i)=>r.base*(1+(ST.luck-1)*i*.5)*(i>=2&&easyMode()?.8:1)*(i>=2?mo.rare:1)); // 느긋하게: 희귀 이상 20% 덜
   ws[4]*=mo.leg; // 전설은 전설 미끼가 있어야 잘 걸려요 (전설 시간엔 미끼 없이도 아주 조금)
   if(F.mpity&&F.mpity.n>0){ws[F.mpity.rar]*=1.6;if(--F.mpity.n<=0)F.mpity=null}
@@ -4758,7 +4758,7 @@ function shinyLocal(f){if(ONLINE)return;const p=(f.myth?1/60:f.rar>=4?1/150:1/30
 const rarTagF=f=>f.ult?'<span class="tag" style="background:'+ULT_COL[f.ult]+';color:#4a2a6a">'+ULT_GN[f.ult]+'</span>':f.myth?'<span class="tag" style="background:linear-gradient(90deg,#7a5cff,#ff6ec8,#ffd34d)">신화</span>':rarTag(f.rar);
 /* 신화: 낚시터마다 1종. 조건이 겹칠 때 아주 가끔 (미끼 없이) */
 const MYTH_P=.015;
-function mythRoll(zone,c){const f=MYTH_IDS.map(id=>FISH[id]).find(f=>f.zone===zone);if(!f)return null;if(!condOk(f,c))return null;if(f.fest&&!(VIL&&VIL.fest))return null;return Math.random()<MYTH_P*(1+(ST.luck-1)*.5)*(ENH_LV()>=20?3:ENH_LV()>=15?2:1)*(!F.afk&&F.bait==='b_myth'?3:1)?f:null}
+function mythRoll(zone,c){const f=MYTH_IDS.map(id=>FISH[id]).find(f=>f.zone===zone);if(!f)return null;if(!condOk(f,c))return null;if(f.fest&&!(VIL&&VIL.fest))return null;return Math.random()<MYTH_P*(1+(ST.luck-1)*.5)*(ENH_LV()>=20?3:ENH_LV()>=15?2:1)*(!F.afk&&F.bait==='b_myth'?3:1)*(autoOn()?.1:1)?f:null}
 /* ----- 마을 기록 (행사 허브 탭) ----- */
 let VREC=null;
 function renderRec(){if(!VREC){Net.send({t:'rec_list'});return'<div class="muted" style="padding:16px;text-align:center">기록을 모으는 중…</div>'}
@@ -4956,7 +4956,7 @@ function stepReel(dt){
   r.prog=Math.min(100,r.prog);
   r.tick-=dt;if(inBar&&r.tick<=0){r.tick=.16;Snd.sfx('reel',r.prog/100)}
   if(r.ten>=100){r.prog-=30;r.ten=40;r.warn='줄이 끊어질 뻔!';SHK={t:.3,a:2};Snd.sfx('escape');setTimeout(()=>{if(F.reel===r&&r.warn==='줄이 끊어질 뻔!')r.warn=''},900)}   // 퇴근 모드: 끊어지지 않고 조금 밀려나요
-  if(r.prog>=100){F.perfect=r.out<.35||skOn('focus');F.mode='pull';F.t=0;F.from=bobberPos();showReel(false);Snd.setIntense(false);Snd.sfx('splash')}
+  if(r.prog>=100){F.reelHand=1;F.perfect=r.out<.35||skOn('focus');F.mode='pull';F.t=0;F.from=bobberPos();showReel(false);Snd.setIntense(false);Snd.sfx('splash')}
   else if(r.prog<=0&&!r.snap&&S.enh.lv>=15&&F.fish.rar>=4&&!r.second){r.second=1;r.prog=35;Snd.sfx('page');const b=bobberPos();sparkFx(b[0],b[1],20,['#ffe27a','#ffffff']);toast('✨ +15 낚싯대가 버텼어요! 한 번 더!')}
   else if(r.prog<=0){reelLost(r)}
   else updateReelUI(inBar);
@@ -4966,7 +4966,7 @@ function reelLost(r){F.mode='idle';showReel(false);startFlop();Snd.setIntense(fa
   toast(r.snap?'줄이 끊어졌어요! 물고기가 당길 때는 손을 살짝 풀어요':r.gap?'앗, 놓쳤어요… 「'+zoneNm(F.zone)+'」 권장 강화 +'+REC_ENH[F.zone]+' (지금 +'+S.enh.lv+')':'앗, 놓쳤어요… '+(F.fish.rar>=2?'다음엔 또 만날 거예요':'다시 던져 봐요'))}
 
 function finishCatch(){
-  const f=F.fish,id=f.id;{const _had=!!S.dex[id];setTimeout(()=>{diaryCatch(f,_had);wfCatch(id)},60);}if(P)rodSig(S.cos.look.rod,P.x,P.y-8,false);if(ONLINE&&Net.me&&!f.boss)setTimeout(()=>Net.send({t:'fdrop',rar:f.myth?4:f.rar,z:F.zone}),400);
+  const f=F.fish,id=f.id;if(autoOn()&&!F.afk&&!F.reelHand)S.rcx=(S.rcx|0)+1;F.reelHand=0;{const _had=!!S.dex[id];setTimeout(()=>{diaryCatch(f,_had);wfCatch(id)},60);}if(P)rodSig(S.cos.look.rod,P.x,P.y-8,false);if(ONLINE&&Net.me&&!f.boss)setTimeout(()=>Net.send({t:'fdrop',rar:f.myth?4:f.rar,z:F.zone}),400);
   F.len=Math.max(1,Math.round(f.len*(.7+Math.random()*.6)));
   if(F.perfect){F.len=Math.round(F.len*1.1);S.combo=Math.min(5,(S.combo|0)+1)}else if(F.reeled)S.combo=0;
   const had=!!S.dex[id],wasT=tierOf(id),oldBest=S.dex[id]?S.dex[id].best|0:0;F.best=false;
@@ -5062,7 +5062,7 @@ function closeResult(){if(F.mode!=='result'||F.t<.5)return;F.mode='idle';$('resu
 function updateFishing(dt){
   F.t+=dt;
   switch(F.mode){
-    case'cast':if(F.t>=.5){F.mode='wait';F.t=0;F.wait=(easyMode()?1.5+Math.random()*3:2+Math.random()*4)*ST.wait*(F.zone===8?.6:F.zone===7?seaWait():1)*fogBite()*coldWait()*((F.hsK==='school'||F.hsK==='legend')?.35:1);F.ripT=0;const b=bobberPos();ripple(b[0],b[1]);splashFx(b[0],b[1]);bobLand(S.cos.look.bob,b[0],b[1]);rodSig(S.cos.look.rod,b[0],b[1],true)}break;
+    case'cast':if(F.t>=.5){F.mode='wait';F.t=0;F.wait=(easyMode()?1.5+Math.random()*3:2+Math.random()*4)*ST.wait*(autoOn()?1.6:1)*(F.zone===8?.6:F.zone===7?seaWait():1)*fogBite()*coldWait()*((F.hsK==='school'||F.hsK==='legend')?.35:1);F.ripT=0;const b=bobberPos();ripple(b[0],b[1]);splashFx(b[0],b[1]);bobLand(S.cos.look.bob,b[0],b[1]);rodSig(S.cos.look.rod,b[0],b[1],true)}break;
     case'wait':F.wait-=dt;F.ripT-=dt;if(F.ripT<=0){F.ripT=1.5;const b=bobberPos();ripple(b[0],b[1])}
       if(F.afk){if(F.wait<=0)afkBite();break}
       if(F.wait<=0)startNibble();break;
