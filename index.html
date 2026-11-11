@@ -6982,7 +6982,7 @@ function render(dt){
     if(p.x<cX-4||p.x>cX+VW+4||p.y<cY-4||p.y>cY+VH+4)return;cx.fillStyle='rgba(255,196,214,.9)';cx.fillRect(Math.round(p.x),Math.round(p.y),2,1)});
   cx.restore();
   drawWeather(dt);mistFog();dwFx(dt);
-  placeTags(cX,cY);shipTags(cX,cY);trapTags(cX,cY);smTags(cX,cY);npcTags(cX,cY);critTags(cX,cY);
+  shFoot();placeTags(cX,cY);shipTags(cX,cY);trapTags(cX,cY);smTags(cX,cY);npcTags(cX,cY);critTags(cX,cY);
   // 하루 색조
   const c=dtn.c;if(c[0]<255||c[1]<255||c[2]<255){cx.globalCompositeOperation='multiply';cx.fillStyle='rgb('+c[0]+','+c[1]+','+c[2]+')';cx.fillRect(0,0,VW,VH);cx.globalCompositeOperation='source-over'}
   // 밤 가로등 불빛
@@ -9770,6 +9770,10 @@ function drawOthers(dt,list){
         drawRod(o.x+({right:4,left:-4,up:3,down:3}[o.d]||3),o.y-12,tip[0],tip[1],o.look.rod);rodGlow(o.x+({right:4,left:-4,up:3,down:3}[o.d]||3),o.y-12,tip,olv);const dy=Math.sin(wt*3+String(o.id).length)*.8;lineBetween(tip,[bx,by+dy],5,olv);rodFx(cx,o.look.rod,o.x+({right:4,left:-4,up:3,down:3}[o.d]||3),o.y-12,tip[0],tip[1],parts,FXDT);bobFx(cx,o.look.bob,bx,by+dy,parts,FXDT);drawBob(bobCan(o.look.bob),bx,by+dy)}}});
   });
 }
+/* 반짝 1위의 발자국: 걸을 때 발밑에 하얀 · 금빛 별가루가 조금씩 (조용히 넣은 효과) */
+function shFoot(){const k=KINGS.sh;if(!k||!k.name||HUNT.on)return;const one=(o,x,y)=>{const lx=o._sfx,ly=o._sfy;o._sfx=x;o._sfy=y;if(lx==null||Math.hypot(x-lx,y-ly)<.4||Math.random()>.35)return;
+    parts.push({x:x+(Math.random()-.5)*6,y:y-1+(Math.random()-.5)*2,vx:(Math.random()-.5)*3,vy:-4-Math.random()*4,life:.7+Math.random()*.5,t:0,c:['#fff8d8','#ffe890','#ffffff'][(Math.random()*3)|0],g:0,s:Math.random()<.25?2:1})};
+  if(P&&ONLINE&&Net.me&&Net.me.name===k.name)one(ME,P.x,P.y);others.forEach(o=>{if(o.seen&&o.name===k.name)one(o,o.x,o.y)})}
 function placeTags(cX,cY){
   lastCX=cX;lastCY=cY;
   const ox=(innerWidth-VW*SC)/2,oy=(innerHeight-VH*SC)/2,now=performance.now();
