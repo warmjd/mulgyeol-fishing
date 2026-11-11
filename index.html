@@ -507,6 +507,7 @@ details.more summary::-webkit-details-marker{display:none}
 .sthead{background:linear-gradient(#2a1e3a,#3a2a4e);border-radius:16px;padding:14px 10px 10px;text-align:center;margin-bottom:8px;color:#fff}.sthead.al{background:#f4f4f4;color:#1a1a1a;border:2px solid #1a1a1a}.stsign{font-size:22px;font-weight:800;letter-spacing:1px}.stsign.alof{font-family:'Arial Black',Arial,sans-serif;font-weight:900;font-size:34px;letter-spacing:4px;background:#fff;color:#111;display:inline-block;padding:2px 14px;border:3px solid #111}
 .stsub{font-size:12px;margin-top:6px;opacity:.95}.stmsg{font-size:13px;margin:4px 0}.stchips{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-top:6px}.stchips span{font-size:11px;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.18)}.sthead.al .stchips span{background:#e4e4e4}.stchips .on{color:#7cffa0}.sthead.al .stchips .on{color:#1a8a3a}.stchips .sale,.stchips .ev{background:#ff5a8a!important;color:#fff}
 .stcv{width:100%;height:auto;border-radius:14px;display:block;touch-action:none;image-rendering:pixelated;background:#222}.stsg{position:absolute;left:0;top:0;pointer-events:none;text-align:center;white-space:nowrap;z-index:1}.stsg b{display:inline-block;font-size:11px;font-weight:800;color:#fff;background:rgba(40,28,56,.78);padding:2px 8px;border-radius:8px;border:1.5px solid var(--c)}.stsg.eve b{color:var(--c);text-shadow:0 0 6px var(--c);box-shadow:0 0 8px var(--c)}.stsg.al b{background:#fff;color:#111;border:2px solid #111;font-family:'Arial Black',Arial,sans-serif;font-weight:900;letter-spacing:2px;box-shadow:none;text-shadow:none}.stsg i{display:block;font-style:normal;font-size:10px;font-weight:700;color:#fff;background:#ff5a8a;border-radius:99px;padding:0 6px;margin:2px auto 0;width:max-content}.stsg i.off{background:#9a9aaa}
+.sigd{font-size:11px;color:#7a5cff;margin:3px 0;line-height:1.35}
 .stbox{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0}.stbox div{background:#fff6fa;border:2px solid #f6d6e6;border-radius:12px;padding:6px;text-align:center}.stbox small{display:block;font-size:11px;color:#8a7a9a}.stbox b{font-size:16px;color:#e0608a}
 .stpick{box-shadow:0 0 0 3px #ffd34d inset}.stpk{font-size:10px;color:#c07a10;font-weight:700}.stti{font-size:13px;font-weight:800;color:#7a5cff;padding:12px 0}
 .eggbox{padding:16px 10px 10px}.eggbox.rb{background:linear-gradient(135deg,#ffd6e8,#fff3c4,#d4f4ff,#e8dcff);box-shadow:0 0 0 3px #ffe08a inset}.egg{font-size:76px;line-height:96px;height:96px;display:inline-block;filter:drop-shadow(0 4px 0 rgba(0,0,0,.08))}.egg.wob{animation:eggwob .32s ease-in-out infinite}.egg.born{animation:pop .35s cubic-bezier(.2,1.5,.4,1)}
@@ -2552,7 +2553,7 @@ function bobFx(g,id,x,y,P,dt){const d=BOB3[id]||ISLE_BOB[id];if(!d||!d.fx)return
   if(f.rise&&Math.random()<rate)P.push({x:x+(Math.random()-.5)*6,y:y-2,vx:(Math.random()-.5)*6,vy:-9-Math.random()*8,life:1+Math.random()*.5,t:0,c:pickC(f.rise),g:-2,s:Math.random()<.35?2:1});
   if(f.fall&&Math.random()<rate)P.push({x:x+(Math.random()-.5)*(16+tr*4),y:y-14-Math.random()*6,vx:(Math.random()-.5)*4,vy:6+Math.random()*5,life:1.4,t:0,c:pickC(f.fall),g:3,s:1})}
 /* 찌가 물에 떨어질 때: 비싼 찌일수록 화려한 물보라 */
-function bobLand(id,x,y){const d=BOB3[id]||ISLE_BOB[id];if(!d||!d.fx)return;const cols=[].concat(d.fx.spark||[],d.fx.rise||[],d.fx.fall||[],d.fx.glow?[d.fx.glow]:[]);if(!cols.length)return;
+function bobLand(id,x,y){const d=BOB3[id]||ISLE_BOB[id];if(!d||!d.fx)return;if(d.fx.sig)rodSig(null,x,y,false,d.fx.sig);const cols=[].concat(d.fx.spark||[],d.fx.rise||[],d.fx.fall||[],d.fx.glow?[d.fx.glow]:[]);if(!cols.length)return;
   for(let i=0;i<6+(d.tier|0)*5;i++){const a=Math.random()*6.28,s=15+Math.random()*30;parts.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s*.5-18,life:.6+Math.random()*.5,t:0,c:pickC(cols),g:60,s:Math.random()<.4?2:1})}}
 /* 낚싯대 효과: 끝 장식 · 빛 · 입자 */
 function rodTip(g,k,x,y,c){const p=(a,b,w,h)=>{g.fillRect(Math.round(x+a),Math.round(y+b),w||1,h||1)};g.fillStyle=c;
@@ -4255,6 +4256,43 @@ const ROD_PERK={mintrod:[0,2,0,0,0,'drop'],sakura:[0,0,2,0,0,'petal'],rainbowrod
  s_rod1:[2,0,2,0,0,'petal'],s_rod2:[0,3,2,0,0,'drop'],s_rod3:[0,0,4,0,0,'leaf'],s_rod4:[0,0,4,4,0,'column'],s_rod5:[3,3,5,0,0,'starb']};
 const PERK_N=['조절 바','입질 빠르기','행운','당기는 힘','판매가'];
 function rodPerkTxt(id){const p=ROD_PERK[id];if(!p)return'';return p.slice(0,5).map((v,i)=>v?PERK_N[i]+' +'+v+'%':'').filter(Boolean).join(' · ')}
+/* ✨ 전설 너머 낚싯대 · 찌 (2026-11-11): 레전더리 → 미스틱 → 태초 → 무한 → 창세 · 물 · 불 · 바람 · 얼음 · 달 · 심해 · 우주
+   치장 상점에서 사거나, 낚시 · 사냥하다 아주 아주 가끔 주워요 (server.js LUX_DROP와 같은 목록) */
+TIERS.push({n:'태초',c:'#e8a010'},{n:'무한',c:'#00b8f0'},{n:'창세',c:'#e040c0'});
+const TIER_SET=['레어','에픽','유니크','레전더리','미스틱','태초','무한','창세'];
+[
+ ['rx_tide','해일 낚싯대',60000000,3,['#0a3a6a','#2a7ac0','#8ad8ff','#ffffff'],{glow:'#60c0ff',tip:'drop',tc:'#c8f0ff',along:['#c8f0ff','#ffffff','#8ad8ff'],trail:1}],
+ ['rx_firework','불꽃놀이 낚싯대',70000000,3,['#2a2a3a','#ff4a6a','#ffd34d','#4ad0ff'],{tip:'star',tc:'#ffd34d',along:['#ff4a6a','#ffd34d','#4ad0ff','#a0ff80']}],
+ ['rx_volcano','화산 낚싯대',150000000,4,['#2a1010','#6a1a10','#ff5010','#ffb030'],{glow:'#ff5010',tip:'flame',tc:'#ffd040',along:['#ff5010','#ffb030','#3a2020'],trail:1}],
+ ['rx_typhoon','태풍 낚싯대',150000000,4,['#3a5a6a','#8ad0c0','#e0fff8'],{glow:'#a0f0e0',tip:'leaf',tc:'#80e0a0',along:['#e0fff8','#a0f0e0','#80c070']}],
+ ['rx_glacier','빙하 낚싯대',150000000,4,['#4a8ac0','#a8e0ff','#ffffff'],{glow:'#bff0ff',tip:'gem',tc:'#ffffff',along:['#ffffff','#bff0ff'],trail:1}],
+ ['rx_moon','월광 낚싯대',300000000,5,['#1a1a3a','#4a4a8a','#ffe890','#ffffff'],{glow:'#fff0a0',tip:'star',tc:'#ffe890',along:['#ffe890','#ffffff'],trail:1}],
+ ['rx_kraken','심해 크라켄 낚싯대',300000000,5,['#1a0a2a','#5a2a7a','#a050c0','#60e0c0'],{glow:'#a050c0',tip:'orb',tc:'#60e0c0',along:['#a050c0','#60e0c0'],trail:1}],
+ ['rx_blackhole','블랙홀 낚싯대',700000000,6,['#000000','#1a0a2a','#8040ff','#ffa040'],{glow:'#8040ff',tip:'planet',tc:'#ffa040',along:['#8040ff','#ffa040','#ffffff'],trail:1}],
+ ['rx_rbdragon','무지개 용 낚싯대',700000000,6,['#ff6a6a','#ffd34d','#6ad08a','#4ab0ff','#a06aff'],{glow:'#ffffff',tip:'star',tc:'#ffffff',along:['#ff6a6a','#ffd34d','#6ad08a','#4ab0ff','#a06aff'],rb:1,trail:1}],
+ ['rx_genesis','창세의 낚싯대',1500000000,7,['#ffffff','#ffe8f8','#e0f4ff','#fff8d0'],{glow:'#ffffff',tip:'star',tc:'#ffffff',along:['#ffffff','#ffd0f0','#c0f0ff','#fff8c0'],rb:1,trail:1}]
+].forEach(r=>{const id=r[0];ROD3[id]={tier:r[3],fx:r[5]};const c={id,k:'rod',name:r[1],price:r[2],tier:r[3],col:r[4],nw:'2026-11-11',set:TIER_SET[r[3]]+' 낚싯대'};COS.push(c);COS_BY[id]=c});
+[
+ ['bx_flame','불꽃 연꽃 찌',40000000,3,["...y...","..yoy..",".o.r.o.","pprrrpp",".ppppp.","..ggg.."],{y:'#fff0a0',o:'#ff9030',r:'#ff4020',p:'#ff90b8',g:'#4a9a5a'},{glow:'#ff7030',rise:['#ff9030','#ffd040','#ff4020'],sig:'fire'}],
+ ['bx_frost','얼음 결정 찌',40000000,3,["...w...",".w.c.w.","..ccc..","wcccccw","..ccc..",".w.c.w.","...w..."],{w:'#ffffff',c:'#a8e4ff'},{glow:'#bff0ff',fall:['#ffffff','#e0f6ff'],ring:'#bff0ff',sig:'ice'}],
+ ['bx_wind','바람개비 찌',40000000,3,["rr..b","r.bbb","..y..","ggg.p","g..pp"],{r:'#ff6a6a',b:'#6ab0ff',y:'#ffd34d',g:'#6ad08a',p:'#c08aff'},{orbit:['#80e0a0','#ffffff','#a0f0e0','#ffffff'],spark:['#e0fff8'],sig:'tor'}],
+ ['bx_moonbun','달토끼 찌',100000000,4,[".w.w.",".p.p.","yyyyy","ywkwy","yyyyy",".yyy."],{y:'#ffe890',w:'#ffffff',p:'#ffb0c8',k:'#4a3a5a'},{glow:'#fff0a0',rays:'#fff6c0',spark:['#ffffff','#ffe890'],sig:'moonrise'}],
+ ['bx_galaxy2','은하수 고래 찌',250000000,5,["..kkkk.",".kskksk","kkkkkkk","kspkkkk",".kkkk.w","....ww."],{k:'#2a2a6a',s:'#ffffff',p:'#ff90d0',w:'#8ad0ff'},{glow:'#8070ff',orbit:['#ffffff','#ffd0f0','#80d0ff','#ffffff','#ffe060'],ring:'rb',spark:['#ffffff','#c8b0ff'],sig:'galaxy'}],
+ ['bx_egg','창세의 알 찌',1000000000,7,[".www.","wwgww","wgwgw","wwwww","wrwbw",".www."],{w:'#fffaf0',g:'#ffe08a',r:'#ff9ac0',b:'#9ad8ff'},{glow:'#ffffff',rays:'#ffffff',ring:'rb',orbit:['#ff9ac0','#ffe08a','#9ad8ff','#c0ff9a'],spark:['#ffffff','#fff0ff'],sig:'gen'}]
+].forEach(r=>{const id=r[0];BOB3[id]={rows:r[4],pal:r[5],fx:r[6],tier:r[3]};const c={id,k:'bob',name:r[1],price:r[2],tier:r[3],nw:'2026-11-11',set:TIER_SET[r[3]]+' 찌'};COS.push(c);COS_BY[id]=c});
+Object.assign(ROD_PERK,{rx_tide:[0,0,6,12,0,'tide'],rx_firework:[0,6,8,0,0,'fw'],rx_volcano:[0,0,8,15,0,'volc'],rx_typhoon:[8,8,8,0,0,'tor'],rx_glacier:[12,0,8,0,0,'glac'],
+  rx_moon:[6,6,15,6,0,'moonrise'],rx_kraken:[0,0,10,18,0,'krak'],rx_blackhole:[8,8,18,10,0,'bh'],rx_rbdragon:[5,10,18,8,5,'rbd'],rx_genesis:[10,10,25,15,10,'gen']});
+const SIG_DESC={drop:'물방울이 톡톡 튀어요',petal:'꽃잎이 흩날려요',rainbow:'무지개 불꽃이 터져요',coin:'금화가 짤랑 쏟아져요',bubble:'방울방울 거품이 올라와요',galaxy:'작은 은하가 소용돌이쳐요',ghost:'꼬마 유령들이 둥실 떠올라요',neon:'네온 고리가 퍼져요',
+  heart:'하트가 퐁퐁 솟아요',starb:'별가루가 반짝 터져요',leaf:'단풍잎이 흩날려요',candy:'사탕 조각이 톡 터져요',ice:'얼음 결정이 활짝 피어나요',column:'물기둥이 솟아올라요',spout:'고래 분수가 뿜어져요',thunder:'번개가 내리꽂고 화면이 번쩍 · 흔들려요',
+  aurora:'오로라 커튼이 일렁여요',fire:'불꽃 고리가 화르륵 번져요',music:'음표가 울리며 오르골 소리가 나요',paw:'고양이 발자국이 콕콕',choco:'초코 방울이 뚝뚝',jelly:'말랑 젤리가 출렁',snow:'눈송이가 흩날려요',phoenix:'불사조가 날아올라요',
+  meteor:'별똥별이 떨어져 쾅! 화면이 흔들려요',tide:'🌊 거대한 해일이 솟았다가 와르르 덮쳐요',fw:'🎆 불꽃놀이 세 발이 하늘에서 팡팡팡',volc:'🌋 물속에서 용암이 분출하고 불덩이가 쏟아져요 · 화면이 흔들려요',tor:'🌪️ 회오리바람이 하늘로 솟구쳐요',
+  glac:'🧊 얼음 가시가 솟았다가 와장창 부서져요',moonrise:'🌕 화면이 밤이 되고 거대한 보름달이 떠올라 달빛이 내려와요 · 달토끼가 깡총',krak:'🐙 바다에서 거대한 촉수들이 꿈틀꿈틀 솟아올라요',bh:'🕳️ 블랙홀이 열려 빛을 빨아들였다가 펑! 터져요',
+  rbd:'🐉 무지개 용이 하늘을 가로질러 날아가요',gen:'✦ 세상이 하얗게 빛나고 무지개 고리와 별이 태어나요 · 「창세」'};
+const sigOf=c=>c&&(c.k==='rod'?(ROD_PERK[c.id]||[])[5]:c.k==='bob'?((BOB3[c.id]||{}).fx||{}).sig:null);
+function sigDescHtml(c){const k=sigOf(c);if(!k||!SIG_DESC[k])return'';return'<div class="sigd">✨ '+(c.k==='rod'?'낚았을 때':'찌가 떨어질 때')+' · '+SIG_DESC[k]+'</div><button class="btn xs mint" data-fxp="'+c.id+'">▶ 효과 보기</button>'}
+/* ▶ 효과 보기: 상점을 잠깐 내리고 내 캐릭터 앞에서 실제 효과를 보여 줘요 */
+function fxPreview(id){const c=COS_BY[id],k=sigOf(c);if(!c||!k||!P)return;const w=$('sheetwrap');w.style.visibility='hidden';Snd.sfx('tap');
+  const x=P.x+28,y=P.y+10;showBanner('✨ '+c.name+' · '+SIG_DESC[k]);setTimeout(()=>rodSig(null,x,y,true,k),250);clearTimeout(fxPreview.t);fxPreview.t=setTimeout(()=>{w.style.visibility=''},k==='gen'||k==='bh'||k==='moonrise'||k==='rbd'?3600:2800)}
 function rodPerk(){const p=ROD_PERK[(S.cos&&S.cos.look&&S.cos.look.rod)||''];if(!p)return;ST.bar*=1+p[0]/100;ST.wait*=1-p[1]/100;ST.luck*=1+p[2]/100;ST.reel*=1+p[3]/100;ST.sell*=1+p[4]/100}
 /* 낚싯대 모양: 손잡이 · 가이드 링 · 굵기 */
 function rodShape(g,x0,y0,x1,y1,id){const d=ROD3[id]||ISLE_ROD[id],tr=d?d.tier|0:-1,c=((COS_BY[id]&&COS_BY[id].col)||['#b98a62']),dx=x1-x0,dy=y1-y0,L=Math.max(1,Math.hypot(dx,dy)),nx=-dy/L,ny=dx/L;
@@ -4266,7 +4304,7 @@ function rodShape(g,x0,y0,x1,y1,id){const d=ROD3[id]||ISLE_ROD[id],tr=d?d.tier|0
   g.fillStyle='rgba(255,255,255,.85)';[.4,.62,.82].forEach(t=>g.fillRect(Math.round(x0+dx*t-nx),Math.round(y0+dy*t-ny),1,1))}   // 가이드 링
 /* 고유 연출: 찌가 떨어질 때 · 물고기를 낚았을 때 */
 const RFX=[];
-function rodSig(id,x,y,big){const p=ROD_PERK[id];if(!p)return;const k=p[5],sc=big?1:.6,P2=(o)=>parts.push(Object.assign({x,y,vx:0,vy:0,life:1,t:0,c:'#fff',g:0,s:1},o)),burst=(n,cs,sp,o)=>{for(let i=0;i<n*sc;i++){const a=Math.random()*6.28,s=sp*(.4+Math.random()*.6);P2(Object.assign({vx:Math.cos(a)*s,vy:Math.sin(a)*s-sp*.3,c:cs[i%cs.length],life:.8+Math.random()*.5},o||{}))}};
+function rodSig(id,x,y,big,kk){const p=ROD_PERK[id];if(!p&&!kk)return;const k=kk||p[5],sc=big?1:.6,P2=(o)=>parts.push(Object.assign({x,y,vx:0,vy:0,life:1,t:0,c:'#fff',g:0,s:1},o)),burst=(n,cs,sp,o)=>{for(let i=0;i<n*sc;i++){const a=Math.random()*6.28,s=sp*(.4+Math.random()*.6);P2(Object.assign({vx:Math.cos(a)*s,vy:Math.sin(a)*s-sp*.3,c:cs[i%cs.length],life:.8+Math.random()*.5},o||{}))}};
   switch(k){
   case'drop':burst(10,['#c8f0ff','#ffffff'],30,{g:60});break;
   case'petal':for(let i=0;i<16*sc;i++)P2({x:x+(Math.random()-.5)*30,y:y-20-Math.random()*20,vx:(Math.random()-.5)*10,vy:10,c:['#ffb0c8','#ffd6e8','#ffffff'][i%3],life:1.6,s:2});break;
@@ -4291,7 +4329,17 @@ function rodSig(id,x,y,big){const p=ROD_PERK[id];if(!p)return;const k=p[5],sc=bi
   case'jelly':RFX.push({k:'jel',x,y,t:0,s:sc});Snd.sfx('jelly');break;
   case'snow':burst(18,['#ffffff','#e0f0ff'],34,{g:10});Snd.sfx('snowc');break;
   case'phoenix':RFX.push({k:'bird',x,y,t:0,s:sc});burst(20,['#ff6020','#ffd040','#fff0a0'],40,{g:-30});Snd.sfx('page');break;
-  case'meteor':RFX.push({k:'met',x,y,t:0,s:sc});break}}
+  case'meteor':RFX.push({k:'met',x,y,t:0,s:sc});break;
+  case'tide':RFX.push({k:'tide',x,y,t:0,s:sc});Snd.sfx('wave');break;
+  case'fw':for(let i=0;i<3;i++)RFX.push({k:'fw',x:x+(i-1)*34*sc,y,t:0,d:i*.28,c:['#ff4a6a','#ffd34d','#4ad0ff'][i],s:sc});break;
+  case'volc':RFX.push({k:'volc',x,y,t:0,s:sc});SHK={t:.8,a:2.5*sc};Snd.sfx('thunder');break;
+  case'tor':RFX.push({k:'tor',x,y,t:0,s:sc});Snd.sfx('wave');break;
+  case'glac':RFX.push({k:'glac',x,y,t:0,s:sc});Snd.sfx('sparkle');break;
+  case'moonrise':RFX.push({k:'moon',x,y,t:0,s:sc});Snd.sfx('page');break;
+  case'krak':RFX.push({k:'krak',x,y,t:0,s:sc});Snd.sfx('wave');SHK={t:.5,a:1.5*sc};break;
+  case'bh':RFX.push({k:'bh',x,y,t:0,s:sc});break;
+  case'rbd':RFX.push({k:'rbd',x,y,t:0,s:sc});Snd.sfx('page');break;
+  case'gen':RFX.push({k:'gen',x,y,t:0,s:sc});Snd.sfx('page');break}}
 function rfxDraw(){const dt=FXDT||.016;for(let i=RFX.length-1;i>=0;i--){const f=RFX[i];if(f.d>0){f.d-=dt;continue}f.t+=dt;if(f.t<0)continue;const t=f.t,s=f.s||1;let done=false;cx.save();
   switch(f.k){
   case'bb':f.y-=14*dt;cx.strokeStyle='rgba(200,230,255,'+(1-t/1.5)+')';cx.beginPath();cx.arc(f.x+Math.sin(t*5)*2,f.y,f.r,0,6.28);cx.stroke();done=t>1.5;break;
@@ -4307,6 +4355,38 @@ function rfxDraw(){const dt=FXDT||.016;for(let i=RFX.length-1;i>=0;i--){const f=
   case'jel':{const k=Math.max(0,1-t/.9),sq=1+Math.sin(t*20)*.3*k;cx.globalAlpha=k;cx.fillStyle='rgba(255,138,176,.8)';cx.beginPath();cx.ellipse(f.x,f.y-4*s,7*s*sq,5*s/sq,0,0,6.28);cx.fill();cx.fillStyle='#fff';cx.fillRect(f.x-3,f.y-6*s,2,2);done=t>.9;break}
   case'bird':{const k=t/1.6,yy=f.y-k*60*s,xx=f.x+Math.sin(t*3)*6,w=Math.sin(t*14)*6*s;cx.globalAlpha=Math.max(0,1-k);cx.fillStyle='#ff7030';cx.beginPath();cx.moveTo(xx,yy);cx.lineTo(xx-10*s,yy-w);cx.lineTo(xx-3,yy+2);cx.lineTo(xx+3,yy+2);cx.lineTo(xx+10*s,yy-w);cx.closePath();cx.fill();cx.fillStyle='#ffd040';cx.fillRect(xx-1,yy-3,2,6);if(Math.random()<.6)parts.push({x:xx,y:yy+4,vx:(Math.random()-.5)*8,vy:8,life:.6,t:0,c:'#ffb030',g:0,s:1});done=t>1.6;break}
   case'met':{if(t<.45){const k=t/.45,sx=f.x+80*(1-k),sy=f.y-110*(1-k);cx.strokeStyle='rgba(255,255,255,.8)';cx.lineWidth=2;cx.beginPath();cx.moveTo(sx,sy);cx.lineTo(sx+24,sy-30);cx.stroke();cx.fillStyle='#fff8c0';cx.beginPath();cx.arc(sx,sy,3,0,6.28);cx.fill()}else if(!f.boom){f.boom=1;Snd.sfx('meteor');SHK={t:.4,a:2.5*s};for(let k=0;k<40*s;k++){const a=Math.random()*6.28,v=20+Math.random()*60;parts.push({x:f.x,y:f.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v*.6-20,life:1.2,t:0,c:['#ffffff','#fff8c0','#a0c0ff','#ffd34d'][k%4],g:40,s:k%3?1:2})}}if(f.boom){const r=(t-.45)*60*s,a=Math.max(0,1-(t-.45)/.6);cx.strokeStyle='rgba(200,220,255,'+a+')';cx.lineWidth=2;cx.beginPath();cx.ellipse(f.x,f.y,r,r*.4,0,0,6.28);cx.stroke()}done=t>1.1;break}
+  case'tide':{const h=Math.sin(Math.min(1,t/.8)*Math.PI/2)*48*s*(t<.8?1:Math.max(0,1-(t-.8)/.6)),fw=70*s,adv=t>.8?(t-.8)*12*s:0;cx.fillStyle='rgba(40,120,200,.85)';cx.beginPath();cx.moveTo(f.x-fw,f.y);for(let xx=-fw;xx<=fw;xx+=4)cx.lineTo(f.x+xx,f.y-h*Math.cos(xx/fw*Math.PI/2)+adv);cx.lineTo(f.x+fw,f.y);cx.closePath();cx.fill();
+    cx.fillStyle='rgba(255,255,255,.9)';for(let xx=-fw;xx<=fw;xx+=5)cx.fillRect(f.x+xx+Math.sin(t*12+xx)*2,f.y-h*Math.cos(xx/fw*Math.PI/2)+adv-2,3,2);
+    if(t>.8&&Math.random()<.8)parts.push({x:f.x+(Math.random()-.5)*fw*2,y:f.y-h,vx:(Math.random()-.5)*30,vy:-20,life:.7,t:0,c:Math.random()<.5?'#ffffff':'#c8f0ff',g:120,s:2});if(t>.8&&!f.b){f.b=1;SHK={t:.35,a:1.5*s}}done=t>1.6;break}
+  case'fw':{if(t<.55){const yy=f.y-t/.55*90*s;cx.fillStyle=f.c;cx.fillRect(f.x-1,yy,2,4);if(Math.random()<.7)parts.push({x:f.x,y:yy+4,vx:(Math.random()-.5)*6,vy:10,life:.4,t:0,c:'#fff0c0',g:0,s:1})}
+    else if(!f.b){f.b=1;Snd.sfx('pop');const by=f.y-90*s;for(let k=0;k<34;k++){const a=k/34*6.28,v=40+Math.random()*25;parts.push({x:f.x,y:by,vx:Math.cos(a)*v*s,vy:Math.sin(a)*v*s,life:1+Math.random()*.4,t:0,c:k%3?f.c:'#ffffff',g:30,s:2})}}done=t>.6;break}
+  case'volc':{const k=Math.min(1,t/.3),fade=t>1.4?Math.max(0,1-(t-1.4)/.6):1;cx.globalAlpha=.18*fade;cx.fillStyle='#ff5010';cx.fillRect(f.x-VW,f.y-VH,VW*2,VH*2);cx.globalAlpha=fade;
+    const h=k*70*s*(1+.1*Math.sin(t*20)),w=10*s,gr=cx.createLinearGradient(0,f.y-h,0,f.y);gr.addColorStop(0,'#fff0a0');gr.addColorStop(.4,'#ffb030');gr.addColorStop(1,'#ff3010');cx.fillStyle=gr;cx.beginPath();cx.moveTo(f.x-w,f.y);cx.quadraticCurveTo(f.x-w*.4,f.y-h*.5,f.x-3,f.y-h);cx.lineTo(f.x+3,f.y-h);cx.quadraticCurveTo(f.x+w*.4,f.y-h*.5,f.x+w,f.y);cx.fill();
+    if(t<1.3&&Math.random()<.9){const a=-Math.PI/2+(Math.random()-.5)*1.4,v=60+Math.random()*60;parts.push({x:f.x,y:f.y-h,vx:Math.cos(a)*v*s,vy:Math.sin(a)*v*s,life:1.1,t:0,c:['#ff5010','#ffb030','#fff0a0','#3a2020'][(Math.random()*4)|0],g:140,s:Math.random()<.5?3:2})}
+    cx.fillStyle='rgba(60,40,40,'+(.5*fade)+')';for(let k2=0;k2<3;k2++){cx.beginPath();cx.arc(f.x+Math.sin(t*2+k2)*10,f.y-h-10-k2*10-t*20,6+k2*3+t*4,0,6.28);cx.fill()}done=t>2;break}
+  case'tor':{const fade=Math.min(1,t/.3)*(t>1.6?Math.max(0,1-(t-1.6)/.4):1);for(let k=0;k<60;k++){const q=k/60,yy=f.y-q*100*s,r=(4+q*26)*s,a=q*18-t*14;cx.fillStyle=k%3?'rgba(220,255,245,'+(.7*fade)+')':'rgba(130,200,150,'+(.8*fade)+')';cx.fillRect(f.x+Math.cos(a)*r+Math.sin(t*3+q*4)*6*s,yy+Math.sin(a)*r*.25,2,2)}
+    if(Math.random()<.5)parts.push({x:f.x+(Math.random()-.5)*20,y:f.y,vx:(Math.random()-.5)*40,vy:-50-Math.random()*40,life:1,t:0,c:['#80c070','#e8602a','#ffffff'][(Math.random()*3)|0],g:-10,s:2});done=t>2;break}
+  case'glac':{const grow=Math.min(1,t/.35);if(t<1.1){cx.globalAlpha=.15*(1-t/1.1);cx.fillStyle='#e0f6ff';cx.fillRect(f.x-VW,f.y-VH,VW*2,VH*2);cx.globalAlpha=1;
+      for(let k=0;k<10;k++){const a=k/10*6.28,dx=Math.cos(a)*22*s,dy=Math.sin(a)*9*s,hh=(14+(k%3)*8)*s*grow;cx.fillStyle=k%2?'#bff0ff':'#e8faff';cx.beginPath();cx.moveTo(f.x+dx-4*s,f.y+dy);cx.lineTo(f.x+dx,f.y+dy-hh);cx.lineTo(f.x+dx+4*s,f.y+dy);cx.fill();cx.fillStyle='#ffffff';cx.fillRect(f.x+dx-1,f.y+dy-hh*.8,1,hh*.5)}}
+    else if(!f.b){f.b=1;Snd.sfx('crunch');for(let k=0;k<40;k++){const a=Math.random()*6.28,v=30+Math.random()*50;parts.push({x:f.x+Math.cos(a)*20*s,y:f.y-10,vx:Math.cos(a)*v,vy:Math.sin(a)*v-30,life:.9,t:0,c:k%2?'#bff0ff':'#ffffff',g:100,s:2})}}done=t>1.6;break}
+  case'moon':{const fi=Math.min(1,t/.5),fo=t>2.4?Math.max(0,1-(t-2.4)/.6):1,a=fi*fo;cx.fillStyle='rgba(16,18,50,'+(.5*a)+')';cx.fillRect(f.x-VW,f.y-VH,VW*2,VH*2);
+    const my=f.y-40*s-Math.min(1,t/1.2)*30*s,mr=26*s,g2=cx.createRadialGradient(f.x,my,mr*.6,f.x,my,mr*2.2);g2.addColorStop(0,'rgba(255,246,190,'+(.5*a)+')');g2.addColorStop(1,'rgba(255,246,190,0)');cx.fillStyle=g2;cx.fillRect(f.x-mr*2.2,my-mr*2.2,mr*4.4,mr*4.4);
+    cx.globalAlpha=a;cx.fillStyle='#fff6c8';cx.beginPath();cx.arc(f.x,my,mr,0,6.28);cx.fill();cx.fillStyle='rgba(220,210,160,.7)';[[-8,-6,5],[7,4,4],[-3,10,3],[10,-10,3]].forEach(([u,v,r])=>{cx.beginPath();cx.arc(f.x+u*s,my+v*s,r*s,0,6.28);cx.fill()});
+    const rx=f.x-mr*.7+((t*24*s)%(mr*1.4)),ry=my+8*s-Math.abs(Math.sin(t*6))*5*s;cx.fillStyle='rgba(120,110,90,.85)';cx.fillRect(rx-3*s,ry-2*s,6*s,4*s);cx.fillRect(rx+1*s,ry-6*s,1.5*s,4*s);cx.fillRect(rx+2.6*s,ry-6*s,1.5*s,4*s);
+    cx.globalAlpha=.35*a;const gb=cx.createLinearGradient(0,my,0,f.y);gb.addColorStop(0,'rgba(255,246,200,.9)');gb.addColorStop(1,'rgba(255,246,200,.1)');cx.fillStyle=gb;cx.beginPath();cx.moveTo(f.x-8*s,my+mr);cx.lineTo(f.x+8*s,my+mr);cx.lineTo(f.x+18*s,f.y);cx.lineTo(f.x-18*s,f.y);cx.fill();done=t>3;break}
+  case'krak':{const up=Math.min(1,t/.6)*(t>1.6?Math.max(0,1-(t-1.6)/.6):1);cx.lineCap='round';[-42,-18,18,42].forEach((ox,i2)=>{const bx=f.x+ox*s,h=(34+(i2%2)*12)*s*up;for(let j=0;j<10;j++){const q=j/10,q2=(j+1)/10;cx.strokeStyle=j%2?'#7a3a9a':'#8a4aaa';cx.lineWidth=Math.max(1,(7-q*6)*s);cx.beginPath();cx.moveTo(bx+Math.sin(t*5+i2+q*4)*10*s*q,f.y-q*h);cx.lineTo(bx+Math.sin(t*5+i2+q2*4)*10*s*q2,f.y-q2*h);cx.stroke();if(j%2===0){cx.fillStyle='#e8b0f0';cx.fillRect(bx+Math.sin(t*5+i2+q*4)*10*s*q-1,f.y-q*h-1,2,2)}}});
+    if(!f.b){f.b=1;for(let k=0;k<20;k++)parts.push({x:f.x+(Math.random()-.5)*90*s,y:f.y,vx:(Math.random()-.5)*20,vy:-40-Math.random()*30,life:.8,t:0,c:'#c8f0ff',g:120,s:2})}done=t>2.2;break}
+  case'bh':{const op=Math.min(1,t/.4),cl=t>1.8?Math.max(0,1-(t-1.8)/.3):1,R=18*s*op*cl,cy2=f.y-40*s;cx.fillStyle='rgba(10,0,30,'+(.45*Math.min(op,cl))+')';cx.fillRect(f.x-VW,f.y-VH,VW*2,VH*2);
+    for(let k=0;k<40;k++){const a=k/40*6.28+t*3,r=R*1.6+Math.sin(k*3+t*5)*2;cx.fillStyle=k%2?'#a060ff':'#ffa040';cx.fillRect(f.x+Math.cos(a)*r,cy2+Math.sin(a)*r*.35,2,2)}cx.fillStyle='#000000';cx.beginPath();cx.arc(f.x,cy2,R,0,6.28);cx.fill();cx.strokeStyle='rgba(200,160,255,.8)';cx.lineWidth=1;cx.stroke();
+    if(t<1.8&&Math.random()<.9){const a=Math.random()*6.28,d=90*s;parts.push({x:f.x+Math.cos(a)*d,y:cy2+Math.sin(a)*d*.6,vx:-Math.cos(a)*d*1.4,vy:-Math.sin(a)*d*.84,life:.7,t:0,c:['#ffffff','#c0a0ff','#ffd0a0'][(Math.random()*3)|0],g:0,s:1})}
+    if(t>2.1&&!f.b){f.b=1;Snd.sfx('meteor');SHK={t:.4,a:2.5*s};for(let k=0;k<50;k++){const a=Math.random()*6.28,v=40+Math.random()*80;parts.push({x:f.x,y:cy2,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:1,t:0,c:['#ffffff','#a060ff','#ffa040'][k%3],g:0,s:2})}}
+    if(t>2.1&&t<2.3){cx.fillStyle='rgba(255,255,255,'+((1-(t-2.1)/.2)*.7)+')';cx.fillRect(f.x-VW,f.y-VH,VW*2,VH*2)}done=t>2.6;break}
+  case'rbd':{const p=t/2.2,pt=q=>{const u=Math.max(0,Math.min(1,q));return[f.x+(-150+u*300)*s,f.y-60*s-Math.sin(u*Math.PI)*50*s+Math.sin(u*14)*6*s]};for(let j=26;j>=0;j--){const q=p-j*.012;if(q<0||q>1)continue;const[px2,py2]=pt(q);cx.fillStyle='hsl('+((j*14+t*200)%360)+',95%,65%)';cx.beginPath();cx.arc(px2,py2,Math.max(1.2,(j===0?6:5-j*.14)*s),0,6.28);cx.fill()}
+    if(p<=1){const[hx,hy]=pt(p);cx.fillStyle='#ffffff';cx.fillRect(hx+2*s,hy-2*s,2,2);cx.fillStyle='#ffd34d';cx.fillRect(hx+5*s,hy-6*s,2,4);cx.fillRect(hx+1*s,hy-7*s,2,4);if(Math.random()<.8)parts.push({x:hx,y:hy,vx:(Math.random()-.5)*20,vy:10,life:.9,t:0,c:'hsl('+((t*300)%360|0)+',95%,70%)',g:20,s:2})}done=t>2.4;break}
+  case'gen':{if(t<.35){cx.fillStyle='rgba(255,255,255,'+((1-t/.35)*.95)+')';cx.fillRect(f.x-VW,f.y-VH,VW*2,VH*2)}if(!f.b){f.b=1;SHK={t:.5,a:2*s}}
+    for(let k=0;k<6;k++){const r=(t*60-k*14)*s;if(r<=0||r>220)continue;cx.strokeStyle='hsla('+((k*60+t*120)%360|0)+',95%,70%,'+Math.max(0,1-r/220)+')';cx.lineWidth=3;cx.beginPath();cx.ellipse(f.x,f.y-20*s,r,r*.5,0,0,6.28);cx.stroke()}
+    if(t<2.4&&Math.random()<.9){const a=Math.random()*6.28,v=20+Math.random()*50;parts.push({x:f.x,y:f.y-20*s,vx:Math.cos(a)*v,vy:Math.sin(a)*v*.6,life:1.4,t:0,c:['#ffffff','#fff6b0','#ffd0f0','#c0f0ff'][(Math.random()*4)|0],g:0,s:Math.random()<.3?2:1})}
+    const ta=t<.4?0:Math.min(1,(t-.4)/.4)*(t>2.6?Math.max(0,1-(t-2.6)/.6):1);if(ta>0){const R2=(14+Math.sin(t*6)*2)*s,X=f.x,Y=f.y-62*s;cx.globalAlpha=ta;cx.fillStyle='#ffffff';cx.shadowColor='#ffd0ff';cx.shadowBlur=10;cx.beginPath();for(let k=0;k<8;k++){const a=k/8*6.28+t,r=k%2?R2*.3:R2;cx.lineTo(X+Math.cos(a)*r,Y+Math.sin(a)*r)}cx.closePath();cx.fill();cx.shadowBlur=0}done=t>3.2;break}
   default:done=true}
   cx.restore();if(done)RFX.splice(i,1)}}
 COS.forEach(c=>{if(c.k==='rod'&&c.price>=5e7&&FAR_RODS.indexOf(c.id)<0)FAR_RODS.push(c.id)});
@@ -4444,7 +4524,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y);
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1111i',UPD_LOG=[
+const UPD_VER='1111j',UPD_LOG=[
+ ['11/11 밤','🌠',[['✨ 전설 너머 낚싯대 10종 · 찌 6종','레전더리 → 미스틱 → 태초 → 무한 → 창세 · 물 · 불 · 바람 · 얼음 · 달 · 심해 · 우주'],['낚았을 때 고유 연출','해일 · 불꽃놀이 · 화산 분출 · 회오리 · 빙하 · 보름달과 달토끼 · 크라켄 촉수 · 블랙홀 · 무지개 용 · 창세의 빛'],['▶ 효과 보기','치장 상점 → 💎 낚싯대·찌 · 카드마다 효과 설명 · 누르면 내 캐릭터 앞에서 미리 보여 줘요'],['🌠 아주 아주 가끔 줍기','직접 낚을 때 · 사냥할 때 레전더리 이상 낚싯대 · 찌가 나올 수 있어요 (안 가진 것만) · 나오면 마을 모두에게 알려요'],['가장 비싼 건','창세의 낚싯대 15억 · 창세의 알 찌 10억']]],
  ['11/11 밤','🏙️',[['🏙️ 물결 생활 거리','모두의 정원 남쪽 바닷가 · 멤버 가게 6곳 + 구름과자 라운지 (메뉴 → 가 볼 곳)'],['💗 꼬북린 폴댄스 · 🧘 은비땅 필라테스','리듬 폴 스핀 · 코어 버티기'],['💪 치킨 헬스장 · 🧗 락트리 클라이밍','10초 벤치프레스 · 볼더링 V0~V7'],['🩻 조돌맹 정형외과 · 🏭 ALOF 가구 공장','엑스레이 찍기 · 집과 섬에 놓는 ALOF 한정 가구'],['놀이는 언제나 무료','이번 주 순위만 있어요 · 1위가 바뀌면 마을에 알려요'],['👑 사장님 매출','굿즈 값의 10%가 사장님께 · 세일 · 깜짝 세일 · 한마디 · 간판 색 · 추천 · 휴무를 사장님이 정해요'],['☁️ 구름과자 라운지','리치맨 · 치킨 · 꼬북린의 아늑한 옥상 아지트 · 누구나 쉬어 가요']]],
  ['11/11 저녁','🌌',[['🌌 초월 물고기 6종','태초 3 · 무한 2 · 창세 1 · 어느 낚시터에서든 직접 낚을 때 아주 아주 가끔'],['값이 몇억!','태초 5천만 · 무한 2억 · 창세 5억 골드 · 도감 → 🌌 초월'],['신화 이상은 값 공개','도감에서 신화 · 초월 물고기 값을 누구나 볼 수 있어요 · 낚으면 값까지 마을 모두에게 알려요'],['📣 대박 소식','은비랜드 ×60 이상 당첨 · 전설 등급 이상 장비를 얻으면 마을 모두에게 크게 알려요'],['💗 기부 1위','마을 발전 기금에 가장 많이 기부한 사람 이름 앞에 💗 (이름표의 직업 표시는 뺐어요)']]],
  ['11/11 저녁','🥚',[['🥚 은비 알 부화','은비랜드 새 놀이 · 알을 깨우면 1초 만에 누가 태어날지 정해져요'],['무지개 용 ×1000!','병아리 ×1 · 아기 오리 ×2 · 아기 펭귄 ×5 · 아기 여우 ×20 · 아기 유니콘 ×100 · 무지개 용 ×1000'],['🏆 최고 당첨 1위에 도전','1만 칩 알에서 무지개 용이 나오면 한 번에 1,000만 칩'],['VIP 등급은 문 닫음','모두 다이아라 의미가 없어서 없앴어요 · 위쪽엔 내 최고 당첨이 보여요']]],
@@ -7823,7 +7904,7 @@ function openIsleShop(){btqTry=null;btqIsle=true;btqTab='isle';openSheet('🏝�
 function tierTag(c){const t=tierOfCos(c);return t>=0?'<span class="tierb" style="background:'+TIERS[t].c+'">'+TIERS[t].n+'</span>':''}
 function cardHtml(c,btn){const have=owns(c.id),ic=cosIcon(c.id),t=tierOfCos(c);
   return'<div class="ccard'+(btqTry===c.id?' sel':'')+(have?' have':'')+(t>=2?' glowc':'')+'" data-btry="'+c.id+'"'+(t>=0?' style="border-color:'+TIERS[t].c+'"':'')+'>'+(isNew(c)&&!have?'<span class="nwb">NEW</span>':'')+
-    (ic?'<img class="ci" src="'+ic+'" alt="">':'<span class="ttl sm">「」</span>')+tierTag(c)+'<div class="cn">'+(c.k==='title'?'「'+esc(c.name)+'」':esc(c.name))+'</div>'+(c.k==='rod'&&ROD_PERK[c.id]?'<div class="rpk">'+rodPerkTxt(c.id)+'</div>':'')+(c.lim?'<div class="limb">'+LIMS[c.lim].n+(limOn(c)?'':' · 쉬는 중')+'</div>':'')+btn+'</div>'}
+    (ic?'<img class="ci" src="'+ic+'" alt="">':'<span class="ttl sm">「」</span>')+tierTag(c)+'<div class="cn">'+(c.k==='title'?'「'+esc(c.name)+'」':esc(c.name))+'</div>'+(c.k==='rod'&&ROD_PERK[c.id]?'<div class="rpk">'+rodPerkTxt(c.id)+'</div>':'')+((c.k==='rod'||c.k==='bob')?sigDescHtml(c):'')+(c.lim?'<div class="limb">'+LIMS[c.lim].n+(limOn(c)?'':' · 쉬는 중')+'</div>':'')+btn+'</div>'}
 function renderBoutique(){
   if(btqIsle&&btqTab!=='isle')btqTab='isle';
   const T=BTQ_TABS.find(t=>t[0]===btqTab)||BTQ_TABS[0],kinds=T[2],shopable=c=>c.price!==0&&!c.pv&&!(c.egg&&!owns(c.id));
@@ -8106,6 +8187,7 @@ $('sheetbody').addEventListener('click',e=>{
   if(trapClick(t))return;
   if(homeClick(t))return;
   if(islClick(t))return;
+  if(t.dataset.fxp){fxPreview(t.dataset.fxp);return}
   if(stClick(t))return;
   if(t.dataset.skc){castSkill(t.dataset.skc);return}
   if(t.dataset.pvb){pvBuy(t.dataset.pvb);return}
