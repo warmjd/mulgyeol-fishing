@@ -1048,7 +1048,7 @@ function onMsg(ws, me, m) {
     case 'cel': { const now = Date.now(); if (now - (me.celT || 0) < 800) break; me.celT = now; const k = String(m.k || ''); if (!['fw', 'big', 'sp', 'pt', 'cf', 'bub', 'bal', 'lan'].includes(k)) break; broadcast({ t: 'cel', k, x: m.x | 0, y: m.y | 0, id: me.id }, ws); break; }
     case 'mar_req': case 'mar_ans': case 'mar_w': case 'mar_go': case 'mar_end': case 'wed_join': case 'wed_msg': case 'wed_list': case 'wed_done': marMsg(ws, me, m); break;
     case 'wf_get': case 'wf_catch': case 'wf_claim': case 'gift_send': case 'gift_list': case 'gift_take': withLock(me.key, async () => socMsg(ws, me, m)).catch(e => console.error('soc', e.message)); break;
-    case 'bt_send': case 'bt_try': btMsg(ws, me, m); break;
+    case 'bt_send': case 'bt_try': break;   // 2026-11-11: 유리병 편지는 문 닫음 (낚시 중에 신경 쓰여서)
     case 'gd_water': { if (!V) break; const L = shipsOf(), x = L[m.i | 0]; if (!x || x.key === me.key) break; V.gw = V.gw || {}; const day = kstDay(), gk = me.key + '>' + x.key; if (V.gw[gk] === day) break; V.gw[gk] = day; const ks = Object.keys(V.gw); if (ks.length > 300) delete V.gw[ks[0]];
       const live = liveByKey(x.key); if (live) send(live[0], { t: 'gd_watered', by: [me.name] }); else { V.gwq = V.gwq || {}; (V.gwq[x.key] = V.gwq[x.key] || []).push(me.name); V.gwq[x.key] = V.gwq[x.key].slice(-8); } vMark(); break; }   // 💧 친구 정원 물 주기 (하루 한 번)
     case 'gd_q': { if (V && V.gwq && V.gwq[me.key]) { send(ws, { t: 'gd_watered', by: V.gwq[me.key] }); delete V.gwq[me.key]; vMark(); } break; }
