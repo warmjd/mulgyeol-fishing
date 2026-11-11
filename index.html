@@ -503,6 +503,9 @@ details.more summary::-webkit-details-marker{display:none}
 .ebslot{background:linear-gradient(#ffe9f4,#fff6e0);border-radius:20px;padding:14px 10px 8px;margin-bottom:10px;text-align:center}
 .reels{display:flex;justify-content:center;gap:8px}.reels span{width:70px;height:70px;border-radius:16px;background:#fff;border:3px solid #f6c6dc;display:grid;place-items:center;font-size:40px}
 .reels span.pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+.eggbox{padding:16px 10px 10px}.eggbox.rb{background:linear-gradient(135deg,#ffd6e8,#fff3c4,#d4f4ff,#e8dcff);box-shadow:0 0 0 3px #ffe08a inset}.egg{font-size:76px;line-height:96px;height:96px;display:inline-block;filter:drop-shadow(0 4px 0 rgba(0,0,0,.08))}.egg.wob{animation:eggwob .32s ease-in-out infinite}.egg.born{animation:pop .35s cubic-bezier(.2,1.5,.4,1)}
+@keyframes eggwob{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)}}
+.eggtab{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:10px 0 4px}.eggtab span{background:#fff6fa;border:2px solid #f6d6e6;border-radius:12px;padding:5px 2px;text-align:center;font-size:11px;color:#6a5a7a}.eggtab i{display:block;font-style:normal;font-size:22px}.eggtab b{display:block;color:#e0608a}
 .eb-res{min-height:24px;margin:8px 0 4px;font-size:15px;text-align:center}
 .btn.big{width:100%;font-size:17px;min-height:52px;margin-bottom:8px}
 .race{width:100%;border-radius:16px;image-rendering:auto;background:#e8f4e0}
@@ -4393,7 +4396,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y);
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1111f',UPD_LOG=[
+const UPD_VER='1111g',UPD_LOG=[
+ ['11/11 저녁','🥚',[['🥚 은비 알 부화','은비랜드 새 놀이 · 알을 깨우면 1초 만에 누가 태어날지 정해져요'],['무지개 용 ×1000!','병아리 ×1 · 아기 오리 ×2 · 아기 펭귄 ×5 · 아기 여우 ×20 · 아기 유니콘 ×100 · 무지개 용 ×1000'],['🏆 최고 당첨 1위에 도전','1만 칩 알에서 무지개 용이 나오면 한 번에 1,000만 칩'],['VIP 등급은 문 닫음','모두 다이아라 의미가 없어서 없앴어요 · 위쪽엔 내 최고 당첨이 보여요']]],
  ['11/11 밤','🎣',[['🎣 섬 낚시 대회','아무 섬 부두에서나 낚시 (하루 30번) · 찌가 흔들리면 「지금 당겨요!」 · 섬에만 사는 물고기 9종'],['한 주 동안 가장 큰 물고기','월요일에 1~3위 보상 (3천만 · 1천5백만 · 7백만) · 1위 칭호 「섬 낚시왕」'],['🏆 이번 주의 섬','한 주 동안 ♥를 가장 많이 받은 섬 · 1~3위 보상 · 1위 칭호 「가장 예쁜 섬」'],['🐟 관상어 연못','잡아 본 물고기를 섬 연못에 12마리까지 풀어 둬요 (가방은 그대로)'],['🖼️ 섬 갤러리','떠돌이 화가 그림을 6점까지 걸어요 · 「그림 이젤」을 놓으면 섬 위에도 보여요'],['🍁 계절 정원','실제 계절 따라 섬이 바뀌어요 · 봄 꽃잎 · 여름 반딧불 · 가을 단풍 · 겨울 눈']]],
  ['11/11 밤','🏝️',[['🏝️ 내 섬 사기','바다 위 나만의 섬 · 작은 섬 3억 → 넓은 섬 +3억 → 큰 섬 +4억 (모두 10억)'],['마음대로 꾸며요','길 · 연못 · 나무 · 꽃 · 집 · 등대 · 풍차 · 작은 성까지 50가지 · 길과 땅은 쓱 그어서 칠해요'],['밤이 되면 불빛','가로등 · 모닥불 · 창문 · 등대 불빛이 켜져요'],['⛵ 친구 섬 놀러 가기','섬을 누르면 걸어 다녀요 · 섬 주인에게 인사 · ♥ 좋아요 · 📮 방명록 (하루 한 번)'],['어디서?','메뉴 → 🏝️ 내 섬 · 또는 모두의 정원 남쪽 바닷가 「섬 나루터」에서 나룻배']]],
  ['11/11 저녁','🌻',[['🌻 모두의 정원','꽃배가 떠 있던 바다가 땅이 됐어요 · 꽃밭 언덕 위로 걸어가면 정원 8칸이 모여 있어요'],['원래 심은 꽃은 그대로','꽃배 주인은 같은 자리가 내 정원이 돼요'],['빈 정원 받기','아직 정원이 없으면 빈 정원 문 앞에서 「🌷 이 정원 받기」'],['💧 친구 정원 물 주기','친구 정원 아치 앞에서 하루 한 번 · 친구 꽃이 조금 더 빨리 자라요'],['🪴 정원 꾸미기','정원 → 꾸미기 탭 · 벤치 · 분수 · 등불 등 10종 (10만~800만)']]],
@@ -9768,9 +9772,10 @@ function vilClick(t){
 const EB={RATE:10,BUY_DAY:20000,BETS:[10,50,100,500,1000,5000,10000],SYM:['🐟','🐠','🐡','🦑','🐋','⭐'],SLOT3:[5,10,24,60,150,0],SLOT2:[0,.4,.7,1,2,4],
   RACE_X:[2.6,3.5,5,6.9,10],RACE_N:['느릿이','엉금이','번쩍이','쌩쌩이','로켓이'],RACE_C:['#7cc8a0','#f0b060','#8ab0f0','#e890b0','#b090e0'],
   VIP:[[5000,'브론즈',50],[30000,'실버',200],[150000,'골드',800],[600000,'다이아',2000]],
+  EGG_X:[0,1,2,5,20,100,1000],EGG_P:[0,.15,.07,.028,.0075,.0012,.0002],EGG_N:['빈 껍데기','병아리','아기 오리','아기 펭귄','아기 여우','아기 유니콘','무지개 용'],EGG_E:['🥚','🐥','🦆','🐧','🦊','🦄','🐲'],
   SHOP:[['ebwings',80000],['ebsuit',60000],['ebcrown',40000],['t_ebvip',30000],['hc20',20000],['hc21',20000]],
   WHEEL:['g','r','b','r','b','r','b','r','b','r','g','b','r','b','r','b','r','b','r','b'],WX:{r:2,b:2,g:9},WC:{r:'#e8364e',b:'#3a6ad8',g:'#ffc83a'},WN:{r:'빨강',b:'파랑',g:'황금'}};
-const EBS={tab:'slot',bet:50,data:null,busy:false,last:null,pick:0,wpick:'r',wang:0,reels:[5,5,5],spinT:0};
+const EBS={tab:'egg',egg:null,bet:50,data:null,busy:false,last:null,pick:0,wpick:'r',wang:0,reels:[5,5,5],spinT:0};
 const ebOpenNow=()=>!$('sheetwrap').hidden&&$('sheettitle').textContent==='🎰 은비랜드';
 const cardName=n=>['','A','2','3','4','5','6','7','8','9','10','J','Q','K'][n]||'?';
 function openEb(){if(!ONLINE||!Net.me){toast('은비랜드는 온라인에서 열려요');return}EBS.last=null;Snd.sfx('page');openSheet('🎰 은비랜드','<div class="muted" style="padding:20px;text-align:center">불러오는 중…</div>');Net.flushSave(true);Net.send({t:'eb_info'})}
@@ -9781,17 +9786,22 @@ function onEbMsg(m){
   if(m.reels){ebSpinTo(m);return true}
   if(m.race){ebRace(m);return true}
   if(m.wheel){ebWheelTo(m);return true}
+  if(m.egg!=null){ebEggTo(m);return true}
   if(m.hilo){EBS.busy=false;EBS.last=m;Snd.sfx(m.win?'buy':'miss');if(m.win)toast('🃏 '+cardName(m.hilo.to)+'! +'+fmt(m.win)+'칩');}
   if(ebOpenNow())renderEb();return true}
-function ebHead(d){const v=d.vip;return'<div class="eb-head"><div><small>내 칩</small><b>🎲 '+fmt(d.c)+'</b></div><div><small>마을 잭팟</small><b class="jp">⭐ '+fmt(d.jp)+'</b></div><div><small>VIP</small><b>'+(v>=0?EB.VIP[v][1]:'—')+'</b></div></div>'}
+function ebHead(d){const v=d.vip;return'<div class="eb-head"><div><small>내 칩</small><b>🎲 '+fmt(d.c)+'</b></div><div><small>마을 잭팟</small><b class="jp">⭐ '+fmt(d.jp)+'</b></div><div><small>내 최고 당첨</small><b>🏆 '+fmt(d.best|0)+'</b></div></div>'}
 function renderEb(){
   const d=EBS.data;if(!d)return;let h=ebHead(d)+rankStrip('eb','🏆 최고 당첨');rankNeed('eb');h+=ebTicker();
-  h+='<div class="tabs scroll">'+[['slot','🎰 슬롯 룰렛'],['wheel','🎡 은비 룰렛'],['coin','🎲 칩'],['shop','🎁 경품'],['rank','🏆 기록']].map(t=>'<button class="tab'+(EBS.tab===t[0]?' on':'')+'" data-ebt="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+  h+='<div class="tabs scroll">'+[['egg','🥚 알 부화'],['slot','🎰 슬롯 룰렛'],['wheel','🎡 은비 룰렛'],['coin','🎲 칩'],['shop','🎁 경품'],['rank','🏆 기록']].map(t=>'<button class="tab'+(EBS.tab===t[0]?' on':'')+'" data-ebt="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
   const bets='<div class="fchips">'+EB.BETS.map(b=>'<button class="fchip'+(EBS.bet===b?' on':'')+'" data-ebb="'+b+'"'+(d.c>=b?'':' disabled')+'>'+(b>=10000?(b/10000)+'만':fmt(b))+'</button>').join('')+'</div>';
   if(EBS.tab==='slot'){const r=EBS.reels;
     h+='<div class="ebslot"><div class="reels">'+r.map(x=>'<span>'+EB.SYM[x]+'</span>').join('')+'</div><div class="eb-res">'+(EBS.last&&EBS.last.reels&&!EBS.busy?(EBS.last.win?(EBS.last.jack?'🎉 잭팟!! ':'')+'+'+fmt(EBS.last.win)+'칩':'꽝'):'&nbsp;')+'</div></div>'+bets+
       '<button class="btn pink big" data-eb="slot"'+(EBS.busy||performance.now()<(EBS.cdU||0)||d.c<EBS.bet?' disabled':'')+'>'+(EBS.busy?'돌아가는 중…':'돌리기 · '+fmt(EBS.bet)+'칩')+'</button>'+
       '<details class="more"><summary>배당표</summary><div class="ptab2">'+EB.SYM.map((s,i)=>'<div>'+s+s+s+' <b>'+(i===5?'잭팟':'×'+EB.SLOT3[i])+'</b>'+(EB.SLOT2[i]?' · '+s+s+' ×'+EB.SLOT2[i]:'')+'</div>').join('')+'</div><p class="note">⭐⭐⭐ 잭팟은 마을 모두가 키워요 (슬롯 판돈의 3%). 500칩 이상 걸면 잭팟을 다 받아요.</p></details>'}
+  if(EBS.tab==='egg'){const L=EBS.last&&EBS.last.egg!=null&&!EBS.busy?EBS.last:null,k=L?L.egg:-1;
+    h+='<div class="ebslot eggbox'+(k>=5?' rb':'')+'"><div class="egg'+(EBS.busy?' wob':'')+(L?' born':'')+'" id="ebEgg">'+(L&&k>0?EB.EGG_E[k]:'🥚')+'</div><div class="eb-res">'+(L?(k?'「'+EB.EGG_N[k]+'」가 태어났어요! ×'+EB.EGG_X[k]+' · +'+fmt(L.win)+'칩':'빈 껍데기… 다음 알엔 누가 있을까요?'):EBS.busy?'톡… 톡톡…':'알 속엔 누가 자고 있을까요?')+'</div></div>'+bets+
+      '<button class="btn pink big" data-eb="egg"'+(EBS.busy||performance.now()<(EBS.cdU||0)||d.c<EBS.bet?' disabled':'')+'>'+(EBS.busy?'톡톡…':'🥚 알 깨우기 · '+fmt(EBS.bet)+'칩')+'</button>'+
+      '<div class="eggtab">'+[6,5,4,3,2,1].map(i=>'<span><i>'+EB.EGG_E[i]+'</i>'+EB.EGG_N[i]+'<b>×'+EB.EGG_X[i]+'</b></span>').join('')+'</div><p class="note" style="text-align:center">🐲 무지개 용이 태어나면 알 값의 1000배! · 은비랜드 🏆 최고 당첨 1위에 도전해요</p>'}
   if(EBS.tab==='wheel'){const L=EBS.last&&EBS.last.wheel&&!EBS.busy?EBS.last:null;
     h+='<div class="ebslot" style="padding:10px"><canvas id="ebwheel" width="260" height="260" style="width:220px;height:220px;display:block;margin:0 auto"></canvas><div class="eb-res">'+(L?(L.win?'🎉 '+EB.WN[EB.WHEEL[L.wheel.seg]]+'! +'+fmt(L.win)+'칩':'아쉬워요… '+EB.WN[EB.WHEEL[L.wheel.seg]]+' 칸'):'어느 색에 멈출까요?')+'</div></div>';
     h+='<div class="fg-btns" style="grid-template-columns:repeat(3,1fr)">'+['r','b','g'].map(k=>'<button class="btn'+(EBS.wpick===k?' pink':' ghost')+'" data-ebw="'+k+'" style="border:3px solid '+EB.WC[k]+'">'+(k==='g'?'⭐ ':'')+EB.WN[k]+' ×'+EB.WX[k]+'</button>').join('')+'</div>'+bets+
@@ -9804,11 +9814,7 @@ function renderEb(){
       '<div class="fg-btns"><button class="btn mint" data-eb="hi"'+(!up||d.c<EBS.bet?' disabled':'')+'>▲ 높다 ×'+mx(up)+'</button><button class="btn pink" data-eb="lo"'+(!dn||d.c<EBS.bet?' disabled':'')+'>▼ 낮다 ×'+mx(dn)+'</button></div><p class="note">같은 숫자가 나오면 져요.</p>'}
   if(EBS.tab==='coin'){const left=(d.cap||EB.BUY_DAY)-d.buy;
     h+='<div class="eb-coin">'+[100,1000,10000,100000,1000000].map(n=>'<button class="ccard" data-ebc="'+n+'"'+(n>left||S.gold<n*EB.RATE?' disabled':'')+'><b>🎲 '+fmt(n)+'</b><small>'+fmt(n*EB.RATE)+' 골드</small></button>').join('')+'</div>'+
-      '<p class="note">오늘 '+fmt(left)+'칩 더 바꿀 수 있어요 · 칩은 골드로 되돌릴 수 없어요</p>';
-    const v=d.vip,nx=EB.VIP[v+1];
-    h+='<div class="sec">VIP</div><div class="vip">'+EB.VIP.map((t,i)=>'<span class="'+(i<=v?'on':'')+'">'+t[1]+'<small>'+fmtK(t[0])+'</small></span>').join('')+'</div>'+
-      (nx?'<div class="sbar"><i style="width:'+Math.min(100,d.wag/nx[0]*100)+'%"></i><span>다음 '+nx[1]+'까지 '+fmt(nx[0]-d.wag)+'칩</span></div>':'')+
-      (v>=0?'<button class="btn mint" data-eb="vip" style="width:100%;margin-top:8px"'+(d.vd?' disabled':'')+'>'+(d.vd?'오늘 VIP 보너스 받음 ✓':'오늘의 VIP 보너스 🎲 '+EB.VIP[v][2])+'</button>':'<p class="note">칩을 쓸수록 VIP 등급이 올라요. 브론즈부터 매일 보너스 칩 · 하루에 바꿀 수 있는 칩도 늘어나요</p>')}
+      '<p class="note">오늘 '+fmt(left)+'칩 더 바꿀 수 있어요 · 칩은 골드로 되돌릴 수 없어요</p>'}
   if(EBS.tab==='rank'){h+=rankFull('eb','🏆 은비랜드 최고 당첨 (한 번에 딴 칩)')}
   if(EBS.tab==='shop'){h+='<div class="cgrid">'+EB.SHOP.map(it=>{const c=COS_BY[it[0]],have=owns(it[0]),ic=cosIcon(it[0]);return'<div class="ccard'+(have?' have':'')+'">'+(ic?'<img class="ci" src="'+ic+'" alt="">':'<span class="ttl sm">「」</span>')+'<div class="cn">'+(c.k==='title'?'「'+esc(c.name)+'」':esc(c.name))+'</div>'+(have?'<span class="lock">가지고 있어요</span>':'<button class="btn xs pink" data-ebs="'+it[0]+'"'+(d.c>=it[1]?'':' disabled')+'>🎲 '+fmtK(it[1])+'</button>')+'</div>'}).join('')+'</div><p class="note">여기서만 바꿀 수 있는 은비랜드 한정 치장이에요.</p>'}
   body().innerHTML=h;if(EBS.tab==='race')ebDrawRace(EBS.raceT||null);if(EBS.tab==='wheel')ebDrawWheel(EBS.wang);
@@ -9825,12 +9831,16 @@ function ebClick(t){
   EBS.busy=true;EBS.last=null;
   if(k==='slot'){Net.send({t:'eb_slot',bet:EBS.bet});ebSpinAnim();}
   else if(k==='wheel'){Net.send({t:'eb_wheel',bet:EBS.bet,pick:EBS.wpick});ebWheelSpin()}
+  else if(k==='egg'){Net.send({t:'eb_egg',bet:EBS.bet});EBS.eggT=performance.now()}
   else return true;
   Snd.sfx('cast');renderEb();setTimeout(()=>{if(EBS.busy){EBS.busy=false;if(ebOpenNow())renderEb()}},7000);return true}
 /* 슬롯: 서버 결과가 오기 전부터 빙글빙글, 결과가 오면 한 칸씩 멈춰요 */
 function ebSpinAnim(){EBS.spinT=performance.now();(function tick(){if(!EBS.busy||!ebOpenNow())return;const el=document.querySelectorAll('.reels span');el.forEach((s,i)=>{if(!(EBS.stop>i))s.textContent=EB.SYM[(Math.random()*6)|0]});requestAnimationFrame(tick)})()}
 function ebSpinTo(m){EBS.stop=0;const r=m.reels;[0,1,2].forEach(i=>setTimeout(()=>{EBS.reels[i]=r[i];EBS.stop=i+1;const el=document.querySelectorAll('.reels span')[i];if(el){el.textContent=EB.SYM[r[i]];el.classList.add('pop')}Snd.sfx('tap');
   if(i===2){EBS.busy=false;EBS.cdU=performance.now()+700;setTimeout(()=>{if(ebOpenNow())renderEb()},720);EBS.stop=0;EBS.last=m;Snd.sfx(m.jack?'page':m.win?'buy':'miss');if(m.win)toast((m.jack?'🎉 잭팟!! ':'🎰 ')+'+'+fmt(m.win)+'칩');if(ebOpenNow())renderEb()}},800+i*520))}
+/* 🥚 알 부화: 톡톡 흔들리다 (최소 0.7초) 쨍! 하고 태어나요 */
+function ebEggTo(m){const wait=Math.max(0,700-(performance.now()-(EBS.eggT||0)));setTimeout(()=>{const el=$('ebEgg');if(el){el.classList.remove('wob');el.textContent='💥';}Snd.sfx('tap');
+  setTimeout(()=>{EBS.busy=false;EBS.cdU=performance.now()+350;EBS.last=m;Snd.sfx(m.egg>=5?'page':m.win?'buy':'miss');if(m.egg>=4)toast(EB.EGG_E[m.egg]+' 「'+EB.EGG_N[m.egg]+'」 ×'+EB.EGG_X[m.egg]+'! +'+fmt(m.win)+'칩');if(ebOpenNow())renderEb();setTimeout(()=>{if(ebOpenNow()&&!EBS.busy)renderEb()},370)},180)},wait)}
 /* 🎡 은비 룰렛: 결과 오기 전부터 돌고, 서버가 정한 칸에서 천천히 멈춰요 */
 function ebDrawWheel(a){const c=$('ebwheel');if(!c)return;const x=c.getContext('2d'),N=EB.WHEEL.length,R=118,cx0=130,cy0=132;x.clearRect(0,0,260,260);
   x.save();x.translate(cx0,cy0);x.fillStyle='#5a2a6a';x.beginPath();x.arc(0,0,R+8,0,6.29);x.fill();

@@ -1092,7 +1092,7 @@ function onMsg(ws, me, m) {
     }); break;
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
     /* ----- 은비랜드 ----- */
-    case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'eb_hilo': case 'eb_wheel': case 'eb_vip': ebMsg(ws, me, m); break;
+    case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'eb_hilo': case 'eb_wheel': case 'eb_egg': case 'eb_vip': ebMsg(ws, me, m); break;
     /* ----- 오늘의 일 세 가지 다 하면 강화권 1장 (하루 한 번) ----- */
     case 'jtask_all': case 'vday_claim': withLock(me.key, async () => {   // 🏘️ 오늘의 마을 일 (2026-11-05): 세 가지 중 두 가지 → 강화권 3 · 도토리 3 · 선물 하나 · 하루 한 몫, 3일치까지 쌓여요
       const s = me.save; if (!s) return; const v = vdayOf(s);
@@ -1642,7 +1642,9 @@ const EB = {
   RACE_W: [.34, .26, .18, .13, .09], RACE_X: [2.6, 3.5, 5, 6.9, 10],
   /* 🎡 은비 룰렛 (2026-11-10): 20칸 = 빨강 9 · 파랑 9 · 황금 2 → 빨강/파랑 ×2 · 황금 ×9 (모두 환급 90%) · 거북이 경주 · 하이로우는 문 닫음 */
   WHEEL: ['g', 'r', 'b', 'r', 'b', 'r', 'b', 'r', 'b', 'r', 'g', 'b', 'r', 'b', 'r', 'b', 'r', 'b', 'r', 'b'], WHEEL_X: { r: 2, b: 2, g: 9 },
-  VIP: [[5000, '브론즈', 50], [30000, '실버', 200], [150000, '골드', 800], [600000, '다이아', 2000]],
+  VIP: [[5000, '브론즈', 50], [30000, '실버', 200], [150000, '골드', 800], [600000, '다이아', 2000]],   // 2026-11-11: VIP 등급은 문 닫음 (모두 다이아라 의미가 없어서)
+  /* 🥚 은비 알 부화 (2026-11-11): 알을 하나 사서 톡 → 무엇이 태어날까? 빈 껍데기 · 병아리 ×1 · 아기 오리 ×2 · 아기 펭귄 ×5 · 아기 여우 ×20 · 아기 유니콘 ×100 · 무지개 용 ×1000 (환급 90%) */
+  EGG_X: [0, 1, 2, 5, 20, 100, 1000], EGG_P: [0, .15, .07, .028, .0075, .0012, .0002], EGG_N: ['빈 껍데기', '병아리', '아기 오리', '아기 펭귄', '아기 여우', '아기 유니콘', '무지개 용'],
   SHOP: { ebcrown: 40000, ebsuit: 60000, ebwings: 80000, hc20: 20000, hc21: 20000, t_ebvip: 30000 }
 };
 let ebJP = EB.JP_BASE;
@@ -1659,6 +1661,7 @@ function ebMsg(ws, me, m) {
   withLock(me.key, async () => {
     const s = me.save; if (!s) return; const e = ebOf(s), err = text => send(ws, { t: 'eb_err', text }), done = extra => { queueSave(me.key, s); send(ws, Object.assign(ebPub(s, me), extra || {})); };
     if (m.t === 'eb_info') { if (!me.hiCard) me.hiCard = 1 + Math.floor(Math.random() * 13); return done(); }
+    if (m.t === 'eb_vip') return err('VIP 등급은 문을 닫았어요 · 🥚 알 부화로 최고 당첨에 도전해 봐요');
     if (m.t === 'eb_vip') { const t = ebVip(e.wag | 0); if (t < 0) return err('VIP 브론즈부터 받을 수 있어요'); if (e.vd === kstDay()) return err('오늘 보너스는 이미 받았어요'); e.vd = kstDay(); const n = EB.VIP[t][2]; e.c += n; return done({ win: n, note: 'VIP ' + EB.VIP[t][1] + ' 오늘의 보너스 칩 +' + n }); }
     if (m.t === 'eb_buy') {
       const n = Math.floor(Number(m.n) || 0), cap = ebCap(s); if (n < 10 || n > cap) return;
@@ -1672,7 +1675,7 @@ function ebMsg(ws, me, m) {
       e.c -= price; const got = giveCos(s, [id]); send(ws, { t: 'cos_got', ids: got }); return done({ note: '경품 교환 완료!' });
     }
     if (m.t === 'eb_race' || m.t === 'eb_hilo') return err('🐢🃏 그 게임은 문을 닫았어요 · 🎡 룰렛을 즐겨 봐요');
-    { const now2 = Date.now(), gap = m.t === 'eb_wheel' ? 3600 : 2200; if (now2 - (me.ebSpinT || 0) < gap) return err('🎰 잠깐만요, 아직 돌아가는 중이에요'); me.ebSpinT = now2; }   // 🕰️ 연타 방지 (서버에서도)
+    { const now2 = Date.now(), gap = m.t === 'eb_wheel' ? 3600 : m.t === 'eb_egg' ? 1300 : 2200; if (now2 - (me.ebSpinT || 0) < gap) return err('🎰 잠깐만요, 아직 돌아가는 중이에요'); me.ebSpinT = now2; }   // 🕰️ 연타 방지 (서버에서도)
     if (m.t === 'eb_wheel' && !['r', 'b', 'g'].includes(m.pick)) return;
     const bet = m.bet | 0; if (!EB.BETS.includes(bet)) return; if ((e.c | 0) < bet) return err('칩이 모자라요');
     if ((e.loss | 0) >= EB_LOSS_CAP) return err('🐰 은비: 오늘은 여기까지! 내일 다시 놀러 와요 (하루에 잃을 수 있는 칩을 다 썼어요)');
@@ -1685,6 +1688,10 @@ function ebMsg(ws, me, m) {
         else win = Math.floor(bet * EB.SLOT3[r[0]]);
       } else { const c = {}; r.forEach(x => c[x] = (c[x] | 0) + 1); for (const x in c) if (c[x] === 2) win = Math.floor(bet * EB.SLOT2[x]); }
       extra.reels = r;
+    } else if (m.t === 'eb_egg') {
+      let r = Math.random(), k = 0; for (let i = 6; i >= 1; i--) { r -= EB.EGG_P[i]; if (r < 0) { k = i; break; } }
+      win = Math.floor(bet * EB.EGG_X[k]); extra.egg = k;
+      if (k >= 5) { broadcast({ t: 'news', text: (k === 6 ? '🐲🌈 ' : '🦄✨ ') + me.name + ' 님의 알에서 「' + EB.EGG_N[k] + '」가 태어났어요! ×' + EB.EGG_X[k] + ' · +' + fmtN(win) + '칩' }); }
     } else if (m.t === 'eb_wheel') {
       const seg = (Math.random() * EB.WHEEL.length) | 0, col = EB.WHEEL[seg]; if (col === m.pick) win = Math.floor(bet * EB.WHEEL_X[col]); extra.wheel = { seg, pick: m.pick };
       if (col === 'g' && win && bet >= 500) broadcast({ t: 'news', text: '🎡✨ ' + me.name + ' 님이 은비 룰렛 황금 칸을 맞혔어요! +' + fmtN(win) + '칩' });
@@ -1701,8 +1708,7 @@ function ebMsg(ws, me, m) {
     e.loss = (e.loss | 0) + bet - win; const step = Math.floor(Math.max(0, e.loss) / EB_CONS);
     if (step > (e.cons | 0)) { const back = (step - (e.cons | 0)) * EB_CONS / 10; e.cons = step; e.c += back; extra.note = '🐰 은비의 위로 칩 +' + fmtN(back) + ' · 오늘은 운이 조금 없네요'; }
     ebRecord(me.name, m.t.slice(3), bet, win, !!extra.jack);
-    if (win >= 5000 && !extra.jack) broadcast({ t: 'news', text: '🎰 ' + me.name + ' 님이 은비랜드에서 ' + fmtN(win) + '칩을 땄어요!' }, ws);
-    if (v1 > v0) extra.note = '🎉 은비랜드 VIP ' + EB.VIP[v1][1] + ' 등급이 됐어요!';
+    if (win >= 5000 && !extra.jack && !(extra.egg >= 5)) broadcast({ t: 'news', text: '🎰 ' + me.name + ' 님이 은비랜드에서 ' + fmtN(win) + '칩을 땄어요!' }, ws);
     done(Object.assign(extra, { bet, win }));
   }).catch(er => console.error('eb', er.message));
 }
