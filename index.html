@@ -506,7 +506,8 @@ details.more summary::-webkit-details-marker{display:none}
 .ntag .dheart{display:inline-block;margin-right:2px;animation:dhb 2.4s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,140,190,.8))}@keyframes dhb{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
 .sthead{background:linear-gradient(#2a1e3a,#3a2a4e);border-radius:16px;padding:14px 10px 10px;text-align:center;margin-bottom:8px;color:#fff}.sthead.al{background:#f4f4f4;color:#1a1a1a;border:2px solid #1a1a1a}.stsign{font-size:22px;font-weight:800;letter-spacing:1px}.stsign.alof{font-family:'Arial Black',Arial,sans-serif;font-weight:900;font-size:34px;letter-spacing:4px;background:#fff;color:#111;display:inline-block;padding:2px 14px;border:3px solid #111}
 .stsub{font-size:12px;margin-top:6px;opacity:.95}.stmsg{font-size:13px;margin:4px 0}.stchips{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-top:6px}.stchips span{font-size:11px;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.18)}.sthead.al .stchips span{background:#e4e4e4}.stchips .on{color:#7cffa0}.sthead.al .stchips .on{color:#1a8a3a}.stchips .sale,.stchips .ev{background:#ff5a8a!important;color:#fff}
-.stcv{width:100%;height:auto;border-radius:14px;display:block;touch-action:none;image-rendering:pixelated;background:#222}.stbox{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0}.stbox div{background:#fff6fa;border:2px solid #f6d6e6;border-radius:12px;padding:6px;text-align:center}.stbox small{display:block;font-size:11px;color:#8a7a9a}.stbox b{font-size:16px;color:#e0608a}
+.stcv{width:100%;height:auto;border-radius:14px;display:block;touch-action:none;image-rendering:pixelated;background:#222}.stsg{position:absolute;left:0;top:0;pointer-events:none;text-align:center;white-space:nowrap;z-index:1}.stsg b{display:inline-block;font-size:11px;font-weight:800;color:#fff;background:rgba(40,28,56,.78);padding:2px 8px;border-radius:8px;border:1.5px solid var(--c)}.stsg.eve b{color:var(--c);text-shadow:0 0 6px var(--c);box-shadow:0 0 8px var(--c)}.stsg.al b{background:#fff;color:#111;border:2px solid #111;font-family:'Arial Black',Arial,sans-serif;font-weight:900;letter-spacing:2px;box-shadow:none;text-shadow:none}.stsg i{display:block;font-style:normal;font-size:10px;font-weight:700;color:#fff;background:#ff5a8a;border-radius:99px;padding:0 6px;margin:2px auto 0;width:max-content}.stsg i.off{background:#9a9aaa}
+.stbox{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0}.stbox div{background:#fff6fa;border:2px solid #f6d6e6;border-radius:12px;padding:6px;text-align:center}.stbox small{display:block;font-size:11px;color:#8a7a9a}.stbox b{font-size:16px;color:#e0608a}
 .stpick{box-shadow:0 0 0 3px #ffd34d inset}.stpk{font-size:10px;color:#c07a10;font-weight:700}.stti{font-size:13px;font-weight:800;color:#7a5cff;padding:12px 0}
 .eggbox{padding:16px 10px 10px}.eggbox.rb{background:linear-gradient(135deg,#ffd6e8,#fff3c4,#d4f4ff,#e8dcff);box-shadow:0 0 0 3px #ffe08a inset}.egg{font-size:76px;line-height:96px;height:96px;display:inline-block;filter:drop-shadow(0 4px 0 rgba(0,0,0,.08))}.egg.wob{animation:eggwob .32s ease-in-out infinite}.egg.born{animation:pop .35s cubic-bezier(.2,1.5,.4,1)}
 @keyframes eggwob{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)}}
@@ -7678,9 +7679,13 @@ const ST_GAME={pole:['💗 리듬 폴 스핀','콤보 점수',v=>fmt(v)+'점'],p
 let STP={},LOUNGE_L=[];const STS={shop:null,v:null,tab:'play',g:null};
 const stTitle=s=>ST_SHOP[s][0]+' '+ST_SHOP[s][1],stOpenNow=()=>!$('sheetwrap').hidden&&STS.shop&&$('sheettitle').textContent===stTitle(STS.shop);
 const stGoodN=id=>{const G=ST_GOODS[id];return G[2]==='c'?(COS_BY[id]?COS_BY[id].name:id):G[2]==='h'?HOME_FUR[id][0]:ISL_OBJ[id][0]};
-function stSign(b,hx,hy){const c=STP[b.st]||{},ph=dayTint().ph,eve=ph>.7||ph<.06,col=b.st==='alof'?'#1a1a1a':b.st==='roof'?'#ffe0a0':ST_COL[c.col|0],lab=b.st==='roof'?'☁️ 구름과자 라운지'+(LOUNGE_L.length?' · '+LOUNGE_L.length+'명':''):b.st==='alof'?'ALOF':ST_SHOP[b.st][1];
-  cx.font=(b.st==='alof'?'900 9px Arial,sans-serif':'bold 7px sans-serif');cx.textAlign='center';const X=hx+24,Y=hy-3;if(b.st==='alof'){cx.fillStyle='#ffffff';cx.fillRect(X-15,Y-9,30,12);cx.fillStyle='#1a1a1a';cx.fillText('ALOF',X,Y)}else{cx.lineWidth=3;cx.strokeStyle='rgba(30,20,40,.75)';cx.strokeText(lab,X,Y);if(eve){cx.shadowColor=col;cx.shadowBlur=6}cx.fillStyle=eve?col:'#ffffff';cx.fillText(lab,X,Y);cx.shadowBlur=0}
-  if(c.ev>Date.now()||c.sale||c.open===false){const t=c.open===false?'휴무':c.ev>Date.now()?'🎉 깜짝 세일':'세일 '+c.sale+'%';cx.font='bold 6px sans-serif';cx.lineWidth=2;cx.strokeStyle='#ffffff';cx.strokeText(t,X,Y+9);cx.fillStyle=c.open===false?'#8a8a9a':'#e0406a';cx.fillText(t,X,Y+9)}}
+function stSign(){}   // 간판 글씨는 캔버스 대신 또렷한 글자(DOM)로 · placeTags → stSignsPlace
+const STSG={};function stSignsPlace(ox,oy,cX,cY){const ph=dayTint().ph,eve=ph>.7||ph<.06;(W.buildings||[]).forEach(b=>{if(!b.st)return;let el=STSG[b.id];if(!el){el=STSG[b.id]=document.createElement('div');el.className='stsg';$('tags').appendChild(el)}
+  const sx=ox+(b.x*TS+b.w*TS/2-cX)*SC,sy=oy+((b.y+1)*TS-52-cY)*SC,vis=sx>-120&&sx<innerWidth+120&&sy>-60&&sy<innerHeight+80;if(el.hidden===vis)el.hidden=!vis;if(!vis)return;
+  const c=STP[b.st]||{},col=b.st==='roof'?'#ffd890':ST_COL[c.col|0],lab=b.st==='roof'?'☁️ 구름과자 라운지'+(LOUNGE_L.length?' · '+LOUNGE_L.length+'명':''):b.st==='alof'?'ALOF':ST_SHOP[b.st][1],
+    bd=c.open===false?'휴무':c.ev>Date.now()?'🎉 깜짝 세일':c.sale?'세일 '+c.sale+'%':'',k=lab+'|'+bd+'|'+col+'|'+eve;
+  if(el.k!==k){el.k=k;el.className='stsg'+(b.st==='alof'?' al':'')+(eve?' eve':'');el.style.setProperty('--c',col);el.innerHTML='<b>'+esc(lab)+'</b>'+(bd?'<i'+(c.open===false?' class="off"':'')+'>'+esc(bd)+'</i>':'')}
+  el.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,-100%)'})}
 function openSt(shop){if(!ONLINE||!Net.me){toast('가게는 온라인에서 열려요');return}Snd.sfx('page');STS.shop=shop;STS.v=null;STS.tab=ST_GAME[shop]||shop==='ortho'?'play':'goods';STS.g=null;
   openSheet(stTitle(shop),'<div class="muted" style="padding:20px;text-align:center">문을 여는 중…</div>',()=>{STS.g=null;STS.shop=null});Net.send({t:'st_get',shop})}
 function onStMsg(m){
@@ -9655,6 +9660,7 @@ function placeTags(cX,cY){
     const near=Math.hypot(a.x-P.x,a.y-P.y)<44&&!(F.mode==='result'&&HOLD),sx=ox+(Math.round(a.x)-cX)*SC,sy=oy+(Math.round(a.y)-15-cY)*SC;
     if(a.tag.hidden===near)a.tag.hidden=!near;if(near)a.tag.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,-100%)'});
   others.forEach(o=>{if(!o.seen){o.tag.hidden=true;if(o.bub)o.bub.hidden=true;return}put(o,o.x,o.y)});
+  stSignsPlace(ox,oy,cX,cY);
 }
 function loginMsg(t,bad){const el=$('tMsg');el.textContent=t;el.style.color=bad?'#d9607e':'';if(bad)$('tStart').disabled=false}
 function doLogin(){
