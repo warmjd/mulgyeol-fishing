@@ -1137,7 +1137,6 @@ function onMsg(ws, me, m) {
       }
       if (m.op === 'pt_end' || m.op === 'pt_clear') {   // 배낚시 강제 귀항(보상 줌) · 해산(보상 없음)
         if (!party) return ok('지금 배낚시가 없어요');
-        console.log('운영자', me.name, m.op);
         if (m.op === 'pt_end' && party.state === 'sea') { ptEnd(); return ok('배낚시를 지금 귀항시켰어요 (보상 지급)'); }
         const mem = party.members.slice(); ptClear(); party = null;
         for (const k of mem) { const l = liveByKey(k); if (l) send(l[0], { t: 'pt', p: null, end: '⚓ 운영자가 배낚시를 마쳤어요' }); }
@@ -1215,7 +1214,6 @@ function onMsg(ws, me, m) {
             if (!keyKind(k)) return ok('그런 물건은 없어요');
             await changeBag(key, { [k]: n }, null);   // 2026-11-11: 받는 사람에게도 조용히
           }
-          console.log('운영자', me.name, '→', nm, k, n);
           return ok(nm + ' 님에게 ' + (k === 'g' ? '골드' : k === 'tk' ? '강화권' : k) + ' ' + n + ' 보냈어요');
         }
       }).catch(e => { console.error('adm', e.message); ok('처리하지 못했어요'); });
