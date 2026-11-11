@@ -4531,7 +4531,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y);
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1111n',UPD_LOG=[
+const UPD_VER='1111o',UPD_LOG=[
+ ['11/11 밤','🪝',[['걸어두기 하루 제한 없어짐','이제 30마리 제한 없이 켜 두는 만큼 3분마다 1마리씩']]],
  ['11/11 밤','🪱',[['🪱 미끼 끼우기가 쉬워졌어요','화면 왼쪽 위 미끼 버튼을 누르면 가진 미끼가 한눈에 · 바로 끼우기 · 미끼 사러 가기'],['사면 바로 끼워져요','끼운 미끼가 없을 때 상점에서 사면 자동으로 끼워요 · 다 쓰면 알려 줘요']]],
  ['11/11 밤','🍾',[['낚시 중 유리병 편지 없앰','낚시할 때 모르는 사람의 편지가 더 이상 걸려 오지 않아요']]],
  ['11/11 밤','🪱',[['🪱 물결 상점 미끼 8종','물결 상점 → 💎 미끼 탭 · 던질 때 1개씩 · 한 번에 한 종류'],['🌟 상점 전설 40만 · 🌌 신화 50만','전설 대폭↑ · 신화 확률 3배'],['💎 반짝 100만 · 👑 월척 50만','반짝 3배 · 월척 2배 (최대 60%)'],['📜 주문서 20만 · ⚔️ 장비 30만','낚시하다 딸려 오는 주문서 · 장비 3배'],['🌠 보물 150만 · 🌌 초월 200만','레전더리 이상 낚싯대·찌 5배 · 초월 물고기 3배 · 꿈을 사는 미끼']]],
@@ -5023,12 +5024,12 @@ function giftLocal(f){
   updateTrapDot();giftShow([z],d,note,cos);
 }
 /* 걸어두기: 켜 두기만 해도 3분마다 흔함 · 보통이 걸려요 (하루 30마리). 희귀 이상은 직접 낚아야 해요 */
-const AFK_SEC=180,AFK_CAP=30;
+const AFK_SEC=180,AFK_CAP=1e9;   // 2026-11-11: 걸어두기 하루 제한 없음
 function afkLeft(){if(S.afk.day!==kstDay()){S.afk.day=kstDay();S.afk.n=0}return afkCap()-S.afk.n}
 function startAfk(){
   const a=nearAction();if(!a||a.type!=='fish')return;if(W.Z[a.cast.y][a.cast.x]===7){toast('배낚시에선 걸어두기를 할 수 없어요. 같이 낚아요!');return}
   if(afkLeft()<=0){toast('오늘 걸어두기는 다 썼어요 (하루 '+afkCap()+'마리). 직접 낚시는 계속할 수 있어요');return}
-  startCast(a.cast);if(F.bait){itAdd(F.bait,1);F.bait=null}F.afk=true;toast('낚싯대를 걸어 뒀어요. 3분마다 흔한 물고기가 걸려요 · 오늘 '+afkLeft()+'마리 남음');
+  startCast(a.cast);if(F.bait){itAdd(F.bait,1);F.bait=null}F.afk=true;toast('낚싯대를 걸어 뒀어요. 3분마다 흔한 물고기가 걸려요 · 하루 제한 없음');
 }
 function stopAfk(msg){if(!F.afk)return;F.afk=false;if(F.mode==='wait'||F.mode==='cast')F.mode='idle';if(msg)toast(msg)}
 function afkBite(){
@@ -7075,7 +7076,7 @@ function frame(ts){
 const ECO={on:false,c0:0,lock:null,tap:0};
 function ecoInfo(){
   const d=new Date();$('ecoClock').textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-  const a=[];if(F.afk)a.push('걸어두기 중 · 오늘 '+S.afk.n+'/'+afkCap());
+  const a=[];if(F.afk)a.push('걸어두기 중 · 오늘 '+S.afk.n+'마리');
   const got=S.stats.catches-ECO.c0;if(got>0)a.push('절전 중 '+got+'마리');if(ECO.gname)a.push('<b class="ecog">'+({myth:'🌌 신화',leg:'전설',hero:'영웅',rare:'희귀'}[ECO.glow]||'')+' '+esc(ECO.gname)+'</b>');
   a.push('강화권 '+S.enh.tk+'장 · 오늘 켜 둔 보상 '+S.enh.it+'/'+ENH.IDLE_CAP);
   if(S.trap)a.push('통발 '+trapCount()+'마리');
