@@ -761,7 +761,7 @@ function onMsg(ws, me, m) {
       if (i < 0) return send(ws, { t: 'news', text: '빈 꽃배가 없어요 · 7일 넘게 안 온 사람의 배가 비면 받을 수 있어요' });
       L[i] = { key: me.key, name: me.name, at: 'v', t: now, st: 0, gd: shipSnapOf(s) }; vMark();
       send(ws, { t: 'ship_ok', ships: shipPub() }); broadcast({ t: 'ships', ships: shipPub() }, ws);
-      broadcast({ t: 'news', text: '🌷⛵ ' + me.name + ' 님의 꽃배가 꽃배 부두에 들어왔어요!' });
+      broadcast({ t: 'news', text: '🌷 ' + me.name + ' 님이 모두의 정원에 자리를 잡았어요!' });
     }).catch(e => console.error('ship_claim', e.message)); break;
     case 'ship_sail': {
       const i = shipIdx(me.key), at = m.at === 'i' ? 'i' : 'v'; if (i < 0) break; const x = V.ships[i]; if (x.at === at) break;
@@ -1036,6 +1036,9 @@ function onMsg(ws, me, m) {
     case 'mar_req': case 'mar_ans': case 'mar_w': case 'mar_go': case 'mar_end': case 'wed_join': case 'wed_msg': case 'wed_list': case 'wed_done': marMsg(ws, me, m); break;
     case 'wf_get': case 'wf_catch': case 'wf_claim': case 'gift_send': case 'gift_list': case 'gift_take': withLock(me.key, async () => socMsg(ws, me, m)).catch(e => console.error('soc', e.message)); break;
     case 'bt_send': case 'bt_try': btMsg(ws, me, m); break;
+    case 'gd_water': { if (!V) break; const L = shipsOf(), x = L[m.i | 0]; if (!x || x.key === me.key) break; V.gw = V.gw || {}; const day = kstDay(), gk = me.key + '>' + x.key; if (V.gw[gk] === day) break; V.gw[gk] = day; const ks = Object.keys(V.gw); if (ks.length > 300) delete V.gw[ks[0]];
+      const live = liveByKey(x.key); if (live) send(live[0], { t: 'gd_watered', by: [me.name] }); else { V.gwq = V.gwq || {}; (V.gwq[x.key] = V.gwq[x.key] || []).push(me.name); V.gwq[x.key] = V.gwq[x.key].slice(-8); } vMark(); break; }   // 💧 친구 정원 물 주기 (하루 한 번)
+    case 'gd_q': { if (V && V.gwq && V.gwq[me.key]) { send(ws, { t: 'gd_watered', by: V.gwq[me.key] }); delete V.gwq[me.key]; vMark(); } break; }
     case 'raid_hit': raidHit(ws, me, m); break;
     case 'raid_get': if (V) { send(ws, Object.assign({ t: 'raid' }, raidPub())); raidClaim(ws, me); } break;
     case 'hs_get': send(ws, { t: 'hs', list: hsPub() }); break;
@@ -1967,7 +1970,8 @@ const shipSnapOf = s => {
   const g = s && s.gd, p = {}, o = {}; if (!g || typeof g !== 'object') return { n: 6, p, o, bd: 'wood' };
   for (const k in (g.p && typeof g.p === 'object' ? g.p : {})) { const v = g.p[k]; if (v && typeof v.f === 'string' && +k >= 0 && +k < 40) p[k] = { f: v.f.slice(0, 8), t0: +v.t0 || 0 }; }
   for (const k in (g.o && typeof g.o === 'object' ? g.o : {})) { const v = g.o[k]; if (v && typeof v.k === 'string' && +k >= 0 && +k < 12) { o[k] = { k: v.k.slice(0, 8), t0: +v.t0 || 0, fr: +v.fr || 0 }; if (Number.isInteger(v.x) && Number.isInteger(v.y) && v.x >= 0 && v.x < 24 && v.y >= 0 && v.y < 13) { o[k].x = v.x; o[k].y = v.y; } } }
-  return { n: Math.max(6, Math.min(40, g.n | 0)), p, o, bd: typeof g.bd === 'string' ? g.bd.slice(0, 8) : 'wood' };
+  const dc = (Array.isArray(g.dc) ? g.dc : []).filter(d => d && typeof d.k === 'string' && Number.isInteger(d.x) && Number.isInteger(d.y) && d.x > 0 && d.x < 23 && d.y > 0 && d.y < 12).slice(0, 20).map(d => ({ k: d.k.slice(0, 10), x: d.x, y: d.y }));
+  return { n: Math.max(6, Math.min(40, g.n | 0)), p, o, bd: typeof g.bd === 'string' ? g.bd.slice(0, 8) : 'wood', dc };
 };
 const shipPub = () => shipsOf().map(x => x ? { name: x.name, at: x.at, gd: x.gd } : null);
 const shipIdx = key => shipsOf().findIndex(x => x && x.key === key);

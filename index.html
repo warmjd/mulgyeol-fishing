@@ -3099,7 +3099,9 @@ function genWorld(){
   [[14,86],[20,86]].forEach(p=>prop('bench',p[0],p[1]));
   if(T[37][7]==='s')prop('sign',7,37);
   /* ⛵ 꽃배 선단: 꽃밭 언덕 동쪽은 바다 · 꽃배 부두 (모래사장 63~64칸) */
-  for(let x=72;x<MW;x++)for(let y=0;y<shoreY(x);y++){T[y][x]='w';Z[y][x]=12}
+  /* 🌻 모두의 정원 (2026-11-11): 꽃배 선단 바다를 땅으로 · 꽃밭 언덕에서 걸어서 · 정원 마당 8곳이 나란히 */
+  for(let x=72;x<MW;x++)for(let y=0;y<shoreY(x);y++){T[y][x]=y>=shoreY(x)-5?'s':'g';Z[y][x]=0}
+  for(let x=70;x<MW-1;x++){T[15][x]='p'}for(const vx of[100,130,160])for(let y=0;y<shoreY(vx)-5;y++)T[y][vx]='p';for(let x=70;x<MW-1;x++)if(T[31][x]==='g')T[31][x]='p';
   for(let i=fences.length-1;i>=0;i--){const f=fences[i];if(f.x>=72||(f.y===31&&(f.x===63||f.x===64))){SOL[f.y][f.x]=false;fences.splice(i,1)}}
   for(const x of[63,64]){T[31][x]='p';for(let y=32;y<=51;y++){if(T[y][x]==='w'){T[y][x]='k';Z[y][x]=0}else if(T[y][x]==='s')T[y][x]='p'}}
   [[62,34],[65,34]].forEach(([x,y])=>{if(T[y][x]==='s')prop('lamp',x,y)});
@@ -3664,7 +3666,7 @@ function regionName(){
   if(tx>=70&&tx<98&&ty>=38&&ty<64)return'🍊 제주 이벤트 섬';
   if(ty>=60&&tx>=88&&tx<139)return'달콤섬';
   if(ty>=60&&tx>=139)return'소복섬 · 소복마을';
-  if(tx>=72&&ty<32){const i=deckAt(tx|0,ty|0),x=i>=0&&shipList()[i];return i<0?'꽃배 선단':x?(shipMine(i)?'내 꽃배':x.name+'의 꽃배'):'빈 꽃배'}
+  if(tx>=72&&ty<32){const i=deckAt(tx|0,ty|0),x=i>=0&&shipList()[i];return i<0?'🌻 모두의 정원':x?(shipMine(i)?'🌷 내 정원':x.name+'의 정원'):'빈 정원'}
   if(tx>=62&&tx<66&&ty>=31&&ty<50)return'꽃배 부두';
   if(tx>=GARDEN.x0&&ty>=15&&ty<31)return'꽃밭 언덕';
   if(ty>=60&&ty<100){if(Math.hypot(tx-11,ty-77)<5)return'안개 연못';if(tx>=22&&ty>=73&&ty<91)return'안개 계곡';if(ty>=90)return'산호초 해안'}
@@ -4384,7 +4386,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y);
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1111c',UPD_LOG=[
+const UPD_VER='1111d',UPD_LOG=[
+ ['11/11 저녁','🌻',[['🌻 모두의 정원','꽃배가 떠 있던 바다가 땅이 됐어요 · 꽃밭 언덕 위로 걸어가면 정원 8칸이 모여 있어요'],['원래 심은 꽃은 그대로','꽃배 주인은 같은 자리가 내 정원이 돼요'],['빈 정원 받기','아직 정원이 없으면 빈 정원 문 앞에서 「🌷 이 정원 받기」'],['💧 친구 정원 물 주기','친구 정원 아치 앞에서 하루 한 번 · 친구 꽃이 조금 더 빨리 자라요'],['🪴 정원 꾸미기','정원 → 꾸미기 탭 · 벤치 · 분수 · 등불 등 10종 (10만~800만)']]],
  ['11/11','🛍️',[['전설 미끼가 안 사지던 버그 수정','잡화점은 이제 전설 미끼만 (하루 1개)'],['나무는 다시 흔들기가 기본','도끼가 있으면 「바꾸기」로 벌목'],['직업 바꾸기는 7일에 한 번','30만 골드'],['🌑 주간 레이드 · 악몽의 왕좌','꿈의 문 맨 아래 · 모두가 같은 체력을 함께 깎아요 · 쓰러뜨리면 기여만큼 칩 · 장비 · 10% 주문서 · 1등은 칭호 (용사 Lv10부터 · 매주 월요일 새로)'],['🍾 유리병 편지','메뉴에서 띄우면 누군가의 낚싯줄에 걸려요 · 이름은 비밀 · 답장도 돼요'],['🎨 떠돌이 화가','반나절마다 다른 곳에 이젤을 펴요 · 지금 이 순간을 그림으로 (메뉴 → 🖼️ 내 그림)'],['🏗️ 마을 발전 기금 4단계 추가','대관람차 1억 · 별빛 온실 2억 · 불꽃놀이 탑 3억 · 용사의 성문 5억'],['🏠 고급 가구 8종','샹들리에 · 캐노피 침대 · 대형 수족관 · 전설의 검 진열대 · 미니 물결 성 (최대 1억)'],['치장 상점이 편해졌어요','신제품은 날짜별로 · 🔍 이름 찾기 · 산 것 숨기기 · 싼 순/비싼 순'],['새 치장 4세트','🌙 달빛 요정 · 🌸 벚꽃 리본 · 🖤 흑기사(전투 도끼) · 🏹 몬스터 사냥꾼'],['은비랜드 연타 방지','한 판이 끝나야 다음 판을 돌릴 수 있어요']]],
  ['11/10 밤','🐾',[['🎣 꾹 눌러 멀리 던지기','톡 = 예전 거리 · 꾹 = 힘 막대가 오르내려요, 손을 떼는 순간만큼 멀리 (최대 +6칸)'],['✨ 물빛 포인트','낚시터 물 위에 가끔 빛나는 자리 · 모두에게 똑같이 보여요 · 찌가 떨어지면 반짝·거대·보물·귀한 물고기·입질 보너스 · 한 포인트 6번까지'],['냥이들의 마을 여행','루비 · 고양이들이 온 마을과 섬을 돌아다녀요 · 물을 만나면 작은 배를 타요 ⛵'],['우연히 만나요','마주치면 인사하고 가끔 선물도 · 냥이끼리 만나면 수다 ㅋㅋㅋ'],['냥이 어디 있지?','냥이 정보에서 📍지금 위치 · 🗺️ 길 안내 · 미니맵에 발자국']]],
  ['11/10 저녁','⚔️',[['💪 전투력','레벨 + 장비로 계산 · ⚔️ 용사 왕과 용사 순위는 이제 전투력 1등'],['사냥터 친구 상태','머리 위에 체력 · 정화 진행률 · 전투력'],['사냥 중 츄리가 눌리던 버그 수정',''],['🤝 함께 사냥','같은 사냥터에서 가까이 싸우면 1명당 경험치 +30% · 칩·드랍 +20% (3명까지)'],['사냥터 친구가 제 모습으로 보여요','옷 · 무기 · 이름 · 레벨 (예전엔 내 모습 복제처럼 보였어요)'],['용사의 길 치장 4세트','전사 · 용사 · 성기사 · 하늘섬 모험가 (치장 상점 · 1,200만~6,000만 골드)'],['등에 메는 무기','용사의 대검 · 기사의 둥근 방패'],['🎡 은비 룰렛 새로 열림','빨강 · 파랑 ×2 · 황금 ×9'],['거북이 경주 · 하이로우 문 닫음','슬롯 룰렛은 그대로예요']]],
@@ -5693,8 +5696,8 @@ Object.assign(ITEMS,{
  fl_tulip:{n:'튤립',ic:'🌷',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:140000},fl_sun:{n:'해바라기',ic:'🌻',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:270000},fl_cosmos:{n:'코스모스',ic:'🌸',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:180000},
  fl_lav:{n:'라벤더',ic:'🪻',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:450000},fl_rose:{n:'장미',ic:'🌹',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:900000},fl_hydr:{n:'수국',ic:'💠',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:1350000},
  fl_lily:{n:'백합',ic:'🤍',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:2200000},fl_rb:{n:'무지개꽃',ic:'🌈',d:'두 가지 꽃을 나란히 피우면 가끔 · 벌집에 무지개꿀',npc:6000000},
- sap_oak:{n:'참나무 묘목',ic:'🌱',d:'꽃배 갑판에 심어요',npc:1000000},sap_pine:{n:'소나무 묘목',ic:'🌱',d:'꽃배 갑판에 심어요',npc:1000000},sap_apple:{n:'사과나무 묘목',ic:'🌱',d:'꽃배 갑판에 심어요',npc:2500000},
- sap_peach:{n:'복숭아나무 묘목',ic:'🌱',d:'꽃배 갑판에 심어요',npc:4000000},sap_orange:{n:'귤나무 묘목',ic:'🌱',d:'꽃배 갑판에 심어요',npc:4000000},sap_cherry:{n:'체리나무 묘목',ic:'🌱',d:'꽃배 갑판에 심어요',npc:7500000}
+ sap_oak:{n:'참나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:1000000},sap_pine:{n:'소나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:1000000},sap_apple:{n:'사과나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:2500000},
+ sap_peach:{n:'복숭아나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:4000000},sap_orange:{n:'귤나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:4000000},sap_cherry:{n:'체리나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:7500000}
 });
 const ITEM_IDS=Object.keys(ITEMS);
 const itS=()=>{if(!S.items||typeof S.items!=='object')S.items={};const it=S.items;for(const k in MERGE)if(it[k]){it[MERGE[k]]=(it[MERGE[k]]|0)+(it[k]|0);delete it[k]}return it};
@@ -8407,7 +8410,7 @@ function natDrawables(list,x0,x1,y0,y1){
   const L=shipList(),me=myShip();
   for(let i=0;i<SHIP_N;i++){const[ox,oy]=shipO(i);if(ox+SHIP_W+4<x0-2||ox>x1+2||oy+SHIP_H+1<y0-3||oy-4>y1+3)continue;
     shipDeco(list,i,L[i]);const g=i===me?gdS():L[i]&&L[i].gd;
-    if(g)drawGd(list,normGd(g),k=>shipPlotXY(i,k),(o,k)=>shipTreeXY(i,o,k),inV)}
+    if(g){drawGd(list,normGd(g),k=>shipPlotXY(i,k),(o,k)=>shipTreeXY(i,o,k),inV);gdDecoDraw(list,i,g,inV)}}
   for(let i=0;i<SHIP_N;i++){const x=L[i];if(!x)continue;const b=(x.at==='i'?IBERTH:VBERTH)[i];if(inV(b[0],b[1]))berthShip(list,i,x,b)}
   HIVE_AT.forEach(([x,y])=>{if(!inV(x,y))return;for(let k=0;k<2;k++){const a=wt*3+k*3.1+x,bx=x*TS+8+Math.cos(a)*7,by=y*TS+2+Math.sin(a*1.3)*4;list.push({y:y*TS+16,fn:()=>{cx.fillStyle='#ffc020';cx.fillRect(Math.round(bx),Math.round(by),2,1);cx.fillStyle='#302010';cx.fillRect(Math.round(bx)+1,Math.round(by),1,1)}})}});
   BUGS.forEach(b=>list.push({y:b.y+30,fn:()=>drawBug(b)}));
@@ -8422,7 +8425,44 @@ function shipTags(cX,cY){const ox=(innerWidth-VW*SC)/2,oy=(innerHeight-VH*SC)/2,
     if(!el){el=document.createElement('div');el.className='ntag stag';$('tags').appendChild(el);SHIP_TAGS[i]=el}
     if(el.textContent!==q[0])el.textContent=q[0];el.classList.toggle('empty',q[3]==='#d8d0e0');if(el.hidden)el.hidden=false;
     el.style.transform='translate('+Math.round(ox+(q[1]-cX)*SC)+'px,'+Math.round(oy+(q[2]-cY)*SC)+'px) translate(-50%,-100%)'}}
-function shipDeco(list,i,x){const[ox,oy]=shipO(i),X=ox*TS,Y=oy*TS,Wd=SHIP_W*TS,Hd=SHIP_H*TS,bob=Math.round(Math.sin(wt*1.1+i)*.6),col=x?shipCol(x.name):'#c8c0d0';
+
+/* ===================== 🌻 모두의 정원 · 친구 정원 물 주기 · 🪴 정원 꾸미기 (2026-11-11) ===================== */
+let GW_DONE={};try{GW_DONE=JSON.parse(localStorage.getItem('gwDone')||'{}')}catch(e){}
+function gdWaterFriend(i){const x=shipList()[i];if(!x)return;if(GW_DONE[x.name]===kstDay()){toast('💧 '+x.name+' 님 정원엔 오늘 물을 줬어요');return}Net.send({t:'gd_water',i});GW_DONE[x.name]=kstDay();try{localStorage.setItem('gwDone',JSON.stringify(GW_DONE))}catch(e){}
+  const[ox,oy]=shipO(i);for(let k=0;k<26;k++)parts.push({x:(ox+SHIP_PX+Math.random()*10)*TS,y:(oy+2+Math.random()*9)*TS,vx:0,vy:30,life:.8,t:0,c:'#9fdcff',g:60,s:1});Snd.sfx('splash');toast('💧 '+x.name+' 님 정원에 물을 줬어요 · 꽃이 조금 더 빨리 자라요')}
+function gdWatered(m){const g=gdS();let n=0;for(const k in g.p){const p=g.p[k],F=FLOWERS[p.f];if(!F||flStage(p)>=3)continue;p.t0-=F[3]*60000*.12;n++}saveState(true);toast('💧 '+(m.by||[]).join(', ')+' 님이 내 정원에 물을 줬어요!'+(n?' 꽃이 조금 더 자랐어요':''));Snd.sfx('splash')}
+const GDECO={scare:['허수아비',3e5],bench2:['정원 벤치',5e5],signp:['나무 팻말',1e5],lantern:['정원 등불',4e5],pot:['꽃 화분',2e5],bath:['새 물그릇',8e5],gnome:['정원 요정 인형',1e6],swing:['나무 그네',2e6],windm:['작은 풍차',5e6],fountain2:['돌 분수',8e6]};
+const gdDeco=()=>{const g=gdS();if(!Array.isArray(g.dc))g.dc=[];return g.dc};
+function gdDecoHtml(){const me=myShip();if(me<0)return'<p class="note">먼저 모두의 정원에서 빈 정원을 받아요 (꽃밭 언덕 동쪽)</p>';const dc=gdDeco();
+  let h='<div class="wishc" style="background:#f6fbf0;border-color:#c8e8b0;font-size:12.5px">🪴 내 정원 안 빈 자리에 서서 고르면 그 자리에 놓여요 · 최대 20개 · 친구들도 보여요</div>';
+  h+='<div class="sec">놓을 장식</div>'+Object.entries(GDECO).map(([k,v])=>'<div class="row"><div class="nm">'+v[0]+'</div><div class="go"><button class="btn sm ghost" data-gdeco="'+k+'"'+(S.gold<v[1]||dc.length>=20?' disabled':'')+'>'+fmtK(v[1])+'</button></div></div>').join('');
+  h+='<div class="sec">놓은 장식 <span class="cnt">'+dc.length+'/20</span></div>'+(dc.length?dc.map((d,i)=>'<div class="row"><div class="nm">'+(GDECO[d.k]||['?'])[0]+' <span class="muted" style="font-size:11px">('+d.x+','+d.y+')</span></div><div class="go"><button class="btn sm ghost" data-gdrm="'+i+'">치우기</button></div></div>').join(''):'<p class="note">아직 없어요</p>');return h}
+function gdDecoPlace(k){const me=myShip(),v=GDECO[k];if(me<0||!v)return;const[ox,oy]=shipO(me),tx=(P.x/TS)|0,ty=((P.y-2)/TS)|0,rx=tx-ox,ry=ty-oy;
+  if(deckAt(tx,ty)!==me){toast('🪴 내 정원 안에 서서 골라요');return}if(rx<1||ry<1||rx>SHIP_W-2||ry>SHIP_H-2||W.T[ty][tx]==='F'||(rx===SHIP_MAST[0]&&ry===SHIP_MAST[1])||(rx===SHIP_HELM[0]&&ry===SHIP_HELM[1])){toast('여기엔 놓을 수 없어요 · 빈 바닥에 서요');return}
+  const dc=gdDeco();if(dc.some(d=>d.x===rx&&d.y===ry)){toast('이미 장식이 있어요');return}if(dc.length>=20||S.gold<v[1])return;S.gold-=v[1];dc.push({k,x:rx,y:ry});saveState(true);Snd.sfx('buy');sparkFx(P.x,P.y-8,10,['#a0e080','#ffffff']);toast('🪴 '+v[0]+'을(를) 놓았어요');renderGarden()}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-gdeco],[data-gdrm]');if(!t)return;e.stopPropagation();if(t.dataset.gdeco)gdDecoPlace(t.dataset.gdeco);else{const dc=gdDeco();dc.splice(+t.dataset.gdrm,1);saveState(true);Snd.sfx('tap');renderGarden()}},true);
+function gdDecoDraw(list,i,g,inV){if(!g||!Array.isArray(g.dc))return;const[ox,oy]=shipO(i);g.dc.forEach(d=>{const tx=ox+d.x,ty=oy+d.y;if(!inV(tx,ty)||!GDECO[d.k])return;const X=tx*TS,Y=ty*TS;list.push({y:Y+14,fn:()=>drawGDeco(d.k,X,Y)})})}
+function drawGDeco(k,X,Y){const c=cx,r=(col,x,y,w,h)=>{c.fillStyle=col;c.fillRect(X+x,Y+y,w,h)};r('rgba(0,0,0,.15)',3,13,10,2);
+  switch(k){case'scare':r('#8a5a30',7,2,2,12);r('#8a5a30',2,6,12,2);r('#e8c070',5,0,6,4);r('#c84040',4,6,8,5);r('#3a2a2a',6,1,1,1);r('#3a2a2a',9,1,1,1);break;
+   case'bench2':r('#a87040',1,7,14,3);r('#8a5a30',1,4,14,2);r('#6a4428',2,10,2,4);r('#6a4428',12,10,2,4);break;
+   case'signp':r('#8a5a30',7,6,2,8);r('#c89a6a',2,2,12,6);r('#8a5a30',4,4,8,1);break;
+   case'lantern':r('#3a3a48',7,4,2,10);r('#fff3a0',5,0,6,5);r('#3a3a48',5,0,6,1);if(isNight(dayTint().ph)){c.fillStyle='rgba(255,240,160,.25)';c.beginPath();c.arc(X+8,Y+3,10,0,6.28);c.fill()}break;
+   case'pot':r('#c8704a',4,8,8,6);r('#a85a3a',4,8,8,1);r('#60b050',6,4,4,4);r('#ff8ab0',5,2,3,3);r('#ffd84a',9,3,3,3);break;
+   case'bath':r('#b8b8c8',7,8,2,6);r('#c8c8d8',2,5,12,3);r('#7ac8ff',3,5,10,1);break;
+   case'gnome':r('#3a6ac0',5,7,6,7);r('#ffd8b8',5,4,6,3);r('#ffffff',5,6,6,2);r('#e04050',6,0,4,4);r('#e04050',7,-2,2,2);break;
+   case'swing':r('#8a5a30',1,0,2,14);r('#8a5a30',13,0,2,14);r('#8a5a30',1,0,14,2);const sw=Math.sin(wt*2)*2;r('#c8a070',4+sw,10,8,2);c.fillStyle='#d8c8a0';c.fillRect(X+5+sw,Y+2,1,8);c.fillRect(X+10+sw,Y+2,1,8);break;
+   case'windm':r('#f0e0c8',5,4,6,10);r('#c84040',4,2,8,3);{const a=wt*2;c.strokeStyle='#ffffff';c.lineWidth=2;for(let q=0;q<4;q++){c.beginPath();c.moveTo(X+8,Y+4);c.lineTo(X+8+Math.cos(a+q*1.57)*8,Y+4+Math.sin(a+q*1.57)*8);c.stroke()}}break;
+   case'fountain2':r('#a8a8b8',1,8,14,6);r('#7ac8ff',2,9,12,3);r('#a8a8b8',6,3,4,6);{const t=(wt*3)%1;c.fillStyle='#bfe6ff';c.fillRect(X+7,Y+1-t*2,2,3);c.fillRect(X+4+t*2,Y+6,1,2);c.fillRect(X+11-t*2,Y+6,1,2)}break}}
+function shipDeco(list,i,x){return gardenYard(list,i,x)}
+function gardenYard(list,i,x){const[ox,oy]=shipO(i),X=ox*TS,Y=oy*TS,Wd=SHIP_W*TS,Hd=SHIP_H*TS,col=x?shipCol(x.name):'#c8c0d0';
+  const hedge=(c,hx,hy,w,h)=>{c.fillStyle='#4f9a4a';c.fillRect(hx,hy,w,h);c.fillStyle='#6fbf5a';c.fillRect(hx,hy,w,Math.max(2,h-4));c.fillStyle='#8ad870';for(let k=0;k<w;k+=5)c.fillRect(hx+k,hy+1,2,2)};
+  list.push({y:Y-60,fn:()=>{const c=cx;hedge(c,X,Y,Wd,10);hedge(c,X,Y,8,Hd);hedge(c,X+Wd-8,Y,8,Hd);for(let k=0;k<6;k++){const fx=X+20+k*62,fy=Y+3;c.fillStyle=['#ff9ac8','#ffd84a','#ffffff','#c8a8ff'][k%4];c.fillRect(fx,fy,3,3)}}});
+  list.push({y:Y+Hd+14,fn:()=>{const c=cx,ex=X+SHIP_EXIT[0]*TS;hedge(c,X,Y+Hd-9,ex-X,9);hedge(c,ex+TS,Y+Hd-9,X+Wd-ex-TS,9);c.fillStyle='#c8a070';c.fillRect(ex,Y+Hd-12,2,14);c.fillRect(ex+TS-2,Y+Hd-12,2,14);c.fillStyle=col;c.fillRect(ex-1,Y+Hd-14,TS+2,3)}});
+  const mx=X+SHIP_MAST[0]*TS+8,my=Y+SHIP_MAST[1]*TS+14;
+  list.push({y:my+1,fn:()=>{const c=cx;c.fillStyle='rgba(0,0,0,.15)';c.fillRect(mx-12,my-1,24,3);c.strokeStyle='#e8d0b0';c.lineWidth=3;c.beginPath();c.arc(mx,my-14,12,Math.PI,0);c.stroke();c.fillStyle='#c89a6a';c.fillRect(mx-13,my-14,3,14);c.fillRect(mx+10,my-14,3,14);
+    for(let k=0;k<9;k++){const a=Math.PI+k*Math.PI/8;c.fillStyle=k%2?col:'#ffffff';c.fillRect(Math.round(mx+Math.cos(a)*12)-1,Math.round(my-14+Math.sin(a)*12)-1,3,3)}
+    shipLabel(x?(shipMine(i)?'🌷 내 정원':x.name+'의 정원'):'빈 정원 · 받을 수 있어요',mx,my-32,x?'#ffffff':'#d8d0e0')}})}
+function shipDecoOld(list,i,x){const[ox,oy]=shipO(i),X=ox*TS,Y=oy*TS,Wd=SHIP_W*TS,Hd=SHIP_H*TS,bob=Math.round(Math.sin(wt*1.1+i)*.6),col=x?shipCol(x.name):'#c8c0d0';
   list.push({y:Y-60,fn:()=>{const c=cx;
     c.fillStyle='rgba(30,60,110,.28)';c.fillRect(X-4,Y+Hd+6+bob,Wd+52,6);
     c.fillStyle='#6a4428';c.fillRect(X,Y+Hd,Wd,10+bob);c.fillStyle='#8a5a30';c.fillRect(X,Y+Hd,Wd,3);c.fillStyle=col;c.fillRect(X,Y+Hd+5,Wd,2);
@@ -8451,7 +8491,8 @@ function berthShip(list,i,x,b){const left=b[0]===62||b[0]===15,X=left?(b[0]-2)*T
 /* 꽃배 타기 · 내리기 · 조타대 */
 function shipAct(tx,ty){const L=shipList(),di=deckAt(tx,ty);
   if(di>=0){const[ox,oy]=shipO(di);
-    if(Math.abs(tx-ox-SHIP_EXIT[0])+Math.abs(ty-oy-SHIP_EXIT[1])<=1)return{type:'ship_off',i:di,label:'배에서<br>내리기'};
+    if(!L[di]&&myShip()<0&&Math.abs(tx-ox-SHIP_EXIT[0])+Math.abs(ty-oy-SHIP_EXIT[1])<=2)return{type:'x',fn:claimShip,label:'🌷 이 정원<br>받기'};
+    if(L[di]&&!shipMine(di)&&ONLINE&&Math.abs(tx-ox-SHIP_MAST[0])+Math.abs(ty-oy-SHIP_MAST[1])<=2)return{type:'x',fn:()=>gdWaterFriend(di),label:(GW_DONE[L[di].name]===kstDay()?'오늘 물<br>줬어요':'💧 친구 정원<br>물 주기')};
     if(Math.abs(tx-ox-SHIP_HELM[0])+Math.abs(ty-oy-SHIP_HELM[1])<=1)return shipMine(di)?{type:'ship_helm',label:'꽃배<br>조타대'}:{type:'ship_info',i:di,label:'누구<br>배?'};
     return null}
   const isle=ty>=60,B=isle?IBERTH:VBERTH;
@@ -8471,10 +8512,10 @@ function shipHtml(){const L=shipList(),me=myShip();let h='<div class="wishc" sty
     h+='<div class="wishc" style="margin-top:8px;font-size:13px">📍 내 꽃배는 지금 <b>'+(isle?'🌫️ 안개 섬 부두':'🏘️ 마을 꽃배 부두')+'</b>에 묶여 있어요'+(isle?'<br><span class="muted" style="font-size:12px">🍯 꿀을 뜰 때 가끔 석청이 섞여요</span>':'<br><span class="muted" style="font-size:12px">꽃밭 언덕 남쪽 부두 · 친구들이 오가며 구경해요</span>')+'</div>';
     if(onMyDeck())h+='<button class="btn pink" data-gd="sail" style="width:100%;margin-top:6px"'+(!isle&&!boatReady()?' disabled':'')+'>'+(isle?'🏘️ 마을 부두로 돌아가기':'🌫️ 안개 섬으로 출항')+'</button>'+(!isle&&!boatReady()?'<div class="muted" style="font-size:12px">마을 물결호가 있어야 안개 섬 뱃길을 알아요</div>':'')+'<div class="muted" style="font-size:12px;margin-top:4px">한 번 출항하면 5분 뒤에 다시 돛을 펼 수 있어요 · 배 위에 있던 친구도 같이 가요</div>';
     else h+='<div class="muted" style="font-size:12px;margin-top:6px">부두에 묶인 내 배를 눌러 올라탄 뒤, 갑판의 조타대(팻말)에서 출항해요</div>'}
-  h+='<div class="sec" style="margin-top:10px">⛵ 꽃배 선단 ('+L.filter(Boolean).length+' / '+SHIP_N+')</div>'+L.map((x,i)=>x?'<div class="row"><span style="width:12px;height:12px;border-radius:4px;background:'+shipCol(x.name)+'"></span><div class="nm"><div>'+esc(shipMine(i)?x.name+' (나)':x.name)+'의 꽃배</div><div class="muted" style="font-size:12px">'+(x.at==='i'?'🌫️ 안개 섬':'🏘️ 마을')+' · 🌷 활짝 '+shipBloom(shipMine(i)?gdS():x.gd)+'송이 · 🌳 '+Object.keys(((shipMine(i)?gdS():x.gd)||{}).o||{}).length+'그루</div></div></div>':'<div class="row" style="opacity:.55"><div class="nm"><div>빈 꽃배</div><div class="muted" style="font-size:12px">주인을 기다려요</div></div></div>').join('');
+  h+='<div class="sec" style="margin-top:10px">🌻 모두의 정원 ('+L.filter(Boolean).length+' / '+SHIP_N+')</div>'+L.map((x,i)=>x?'<div class="row"><span style="width:12px;height:12px;border-radius:4px;background:'+shipCol(x.name)+'"></span><div class="nm"><div>'+esc(shipMine(i)?x.name+' (나)':x.name)+'의 꽃배</div><div class="muted" style="font-size:12px">'+(x.at==='i'?'🌫️ 안개 섬':'🏘️ 마을')+' · 🌷 활짝 '+shipBloom(shipMine(i)?gdS():x.gd)+'송이 · 🌳 '+Object.keys(((shipMine(i)?gdS():x.gd)||{}).o||{}).length+'그루</div></div></div>':'<div class="row" style="opacity:.55"><div class="nm"><div>빈 꽃배</div><div class="muted" style="font-size:12px">주인을 기다려요</div></div></div>').join('');
   return h}
 function claimShip(){if(myShip()>=0)return;if(ONLINE){Net.flushSave(true);setTimeout(()=>Net.send({t:'ship_claim'}),300);return}S.ship=1;S.shipAt='v';saveState(true);shipGot()}
-function shipGot(){Snd.sfx('page');showBanner('🌷⛵ 내 꽃배가 생겼어요! 꽃밭 언덕 남쪽 꽃배 부두에 묶여 있어요');GD_TAB='bed';if(!$('sheetwrap').hidden&&$('sheettitle').textContent.indexOf('꽃밭')>=0)renderGarden()}
+function shipGot(){Snd.sfx('page');showBanner('🌷 내 정원이 생겼어요! 꽃밭 언덕 동쪽 「모두의 정원」에 있어요 · 꽃배도 부두에 묶여 있어요');GD_TAB='bed';if(!$('sheetwrap').hidden&&$('sheettitle').textContent.indexOf('꽃밭')>=0)renderGarden()}
 function sailShip(){const i=myShip();if(i<0||!onMyDeck())return;const x=shipList()[i],to=x.at==='i'?'v':'i';if(to==='i'&&!boatReady()){toast('마을 물결호가 있어야 안개 섬 뱃길을 알아요');return}
   if(ONLINE){Net.send({t:'ship_sail',at:to});return}S.shipAt=to;saveState(true);shipSailed(to)}
 function shipSailed(to){Snd.sfx('gate');SHK={t:.5,a:1.2};toast(to==='i'?'🌫️⛵ 돛을 펴고 안개 섬으로! 내릴 때는 안개 섬 부두예요':'🏘️⛵ 마을 꽃배 부두로 돌아왔어요');if(!$('sheetwrap').hidden&&$('sheettitle').textContent.indexOf('꽃밭')>=0)renderGarden()}
@@ -8484,11 +8525,12 @@ function hiveSprite(){const b=Buf(12,14);ell(b,6,8,5,6,[230,180,80]);for(let y=4
 /* 꽃밭 언덕 관리소 */
 let GD_TAB='bed';
 function openGarden(){Snd.sfx('ui');openSheet('🌷 꽃밭 언덕 관리소','');renderGarden()}
-function renderGarden(){const g=gdS(),bc=bloomCount(),tabs=[['ship','🌷⛵ 내 꽃배'],['bed','🌱 화단'],['shop','🛒 가게'],['bug','🦋 곤충 도감'],['ark','⛵ 물결호']];if(GD_TAB==='bed'&&myShip()<0)GD_TAB='ship';
+function renderGarden(){const g=gdS(),bc=bloomCount(),tabs=[['ship','🌷 내 정원'],['bed','🌱 화단'],['deco','🪴 꾸미기'],['shop','🛒 가게'],['bug','🦋 곤충 도감'],['ark','⛵ 물결호']];if(GD_TAB==='bed'&&myShip()<0)GD_TAB='ship';
   let h='<div class="tabs scroll">'+tabs.map(t=>'<button class="tab'+(GD_TAB===t[0]?' on':'')+'" data-gdt="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
   if(GD_TAB==='ship')h+=shipHtml();
+  else if(GD_TAB==='deco')h+=gdDecoHtml();
   else if(GD_TAB==='bed'){const used=Object.keys(g.p).length;
-    h+='<div class="wishc" style="background:#f0fbf0;border-color:#a8e0b0;font-size:12.5px;line-height:1.6">🌷 화단 '+g.n+'칸 (심은 것 '+used+' · 활짝 '+bc+')<br>내 꽃배 갑판의 흙 칸 앞에 서서 <b>심기 · 꽃 따기</b> · 💧 <b>물은 하루 한 번</b>, 한 번 주면 배 전체가 하루치(20%) 더 자라요'+(g.wd===kstDay()?' <b>(오늘 줌 ✓)</b>':'')+'<br>🌷 꽃 한 송이가 30만부터 · 한 번 심으면 계속 피어요<br>🌈 서로 다른 꽃을 나란히 피워 두면 꽃을 딸 때 가끔 무지개꽃 씨앗!'+(g.rb?' <b>(발견함 ✓)</b>':'')+'<br>🐝 꽃이 많이 필수록 벌집 꿀이 빨리 차요 · 지금 '+(Math.round(hiveTick()*10)/10)+'/30통</div>';
+    h+='<div class="wishc" style="background:#f0fbf0;border-color:#a8e0b0;font-size:12.5px;line-height:1.6">🌷 화단 '+g.n+'칸 (심은 것 '+used+' · 활짝 '+bc+')<br>모두의 정원 · 내 정원의 흙 칸 앞에 서서 <b>심기 · 꽃 따기</b> · 💧 <b>물은 하루 한 번</b>, 한 번 주면 배 전체가 하루치(20%) 더 자라요'+(g.wd===kstDay()?' <b>(오늘 줌 ✓)</b>':'')+'<br>🌷 꽃 한 송이가 30만부터 · 한 번 심으면 계속 피어요<br>🌈 서로 다른 꽃을 나란히 피워 두면 꽃을 딸 때 가끔 무지개꽃 씨앗!'+(g.rb?' <b>(발견함 ✓)</b>':'')+'<br>🐝 꽃이 많이 필수록 벌집 꿀이 빨리 차요 · 지금 '+(Math.round(hiveTick()*10)/10)+'/30통</div>';
     if(g.n<PLOT_MAX){const c=PLOT_COST(g.n);h+='<button class="btn pink sm" data-gd="plot" style="width:100%"'+(S.gold>=c?'':' disabled')+'>화단 2칸 넓히기 · '+fmtK(c)+'</button>'}
     h+='<div class="sec" style="margin-top:8px">화단 테두리</div><div class="fchips">'+Object.keys(BORDERS).map(k=>{const B=BORDERS[k],own=k==='wood'||(g.bds||[]).indexOf(k)>=0;return'<button class="fchip'+(g.bd===k?' on':'')+'" data-gbd="'+k+'">'+B[0]+(own?'':' · '+fmtK(B[1]))+'</button>'}).join('')+'</div>';
     h+='<div class="sec" style="margin-top:8px">꽃 종류</div>'+FL_KEYS.map(k=>{const F=FLOWERS[k];return'<div class="row"><img src="'+flowerSpr(k,3).toDataURL()+'" alt="" style="width:24px;image-rendering:pixelated"><div class="nm"><div>'+F[0]+(k==='rb'&&!g.rb?' 🔒':'')+'</div><div class="muted" style="font-size:12px">'+fmt(F[2])+'골드 · '+fmtMin(F[3])+' · 가진 것 '+itN(F[1])+'</div></div></div>'}).join('')}
@@ -9012,7 +9054,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
   posKey:'',
   onMsg(m){
     if(onEvMsg(m)||onEbMsg(m)||onVilMsg(m))return;
-    if(m.t==='login_ok'){const first=!this.me;setTimeout(()=>{if(Net.me){Net.send({t:'hs_get'});Net.send({t:'raid_get'})}},1200);setTimeout(()=>{if(Net.me)Net.send({t:'gift_list'})},3500);setTimeout(trapMigrate,1800);this.me={id:m.id,name:m.name,color:m.color,admin:!!m.admin};setTimeout(()=>Net.send({t:'rec_list'}),1500);   // 마을 신기록 판정용
+    if(m.t==='login_ok'){const first=!this.me;setTimeout(()=>{if(Net.me){Net.send({t:'hs_get'});Net.send({t:'raid_get'});Net.send({t:'gd_q'})}},1200);setTimeout(()=>{if(Net.me)Net.send({t:'gift_list'})},3500);setTimeout(trapMigrate,1800);this.me={id:m.id,name:m.name,color:m.color,admin:!!m.admin};setTimeout(()=>Net.send({t:'rec_list'}),1500);   // 마을 신기록 판정용
       try{localStorage.setItem(LOGIN_KEY,JSON.stringify(this.creds))}catch(e){}
       this.lastPos='';netBanner();if(first&&this.onLogin)this.onLogin(m);else this.flushSave(true);
       if(typeof cpLookStr==='function')S.cos.look.cp=cpLookStr();this.send({t:'look',look:S.cos.look});refreshMe()}
@@ -9060,6 +9102,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(onHuntMsg(m)){}
     else if(onHsMsg(m)){}
     else if(m.t==='bt_got'){btGot(m)}
+    else if(m.t==='gd_watered'){gdWatered(m)}
     else if(m.t==='raid'){onRaidMsg(m)}
     else if(m.t==='bt_sent'){}
     else if(onWedMsg(m)){}
