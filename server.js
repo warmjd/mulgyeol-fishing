@@ -661,7 +661,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {}, shxUsed = baitUsed(me.save, m.data, 'b_shx'), luxUsed = baitUsed(me.save, m.data, 'b_lux');
@@ -672,7 +672,7 @@ wss.on('connection', (ws) => {
         if (m.data.cosg.length) { const c = m.data.cos && typeof m.data.cos === 'object' ? m.data.cos : (m.data.cos = {}); c.own = Array.isArray(c.own) ? c.own : []; for (const id of m.data.cosg) if (!c.own.includes(id)) c.own.push(id); }
         const e = enhOf(m.data), out = [];
         enhDaily(e, out);
-        if (!first) { let pts = 0, cnt = 0; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) { pts += dn * ENH.PTS[fishRar(+k)]; cnt += dn; } } pts = Math.round(pts * (1 - .9 * (me.arx || 0))); if (pts) enhAddPoints(e, pts, out); if (cnt) wkAdd('fish', cnt); }
+        if (!first) { let pts = 0, cnt = 0; const nsdP = m.data.sdex || {}; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) cnt += dn; } for (const k in nsdP) { const dn = (nsdP[k] | 0) - (oldSd[k] | 0); if (dn > 0) pts += dn * ENH.PTS[Math.min(4, fishRar(+k) | 0)]; } if (pts) enhAddPoints(e, pts, out); if (cnt) wkAdd('fish', cnt); handBonus(ws, me, m.data, oldSd, e); }   // 강화 포인트 · 손맛 보너스는 직접 낚은 것만 (자동 낚시는 손맛 도감에 안 올라가요)
         foldItems(m.data); me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data); shipSnap(me, m.data);
         if (first) togCheck();
         if (sFixed) send(ws, { t: 'sdex', sdex: m.data.sdex });   // 손맛 도감을 서버 기록에 맞춰요
@@ -2755,6 +2755,16 @@ function xKingCheck(f, init) {
 const xKingPub = () => { const o = {}; { const eb = Object.entries((V && V.ebTop) || {}).sort((a, b) => b[1] - a[1])[0]; o.eb = eb && eb[1] > 0 ? { name: eb[0], n: eb[1] } : null; } { const d = Object.entries((V && V.don) || {}).sort((a, b) => b[1] - a[1])[0]; o.don = d && d[1] > 0 ? { name: d[0], n: d[1] } : null; } for (const f of ['gt', 'sh', 'hl']) { xKingCheck(f, !xKingCheck.ready); const k = xKing[f]; o[f] = k ? { name: k.name, n: k.n } : null; } xKingCheck.ready = 1; return o; };
 /* 🎣 하루 낚시왕 (2026-11-09): 오늘 직접 낚은 마릿수 · 반짝 50마리 · 신화 100마리로 쳐요 · 한국 자정에 1등에게 1천만 골드 */
 const DAYK_G = 10000000;
+/* 🖐️ 손맛 보너스 (2026-11-12): 직접 낚은 물고기(손맛 도감에 오른 것)마다 골드 · 가끔 강화권. 자동 낚시엔 없어요 */
+const HB_G = [1e5, 2e5, 5e5, 1e6, 3e6], HB_MYTH = 1e7, HB_TK = [.01, .01, .03, .08, .2], HB_TK_DAY = 80;
+function handBonus(ws, me, s, oldSd, e) {
+  const nsd = s.sdex || {}; let g = 0, n = 0, tk = 0;
+  for (const k in nsd) { const dn = Math.min(50, Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0))); if (!dn) continue; const id = +k; if (isGet(id)) continue;
+    const my = isMyth(id) || isUlt(id), r = Math.min(4, fishRar(id) | 0); g += dn * (my ? HB_MYTH : HB_G[r]); n += dn; for (let i = 0; i < dn; i++) if (Math.random() < (my ? 1 : HB_TK[r])) tk++; }
+  if (!n) return; const d = kstDay(), h = s.hbd && s.hbd.d === d ? s.hbd : (s.hbd = { d, g: 0, n: 0, t: 0 });
+  tk = Math.max(0, Math.min(tk, HB_TK_DAY - (h.t | 0))); h.t = (h.t | 0) + tk; h.g = (h.g || 0) + g; h.n = (h.n | 0) + n;
+  if (tk) e.tk = Math.min(ENH.TK_MAX, e.tk + tk); const rev = applyInv(s, { g }); send(ws, { t: 'hb', g, tk, rev, enh: tk ? e : null });
+}
 function dayPts(me, s, oldSd) { const nsd = s.sdex || {}; let pts = 0; for (const k in nsd) { const dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (dn) pts += dn * (isMyth(+k) ? 100 : 1); } pts = Math.round(pts * (1 - .95 * (me.arx || 0))); return pts; }
 function dayAdd(key, name, n) { if (!V || !n) return; const d = kstDay(); if (!V.dk || V.dk.d !== d) { dayClose(); V.dk = { d, p: {} }; } const p = V.dk.p; p[key] = p[key] || { n: 0, name }; p[key].n += n; p[key].name = name; vMark(); dkSoon(); }
 function dayClose() { if (!V || !V.dk || V.dk.paid) return; const arr = Object.entries(V.dk.p).sort((a, b) => b[1].n - a[1].n); V.dk.paid = 1; if (!arr.length || V.dk.d === kstDay()) return; const [k, r] = arr[0];
