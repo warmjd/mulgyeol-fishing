@@ -4723,15 +4723,16 @@ const REEL={
   easy:[null,null,{p:45,s:1.15,d:.85,g:1,l:1},{p:34,s:1,d:1,g:.78,l:1.3},{p:28,s:.92,d:1.05,g:.66,l:1.55}]
 };
 function hook(){
-  const f=F.fish;F.perfect=false;F.reeled=false;
-  if(!easyMode()&&f.rar<=1&&mastered(f.id)){F.mode='pull';F.t=0;F.from=bobberPos();F.familiar=true;Snd.sfx('hook');Snd.sfx('splash');return}
+  const f=F.fish;F.perfect=false;F.reeled=false;const shy=F.shq===true;F.reelSh=shy;
+  if(shy){const b=bobberPos();sparkFx(b[0],b[1],26,['#ffffff','#fff6b0','#c8f0ff']);toast('✨ 반짝이는 물고기가 거세게 저항해요!')}
+  if(!shy&&!easyMode()&&f.rar<=1&&mastered(f.id)){F.mode='pull';F.t=0;F.from=bobberPos();F.familiar=true;Snd.sfx('hook');Snd.sfx('splash');return}
   F.familiar=false;
   // 흔함 · 보통은 줄다리기 없이 바로 낚아요. 희귀 이상만 짧은 줄다리기
-  if(easyMode()&&f.rar<=1){F.mode='pull';F.t=0;F.from=bobberPos();Snd.sfx('hook');Snd.sfx('splash');return}
+  if(!shy&&easyMode()&&f.rar<=1){F.mode='pull';F.t=0;F.from=bobberPos();Snd.sfx('hook');Snd.sfx('splash');return}
   F.mode='reel';F.t=0;Snd.sfx('hook');Snd.setIntense(true);F.reeled=true;
-  const R=REEL[easyMode()?'easy':'hard'][f.rar]||REEL.hard[f.rar];
+  const R=shy?REEL.hard[Math.max(3,f.rar)]:(REEL[easyMode()?'easy':'hard'][f.rar]||REEL.hard[f.rar]);
   const gp=recGap(F.zone);   // 권장 강화보다 모자란 단계
-  F.reel=reelSetup(f,R,gp);
+  F.reel=reelSetup(f,R,gp);if(shy){F.reel.d=Math.min(1,F.reel.d*1.3+.1);F.reel.prog=Math.min(F.reel.prog,20)}
   showReel(true);
 }
 /* ===== 낚시 2.0 (2026-11-04): 입질 패턴 · 물고기 성격 · 줄 긴장도 · 완벽한 손맛 =====
@@ -4777,6 +4778,7 @@ function onAqMsg(m){if(m.t==='aq'){AQ.view=m;if(m.note)toast(m.note);if(aqOpenNo
   if(m.t==='vrec_news'){if(VREC&&VREC.rec)VREC.rec[m.id]=[m.len,m.who];const mine=Net.me&&m.prev&&m.prev[1]===Net.me.name;
     if(mine){showBanner('😱 '+m.who+' 님이 내 '+fishName(m.id)+' 기록('+m.prev[0]+'cm)을 깼어요! '+m.len+'cm');Snd.sfx('escape')}else toast('🏆 '+m.who+' 님 '+fishName(m.id)+' 마을 신기록 '+m.len+'cm (이전 '+m.prev[1]+' 님 '+m.prev[0]+'cm)');return true}
   if(m.t==='rec'){VREC=m;if(evOpenNow())renderEv();if(dexOpen())renderDex();return true}
+  if(m.t==='shq'){if(F.fish&&F.fish.id===m.f&&F.shq===null)F.shq=!!m.sh;return true}
   if(m.t==='shiny'){if(KINGS.sh&&Net.me&&KINGS.sh.name===Net.me.name)shRain();if(m.shb)S.shb=m.shb;if(m.enh)S.enh=Object.assign(enhDefault(),m.enh);shinyGot(m.id,m.n,m.cos);if(m.tk)setTimeout(()=>showBanner('✨ 반짝 도장! 「'+fishName(m.id)+'」 강화권 +'+m.tk),2600);if(forgeOpen())renderForge();return true}
   if(m.t==='pv'){PVL=m;if(!$('sheetwrap').hidden&&['치장 상점','🏝️ 안개 섬 상점'].indexOf($('sheettitle').textContent)>=0)renderBoutique();return true}
   if(m.t==='cup'){S.cup=m.cup||{};if(m.shb)S.shb=m.shb;refreshMe();recalc();saveState();const c=COS_BY[m.id];showBanner('✨ 「'+(c?c.name:'')+'」 ★'+(S.cup[m.id]|0)+'!');Snd.sfx('page');if(P)sparkFx(P.x,P.y-16,24,['#fff6b0','#ffffff','#ffd6e6']);if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='가방')renderBag();return true}
@@ -4913,8 +4915,9 @@ function biteFx(f){const r=f.myth?4:f.rar,b=bobberPos();
   if(r>=3){SHK={t:r>=4?.6:.35,a:r>=4?3:1.6}}if(r>=4){DARK={t:1.6};Snd.sfx('page')}
   if(f.myth){DARK={t:2.4};SHK={t:1,a:4};sparkFx(b[0],b[1],30,['#fff6b0','#c8b8ff','#ffffff'])}
   if(navigator.vibrate)try{navigator.vibrate(VIB[Math.min(4,r)])}catch(e){}}
-function startNibble(){const U=ultRoll();F.fish=U||surpFish(rollFish(F.zone,condNow(F.target)),F.zone);if(!U&&(F.hsK==='myth'||F.hsK==='legend')&&!F.fish.boss){for(let i=0;i<2;i++){const g=rollFish(F.zone,condNow(F.target));if(g&&!g.boss&&(g.myth?5:g.rar)>(F.fish.myth?5:F.fish.rar))F.fish=g}}const f=F.fish,n=NIB[f.myth?4:f.rar];F.nib=n[0]+Math.floor(Math.random()*(n[1]-n[0]+1));
-  F.mode=F.nib?'nibble':'bite';F.t=0;F.nibT=.5+Math.random()*.6;F.dip=0;if(!F.nib){Snd.sfx('bite');biteFx(f)}}
+function startNibble(){const U=ultRoll();F.fish=U||surpFish(rollFish(F.zone,condNow(F.target)),F.zone);F.shq=false;F.shOk=false;if(!U&&(F.hsK==='myth'||F.hsK==='legend')&&!F.fish.boss){for(let i=0;i<2;i++){const g=rollFish(F.zone,condNow(F.target));if(g&&!g.boss&&(g.myth?5:g.rar)>(F.fish.myth?5:F.fish.rar))F.fish=g}}const f=F.fish,n=NIB[f.myth?4:f.rar];F.nib=n[0]+Math.floor(Math.random()*(n[1]-n[0]+1));
+  F.mode=F.nib?'nibble':'bite';F.t=0;F.nibT=.5+Math.random()*.6;F.dip=0;if(!F.nib){Snd.sfx('bite');biteFx(f)}
+  if(!F.afk&&ONLINE&&Net.me&&!F.fish.boss&&!F.fish.get){F.shq=null;Net.send({t:'shq',f:F.fish.id,bx:F.bait==='b_shx'?1:0})}}
 function stepNibble(dt){F.nibT-=dt;F.dip=Math.max(0,F.dip-dt*4);
   if(F.nibT<=0){if(F.nib>0){F.nib--;F.dip=1;Snd.sfx('tap');const b=bobberPos();ripple(b[0],b[1]);if(navigator.vibrate)try{navigator.vibrate(15)}catch(e){}F.nibT=.55+Math.random()*.75*(F.fish.rar>=3?1.4:1)}
     else{F.mode='bite';F.t=0;Snd.sfx('bite');biteFx(F.fish)}}}
@@ -4956,17 +4959,17 @@ function stepReel(dt){
   r.prog=Math.min(100,r.prog);
   r.tick-=dt;if(inBar&&r.tick<=0){r.tick=.16;Snd.sfx('reel',r.prog/100)}
   if(r.ten>=100){r.prog-=30;r.ten=40;r.warn='줄이 끊어질 뻔!';SHK={t:.3,a:2};Snd.sfx('escape');setTimeout(()=>{if(F.reel===r&&r.warn==='줄이 끊어질 뻔!')r.warn=''},900)}   // 퇴근 모드: 끊어지지 않고 조금 밀려나요
-  if(r.prog>=100){F.reelHand=1;F.perfect=r.out<.35||skOn('focus');F.mode='pull';F.t=0;F.from=bobberPos();showReel(false);Snd.setIntense(false);Snd.sfx('splash')}
+  if(r.prog>=100){F.reelHand=1;if(F.reelSh)F.shOk=true;F.perfect=r.out<.35||skOn('focus');F.mode='pull';F.t=0;F.from=bobberPos();showReel(false);Snd.setIntense(false);Snd.sfx('splash')}
   else if(r.prog<=0&&!r.snap&&S.enh.lv>=15&&F.fish.rar>=4&&!r.second){r.second=1;r.prog=35;Snd.sfx('page');const b=bobberPos();sparkFx(b[0],b[1],20,['#ffe27a','#ffffff']);toast('✨ +15 낚싯대가 버텼어요! 한 번 더!')}
   else if(r.prog<=0){reelLost(r)}
   else updateReelUI(inBar);
 }
-function reelLost(r){F.mode='idle';showReel(false);startFlop();Snd.setIntense(false);Snd.sfx('escape');inp.hold=false;S.combo=0;
+function reelLost(r){if(F.reelSh&&!r.snap&&Math.random()<.04){F.shOk=true;F.reelSh=false;F.mode='pull';F.t=0;F.from=bobberPos();showReel(false);Snd.setIntense(false);toast('✨ 어라? 반짝이가 지쳐서 스스로 올라왔어요!');return}F.reelSh=false;F.mode='idle';showReel(false);startFlop();Snd.setIntense(false);Snd.sfx('escape');inp.hold=false;S.combo=0;
   if(F.fish.rar>=2)F.mpity={rar:F.fish.rar,n:2};   // 놓친 만큼 다음 입질에서 다시 만날 확률 ↑
   toast(r.snap?'줄이 끊어졌어요! 물고기가 당길 때는 손을 살짝 풀어요':r.gap?'앗, 놓쳤어요… 「'+zoneNm(F.zone)+'」 권장 강화 +'+REC_ENH[F.zone]+' (지금 +'+S.enh.lv+')':'앗, 놓쳤어요… '+(F.fish.rar>=2?'다음엔 또 만날 거예요':'다시 던져 봐요'))}
 
 function finishCatch(){
-  const f=F.fish,id=f.id;if(autoOn()&&!F.afk&&!F.reelHand)S.rcx=(S.rcx|0)+1;F.reelHand=0;{const _had=!!S.dex[id];setTimeout(()=>{diaryCatch(f,_had);wfCatch(id)},60);}if(P)rodSig(S.cos.look.rod,P.x,P.y-8,false);if(ONLINE&&Net.me&&!f.boss)setTimeout(()=>Net.send({t:'fdrop',rar:f.myth?4:f.rar,z:F.zone}),400);
+  const f=F.fish,id=f.id;if(autoOn()&&!F.afk&&!F.reelHand)S.rcx=(S.rcx|0)+1;F.reelHand=0;if(F.shOk){F.shOk=false;F.reelSh=false;setTimeout(()=>Net.send({t:'shok',f:id}),1500)}{const _had=!!S.dex[id];setTimeout(()=>{diaryCatch(f,_had);wfCatch(id)},60);}if(P)rodSig(S.cos.look.rod,P.x,P.y-8,false);if(ONLINE&&Net.me&&!f.boss)setTimeout(()=>Net.send({t:'fdrop',rar:f.myth?4:f.rar,z:F.zone}),400);
   F.len=Math.max(1,Math.round(f.len*(.7+Math.random()*.6)));
   if(F.perfect){F.len=Math.round(F.len*1.1);S.combo=Math.min(5,(S.combo|0)+1)}else if(F.reeled)S.combo=0;
   const had=!!S.dex[id],wasT=tierOf(id),oldBest=S.dex[id]?S.dex[id].best|0:0;F.best=false;

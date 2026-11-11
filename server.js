@@ -676,7 +676,7 @@ wss.on('connection', (ws) => {
         foldItems(m.data); me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data); shipSnap(me, m.data);
         if (first) togCheck();
         if (sFixed) send(ws, { t: 'sdex', sdex: m.data.sdex });   // 손맛 도감을 서버 기록에 맞춰요
-        if (!first) { shinyRoll(ws, me, m.data, oldSd, shxUsed); mythCheck(me, m.data, oldSd); luxFish(ws, me, m.data, oldSd, luxUsed); dayStar(me, m.data, oldSd); mentorCheck(me, m.data, oldSd); starCatch(ws, m.data, oldSd); stampCheck(ws, m.data, oldSd); recCheck(ws, me, oldDex, m.data, oldSd); }
+        if (!first) { mythCheck(me, m.data, oldSd); luxFish(ws, me, m.data, oldSd, luxUsed); dayStar(me, m.data, oldSd); mentorCheck(me, m.data, oldSd); starCatch(ws, m.data, oldSd); stampCheck(ws, m.data, oldSd); recCheck(ws, me, oldDex, m.data, oldSd); }
         if (!first) {   // 섬 물고기를 직접 낚았으면 안개 조각
           const sh = shardRoll(m.data, oldSd);
           if (sh) { const rev = applyInv(m.data, { 'i:shard': sh }); send(ws, { t: 'delta', d: { 'i:shard': sh }, rev, shd: m.data.shd, why: '🔹 섬 물고기를 직접 낚았어요 (이번 주 ' + m.data.shd.n + '/' + shardDay() + ')' }); }
@@ -803,6 +803,8 @@ function onMsg(ws, me, m) {
     }
     case 'aq_buy': case 'aq_on': case 'cos_up': case 'pv_buy': case 'pv_list': spendMsg(ws, me, m); break;
     case 'home_get': case 'home_list': case 'home_like': case 'home_buy': case 'home_set': homeMsg(ws, me, m); break;
+    case 'shq': shinyAsk(ws, me, m); break;
+    case 'shok': shinyOk(ws, me, m); break;
     case 'shx_buy': case 'bait_buy': withLock(me.key, async () => { const s = me.save; if (!s) return; const id = m.t === 'shx_buy' ? 'b_shx' : String(m.id || ''), pr = BAIT_SHOP[id]; if (!pr) return; const n = [1, 5, 10].includes(m.n) ? m.n : 1, g = pr * n; if (!hasKey(s, 'g', g)) return send(ws, { t: 'ev_err', text: '골드가 모자라요' });
       await changeBag(me.key, { g: -g, ['i:' + id]: n }, '🪱 미끼'); }).catch(e => console.error('bait', e.message)); break;
     case 'st_q': case 'st_lounge': case 'st_get': case 'st_score': case 'st_cfg': case 'st_event': case 'st_buy': stMsg(ws, me, m); break;
@@ -1865,7 +1867,7 @@ let MARP = null, WLIVE = null;
    찌가 포인트(가운데 ±1칸)에 떨어지면 효과: shiny 반짝 ×2 · giant 거대 ×2 · loot 장비·주문서 ×2 · myth 귀한 물고기 · school 입질 빨라요 · legend 전부
    후보 자리는 지도에서 미리 뽑은 물 칸 (index.html 지도와 같아요) */
 const HS_TILES = [[4,22,1],[6,22,1],[2,23,1],[4,23,1],[6,23,1],[8,23,1],[2,24,1],[4,24,1],[6,24,1],[8,24,1],[2,25,1],[4,25,1],[6,25,1],[8,25,1],[4,26,1],[6,26,1],[32,17,2],[32,18,2],[32,19,2],[31,20,2],[32,20,2],[32,21,2],[32,22,2],[32,23,2],[32,24,2],[32,25,2],[32,26,2],[32,27,2],[54,38,3],[22,40,3],[52,40,3],[24,41,3],[51,41,3],[21,42,3],[43,42,3],[69,42,3],[34,43,3],[56,43,3],[25,44,3],[47,44,3],[14,45,3],[45,45,3],[14,46,3],[69,46,3],[4,50,4],[61,50,4],[22,51,4],[12,52,4],[12,53,4],[19,54,4],[22,55,4],[9,57,4],[13,58,4],[112,59,4],[166,59,4],[112,60,4],[160,60,4],[179,60,4],[115,61,4],[157,61,4],[14,3,5],[18,3,5],[12,4,5],[16,4,5],[20,4,5],[8,5,5],[12,5,5],[16,5,5],[20,5,5],[24,5,5],[10,6,5],[14,6,5],[18,6,5],[22,6,5],[10,7,5],[14,7,5],[9,64,6],[54,64,6],[48,65,6],[40,66,6],[19,67,6],[57,67,6],[58,68,6],[61,69,6],[35,71,6],[31,73,6],[1,76,6],[2,79,6],[1,84,6],[32,87,6],[29,90,6],[39,95,6],[12,101,7],[104,101,7],[153,101,7],[182,101,7],[119,102,7],[171,102,7],[109,103,7],[167,103,7],[111,104,7],[175,104,7],[10,108,7],[6,111,7],[11,113,7],[27,115,7],[9,118,7],[14,122,7],[2,43,8],[7,43,8],[2,44,8],[7,44,8],[2,45,8],[7,45,8],[3,46,8],[4,46,8],[5,46,8],[6,46,8],[4,47,8],[5,47,8],[10,76,9],[11,76,9],[10,77,9],[11,77,9],[24,74,10],[24,75,10],[24,76,10],[24,77,10],[24,78,10],[24,79,10],[24,80,10],[25,81,10],[25,84,10],[25,85,10],[24,86,10],[24,87,10],[24,88,10],[24,89,10],[24,90,10],[24,91,10],[5,93,11],[25,93,11],[29,93,11],[8,94,11],[26,94,11],[8,95,11],[26,95,11],[10,96,11],[14,96,11],[18,96,11],[22,96,11],[9,97,11],[13,97,11],[17,97,11],[21,97,11],[10,98,11],[79,15,12],[169,15,12],[139,31,12],[74,32,12],[77,32,12],[109,32,12],[73,33,12],[76,33,12],[79,33,12],[169,33,12],[75,34,12],[78,34,12],[139,34,12],[74,35,12],[77,35,12],[109,35,12],[41,75,13],[43,75,13],[45,75,13],[39,76,13],[41,76,13],[43,76,13],[45,76,13],[47,76,13],[39,77,13],[41,77,13],[43,77,13],[45,77,13],[47,77,13],[41,78,13],[43,78,13],[45,78,13],[56,72,14],[56,73,14],[56,74,14],[56,75,14],[56,76,14],[57,77,14],[57,78,14],[57,79,14],[57,80,14],[57,81,14],[56,82,14],[56,83,14],[56,85,14],[56,86,14],[56,87,14],[56,88,14],[82,64,15],[66,73,15],[88,75,15],[87,77,15],[68,79,15],[65,81,15],[82,82,15],[83,83,15],[66,85,15],[87,86,15],[69,88,15],[69,90,15],[70,92,15],[56,95,15],[56,96,15],[53,97,15],[117,76,16],[114,77,16],[116,77,16],[118,77,16],[120,77,16],[113,78,16],[115,78,16],[117,78,16],[119,78,16],[121,78,16],[113,79,16],[115,79,16],[117,79,16],[119,79,16],[121,79,16],[114,80,16],[99,64,17],[113,64,17],[127,64,17],[104,65,17],[97,66,17],[135,66,17],[95,68,17],[97,69,17],[139,70,17],[139,72,17],[93,90,17],[137,92,17],[95,94,17],[133,95,17],[134,96,17],[131,97,17],[171,75,18],[168,76,18],[170,76,18],[172,76,18],[174,76,18],[167,77,18],[169,77,18],[171,77,18],[173,77,18],[175,77,18],[167,78,18],[169,78,18],[171,78,18],[173,78,18],[175,78,18],[168,79,18],[149,64,19],[163,64,19],[180,64,19],[154,65,19],[187,65,19],[184,66,19],[185,67,19],[189,68,19],[146,70,19],[144,72,19],[192,89,19],[191,92,19],[149,94,19],[189,95,19],[189,96,19],[185,97,19],[81,42,20],[85,42,20],[78,43,20],[90,43,20],[76,45,20],[74,47,20],[73,48,20],[73,49,20],[95,50,20],[95,52,20],[74,54,20],[75,55,20],[77,57,20],[80,58,20],[81,59,20],[85,59,20]];
-const HS_KINDS = [['shiny', 22], ['giant', 22], ['loot', 22], ['myth', 12], ['school', 20], ['legend', 2]], HS_NAME = { shiny: '✨ 반짝 물결', giant: '🌊 거대한 그림자', loot: '🎁 보물 거품', myth: '🔮 신비한 소용돌이', school: '🐟 물고기 떼', legend: '🌈 전설의 포인트' }, HS_USES = 6;
+const HS_KINDS = [['shiny', 22], ['giant', 22], ['loot', 22], ['myth', 12], ['school', 20], ['legend', 2]], HS_NAME = { shiny: '✨ 반짝 물결', giant: '🌊 거대한 그림자', loot: '🎁 보물 거품', myth: '🔮 신비한 소용돌이', school: '🐟 물고기 떼', legend: '🌈 전설의 포인트' }, HS_USES = 50;
 let HS = [], hsSeq = 1;
 const hsPub = () => HS.map(h => ({ id: h.id, x: h.x, y: h.y, z: h.z, k: h.k, until: h.until }));
 function hsTick() {
@@ -2167,6 +2169,20 @@ function stampMigrate(ws, s) {
 }
 const SHX_PRICE = 1e6, BAIT_SHOP = { b_legend_s: 4e5, b_myth: 5e5, b_shx: 1e6, b_giant: 5e5, b_scr: 2e5, b_gear: 3e5, b_lux: 1.5e6, b_ult: 2e6 };   // 🪱 물결 상점 미끼 (index.html BAIT_SHOP와 같아요)
 const baitUsed = (o, nw, k) => Math.max(0, (((o && o.items) || {})[k] | 0) - (((nw && nw.items) || {})[k] | 0));   // 💎 반짝 3배 미끼 (2026-11-11): 상점 1개 100만 · 던질 때 1개 · 그 판에 낚은 물고기 반짝 확률 3배
+/* ✨ 반짝 (2026-11-12): 입질 순간 서버가 반짝을 정하고, 반짝이면 무조건 어려운 줄다리기 · 끝까지 감아야 반짝으로 남아요 */
+const SH_X = +process.env.SH_X || 1;   // 시험용 배율 (평소 1)
+const shinyP = (me, s, id, bx) => SH_X * ((isMyth(id) || isUlt(id)) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1) * (fireOn() ? 1.5 : 1) * (bx ? 3 : 1);
+function shinyAsk(ws, me, m) { const s = me.save, id = m.f | 0; if (!s || !validFish(id) || isGet(id)) return; const now = Date.now(); if (now - (me.shqT || 0) < 1200) return send(ws, { t: 'shq', f: id, sh: false }); me.shqT = now;
+  const bx = m.bx && (((s.items || {}).b_shx) | 0) > 0, sh = Math.random() < shinyP(me, s, id, bx); me.shP = { f: id, t: now, sh }; send(ws, { t: 'shq', f: id, sh }); }
+function shinyOk(ws, me, m) { const p = me.shP, id = m.f | 0; me.shP = null; if (!p || !p.sh || p.f !== id || Date.now() - p.t > 120000) return; const s = me.save; if (!s) return; shinyGive(ws, me, s, [id]); queueSave(me.key, s); }
+function shinyGive(ws, me, s, got) {
+  const sh = s.shiny && typeof s.shiny === 'object' ? s.shiny : (s.shiny = {}), first = got.filter(id => !(sh[id] | 0)); for (const id of got) sh[id] = (sh[id] | 0) + 1;
+  const b = objOf(s, 'shb'); for (const id of got) b[id] = (b[id] | 0) + 1;
+  const tk = first.length ? stampGive(null, s, 'sh', first, 1, '') : 0;
+  const kinds = Object.keys(sh).filter(k => sh[k] > 0).length, ti = SHINY_TI.filter(t => kinds >= t[0]).map(t => t[1]), cos = giveCos(s, ti);
+  for (const id of got) { send(ws, { t: 'shiny', id, n: sh[id], kinds, cos, shb: b, tk: first.includes(id) ? stampTk(id, 'sh') : 0, enh: s.enh }); broadcast({ t: 'shiny_news', who: me.name, id }, ws); dayAdd(me.key, me.name, 49); }
+  const r = rosterCache.get(me.key); if (r) { r.sh = kinds; rosterSoon(); }
+}
 function shinyRoll(ws, me, s, oldSd, shxN) {
   let bx = Math.max(0, shxN | 0); const ax = 1 - .95 * (me.arx || 0);
   const nsd = s.sdex || {}, sh = s.shiny && typeof s.shiny === 'object' ? s.shiny : (s.shiny = {}), got = [], first = [];
