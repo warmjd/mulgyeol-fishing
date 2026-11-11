@@ -10077,7 +10077,7 @@ if(!ONLINE||!Net.me||!VIL){el.hidden=true;return}
 function showBanner(t){const b=$('banner');if(!b)return toast(t);b.textContent=t;b.classList.remove('on');void b.offsetWidth;b.classList.add('on');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>b.classList.remove('on'),5200)}
 /* 발전 기금 시설: 다 지으면 축제 광장에 생겨요 */
 const VF_POS={fountain:[[40,24],[41,24]],stage:[[36,25],[37,25]],carousel:[[44,27],[45,27]],tower:[[47,23]]};
-function vfApply(){if(!W)return;VF.forEach((f,i)=>{const on=i<vSt();VF_POS[f.id].forEach(p=>{W.SOL[p[1]][p[0]]=on})})}
+function vfApply(){if(!W)return;VF.forEach((f,i)=>{const on=i<vSt();(VF_POS[f.id]||[]).forEach(p=>{W.SOL[p[1]][p[0]]=on})})}
 const VFSPR={};
 function vfSpr(id){if(VFSPR[id])return VFSPR[id];const sz={fountain:[34,26],stage:[34,26],carousel:[34,36],tower:[16,46]}[id],cv=document.createElement('canvas');cv.width=sz[0];cv.height=sz[1];const x=cv.getContext('2d'),r=(c,a,b,w,h)=>{x.fillStyle=c;x.fillRect(a,b,w,h)};
   if(id==='fountain'){x.fillStyle='#c8c0b0';x.beginPath();x.ellipse(17,19,16,6,0,0,6.28);x.fill();x.fillStyle='#8ccbe8';x.beginPath();x.ellipse(17,18,13,4.5,0,0,6.28);x.fill();r('#d8d0c0',15,6,4,12);r('#c8c0b0',11,6,12,3);r('#bfe6f8',16,0,2,6)}
@@ -10085,7 +10085,7 @@ function vfSpr(id){if(VFSPR[id])return VFSPR[id];const sz={fountain:[34,26],stag
   if(id==='carousel'){r('#ffd34d',2,6,30,3);x.fillStyle='#ff7aa0';x.beginPath();x.moveTo(1,7);x.lineTo(17,0);x.lineTo(33,7);x.fill();r('#fff',16,8,2,22);r('#e8d0f0',2,28,30,6);r('#c8a8e0',2,32,30,2)}
   if(id==='tower'){r('#f4f0ea',4,10,8,36);for(let y=14;y<46;y+=8)r('#e05050',4,y,8,3);r('#5a5a70',3,6,10,4);r('#ffe9a8',5,1,6,5);r('#5a5a70',2,0,12,1)}
   return VFSPR[id]=cv}
-function vfDrawables(list,x0,x1,y0,y1){if(vSt()<1||x1<35)return;VF.forEach((f,i)=>{if(i>=vSt())return;const p=VF_POS[f.id],tx=p[0][0],ty=p[0][1];list.push({y:ty*TS+15,fn:()=>{const s=vfSpr(f.id),cx0=(tx+p.length/2)*TS;cx.drawImage(s,Math.round(cx0-s.width/2),(ty+1)*TS-s.height);
+function vfDrawables(list,x0,x1,y0,y1){if(vSt()<1||x1<35)return;VF.forEach((f,i)=>{if(i>=vSt()||!VF_POS[f.id])return;const p=VF_POS[f.id],tx=p[0][0],ty=p[0][1];list.push({y:ty*TS+15,fn:()=>{const s=vfSpr(f.id),cx0=(tx+p.length/2)*TS;cx.drawImage(s,Math.round(cx0-s.width/2),(ty+1)*TS-s.height);
   if(f.id==='fountain'&&Math.random()<.3)parts.push({x:cx0+(Math.random()-.5)*6,y:(ty+1)*TS-s.height+2,vx:(Math.random()-.5)*14,vy:-14,life:.8,t:0,c:'#ffffff',g:40,s:1});
   if(f.id==='carousel'&&Math.random()<.05)sparkFx(cx0,(ty+1)*TS-30,3,['#ffd34d','#ff7aa0']);
   if(f.id==='tower'&&isNight(dayTint().ph)){cx.fillStyle='rgba(255,240,170,.18)';cx.beginPath();cx.moveTo(cx0,(ty+1)*TS-42);const a=wt*.8;cx.lineTo(cx0+Math.cos(a)*80,(ty+1)*TS-42+Math.sin(a)*24);cx.lineTo(cx0+Math.cos(a+.25)*80,(ty+1)*TS-42+Math.sin(a+.25)*24);cx.fill()}}})})}
