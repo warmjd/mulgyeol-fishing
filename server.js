@@ -654,7 +654,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {};
@@ -793,6 +793,7 @@ function onMsg(ws, me, m) {
     }
     case 'aq_buy': case 'aq_on': case 'cos_up': case 'pv_buy': case 'pv_list': spendMsg(ws, me, m); break;
     case 'home_get': case 'home_list': case 'home_like': case 'home_buy': case 'home_set': homeMsg(ws, me, m); break;
+    case 'isl_get': case 'isl_list': case 'isl_like': case 'isl_gb': case 'isl_buy': case 'isl_set': case 'isl_gbdel': islMsg(ws, me, m); break;
     case 'sh_sell': withLock(me.key, async () => {   // 가방 반짝 칸의 반짝 물고기 팔기: 보통의 10배 × 낚싯대 판매가
       const s = me.save, id = m.id | 0; if (!s || !validFish(id)) return; const b = objOf(s, 'shb'); if (!((b[id] | 0) > 0)) return send(ws, { t: 'news', text: '가방에 그 반짝 물고기가 없어요' });
       b[id]--; const g = Math.round(fishPrice(id) * 25 * enhSell(s.enh && s.enh.lv));   // 반짝은 25배 await changeBag(me.key, { g }, null); send(ws, { t: 'shb', shb: b, sold: id, g });
@@ -2324,6 +2325,64 @@ function homeMsg(ws, me, m) {
     }
     if (m.t === 'home_set') { if (m.wall && h.walls.includes(m.wall)) h.wall = m.wall; if (m.floor && h.floors.includes(m.floor)) h.floor = m.floor; if (m.items) h.items = homeClean(h, m.items); return done(); }
   }).catch(e => console.error('home', e.message));
+}
+
+/* ---------- 🏝️ 내 섬 (2026-11-11): 섬 사기 · 넓히기 · 나무/꽃/집/길 놓기 · 놀러 가기 · 좋아요 · 방명록 (index.html ISL_*와 같은 숫자) ---------- */
+const ISL_SZ = [[0, 0], [14, 10], [18, 12], [22, 14]], ISL_G = [0, 3e8, 3e8, 4e8];
+const ISL_OBJ = {   // [가격, 가로, 세로, 층(0 땅 · 1 물건)]
+  st: [1e4, 1, 1, 0], wd: [2e4, 1, 1, 0], br: [3e4, 1, 1, 0], sd: [1e4, 1, 1, 0], so: [2e4, 1, 1, 0], cl: [2e4, 1, 1, 0], pd: [1e5, 1, 1, 0], sk: [5e5, 1, 1, 0],
+  oak: [5e5, 1, 1, 1], pine: [5e5, 1, 1, 1], palm: [8e5, 1, 1, 1], apple: [1.5e6, 1, 1, 1], maple: [2e6, 1, 1, 1], cherry: [5e6, 2, 2, 1], bush: [2e5, 1, 1, 1], rock: [1e5, 1, 1, 1], mush: [5e4, 1, 1, 1], lily: [5e4, 1, 1, 1],
+  tulr: [5e4, 1, 1, 1], tuly: [5e4, 1, 1, 1], tulp: [5e4, 1, 1, 1], daisy: [5e4, 1, 1, 1], sunf: [1e5, 1, 1, 1], lav: [1e5, 1, 1, 1], rose: [3e5, 1, 1, 1], glow: [1e6, 1, 1, 1],
+  tent: [5e6, 2, 2, 1], cottage: [2e7, 3, 3, 1], greenh: [4e7, 3, 2, 1], rhouse: [5e7, 3, 3, 1], windm: [6e7, 2, 2, 1], light: [8e7, 2, 2, 1], castle2: [2e8, 4, 3, 1],
+  fence: [3e4, 1, 1, 1], wfence: [5e4, 1, 1, 1], sign: [5e4, 1, 1, 1], mail: [1e5, 1, 1, 1], lamp: [2e5, 1, 1, 1], bench: [3e5, 2, 1, 1], fire: [5e5, 1, 1, 1], flag: [5e5, 1, 1, 1],
+  pic: [8e5, 2, 2, 1], swing: [1e6, 2, 1, 1], hammock: [2e6, 2, 1, 1], arch: [3e6, 2, 1, 1], cathouse: [3e6, 1, 1, 1], well: [3e6, 1, 1, 1], fount: [1e7, 2, 2, 1], statue: [2e7, 2, 2, 1] };
+const islMax = id => ISL_OBJ[id][3] === 0 ? 320 : 40;
+const islOf = s => { const h = s.isl && typeof s.isl === 'object' ? s.isl : (s.isl = {}); h.lv = Math.max(0, Math.min(3, h.lv | 0));
+  h.own = h.own && typeof h.own === 'object' ? h.own : {}; h.items = Array.isArray(h.items) ? h.items : []; h.gb = Array.isArray(h.gb) ? h.gb : []; return h; };
+function islClean(h, items) {   // 섬 안 · 가진 수만큼 · 물건끼리 겹치지 않게 · 땅은 한 칸에 하나
+  const [W, H] = ISL_SZ[h.lv], used = {}, gnd = {}, cnt = {}, out = [];
+  for (const it of Array.isArray(items) ? items.slice(0, 900) : []) { if (!Array.isArray(it)) continue; const id = String(it[0]), x = it[1] | 0, y = it[2] | 0, F = ISL_OBJ[id]; if (!F) continue;
+    if ((cnt[id] | 0) >= (h.own[id] | 0) || x < 0 || y < 0 || x + F[1] > W || y + F[2] > H) continue;
+    if (F[3] === 0) { if (gnd[x + ',' + y]) continue; gnd[x + ',' + y] = 1; }
+    else { let ok = true; for (let dx = 0; dx < F[1]; dx++) for (let dy = 0; dy < F[2]; dy++) if (used[(x + dx) + ',' + (y + dy)]) ok = false; if (!ok) continue;
+      for (let dx = 0; dx < F[1]; dx++) for (let dy = 0; dy < F[2]; dy++) used[(x + dx) + ',' + (y + dy)] = 1; }
+    cnt[id] = (cnt[id] | 0) + 1; out.push([id, x, y]); }
+  return out;
+}
+const islScore = h => { let v = 0; for (let i = 1; i <= h.lv; i++) v += ISL_G[i] / 1e5; for (const it of h.items) v += (ISL_OBJ[it[0]] || [0])[0] / 1e5; return Math.round(v); };
+const islPub = (s, name, mine, liked, look, gbd) => { const h = islOf(s); return { t: 'isl', name, mine, liked: !!liked, gbd: !!gbd, lv: h.lv, items: h.items, likes: s.isll | 0, look: look || null, own: mine ? h.own : null, gb: h.gb.slice(-30), score: islScore(h) }; };
+const islDayList = (s, k) => { const g = s && s[k] && s[k].d === kstDay() ? s[k] : null; return g ? g.k : []; };
+function islMsg(ws, me, m) {
+  const err = text => send(ws, { t: 'ev_err', text });
+  const pubFor = (sv, key) => islPub(sv, (rosterCache.get(key) || {}).name || me.name, key === me.key, islDayList(me.save, 'islg').includes(key), cleanLook(sv.cos && sv.cos.look, sv, colorOf(key)), islDayList(me.save, 'islw').includes(key));
+  if (m.t === 'isl_get') return (async () => { const key = String(m.name || me.name).toLowerCase(), sv = key === me.key ? me.save : await loadSave(key); if (!sv) return err('그런 섬이 없어요');
+    send(ws, pubFor(sv, key)); })().catch(() => { });
+  if (m.t === 'isl_list') return (async () => { const list = []; for (const [key, r] of rosterCache) { const sv = await loadSave(key); if (sv && sv.isl && (sv.isl.lv | 0) > 0) { const h = islOf(sv); list.push({ name: r.name, lv: h.lv, likes: sv.isll | 0, gb: h.gb.length, score: islScore(h) }); } }
+    list.sort((a, b) => b.likes - a.likes || b.score - a.score); send(ws, { t: 'isl_list', list: list.slice(0, 30) }); })().catch(() => { });
+  if (m.t === 'isl_like' || m.t === 'isl_gb') { const key = String(m.name || '').toLowerCase(); if (key === me.key || !rosterCache.has(key)) return;
+    const text = m.t === 'isl_gb' ? cleanText(m.text, 60) : ''; if (m.t === 'isl_gb' && !text) return;
+    return withLocks([me.key, key], async () => { const s = me.save, t = await loadSave(key); if (!s || !t || !(islOf(t).lv > 0)) return; const fk = m.t === 'isl_like' ? 'islg' : 'islw';
+      const g = s[fk] && s[fk].d === kstDay() ? s[fk] : (s[fk] = { d: kstDay(), k: [] });
+      if (g.k.includes(key)) return err(m.t === 'isl_like' ? '오늘은 이미 좋아요를 눌렀어요' : '방명록은 하루에 한 번씩 남길 수 있어요'); g.k.push(key);
+      if (m.t === 'isl_like') t.isll = (t.isll | 0) + 1; else { const h = islOf(t); h.gb.push({ n: me.name, t: text, d: Date.now() }); if (h.gb.length > 40) h.gb.splice(0, h.gb.length - 40); }
+      queueSave(me.key, s); queueSave(key, t); send(ws, pubFor(t, key));
+      const l = liveByKey(key); if (l) send(l[0], { t: 'news', text: m.t === 'isl_like' ? '🏝️ ' + me.name + ' 님이 내 섬에 좋아요를 눌렀어요 (♥ ' + t.isll + ')' : '📮 ' + me.name + ' 님이 내 섬 방명록에 글을 남겼어요' }); }).catch(() => { }); }
+  withLock(me.key, async () => {
+    const s = me.save; if (!s) return; const h = islOf(s), done = () => { queueSave(me.key, s); send(ws, islPub(s, me.name, true, false, me.look, false)); };
+    if (m.t === 'isl_buy') {
+      let g = 0; const id = String(m.id || ''), n = m.n === 10 ? 10 : 1;
+      if (m.k === 'land') { if (h.lv >= 3) return err('가장 큰 섬이에요'); g = ISL_G[h.lv + 1]; }
+      else if (m.k === 'obj') { if (!ISL_OBJ[id]) return; if ((h.own[id] | 0) + n > islMax(id)) return err(islMax(id) + '개까지 가질 수 있어요'); g = ISL_OBJ[id][0] * n; }
+      else return;
+      if (!hasKey(s, 'g', g)) return err('골드가 모자라요'); await changeBag(me.key, { g: -g }, null);
+      if (m.k === 'land') { const [w0, h0] = ISL_SZ[h.lv]; h.lv++; const [w1, h1] = ISL_SZ[h.lv], dx = (w1 - w0) >> 1, dy = (h1 - h0) >> 1; if (h.lv > 1) h.items = h.items.map(i => [i[0], (i[1] | 0) + dx, (i[2] | 0) + dy]);
+        broadcast({ t: 'news', text: h.lv === 1 ? '🏝️ ' + me.name + ' 님이 바다 위에 나만의 섬을 샀어요!' : '🏝️ ' + me.name + ' 님의 섬이 「' + ['', '작은 섬', '넓은 섬', '큰 섬'][h.lv] + '」으로 넓어졌어요!' }); }
+      else h.own[id] = (h.own[id] | 0) + n;
+      return done();
+    }
+    if (m.t === 'isl_set') { if (!(h.lv > 0)) return; h.items = islClean(h, m.items); return done(); }
+    if (m.t === 'isl_gbdel') { const i = m.i | 0; if (i >= 0 && i < h.gb.length) h.gb.splice(i, 1); return done(); }
+  }).catch(e => console.error('isl', e.message));
 }
 
 const aqPub = (s, name, mine, liked) => ({ t: 'aq', name, slots: aqClean(s, s.aq), likes: s.aql | 0, mine, liked: !!liked, max: aqMax(s), deco: Array.isArray(s.aqd) ? s.aqd : [], on: s.aqon || {} });
