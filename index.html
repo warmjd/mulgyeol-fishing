@@ -3295,7 +3295,9 @@ function rollFish(zone,c){
   let r=Math.random()*ws.reduce((a,b)=>a+b,0),ri=0;
   for(let i=0;i<ws.length;i++){r-=ws[i];if(r<=0){ri=i;break}}
   let pool=[];for(let k=ri;k>=0&&!pool.length;k--)pool=(POOL[zone+'-'+k]||[]).filter(f=>condOk(f,c));
-  if(!pool.length)pool=POOL[zone+'-0'];
+  for(let k=ri+1;k<=4&&!pool.length;k++)pool=(POOL[zone+'-'+k]||[]).filter(f=>condOk(f,c));   // 깊은 물처럼 흔한 등급이 없는 곳 (2026-11-11 멈춤 버그)
+  if(!pool.length)for(let k=0;k<=4&&!pool.length;k++)pool=POOL[zone+'-'+k]||[];
+  if(!pool||!pool.length)return zone===5?FISH[0]:rollFish(5,c);
   const ey=rk('sch','eye');if(ey&&Math.random()<.15*ey){const un=pool.filter(f=>!S.dex[f.id]);if(un.length)pool=un}
   return pool[(Math.random()*pool.length)|0];
 }
