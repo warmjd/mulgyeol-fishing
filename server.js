@@ -1194,14 +1194,14 @@ function onMsg(ws, me, m) {
         }
         /* 🎁 운영자 자유 선물 (2026-11-11): 치장 하나 · 전부, 집 가구 · 섬 물건, 사냥 장비(등급 · 단계 · 부위), 은비 칩, 섬 · 집 크기 */
         if (m.op === 'givecos') { const all = [].concat(...Object.values(LOOK_IDS)).filter(Boolean), ids = m.id === '*' ? all : (all.includes(String(m.id)) ? [String(m.id)] : []); if (!ids.length) return ok('그런 치장은 없어요');
-          const got = giveCos(s, ids); queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'cos_got', ids: got }); } else addMail(key, '운영자 선물: 치장 ' + got.length + '개');
+          const got = giveCos(s, ids); queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'cos_got', ids: got, quiet: 1 }); }
           return ok(nm + ' 님에게 치장 ' + got.length + '개 줬어요' + (got.length < ids.length ? ' (이미 가진 ' + (ids.length - got.length) + '개 빼고)' : '')); }
         if (m.op === 'giveobj') { const id = String(m.id || ''), n = Math.max(-99, Math.min(99, m.n | 0)) || 1, home = m.kind === 'h'; if (home ? !HOME_FUR[id] : !ISL_OBJ[id]) return ok('그런 물건은 없어요');
-          const h = home ? homeOf(s) : islOf(s); h.own[id] = Math.max(0, (h.own[id] | 0) + n); queueSave(key, s); await flushSave(key); if (l) l[1].save = s; if (!l) addMail(key, '운영자 선물: ' + (home ? '우리 집 가구' : '내 섬 물건') + '이 들어왔어요');
+          const h = home ? homeOf(s) : islOf(s); h.own[id] = Math.max(0, (h.own[id] | 0) + n); queueSave(key, s); await flushSave(key); if (l) l[1].save = s;
           return ok(nm + ' 님 ' + (home ? '집' : '섬') + ' 「' + id + '」 ' + (n > 0 ? '+' : '') + n + ' (지금 ' + h.own[id] + '개)'); }
         if (m.op === 'givegear') { const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); h.inv = Array.isArray(h.inv) ? h.inv : [];
           const n = Math.max(1, Math.min(10, m.n | 0)), made = []; for (let i = 0; i < n; i++) { const it = mkItem(m.tier | 0, m.g | 0, m.sl === 'rand' ? null : m.sl); invPut(h, it); made.push(it); }
-          queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'rpg', hunt: h, note: '🎁 운영자 선물: 【' + RPG_GN[made[0].g] + '】 장비 ' + n + '개' }); } else addMail(key, '운영자 선물: 사냥 장비가 가방에 들어왔어요');
+          queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'rpg', hunt: h }); }
           return ok(nm + ' 님에게 【' + RPG_GN[made[0].g] + '】 ' + made.map(it => RPG_SN[it.t]).join(' · ') + ' 줬어요 (' + (m.tier | 0) + '단계)'); }
         if (m.op === 'givechip') { const e = ebOf(s), n = Math.max(-1e9, Math.min(1e9, Math.round(+m.n || 0))); e.c = Math.max(0, (e.c | 0) + n); queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], ebPub(s, l[1])); }
           return ok(nm + ' 님 은비 칩 ' + (n > 0 ? '+' : '') + n + ' (지금 ' + e.c + ')'); }
@@ -1210,11 +1210,10 @@ function onMsg(ws, me, m) {
           const k = String(m.k || ''), lim = k === 'g' ? 1e9 : 1e7, n = Math.max(-lim, Math.min(lim, Math.round(+m.n || 0))); if (!n) return;
           if (k === 'tk') {
             const e = enhOf(s); e.tk = Math.max(0, Math.min(ENH.TK_MAX, e.tk + n)); queueSave(key, s); await flushSave(key);
-            if (l) sendEnh(l[0], l[1], { note: ['운영자 선물: 강화권 ' + (n > 0 ? '+' : '') + n] }); else addMail(key, '운영자 선물: 강화권 ' + (n > 0 ? '+' : '') + n);
+            if (l) sendEnh(l[0], l[1], {});
           } else {
             if (!keyKind(k)) return ok('그런 물건은 없어요');
-            await changeBag(key, { [k]: n }, '🎁 운영자 선물');
-            if (!l) addMail(key, '운영자 선물이 가방에 들어왔어요');
+            await changeBag(key, { [k]: n }, null);   // 2026-11-11: 받는 사람에게도 조용히
           }
           console.log('운영자', me.name, '→', nm, k, n);
           return ok(nm + ' 님에게 ' + (k === 'g' ? '골드' : k === 'tk' ? '강화권' : k) + ' ' + n + ' 보냈어요');
