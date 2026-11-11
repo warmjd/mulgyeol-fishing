@@ -9032,7 +9032,7 @@ const others=new Map(); // id → {name,color,look,x,y,tx,ty,d,m,b,anim,seen,tag
 const ME={tag:null,tagOn:false,bub:null,say:null,emo:null};
 function setTag(a,name,ti,e){
   if(!a.tag)return;const t=COS_BY[ti];
-  const jb=badgeHtml(a===ME?S.cos.look.j:(a.look&&a.look.j));
+  const jb='';   // 2026-11-11: 이름표의 직업 별은 뺐어요 (누구나 하루면 명장이라 의미가 없어서)
   const st=typeof evStatus==='function'?evStatus(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name):'';
   const kg=isKingName(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name);
   const nmK=a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name,wk=isXKing('gt',nmK),sk=isXKing('sh',nmK);
