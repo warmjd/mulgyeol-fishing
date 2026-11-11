@@ -503,6 +503,10 @@ details.more summary::-webkit-details-marker{display:none}
 .ebslot{background:linear-gradient(#ffe9f4,#fff6e0);border-radius:20px;padding:14px 10px 8px;margin-bottom:10px;text-align:center}
 .reels{display:flex;justify-content:center;gap:8px}.reels span{width:70px;height:70px;border-radius:16px;background:#fff;border:3px solid #f6c6dc;display:grid;place-items:center;font-size:40px}
 .reels span.pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+#shrain{position:fixed;inset:0;pointer-events:none;z-index:6;overflow:hidden}#shrain i{position:absolute;top:-20px;font-style:normal;color:#fff;opacity:0;text-shadow:0 0 6px rgba(255,240,180,.9);animation:shfall linear forwards}
+@keyframes shfall{0%{transform:translateY(0);opacity:0}15%{opacity:.55}85%{opacity:.4}100%{transform:translateY(105vh);opacity:0}}
+.bub.cb.shk{border-color:transparent!important;background-clip:padding-box;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 0 14px 4px rgba(255,180,230,.8),0 0 26px 8px rgba(160,220,255,.6);animation:shk 2.4s linear infinite}
+@keyframes shk{0%{filter:hue-rotate(0)}100%{filter:hue-rotate(360deg)}}
 .ntag .dheart.sh{filter:drop-shadow(0 0 3px rgba(255,230,120,.95));animation-duration:1.8s}.ntag .dheart{display:inline-block;margin-right:2px;animation:dhb 2.4s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,140,190,.8))}@keyframes dhb{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
 .sthead{background:linear-gradient(#2a1e3a,#3a2a4e);border-radius:16px;padding:14px 10px 10px;text-align:center;margin-bottom:8px;color:#fff}.sthead.al{background:#f4f4f4;color:#1a1a1a;border:2px solid #1a1a1a}.stsign{font-size:22px;font-weight:800;letter-spacing:1px}.stsign.alof{font-family:'Arial Black',Arial,sans-serif;font-weight:900;font-size:34px;letter-spacing:4px;background:#fff;color:#111;display:inline-block;padding:2px 14px;border:3px solid #111}
 .stsub{font-size:12px;margin-top:6px;opacity:.95}.stmsg{font-size:13px;margin:4px 0}.stchips{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-top:6px}.stchips span{font-size:11px;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.18)}.sthead.al .stchips span{background:#e4e4e4}.stchips .on{color:#7cffa0}.sthead.al .stchips .on{color:#1a8a3a}.stchips .sale,.stchips .ev{background:#ff5a8a!important;color:#fff}
@@ -4770,11 +4774,11 @@ function onAqMsg(m){if(m.t==='aq'){AQ.view=m;if(m.note)toast(m.note);if(aqOpenNo
   if(m.t==='vrec_news'){if(VREC&&VREC.rec)VREC.rec[m.id]=[m.len,m.who];const mine=Net.me&&m.prev&&m.prev[1]===Net.me.name;
     if(mine){showBanner('😱 '+m.who+' 님이 내 '+fishName(m.id)+' 기록('+m.prev[0]+'cm)을 깼어요! '+m.len+'cm');Snd.sfx('escape')}else toast('🏆 '+m.who+' 님 '+fishName(m.id)+' 마을 신기록 '+m.len+'cm (이전 '+m.prev[1]+' 님 '+m.prev[0]+'cm)');return true}
   if(m.t==='rec'){VREC=m;if(evOpenNow())renderEv();if(dexOpen())renderDex();return true}
-  if(m.t==='shiny'){if(m.shb)S.shb=m.shb;if(m.enh)S.enh=Object.assign(enhDefault(),m.enh);shinyGot(m.id,m.n,m.cos);if(m.tk)setTimeout(()=>showBanner('✨ 반짝 도장! 「'+fishName(m.id)+'」 강화권 +'+m.tk),2600);if(forgeOpen())renderForge();return true}
+  if(m.t==='shiny'){if(KINGS.sh&&Net.me&&KINGS.sh.name===Net.me.name)shRain();if(m.shb)S.shb=m.shb;if(m.enh)S.enh=Object.assign(enhDefault(),m.enh);shinyGot(m.id,m.n,m.cos);if(m.tk)setTimeout(()=>showBanner('✨ 반짝 도장! 「'+fishName(m.id)+'」 강화권 +'+m.tk),2600);if(forgeOpen())renderForge();return true}
   if(m.t==='pv'){PVL=m;if(!$('sheetwrap').hidden&&['치장 상점','🏝️ 안개 섬 상점'].indexOf($('sheettitle').textContent)>=0)renderBoutique();return true}
   if(m.t==='cup'){S.cup=m.cup||{};if(m.shb)S.shb=m.shb;refreshMe();recalc();saveState();const c=COS_BY[m.id];showBanner('✨ 「'+(c?c.name:'')+'」 ★'+(S.cup[m.id]|0)+'!');Snd.sfx('page');if(P)sparkFx(P.x,P.y-16,24,['#fff6b0','#ffffff','#ffd6e6']);if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='가방')renderBag();return true}
   if(m.t==='shb'){S.shb=m.shb||{};if(m.sold!==undefined){coinRain(m.g);showBanner('✨ 반짝 '+fishName(m.sold)+' → '+fmt(m.g)+' 골드!')}if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='가방')renderBag();saveState();return true}
-  if(m.t==='shiny_news'){const t='✨ '+m.who+' 님이 반짝 '+fishName(m.id)+'을(를) 낚았어요!';showBanner(t);nlogAdd('vil',t);if(P)sparkFx(P.x,P.y-30,24,['#fff6b0','#ffffff','#ffd34d','#b9a6ee']);Snd.sfx('page');return true}
+  if(m.t==='shiny_news'){if(KINGS.sh&&KINGS.sh.name===m.who)shRain();const t='✨ '+m.who+' 님이 반짝 '+fishName(m.id)+'을(를) 낚았어요!';showBanner(t);nlogAdd('vil',t);if(P)sparkFx(P.x,P.y-30,24,['#fff6b0','#ffffff','#ffd34d','#b9a6ee']);Snd.sfx('page');return true}
   if(m.t==='pt_result'){ptResult(m);return true}
   if(m.t==='snowmen'){SNOWMEN=m.list||[];return true}
   if(m.t==='lans'){LANS=m.list||[];if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='소원 등불')openLantern();return true}
@@ -4840,7 +4844,7 @@ function holdHtml(h){const f=FISH[h.f];if(!f)return'';return(h.vr?'<i class="vr"
 /* 마을 신기록: 서버의 마을 1등 기록(VREC)보다 크고, 그 주인이 내가 아니면 → 이긴 사람 [cm, 이름] */
 function vrecBeat(id,len){if(!ONLINE||!Net.me||!VREC||!VREC.rec)return null;const me=Net.me.name,cur=VREC.rec[id];if(cur&&len<=cur[0])return null;VREC.rec[id]=[len,me];return cur&&cur[1]!==me?cur:null}
 const holdCls=h=>{const f=FISH[h.f];return'bub cb'+(f&&f.myth?' myth':f&&f.rar>=4?' leg':'')+(h.sh?' sh':'')};
-function showCatchBub(a,html,cls,ms){if(a.bub)a.bub.remove();const el=document.createElement('div');el.className=cls||'bub cb';el.innerHTML=html;$('tags').appendChild(el);a.bub=el;a.say={until:performance.now()+(ms||4000)}}
+function showCatchBub(a,html,cls,ms){if(a.bub)a.bub.remove();{const nm=a===ME?(Net.me&&Net.me.name):a.name;if(cls&&/ sh\b/.test(cls)&&KINGS.sh&&KINGS.sh.name===nm)cls+=' shk'}const el=document.createElement('div');el.className=cls||'bub cb';el.innerHTML=html;$('tags').appendChild(el);a.bub=el;a.say={until:performance.now()+(ms||4000)}}
 let HOLD=null;
 function startHold(){const f=F.fish,c=holdClass(f,F.len,F.giant);
   const vr=vrecBeat(f.id,F.len);HOLD={f:f.id,len:F.len,c,vr,sh:!!F.shinyNow,nw:!!F.isNew,pf:!!F.perfect,bt:false,x2:F.net?3:F.double?2:0,wl:!!F.wol,ln:holdLine(f,c),at:performance.now()};
@@ -6932,6 +6936,7 @@ function render(dt){
   const x0=Math.max(0,Math.floor(cX/TS)),x1=Math.min(MW-1,Math.floor((cX+VW)/TS)),y0=Math.max(0,Math.floor(cY/TS)),y1=Math.min(MH-1,Math.floor((cY+VH)/TS));
   drawBG(x0,x1,y0,y1);drawPlates();
   const SEAV=atSeaView();if(SEAV)drawSeaUnder(dt,cX,cY);
+  shWater(x0,x1,y0,y1);
   // 물 위 연잎 · 파문
   W.deco.forEach(d=>{if(d.k==='lily'&&d.x>=x0&&d.x<=x1&&d.y>=y0&&d.y<=y1)cx.drawImage(SP.lily[d.v],d.x*TS+2,d.y*TS+4+Math.round(Math.sin(wt+d.x)*.6))});
   for(let i=ripples.length-1;i>=0;i--){const r=ripples[i];r.life-=dt;r.r+=dt*11;if(r.life<=0){ripples.splice(i,1);continue}
@@ -8140,7 +8145,7 @@ function openAdmin(){
       row(sel('admSzK','<option value="i">🏝️ 섬 크기</option><option value="h">🏠 집 크기</option>','flex:1 1 35%')+sel('admSz','<option value="0">0 (없음/원룸)</option><option value="1">1</option><option value="2">2</option><option value="3">3 (가장 큼)</option>','flex:1 1 30%')+'<button class="btn sm pink" data-adm="setsize" style="flex:1 1 30%">맞추기</button>')+
       '<div class="muted" style="font-size:12px;margin-bottom:10px">가구 · 물고기 · 칩은 마이너스로 빼기도 돼요 · 접속 안 한 친구는 다음에 들어오면 받아요</div>'}
     h+='<div class="sec">🚑 갇힘 · 이동 도구 <span class="cnt">위 「선물」의 친구 선택을 같이 써요</span></div><div class="warps">'+
-      '<button data-adm="rescue">🏠 마을로 빼내기</button><button data-adm="summon">🧲 내 옆으로 소환</button><button data-adm="goto">🏃 그 친구에게 가기</button><button data-adm="ptreset">⚓ 오늘 배낚시 횟수 0으로</button><button data-adm="kick">🔌 연결 끊기 (다시 접속하게)</button></div>'+
+      '<button data-adm="rescue">🏠 마을로 빼내기</button><button data-adm="summon">🧲 내 옆으로 소환</button><button data-adm="goto">🏃 그 친구에게 가기</button><button data-adm="ptreset">⚓ 오늘 배낚시 횟수 0으로</button><button data-adm="skreset">⏱️ 직업 기술 대기 초기화</button><button data-adm="kick">🔌 연결 끊기 (다시 접속하게)</button></div>'+
       '<div class="muted" style="font-size:12px;margin:2px 0 10px">마을로 빼내기: 배낚시 중이면 배에서 내리고 광장으로 옮겨요. 접속 안 한 친구는 다음 접속 때 광장에서 시작해요.</div>';
     {const w=ADM.who,pt=w&&w.party;h+='<div class="sec">👀 접속자 위치 · 배낚시 관리</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0"><button class="btn sm" data-adm="who">새로 보기</button><button class="btn sm pink" data-adm="pt_end">배낚시 강제 귀항 (보상 줌)</button><button class="btn sm ghost" data-adm="pt_clear">배낚시 해산 (보상 없음)</button></div>';
       if(w){h+='<div class="muted" style="font-size:12px;margin:4px 0">'+(pt?'⚓ 배낚시 '+(pt.state==='sea'?'바다 위 · 어창 '+pt.hold+'/'+pt.need+' · '+Math.floor(pt.left/60)+'분 '+pt.left%60+'초 남음':'모집 중')+' · '+pt.members.map(esc).join(', '):'지금 배낚시 없음')+'</div>'+
@@ -8165,6 +8170,7 @@ function admClick(t){
   if(a==='notice'){const tx=($('admNote').value||'').trim();if(tx)Net.send({t:'adm',op:'notice',text:tx});$('admNote').value='';return true}
   if(a==='give'){ADM.to=$('admTo').value;ADM.k=$('admK').value;ADM.n=+$('admN').value|0;if(!ADM.n){toast('개수를 적어 주세요');return true}Net.flushSave(true);Net.send({t:'adm',op:'give',to:ADM.to,k:ADM.k,n:ADM.n});return true}
   if(a==='unjob'){Net.send({t:'adm',op:'unjob',to:v});return true}
+  if(a==='skreset'){Net.send({t:'adm',op:'skreset',to:($('admTo')&&$('admTo').value)||ADM.to});return true}
   {const to=($('admTo')&&$('admTo').value)||ADM.to,val=id=>$(id)?$(id).value:'';
    if(a==='givecos'){Net.send({t:'adm',op:'givecos',to,id:val('admCos')});return true}
    if(a==='givecosall'){askConfirm('모든 치장을 줄까요?',to+' 님에게 지금까지 만든 치장 전부','줄게요',()=>Net.send({t:'adm',op:'givecos',to,id:'*'}));return true}
@@ -9705,6 +9711,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(onRpgMsg(m)){}
     else if(onSocMsg(m)){}
     else if(m.t==='skill_ok')skOk(m);
+    else if(m.t==='sk_reset'){S.sk={};saveState();if(typeof updSkillBar==='function')updSkillBar()}
     else if(m.t==='skill_err')skErr(m);
     else if(m.t==='welcome'){S.rest=(S.rest|0)+(m.rest|0);recalc();saveState();setTimeout(()=>{showBanner('🎁 그동안 모아 둔 선물! ('+m.away+'일 치) 골드 +'+fmt(m.g)+' · 강화권 +'+m.tk);Snd.sfx('page')},1500);setTimeout(()=>toast('🌙 휴식 행운: 다음 '+m.rest+'마리는 행운 +30%'+(m.behind?' · 📣 마을이 응원하고 있어요':'')),5000);vilHud()}
     else if(m.t==='news')routeNews(m.text);
@@ -9771,6 +9778,16 @@ function drawOthers(dt,list){
   });
 }
 /* 반짝 1위의 발자국: 걸을 때 발밑에 하얀 · 금빛 별가루가 조금씩 (조용히 넣은 효과) */
+/* 반짝 1위가 낚시 중이면 그 낚시터 물 전체에 하얀 반짝임이 은은하게 (조용히 넣은 효과) */
+function shKingZone(){const k=KINGS.sh;if(!k||!k.name)return 0;if(ONLINE&&Net.me&&Net.me.name===k.name&&P&&['cast','wait','bite','pull','reel'].indexOf(F.mode)>=0&&!F.afk){const b=bobberPos();const tx=b[0]/TS|0,ty=b[1]/TS|0;return W.inb(tx,ty)?W.Z[ty][tx]:0}
+  for(const o of others.values()){if(o.seen&&o.name===k.name&&o.b>0){const bx=(o.b-1)%MW,by=Math.floor((o.b-1)/MW);return W.inb(bx,by)?W.Z[by][bx]:0}}return 0}
+function shWater(x0,x1,y0,y1){const z=shKingZone();if(!z)return;cx.save();
+  for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){if(W.T[ty][tx]!=='w'||W.Z[ty][tx]!==z)continue;const h=(tx*73856093^ty*19349663)>>>0,ph=(wt*.9+(h%1000)/250)%4;
+    cx.fillStyle='rgba(255,255,255,'+(.05+.04*Math.sin(wt*1.6+(h%7)))+')';cx.fillRect(tx*TS,ty*TS,TS,TS);
+    if(ph<.7){const a=Math.sin(ph/.7*Math.PI)*.85,gx=tx*TS+(h>>4)%12+2,gy=ty*TS+(h>>9)%12+2;cx.fillStyle='rgba(255,255,255,'+a+')';cx.fillRect(gx-2,gy,5,1);cx.fillRect(gx,gy-2,1,5)}}
+  cx.restore()}
+/* 반짝 1위가 반짝을 낚으면 모두의 화면에 아주 은은한 별가루 (조용히 넣은 효과) */
+function shRain(){if($('shrain'))return;const d=document.createElement('div');d.id='shrain';let h='';for(let i=0;i<22;i++){const x=Math.random()*100,dl=Math.random()*1.6,du=2.6+Math.random()*1.4,sz=6+Math.random()*7;h+='<i style="left:'+x+'%;animation-delay:'+dl+'s;animation-duration:'+du+'s;font-size:'+sz+'px">'+(i%3?'✦':'·')+'</i>'}d.innerHTML=h;document.body.appendChild(d);setTimeout(()=>d.remove(),5200)}
 function shFoot(){const k=KINGS.sh;if(!k||!k.name||HUNT.on)return;const one=(o,x,y)=>{const lx=o._sfx,ly=o._sfy;o._sfx=x;o._sfy=y;if(lx==null||Math.hypot(x-lx,y-ly)<.4||Math.random()>.35)return;
     parts.push({x:x+(Math.random()-.5)*6,y:y-1+(Math.random()-.5)*2,vx:(Math.random()-.5)*3,vy:-4-Math.random()*4,life:.7+Math.random()*.5,t:0,c:['#fff8d8','#ffe890','#ffffff'][(Math.random()*3)|0],g:0,s:Math.random()<.25?2:1})};
   if(P&&ONLINE&&Net.me&&Net.me.name===k.name)one(ME,P.x,P.y);others.forEach(o=>{if(o.seen&&o.name===k.name)one(o,o.x,o.y)})}

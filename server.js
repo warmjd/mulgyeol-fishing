@@ -1184,6 +1184,7 @@ function onMsg(ws, me, m) {
         }
         const s = await loadSave(key); if (!s) return ok(nm + ' 님 저장이 아직 없어요');
         if (m.op === 'setlv') { const e = enhOf(s), n = Math.max(0, Math.min(ENH.MAX, m.n | 0)); e.lv = n; e.max = Math.max(e.max | 0, n); e.star = 0; e.fl = 0; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; sendEnh(l[0], l[1], { note: ['🛠️ 운영자: 낚싯대 +' + n] }); } return ok(nm + ' 님 낚싯대를 +' + n + '(으)로 맞췄어요'); }
+        if (m.op === 'skreset') { s.skc = {}; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'sk_reset' }); } return ok(nm + ' 님 직업 기술 대기를 모두 풀었어요'); }
         if (m.op === 'ptreset') { s.ptd = null; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'pt', p: ptPub(), today: 0 }); } return ok(nm + ' 님 오늘 배낚시 횟수를 0으로 돌렸어요'); }
         if (m.op === 'unjob') {   // 직업 바꾸기 대기 14일 · 끝 노드 잠금 풀기
           if (s.job && typeof s.job === 'object') { s.job.t = 0; s.job.ch = 0; }
