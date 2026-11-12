@@ -1103,7 +1103,7 @@ function onMsg(ws, me, m) {
         if ((e.c | 0) < c) return send(ws, { t: 'news', text: '칩이 모자라요 (은비랜드에서 골드를 칩으로 바꿔요)' });
         e.c -= c; h[k] = nx; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '장비를 샀어요!' });
       }
-      const now = Date.now(); if (now - (me.hkT || 0) < 250) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(10, m.tr | 0)), red = !!m.red, df = Math.max(0, Math.min(2, m.df == null ? 1 : m.df | 0)), dfC = [.6, 1, 2.2][df], dfI = [.6, 1, 1.5][df], hfi = Math.max(0, Math.min(9, m.fi | 0));
+      const now = Date.now(); if (now - (me.hkT || 0) < 250) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(10, m.tr | 0)), red = !!m.red, df = Math.max(0, Math.min(2, m.df == null ? 1 : m.df | 0)), dfC = [.6, 1, 2.2][df], dfI = [.6, 1, 1][df], hfi = Math.max(0, Math.min(9, m.fi | 0));
       const el = !!m.el; let bo = !!m.boss; if (bo) { if (now - (me.hbT || 0) < 40000) bo = false; else me.hbT = now; }   // 우두머리 처치는 40초에 한 번까지 (조작 방지)
       const RS = rpgSum(h, (s.hu && s.hu.lv) | 0 || 1);
       /* 🤝 함께 사냥: 같은 사냥터 · 가까이(약 16칸) 있는 친구 수 → 칩 · 드랍 보너스 (서버가 직접 세요) */
@@ -1124,8 +1124,8 @@ function onMsg(ws, me, m) {
           withLock(q.key, async () => { const qs = q.save; if (!qs || !qs.hunt) return; const b2 = wb(qs); if (!b2) return; queueSave(q.key, qs); send(qw, { t: 'hunt', hunt: qs.hunt, c: ebOf(qs).c, note: '🤝 ' + me.name + ' 님과 함께 쓰러뜨린 우두머리 · 이번 주 첫 보상 칩 ' + b2.toLocaleString() + ' + 주문서 1장' }); }).catch(() => { }); }
         if (df === 2 && Math.random() < .08) { const nm = ['h_nmhorn', 'o_nmrobe', 'k_nmwing'].filter(id => !own.includes(id)); if (nm.length) { const g2 = giveCos(s, [nm[(Math.random() * nm.length) | 0]]); if (g2.length) { send(ws, { t: 'cos_got', ids: g2 }); broadcast({ t: 'news', text: '🌑 ' + me.name + ' 님이 악몽 우두머리에게서 악몽 치장을 얻었어요!' }); } } }
       }
-      let item = null; if (Math.random() < (bo ? 1 : el ? .3 : .05 + r * .02) * (1 + Math.min(100, RS.luk) / 100) * pb * (bo ? 1 : dfI)) { const gw = tier >= 10 ? (bo ? [0, 10, 35, 30, 19, 5, 1, .12, .015] : [20, 35, 25, 13, 6, .9, .1, .004, .0004]) : bo ? [10, 30, 35, 18, 6.7, .3, 0, .01, 0] : [60, 25, 10, 4, .95, .05, 0, 0, 0];
-        item = mkItem(tier, rollG(gw)); invPut(h, item); if (item.g >= 4) broadcast({ t: 'big', g: item.g, text: (item.g >= 6 ? '🌌🌌 ' : '🎁 ') + me.name + ' 님이 사냥터에서 【' + RPG_GN[item.g] + '】 ' + RPG_SN[item.t] + '을(를) 주웠어요!' }); }
+      let item = null; if (Math.random() < (bo ? 1 : el ? .3 : .05 + r * .02) * (1 + Math.min(100, RS.luk) / 100) * pb * (bo ? 1 : dfI)) { const gw = tier >= 10 ? (bo ? [5, 25, 35, 25, 8, 1.5, .2, .02, 0] : [45, 28, 15, 8, 2, .2, .02, 0, 0]) : bo ? [10, 30, 35, 18, 6.7, .3, 0, .01, 0] : [60, 25, 10, 4, .95, .05, 0, 0, 0];
+        item = mkItem(tier, rollG(gw)); invPut(h, item); if (item.g >= 5) broadcast({ t: 'big', g: item.g, text: (item.g >= 6 ? '🌌🌌 ' : '🎁 ') + me.name + ' 님이 사냥터에서 【' + RPG_GN[item.g] + '】 ' + RPG_SN[item.t] + '을(를) 주웠어요!' }); }
       queueSave(me.key, s); send(ws, { t: 'hunt', hunt: h, c: e.c, gain: c, drop: got, item, pt });
     }); break;
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
