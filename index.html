@@ -539,6 +539,9 @@ details.more summary::-webkit-details-marker{display:none}
 .rdbox{background:linear-gradient(#3a2a5a,#5a3a8a);color:#fff;border-radius:18px;padding:14px;text-align:center}.rdt{font-size:18px;font-weight:800}.rds{font-size:12px;opacity:.85;margin:4px 0 10px}.rdslots{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:8px}.rdslot{border:2px dashed rgba(255,255,255,.35);border-radius:10px;padding:8px 2px;font-size:11.5px;opacity:.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rdslot.need{border-color:rgba(255,190,230,.7)}.rdslot.on{border-style:solid;border-color:#ffd86a;background:rgba(255,216,106,.18);opacity:1;font-weight:700}.rdst{font-size:13px;margin-bottom:10px}.rdst b{color:#ffd86a;font-size:16px}
 .rdrw{display:grid;gap:6px}.rdrw>div{border:2px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13px;background:#fff}.rdrw small{color:#8a80a0;font-size:11.5px}
 .rrc{border:2px solid var(--line);border-radius:14px;padding:8px 10px;margin-bottom:6px;background:#fff;display:grid;grid-template-columns:1fr auto;gap:4px;align-items:center}.rrt{font-size:13.5px}.rrn{font-size:11px;font-weight:800;color:#c0407a;margin-left:4px}.rrn.ok{color:#2e9a5a}.rrm{grid-column:1;display:flex;flex-wrap:wrap;gap:4px}.rrm span{font-size:11px;background:#f3ecff;border-radius:99px;padding:1px 7px}.rrc .btn{grid-row:1/3;grid-column:2}
+.fwtip{position:fixed;z-index:80;background:#fffdf8;border:2px solid #d8c8f0;border-radius:14px;padding:8px 11px;font-size:12.5px;line-height:1.65;color:var(--ink);box-shadow:0 6px 18px rgba(80,60,130,.22);animation:fwIn .15s ease-out}.fwtip[hidden]{display:none}.fwtip b{font-size:14px}.fwtip .fwn{color:#9a8fb0;font-size:11.5px;margin-top:2px}.fwtip small{color:#c06a8a}@keyframes fwIn{from{opacity:0;transform:translateY(4px)}}
+.mat:has(img),.fishchip,.tchip:has(img){cursor:pointer}
+.cwl{position:absolute;left:0;top:0;pointer-events:none;font-size:11px;font-weight:700;color:#fff;background:rgba(40,40,70,.42);padding:2px 8px;border-radius:99px;white-space:nowrap;text-shadow:0 1px 1px rgba(0,0,0,.3)}.cwl[hidden]{display:none}
 .hbpop{position:fixed;left:14px;top:calc(env(safe-area-inset-top,0px) + 52px);z-index:60;pointer-events:none;font-size:13px;font-weight:800;color:#7a4a10;background:linear-gradient(#fff8d8,#ffe9a8);border:2px solid #f0c040;border-radius:99px;padding:3px 10px;box-shadow:0 2px 6px rgba(160,110,0,.25);animation:hbUp 1.9s ease-out forwards}.hbpop b{color:#d07800}.hbpop i{font-style:normal;color:#c0408a;margin-left:4px}@keyframes hbUp{0%{opacity:0;transform:translateY(8px) scale(.9)}12%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0;transform:translateY(-16px)}}
 .stcv{width:100%;height:auto;border-radius:14px;display:block;touch-action:none;image-rendering:pixelated;background:#222}.stsg{position:absolute;left:0;top:0;pointer-events:none;text-align:center;white-space:nowrap;z-index:1}.stsg b{display:inline-block;font-size:11px;font-weight:800;color:#fff;background:rgba(40,28,56,.78);padding:2px 8px;border-radius:8px;border:1.5px solid var(--c)}.stsg.eve b{color:var(--c);text-shadow:0 0 6px var(--c);box-shadow:0 0 8px var(--c)}.stsg.al b{background:#fff;color:#111;border:2px solid #111;font-family:'Arial Black',Arial,sans-serif;font-weight:900;letter-spacing:2px;box-shadow:none;text-shadow:none}.stsg i{display:block;font-style:normal;font-size:10px;font-weight:700;color:#fff;background:#ff5a8a;border-radius:99px;padding:0 6px;margin:2px auto 0;width:max-content}.stsg i.off{background:#9a9aaa}
 .bbrow{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;margin-top:4px}.bbrow .btn{width:auto!important;margin:0!important;padding:6px 2px!important;font-size:12px}
@@ -3571,6 +3574,16 @@ const iconCache={};
 function fishCan(id){return iconCache[id]||(iconCache[id]=toCan(buildFish(FISH[id].spec,id*7+3)))}
 const urlCache={};
 function fishURL(id){return urlCache[id]||(urlCache[id]=fishCan(id).toDataURL())}
+/* 🐟 재료 칩의 물고기를 누르면 어디서 낚는지 (2026-11-12) */
+function fishWhereHtml(f){const z=f.ult?'어느 낚시터에서든 아주 아주 가끔':zoneNm(f.zone)+(hasZone(f.zone)?'':' <small>(아직 못 가 봤어요)</small>'),c=condText(f);
+  return'<b>'+esc(f.name)+'</b> '+rarTagF(f)+'<div>📍 '+z+'</div>'+(c?'<div>⏰ '+esc(c)+'</div>':'<div>⏰ 언제든</div>')+(f.season?'<div>🌸 '+esc(seasonById(f.season).name)+' 한정</div>':'')+'<div class="fwn">가방 '+(S.inv[f.id]|0)+'마리'+(S.dex[f.id]?'':' · 아직 못 만났어요')+'</div>'}
+let FWT=null;
+function fwTip(el,id){const f=FISH[id];if(!f)return;if(!FWT){FWT=document.createElement('div');FWT.className='fwtip';document.body.appendChild(FWT)}Snd.sfx('tap');
+  FWT.innerHTML=fishWhereHtml(f);FWT.hidden=false;const r=el.getBoundingClientRect(),w=Math.min(260,innerWidth-24);FWT.style.width=w+'px';
+  const x=Math.max(12,Math.min(innerWidth-w-12,r.left+r.width/2-w/2));FWT.style.left=x+'px';FWT.style.top='0px';const hh=FWT.offsetHeight;FWT.style.top=(r.top-hh-8>8?r.top-hh-8:r.bottom+8)+'px';
+  clearTimeout(fwTip.t);fwTip.t=setTimeout(()=>{FWT.hidden=true},4000)}
+document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('.mat,.fishchip,.tchip');if(!m){if(FWT&&!FWT.hidden&&!e.target.closest('.fwtip'))FWT.hidden=true;return}
+  const img=m.querySelector('img');if(!img)return;let id=-1;for(const k in urlCache)if(urlCache[k]===img.src){id=+k;break}if(id<0||!FISH[id])return;fwTip(m,id)});
 
 /* ----- 입력 ----- */
 const inp={x:0,y:0,hold:false};
@@ -4891,7 +4904,7 @@ $('bAfk').onclick=()=>{if(F.afk)stopAfk('자동 낚시를 멈췄어요');else st
 function releaseAct(){if(chgEnd())return;if(F.mode==='reel')inp.hold=false}
 function startCast(c){
   castBait();F.whoosh=0;RCAST.armed=true;
-  P.dir=c.dir;F.target={x:c.x,y:c.y,k:c.k};F.zone=W.Z[c.y][c.x];hsCastHook(c);giftHint(F.zone);recWarn(F.zone);F.mode='cast';F.t=0;F.fish=null;
+  P.dir=c.dir;F.target={x:c.x,y:c.y,k:c.k};F.zone=W.Z[c.y][c.x];castWhere(c);hsCastHook(c);giftHint(F.zone);recWarn(F.zone);F.mode='cast';F.t=0;F.fish=null;
   S.stats.casts++;Snd.sfx('cast');hideHint();
 }
 function castTip(){const d=P.dir,o={right:[13,-21],left:[-13,-21],up:[6,-25],down:[9,-11]}[d];let x=P.x+o[0],y=P.y+o[1];
@@ -7995,6 +8008,14 @@ function evbDraw(bx,by){const x=cx,t=performance.now(),n=EVS.length,r=(c,a,b,w,h
   r('#e05a5a',-6,-21,28,4);r('#ffffff',-6,-21,28,1);
   for(let i=0;i<7;i++){const f=Math.round(Math.sin(t/260+i)*.8);r(['#ff6a8a','#ffd34d','#6ad08a','#6ab0ff','#c08aff','#ff9a40','#ff6a8a'][i],-6+i*4,-17+f,3,3);r(['#ff6a8a','#ffd34d','#6ad08a','#6ab0ff','#c08aff','#ff9a40','#ff6a8a'][i],-5+i*4,-14+f,1,1)}
   if(n){[[-8,-24],[22,-22],[8,-28]].forEach(([a,b],i)=>{const k=(Math.sin(t/300+i*2)+1)/2;if(k>.35){x.globalAlpha=k;r('#fff8b0',a,b-1,1,3);r('#fff8b0',a-1,b,3,1);x.globalAlpha=1}})}}
+/* 📍 던지면 찌 위에 여기가 어딘지 살짝 (2.6초) */
+const CWL={el:null,t:0,txt:''};
+function castWhere(c){const sp=spotOf({x:c.x,y:c.y});CWL.txt='📍 '+zoneNm(F.zone)+(sp?' · '+SPOT_NAME[sp]:'');CWL.t=performance.now()}
+function cwPlace(ox,oy,cX,cY){let el=CWL.el;const age=(performance.now()-CWL.t)/1000,on=CWL.t&&age<2.6&&!HUNT.on&&F.target&&F.mode!=='idle';
+  if(!el){if(!on)return;el=CWL.el=document.createElement('div');el.className='cwl';$('tags').appendChild(el)}
+  if(el.hidden===on)el.hidden=!on;if(!on)return;if(el.k!==CWL.txt){el.k=CWL.txt;el.textContent=CWL.txt}
+  const [bx,by]=bobberPos(),sx=ox+(bx-cX)*SC,sy=oy+(by-16-cY)*SC;el.style.opacity=age<.25?age/.25:age>2?(2.6-age)/.6:1;
+  el.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy-age*6)+'px) translate(-50%,-100%)'}
 const EVBL={el:null};function evbPlace(ox,oy,cX,cY){let el=EVBL.el;if(!el){el=EVBL.el=document.createElement('div');el.className='stsg evbl';$('tags').appendChild(el)}
   const sx=ox+(21*TS+8-cX)*SC,sy=oy+(23*TS-26-cY)*SC,vis=!HUNT.on&&sx>-120&&sx<innerWidth+120&&sy>-60&&sy<innerHeight+80;if(el.hidden===vis)el.hidden=!vis;if(!vis)return;
   const n=EVS.length,k=n+'';if(el.k!==k){el.k=k;el.style.setProperty('--c','#ff8ab0');el.innerHTML='<b>🎪 행사 게시판</b>'+(n?'<i>'+n+'개 열림</i>':'')}
@@ -10033,7 +10054,7 @@ function placeTags(cX,cY){
     const near=Math.hypot(a.x-P.x,a.y-P.y)<44&&!(F.mode==='result'&&HOLD),sx=ox+(Math.round(a.x)-cX)*SC,sy=oy+(Math.round(a.y)-15-cY)*SC;
     if(a.tag.hidden===near)a.tag.hidden=!near;if(near)a.tag.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,-100%)'});
   others.forEach(o=>{if(!o.seen){o.tag.hidden=true;if(o.bub)o.bub.hidden=true;return}put(o,o.x,o.y)});
-  stSignsPlace(ox,oy,cX,cY);evbPlace(ox,oy,cX,cY);
+  stSignsPlace(ox,oy,cX,cY);evbPlace(ox,oy,cX,cY);cwPlace(ox,oy,cX,cY);
 }
 function loginMsg(t,bad){const el=$('tMsg');el.textContent=t;el.style.color=bad?'#d9607e':'';if(bad)$('tStart').disabled=false}
 function doLogin(){
