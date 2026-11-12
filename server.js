@@ -213,7 +213,7 @@ LOOK_IDS.o.push('o_tux', 'o_wdress', 'o_warrior', 'o_hero', 'o_paladin', 'o_skye
 LOOK_IDS.hat.push('h_cherrypin', 'h_heartpin', 'h_lacebow', 'h_cake', 'h_macpin', 'h_cupcake', 'h_snowtiara', 'h_earmuff', 'h_snowbunny', 'h_firefly', 'h_starhalo', 'h_rubytiara', 'h_sapphire', 'h_emerald', 'h_pearlpin', 'h_diacrown'); LOOK_IDS.o.push('o_knit', 'o_sailorpk', 'o_cardigan', 'o_macaron', 'o_cakedress', 'o_icequeen', 'o_puffer', 'o_lightdress', 'o_pearlgown', 'o_ballgown'); LOOK_IDS.bk.push('k_balloon', 'k_starballoon', 'k_bunnybag', 'k_lollipop', 'k_cottonwing', 'k_icewing', 'k_lightwing', 'k_jewelcape'); LOOK_IDS.fa.push('f_starblush', 'f_cream', 'f_frost', 'f_gemtear'); LOOK_IDS.ft.push('ft_snow', 'ft_heart', 'ft_sugar', 'ft_shine', 'ft_gem'); LOOK_IDS.tf.push('tf_pink', 'tf_candy', 'tf_ice', 'tf_pearl', 'tf_night', 'tf_jewel'); LOOK_IDS.ti.push('t_dessert', 't_snowgirl', 't_twinkle', 't_milk', 't_catpaw', 't_slime', 't_rookie', 't_goldbag', 't_icepr', 't_macaron', 't_starwalk', 't_jewelbox', 't_heir', 't_dungeon', 't_dreamgate', 't_ribbon', 't_snowqueen', 't_sweetpr', 't_lightfairy', 't_nightmare', 't_dragonsl', 't_abyss', 't_moonpr', 't_heavenpr', 't_crown', 't_demonkill', 't_dreameat', 't_frostgod', 't_goddess', 't_savior', 't_legend', 't_angelq');
 LOOK_IDS.hat.push('h_nmhorn'); LOOK_IDS.o.push('o_nmrobe'); LOOK_IDS.bk.push('k_nmwing'); LOOK_IDS.ti.push('t_nm1', 't_nmwalk');
 /* 🌸🐱🌙⚔️ 일상 라인 · 💎 명품 한정 (2026-11-12 저녁) — index.html D6 블록과 같은 id */
-LOOK_IDS.hat.push('h_flowercrown', 'h_catknit_cream', 'h_catknit_gray', 'h_catknit_black', 'h_nightcap_blue', 'h_nightcap_pink', 'h_nightcap_yellow', 'h_feather'); LOOK_IDS.o.push('o_gingham_pink', 'o_gingham_mint', 'o_gingham_sky', 'o_apron_pink', 'o_apron_mint', 'o_apron_brown', 'o_bearpj_brown', 'o_bearpj_pink', 'o_bearpj_white', 'o_leather_brown', 'o_leather_black', 'o_aurora'); LOOK_IDS.bk.push('k_basket', 'k_cattail_cream', 'k_cattail_gray', 'k_cattail_black', 'k_pillow', 'k_quiver'); LOOK_IDS.ti.push('t_owner');
+LOOK_IDS.hat.push('h_flowercrown', 'h_catknit_cream', 'h_catknit_gray', 'h_catknit_black', 'h_nightcap_blue', 'h_nightcap_pink', 'h_nightcap_yellow', 'h_feather'); LOOK_IDS.o.push('o_gingham_pink', 'o_gingham_mint', 'o_gingham_sky', 'o_apron_pink', 'o_apron_mint', 'o_apron_brown', 'o_bearpj_brown', 'o_bearpj_pink', 'o_bearpj_white', 'o_leather_brown', 'o_leather_black', 'o_aurora'); LOOK_IDS.bk.push('k_basket', 'k_cattail_cream', 'k_cattail_gray', 'k_cattail_black', 'k_pillow', 'k_quiver2'); LOOK_IDS.ti.push('t_owner');
 LOOK_IDS.ti.push('t_pioneer', 't_islfish', 't_islbest', 't_pole', 't_pila', 't_gym', 't_ortho', 't_rock');
 LOOK_IDS.hat.push('neonband', 'sweatband', 'bandage', 'climbhelm'); LOOK_IDS.o.push('o_polefit', 'o_pilafit', 'o_gymtank', 'o_doccoat'); LOOK_IDS.bk.push('yogamat', 'chalkbag');
 LOOK_IDS.o.push('o_moondress', 'o_sakura', 'o_darkarmor', 'o_hunter'); LOOK_IDS.hat.push('h_moonpin', 'h_sakura', 'h_darkhelm', 'h_hunterhood'); LOOK_IDS.bk.push('k_moonwing', 'k_bigribbon', 'k_darkcape', 'k_axe', 'k_quiver'); LOOK_IDS.fa.push('f_glitter', 'f_blush'); LOOK_IDS.ti.push('t_raid1'); LOOK_IDS.ti.push('t_moonfairy', 't_sakura', 't_darkknight', 't_hunter'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
@@ -1833,9 +1833,10 @@ async function socMsg(ws, me, m) {
   if (m.t === 'wf_catch') { const S = wfState(), len = Math.max(1, Math.min(5000, m.len | 0)); if ((m.id | 0) !== wfId(S.w)) return; if (now - (me.wfT || 0) < 3000) return; me.wfT = now;
     const prev = S.top[me.name] | 0; if (len <= prev) return; const was = Object.entries(S.top).sort((a, b) => b[1] - a[1])[0]; S.top[me.name] = len; vMark();
     if (!was || len > was[1]) broadcast({ t: 'news', text: '🏅 주간 낚시 대회 1위가 바뀌었어요! ' + me.name + ' 님 ' + len + 'cm' });
+    broadcast(Object.assign({ t: 'wf', live: 1 }, wfPub()));
     return send(ws, Object.assign({ t: 'wf', note: '🏅 주간 대회 기록 ' + len + 'cm 등록!' }, wfPub())); }
   if (m.t === 'wf_claim') { wfState(); const got = s.wfc && typeof s.wfc === 'object' ? s.wfc : (s.wfc = {}); const h = V.wfHist.find(x => x.n === me.name && !got[x.w]); if (!h) return no('받을 우승 상이 없어요');
-    got[h.w] = 1; const cos = giveCos(s, ['t_wfchamp']); queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: 30000000 }, '🏅 주간 낚시 대회 우승 상금'); if (cos.length) send(ws, { t: 'cos_got', ids: cos }); return send(ws, Object.assign({ t: 'wf' }, wfPub())); }
+    got[h.w] = 1; const cos = giveCos(s, ['t_wfchamp']); queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: 1e9 }, '🏅 주간 낚시 대회 우승 상금 10억'); if (cos.length) send(ws, { t: 'cos_got', ids: cos }); return send(ws, Object.assign({ t: 'wf' }, wfPub())); }
   V.gifts = V.gifts && typeof V.gifts === 'object' ? V.gifts : {};
   if (m.t === 'gift_list') return send(ws, { t: 'gifts', list: V.gifts[me.name] || [] });
   if (m.t === 'gift_send') {   // 골드 · 주문서만 보낼 수 있어요 (물고기는 각자 직접!)
@@ -2850,7 +2851,7 @@ function xKingCheck(f, init) {
 }
 const xKingPub = () => { const o = {}; { const eb = Object.entries((V && V.ebTop) || {}).sort((a, b) => b[1] - a[1])[0]; o.eb = eb && eb[1] > 0 ? { name: eb[0], n: eb[1] } : null; } { const d = Object.entries((V && V.don) || {}).sort((a, b) => b[1] - a[1])[0]; o.don = d && d[1] > 0 ? { name: d[0], n: d[1] } : null; } for (const f of ['gt', 'sh', 'hl']) { xKingCheck(f, !xKingCheck.ready); const k = xKing[f]; o[f] = k ? { name: k.name, n: k.n } : null; } xKingCheck.ready = 1; return o; };
 /* 🎣 하루 낚시왕 (2026-11-09): 오늘 직접 낚은 마릿수 · 반짝 50마리 · 신화 100마리로 쳐요 · 한국 자정에 1등에게 1천만 골드 */
-const DAYK_G = 10000000;
+const DAYK_G = 100000000;   // 2026-11-12: 1억
 /* 🖐️ 손맛 보너스 (2026-11-12): 직접 낚은 물고기(손맛 도감에 오른 것)마다 골드 · 가끔 강화권. 자동 낚시엔 없어요 */
 const HB_G = [1e5, 2e5, 5e5, 1e6, 3e6], HB_MYTH = 1e7, HB_TK = [.01, .01, .03, .08, .2], HB_TK_DAY = 80;
 function handBonus(ws, me, s, oldSd, e) {
@@ -2873,8 +2874,8 @@ function cmpGet(ws, me) { withLock(me.key, async () => { const s = me.save; if (
 function dayPts(me, s, oldSd) { const nsd = s.sdex || {}; let pts = 0; for (const k in nsd) { const dn = Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (dn) pts += dn * (isMyth(+k) ? 100 : 1); } pts = Math.round(pts * (1 - .95 * (me.arx || 0))); return pts; }
 function dayAdd(key, name, n) { if (!V || !n) return; const d = kstDay(); if (!V.dk || V.dk.d !== d) { dayClose(); V.dk = { d, p: {} }; } const p = V.dk.p; p[key] = p[key] || { n: 0, name }; p[key].n += n; p[key].name = name; vMark(); dkSoon(); }
 function dayClose() { if (!V || !V.dk || V.dk.paid) return; const arr = Object.entries(V.dk.p).sort((a, b) => b[1].n - a[1].n); V.dk.paid = 1; if (!arr.length || V.dk.d === kstDay()) return; const [k, r] = arr[0];
-  changeBag(k, { g: DAYK_G }, '🎣 어제의 낚시왕! 1천만 골드').catch(() => { }); addMail(k, '🎣 ' + V.dk.d + ' 하루 낚시왕! ' + r.n + '마리 · 1천만 골드를 받았어요');
-  broadcast({ t: 'news', text: '🎣 어제의 낚시왕은 ' + r.name + ' 님! (' + r.n + '마리) 1천만 골드를 받았어요' }); V.dkLast = { d: V.dk.d, name: r.name, n: r.n }; }
+  changeBag(k, { g: DAYK_G }, '🎣 어제의 낚시왕! 1억 골드').catch(() => { }); addMail(k, '🎣 ' + V.dk.d + ' 하루 낚시왕! ' + r.n + '마리 · 1억 골드를 받았어요');
+  broadcast({ t: 'news', text: '🎣 어제의 낚시왕은 ' + r.name + ' 님! (' + r.n + '마리) 1억 골드를 받았어요' }); V.dkLast = { d: V.dk.d, name: r.name, n: r.n }; }
 const dkPub = () => { const d = kstDay(), dk = V && V.dk && V.dk.d === d ? V.dk : null; return { t: 'dayk', d, list: dk ? Object.values(dk.p).sort((a, b) => b.n - a.n).slice(0, 10) : [], last: V && V.dkLast || null, g: DAYK_G }; };
 let dkT = 0; function dkSoon() { if (dkT) return; dkT = setTimeout(() => { dkT = 0; broadcast(dkPub()); }, 1500); }
 setInterval(() => { if (V && V.dk && V.dk.d !== kstDay() && !V.dk.paid) { dayClose(); V.dk = { d: kstDay(), p: {} }; vMark(); dkSoon(); } }, 60000);
