@@ -47,7 +47,7 @@
 .ntag.sking{border:1.5px solid #d0a8f0;background:linear-gradient(90deg,#fff0f8,#fffbe8,#f0f6ff);color:#5a2a80;font-weight:700}
 .ntag .kg.wk{color:#2a70b8}.ntag .kg.hk{color:#5a6a8a}.ntag .kg.ek{color:#fff3a0;background:linear-gradient(#e8203a,#b01024);border-radius:6px;padding:0 5px;margin:1px auto;width:max-content;box-shadow:0 0 0 1.5px #ffc83a,0 0 6px rgba(255,60,80,.6);animation:ebq 1s steps(2) infinite}@keyframes ebq{50%{box-shadow:0 0 0 1.5px #fff6b0,0 0 9px rgba(255,200,60,.8)}}.ntag .kgs{font-size:9px;margin-right:2px;letter-spacing:-1px}.ntag .kg.kgl{white-space:nowrap;font-weight:700;color:#b06a00}.ntag .kgm{font-style:normal;background:#f0b030;color:#fff;border-radius:999px;padding:0 4px;font-size:8px;margin-left:2px}.ntag.king,.ntag.sking,.ntag.wking{text-align:center}.ntag .kg.sk{color:#9a4ad0}
 #wfpill{position:fixed;left:max(12px,env(safe-area-inset-left,0px));top:calc(148px + env(safe-area-inset-top,0px));z-index:4;border:2px solid #f0c050;border-radius:999px;background:rgba(255,250,232,.95);color:var(--ink);font:inherit;font-size:11.5px;padding:2px 10px 2px 8px;max-width:calc(100vw - 150px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:3px}#wfpill[hidden]{display:none}body.wfon #qpanel{top:calc(178px + env(safe-area-inset-top,0px))}#wfpill img{height:14px;image-rendering:pixelated}#wfpill small{color:#9a8fb0;font-size:10.5px}#wfpill b{color:#c07800}
-#dkpill{position:fixed;left:max(12px,env(safe-area-inset-left,0px));top:calc(120px + env(safe-area-inset-top,0px));z-index:4;border:2px solid var(--line);border-radius:999px;background:rgba(255,250,242,.94);color:var(--ink);font:inherit;font-size:11.5px;padding:3px 10px;max-width:calc(100vw - 150px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#dkpill[hidden]{display:none}#dkpill b{color:#e0507a}
+#dkpill{position:fixed;left:max(12px,env(safe-area-inset-left,0px));top:calc(120px + env(safe-area-inset-top,0px));z-index:4;border:2px solid var(--line);border-radius:999px;background:rgba(255,250,242,.94);color:var(--ink);font:inherit;font-size:11.5px;padding:3px 10px;max-width:calc(100vw - 150px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#dkpill[hidden]{display:none}#dkpill b{color:#e0507a}#dkpill{display:flex;align-items:center;gap:6px}#dkpill .dkc{overflow:hidden;text-overflow:ellipsis;min-width:0}#dkpill{padding:3px 8px 3px 7px;gap:4px}#dkpill u{text-decoration:none;display:inline-grid;place-items:center;width:12px;height:12px;border-radius:50%;background:#ffcf5a;color:#fff;font-size:9px;font-weight:800;margin:0 2px 0 5px;vertical-align:1px}#dkpill u+*{}#dkpill .dkc b{margin-left:2px}#dkpill em{font-style:normal;color:#9a8fb0;font-size:10.5px;margin-left:5px}#dkpill .dkd{display:flex;gap:2px;flex:none}#dkpill .dkd i{width:4px;height:4px;border-radius:50%;background:#e0d6ee}#dkpill .dkd i.on{background:#ff8fb1}#dkpill.flip .dkc{animation:dkflip .35s ease}@keyframes dkflip{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 .adq{border:2px solid var(--line);border-radius:12px;padding:8px;margin:6px 0;background:var(--paper-2);font-size:13px}.adq.done{opacity:.6}
 #autoBtn{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:6;border:2px solid #fff;border-radius:999px;background:rgba(74,61,107,.78);color:#fff;font:inherit;font-size:12px;padding:4px 12px}#autoBtn.on{background:#ff8fb1}#autoBtn[hidden]{display:none}
 #eco.g-rare{background:radial-gradient(circle at 50% 45%,#0a1a33,#000 70%)}#eco.g-hero{background:radial-gradient(circle at 50% 45%,#24103a,#000 70%)}#eco.g-leg{background:radial-gradient(circle at 50% 45%,#3a2a05,#000 70%);animation:ecog 3s infinite alternate}
@@ -3708,7 +3708,7 @@ function nearAction0(){
   if(Math.abs(tx-12)+Math.abs(ty-21)<=1)return{type:'x',fn:()=>{HOF_TAB='sd';openHof()},label:'손맛 왕<br>동상'};
   if(Math.abs(tx-21)+Math.abs(ty-23)<=1)return{type:'evboard',label:'행사<br>게시판'};
   if(Math.abs(tx-15)+Math.abs(ty-27)<=1)return{type:'litter',label:litterDirty()?'화장실<br>청소':'화장실'};
-  {const rp=nearPet();if(rp&&rp.p.id==='ruby'){if(wishReady())return{type:'wish',label:'냄새<br>맡게 하기'};if(!walkDone())return{type:'walk',label:'산책<br>가자!'}}}
+  {const rp=nearPet();if(rp&&rp.p.id==='ruby'){if(wishReady())return{type:'wish',label:'냄새<br>맡게 하기'}}}
   {const ev=nearEv(false);if(ev)return{type:'ev',ev:ev.id,label:evLabel(ev)}}
   const c=findCast();if(c)return{type:'fish',label:'낚시',cast:c};
   {const ev=nearEv(true);if(ev)return{type:'ev',ev:ev.id,label:evLabel(ev)}}
@@ -4794,7 +4794,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1112g',UPD_LOG=[
+const UPD_VER='1112h',UPD_LOG=[
+ ['11/12 밤','📋',[['왼쪽 위 판이 넘겨져요','🎣 오늘의 낚시왕 → 👑 손맛 → ✨ 반짝을 5초마다 · 1위 · 2위와 몇 종인지 · 누르면 그 순위표'],['🐕 루비 산책은 쉬어요','하루 한 번 일이 하나 줄었어요 · 냄새 소원은 그대로 · 동물 친구의 「산책 달인」은 「소원 달인」이 되어 냄새 소원 보상이 늘어요 (찍은 포인트 그대로)']]],
  ['11/12 밤','👑',[['손맛 왕은 이 게임의 왕','왕관 이름표 「👑 물결마을 손맛 왕」 · 주변 물이 금빛으로 출렁 · 걸으면 금빛 꽃잎 · 근처에서 친구가 낚으면 찌 위에 왕관이 퐁 · 접속하면 마을에 알림 · 광장에 손맛 왕 동상'],['❦ 손맛 명예 칭호','손맛 도감 100 · 200 · 300 · 450 · 600종마다 「손맛 입문 · 장인 · 달인 · 대가 · 물결의 전설」 · 돈으로 못 사요'],['1위마다 다른 효과','⚔️ 용사 왕 발밑 문장 · 사냥터 몬스터가 움찔 · 🌊 거대 왕 주변 물속 큰 그림자 · 🎰 은비랜드 왕 걸으면 금화 · 💗 기부 왕 서 있으면 꽃 · 🏅 주간 챔피언 머리 위 대회 물고기 풍선 · 🎣 어제의 낚시왕 리본 · ⚒️ 강화 1위 불꽃'],['여러 개를 가지면','가장 높은 효과 하나만 크게 · 나머지는 이름표 아이콘'],['명예의 전당','첫 탭이 「손맛」'],['🎣 낚싯대가 좋을수록 멀리','톡 = 가까이 (2칸 · 2억 넘는 낚싯대는 3칸) · 꾹 = 낚싯대 값에 따라 최대 5 · 6 · 8 · 11 · 12 · 13칸 · 치장 상점에서 낚싯대를 누르면 최대 거리가 보여요']]],
  ['11/12 밤','🏅',[['상금이 크게 올랐어요','🏅 주간 낚시 대회 우승 10억 골드 · 🎣 하루 낚시왕 1등 1억 골드'],['주간 대회 실시간','왼쪽 위 낚시왕 판 아래에 이번 주 대회 물고기 · 사는 곳 · 1위 크기 · 내 크기가 실시간으로 · 누르면 명예의 전당 주간']]],
  ['11/12 밤','📖',[['도감 모아 보기','도감 위 버튼으로 「안 만난 · 손맛 아직 · 반짝 아직 · 지금 낚을 수 있는」 물고기만 모든 쪽에서 한 번에 · 낚시터별로 묶어서 · 누르면 바로 위에 어디서 · 언제 낚는지']]],
@@ -5518,7 +5519,7 @@ function petReward(kind,o){o=o||{};
   if(ONLINE){if(Net.me){Net.flushSave(true);Net.send(Object.assign({t:'pet_rw',kind:kind},o))}return null}
   let g=0,tk=0;
   if(kind==='walk'){g=300+100*rk('tam','walk');tk=1}
-  else if(kind==='wish'){const rw=WISH_RW[FISH[o.id].rar];g=o.full?rw.g:Math.round(rw.g/2);tk=o.full?rw.tk:Math.floor(rw.tk/2)}
+  else if(kind==='wish'){const rw=WISH_RW[FISH[o.id].rar],wr=rk('tam','walk');g=(o.full?rw.g:Math.round(rw.g/2))+100*wr;tk=(o.full?rw.tk:Math.floor(rw.tk/2))+wr}
   else if(kind==='fetch'){const pt=partnerId(),L=petLv(pt),tkP=(L>=70?.12:.06)*(pt==='ruby'?1.5:1);if(Math.random()<tkP*2)tk=1;else g=150+L*15}
   S.gold+=g;if(tk){enhDaily(S.enh);S.enh.tk=Math.min(ENH.TK_MAX,S.enh.tk+tk);updateTrapDot()}
   return{g:g,tk:tk}}
@@ -5632,7 +5633,7 @@ function doWish(full){
   const w=wishToday();if(w.done){toast('오늘 냄새 소원은 이미 들어줬어요');return}
   const f=FISH[w.id],sub=full?null:wishSub(w);if(full&&!hasDex(w.id)){toast(f.name+'이(가) 아직 도감에 없어요');return}if(!full&&!sub){toast('같은 낚시터 물고기도 아직 없어요');return}
   const rw=WISH_RW[f.rar],k=full?1:.5,a=actorOf('ruby');w.done=true;if(jobId()==='tam')jxpAdd(20);
-  const got=petReward('wish',{id:w.id,full:!!full});vxp(30);gainHeart('ruby',20);addXp('ruby',Math.round(rw.xp*k));
+  const got=petReward('wish',{id:w.id,full:!!full});vxp(30);jcount('wish');if(jobId()==='tam')jxpAdd(25);gainHeart('ruby',20);addXp('ruby',Math.round(rw.xp*k));
   floats.push({x:a?a.x:P.x,y:(a?a.y:P.y)-20,t:0,img:fishCan(full?w.id:sub.id)});
   if(a){a.state='sit';a.t=4;for(let i=0;i<5;i++)parts.push({x:a.x-6+Math.random()*12,y:a.y-14,vx:(Math.random()-.5)*14,vy:-16-Math.random()*8,life:1.3,t:0,heart:true,g:0})}
   Snd.sfx('buy');
@@ -5647,7 +5648,7 @@ let WK=null,walkCps=null;
 function walkPts(){if(walkCps)return walkCps;walkCps=WALK_CP.map(c=>{let best=[c[0]*TS+8,c[1]*TS+12],bd=1e9;
   for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const x=(c[0]+dx)*TS+8,y=(c[1]+dy)*TS+12;if(!blockedAt(x,y)){const d=dx*dx+dy*dy;if(d<bd){bd=d;best=[x,y]}}}return best});return walkCps}
 const walkDone=()=>pm().wk===kstDay();
-function startWalk(){
+function startWalk(){if(!startWalk.ok){toast('루비 산책은 쉬어요 · 냄새 소원은 그대로예요');return}
   if(WK)return;if(walkDone()){toast('오늘 산책은 했어요. 내일 또 가요!');return}
   if(F.afk)stopAfk();if(P.sit){P.sit=null}
   const pts=walkPts();let s=0,bd=1e9;pts.forEach((p,i)=>{const d=Math.hypot(p[0]-P.x,p[1]-P.y);if(d<bd){bd=d;s=i}});
@@ -5802,7 +5803,7 @@ function openPetSheet(id){
   if(a){const r=(S.catLog||{})[id]||{n:0,pl:[]};h+='<div class="wishc" style="background:#f3f8ff;border-color:#c8dcf4;margin-bottom:8px">📍 지금 <b>'+esc(catPlace(a.x,a.y))+'</b> '+(a.boat?'근처에서 ⛵ 배 타는 중':a.state==='sleep'?'에서 쿨쿨':'에 있어요')+'<div class="muted" style="font-size:11.5px;margin-top:3px">🐾 우연히 만난 횟수 '+r.n+'번 · 만난 장소 '+r.pl.length+'곳'+(r.pl.length?' ('+r.pl.slice(-4).map(esc).join(', ')+')':'')+'</div><button class="btn ghost sm" data-pfind="'+id+'" style="margin-top:6px">🗺️ 지도에 표시</button></div>'}
   h+='<div class="pstat"><span>경험치</span><div class="bar"><i style="width:'+Math.round(pr.p*100)+'%;background:var(--lav)"></i></div><span class="v">'+(pr.L>=PLV.MAX?'MAX':fmt(pr.cur)+'/'+fmt(pr.need))+'</span></div>';
   h+='<div class="pstat"><span>오늘 ♥</span><div class="bar"><i style="width:'+hh+'%;background:var(--pink)"></i></div><span class="v">'+hh+'/100</span></div>';
-  h+='<div class="muted" style="font-size:11px;margin:2px 0 10px">♥는 매일 자정에 비워져요. 쓰다듬기 +4 · 산책 +30 · 냄새 소원 +20 · 채운 ♥ 1개 = 경험치 5'+(isPt?' · 켜 둔 1분마다 경험치 +1':'')+'</div>';
+  h+='<div class="muted" style="font-size:11px;margin:2px 0 10px">♥는 매일 자정에 비워져요. 쓰다듬기 +4 · 냄새 소원 +20 · 채운 ♥ 1개 = 경험치 5'+(isPt?' · 켜 둔 1분마다 경험치 +1':'')+'</div>';
   if(id==='ruby'){
     const w=wishToday(),f=FISH[w.id],rw=WISH_RW[f.rar],sub=wishSub(w),zn=ZONES[f.zone-1].name;
     h+='<div class="wishc"><div class="sec" style="margin:0 0 6px">오늘 루비가 맡고 싶은 냄새</div><div style="display:flex;gap:10px;align-items:center"><img src="'+fishURL(w.id)+'" alt=""><div style="flex:1;min-width:0"><div>'+esc(f.name)+' '+rarTagF(f)+(hasDex(w.id)?'':' <span class="muted" style="font-size:12px">도감에 없음</span>')+'</div><div class="muted" style="font-size:12px">'+esc(zn)+'</div></div></div>';
@@ -5811,10 +5812,6 @@ function openPetSheet(id){
       '<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn pink sm" data-pw="full"'+(hasDex(w.id)?'':' disabled')+'>냄새 맡게 하기</button><button class="btn ghost sm" data-pw="sub"'+(sub?'':' disabled')+'>비슷한 냄새로 (보상 절반)</button></div>'+
       (hasDex(w.id)?'':'<div class="muted" style="font-size:11px;margin-top:6px">도감에 있어야 맡게 해줄 수 있어요. 오늘 '+esc(zn)+'에서 낚아 와요! 같은 낚시터 물고기로 대신하면 절반이에요.</div>')}
     h+='</div>';
-    h+='<div class="wishc" style="background:#effaf6;border-color:#bfe6d8"><div class="sec" style="margin:0 0 6px">하루 한 번 산책</div>'+
-      (WK?'<div>지금 산책 중이에요 🐾</div><button class="btn ghost sm" style="margin-top:8px" data-wk="stop">산책 그만하기 (보상 없음)</button>'
-      :walkDone()?'<div style="color:#2f7a63">오늘 산책 완료 ✓ 내일 또 가요</div>'
-      :'<div class="muted" style="font-size:12px;margin-bottom:8px">목줄을 매고 마을을 한두 바퀴 돌아요. 골드 300 · 강화권 1장 · ♥30 · 경험치 100</div><button class="btn mint sm" data-wk="go">산책 가자!</button>')+'</div>';
   }
   if(a&&Math.hypot(a.x-P.x,a.y-P.y)<60)h+='<button class="btn ghost sm" data-pp="'+id+'" style="margin:2px 0 10px">쓰다듬기</button>';
   h+='<div class="sec">짝꿍</div>';
@@ -5866,7 +5863,7 @@ const JOBS={
      [{id:'cat',n:'장인의 손길',max:1,k:'a',d:()=>'누르면 강화권 1장 (쿨타임 2시간)'},{id:'cat2',n:'손길 연구',max:2,k:'u',d:r=>'장인의 손길 쿨타임 -'+r*30+'분'}],
      [{id:'cap',n:'전설 미끼',max:1,cost:3,k:'p',d:()=>'전설 미끼를 만들 수 있어요 (이 직업만!)'}]]},
  tam:{name:'동물 친구',ic:'🐾',col:'#e0608a',who:'켜 두고 느긋하게, 펫이 좋은 사람',make:'✨ 솜씨 재료 · 조개 · 해초',need:'펫 간식(공방 장인)',
-  t:[[{id:'shore',n:'짝꿍 보물찾기',max:3,k:'p',d:r=>'짝꿍이 30분마다 재료 '+r+'개 · ✨ 솜씨 재료 '+r*20+'%'},{id:'walk',n:'산책 달인',max:3,k:'p',d:r=>'산책 보상 골드 +'+r*100+' · 강화권 +'+r}],
+  t:[[{id:'shore',n:'짝꿍 보물찾기',max:3,k:'p',d:r=>'짝꿍이 30분마다 재료 '+r+'개 · ✨ 솜씨 재료 '+r*20+'%'},{id:'walk',n:'소원 달인',max:3,k:'p',d:r=>'냄새 소원 보상 골드 +'+r*100+' · 강화권 +'+r}],
      [{id:'auto',n:'짝꿍 출동',max:1,k:'a',d:()=>'누르면 10분 동안 짝꿍이 20초마다 대신 낚아 와요 (흔함 ~ 희귀 · 쿨타임 3시간)'},{id:'sit',n:'돌봐주기',max:1,k:'u',d:()=>'내가 접속해 있으면 마을 모두의 짝꿍 경험치 +25% · 짝꿍 출동 +5분'}],
      [{id:'cap',n:'짝꿍 둘',max:1,cost:3,k:'p',d:()=>'짝꿍을 2마리 둘 수 있어요 (둘 다 시간 경험치)'}]]},
  mer:{name:'떠돌이 상인',ic:'💰',col:'#2f9a7a',who:'숫자 굴리고 장사하는 사람',make:'솜씨 재료 · 수입 돛 · 펫 장난감 (이 직업만) · 위탁 판매',need:'팔 물건(모두)',
@@ -5949,12 +5946,12 @@ function pickJob(id){
    숙련도는 그 직업 일을 해야만 올라요 (마을 레벨과 따로). 견습 → 숙련 → 장인 → 명장 */
 const JR=[{n:'견습',x:0},{n:'숙련',x:300},{n:'장인',x:1200},{n:'명장',x:4000},{n:'대명장',x:15000},{n:'전설',x:40000},{n:'신화',x:100000}];   // 이름표 ★는 3개까지 · 대명장부터는 순위표 · 직업 카드에만
 const RANK_GIFT=['','직업 전용 에픽 찌 · 칭호 「숙련 …」 · 이름표 ★','직업 전용 유니크 낚싯대 · 모든 직업 노드 한 단계 더 · 칭호 · ★★','직업 전용 레전더리 찌 · 하루 한 번 마을 축복 · 명장 망토 · 칭호 · ★★★ · 이후 명장★','직업 전용 레전더리 낚싯대 · 직업 능력 1단계 강화 · 칭호','직업 전용 미스틱 찌 · 직업 능력 2단계 강화 · 칭호','직업 전용 미스틱 낚싯대 · 직업 능력 3단계 강화 · 칭호 「신화」'];
-const JOB_HOW={fish:'희귀 이상 · 대물 낚기',sch:'새 물고기 등록 · 솜씨 재료 · 항로 지도 · 예보',cra:'만들기 (전설 미끼는 크게)',tam:'쓰다듬기 · 산책 · 냄새 소원 · 짝꿍 재료',mer:'물고기 팔기 · 수입품 · 위탁 판매'};
+const JOB_HOW={fish:'희귀 이상 · 대물 낚기',sch:'새 물고기 등록 · 솜씨 재료 · 항로 지도 · 예보',cra:'만들기 (전설 미끼는 크게)',tam:'쓰다듬기 · 냄새 소원 · 짝꿍 재료',mer:'물고기 팔기 · 수입품 · 위탁 판매'};
 const JTASK={
  fish:[{k:'rare',n:5,t:'희귀 이상 5마리 낚기'},{k:'catch',n:40,t:'직접 40마리 낚기'},{k:'zones',n:3,t:'서로 다른 낚시터 3곳에서 낚기'}],
  sch:[{k:'newsp',n:8,t:'서로 다른 물고기 8종 낚기'},{k:'zones',n:3,t:'낚시터 3곳 둘러보며 낚기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
  cra:[{k:'craft',n:6,t:'아무거나 6개 만들기'},{k:'bait',n:3,t:'미끼 3개 만들기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
- tam:[{k:'pet',n:5,t:'동물 친구 5번 쓰다듬기'},{k:'walk',n:1,t:'루비와 산책 한 바퀴'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
+ tam:[{k:'pet',n:5,t:'동물 친구 5번 쓰다듬기'},{k:'wish',n:1,t:'루비 냄새 소원 들어주기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
  mer:[{k:'sellg',n:3000,t:'물고기 3,000골드어치 팔기'},{k:'trade',n:1,t:'친구와 교환 1번'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
  none:[{k:'catch',n:40,t:'직접 40마리 낚기'},{k:'zones',n:3,t:'서로 다른 낚시터 3곳에서 낚기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}]};
 /* 누가 만드는 물건인지 (server.js MAKER와 같아요) */
@@ -6337,7 +6334,7 @@ let treeView='';
 function openTree(view){
   treeView=view||jobId()||'pick';const j=jS(),L=vLv(),v=vS(),nx=L>=VL.MAX?1:(v.xp-VL_CUM[L])/(VL_CUM[L+1]-VL_CUM[L]);
   let h='<div class="pethead" style="margin-bottom:8px"><div style="flex:1"><div style="font-size:17px">마을 레벨 <b>'+L+'</b>'+(L>=VL.MAX?' (최고)':'')+'</div><div class="bar" style="margin:6px 0 4px"><i style="width:'+Math.round(nx*100)+'%;background:var(--lav)"></i></div>'+
-    '<div class="muted" style="font-size:12px">낚시 · 새 물고기 · 산책 · 제작 · 교환 모두 경험치</div></div><div class="lvb">스킬 포인트<b>'+ptsLeft()+'</b></div></div>';
+    '<div class="muted" style="font-size:12px">낚시 · 새 물고기 · 제작 · 교환 모두 경험치</div></div><div class="lvb">스킬 포인트<b>'+ptsLeft()+'</b></div></div>';
   h+='<div class="tabs" style="flex-wrap:wrap">'+['pick','com'].concat(j.id?[j.id]:[]).map(k=>'<button class="tab'+(treeView===k?' on':'')+'" data-jv="'+k+'">'+(k==='pick'?'직업 고르기':k==='com'?'마을 생활':JOBS[k].ic+' '+JOBS[k].name)+'</button>').join('')+'</div>';
   if(j.id&&treeView===j.id)h+=jobCard();
   if(treeView==='pick'){
@@ -10155,9 +10152,16 @@ let LCAM=null;
 function crownPop(){if(!KING||!Net.me||KING.name===Net.me.name||!LCAM)return;let near=false;others.forEach(o=>{if(o.seen&&o.name===KING.name&&P&&Math.hypot(o.x-P.x,o.y-P.y)<TS*10)near=true});if(!near)return;
   const [bx,by]=F.from||bobberPos(),el=document.createElement('div');el.className='crpop';el.textContent='👑';el.style.left=Math.round(LCAM.ox+(bx-LCAM.cX)*SC)+'px';el.style.top=Math.round(LCAM.oy+(by-14-LCAM.cY)*SC)+'px';$('tags').appendChild(el);setTimeout(()=>el.remove(),1300);sparkFx(bx,by-4,10,['#ffd34d','#fff2a0','#ffffff'])}
 function shWater(x0,x1,y0,y1){const z=shKingZone();if(!z)return;cx.save();
-  for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){if(W.T[ty][tx]!=='w'||W.Z[ty][tx]!==z)continue;const h=(tx*73856093^ty*19349663)>>>0,ph=(wt*.9+(h%1000)/250)%4;
-    cx.fillStyle='rgba(255,255,255,'+(.05+.04*Math.sin(wt*1.6+(h%7)))+')';cx.fillRect(tx*TS,ty*TS,TS,TS);
-    if(ph<.7){const a=Math.sin(ph/.7*Math.PI)*.85,gx=tx*TS+(h>>4)%12+2,gy=ty*TS+(h>>9)%12+2;cx.fillStyle='rgba(255,255,255,'+a+')';cx.fillRect(gx-2,gy,5,1);cx.fillRect(gx,gy-2,1,5)}}
+  const RB=[[255,170,210],[255,226,140],[170,240,200],[160,210,255],[210,180,255]];
+  for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){if(W.T[ty][tx]!=='w'||W.Z[ty][tx]!==z)continue;const h=(tx*73856093^ty*19349663)>>>0,ph=(wt*1.2+(h%1000)/250)%2.4;
+    const band=(tx+ty)*.35-wt*1.4,ci=((Math.floor(band)%5)+5)%5,c=RB[ci],al=.10+.08*Math.sin(band*Math.PI*2/5+wt);   // 무지개 물결 띠가 천천히 흘러가요
+    cx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+al+')';cx.fillRect(tx*TS,ty*TS,TS,TS);
+    if(ph<.8){const a=Math.sin(ph/.8*Math.PI),gx=tx*TS+(h>>4)%12+2,gy=ty*TS+(h>>9)%12+2,big=(h>>13)%3===0;cx.fillStyle='rgba(255,255,255,'+a+')';
+      if(big){cx.fillRect(gx-3,gy,7,1);cx.fillRect(gx,gy-3,1,7);cx.fillStyle='rgba(255,240,170,'+a*.8+')';cx.fillRect(gx-1,gy-1,3,3);cx.fillStyle='rgba(255,255,255,'+a+')';cx.fillRect(gx,gy,1,1)}
+      else{cx.fillRect(gx-2,gy,5,1);cx.fillRect(gx,gy-2,1,5)}}}
+  {const k=KINGS.sh;let bp=null;if(Net.me&&Net.me.name===k.name&&!F.afk&&['wait','bite','pull','reel'].indexOf(F.mode)>=0)bp=bobberPos();else others.forEach(o=>{if(!bp&&o.seen&&o.name===k.name&&o.b>0)bp=[((o.b-1)%MW)*TS+8,Math.floor((o.b-1)/MW)*TS+8]});
+    if(bp){for(let i=0;i<3;i++){const r=((wt*14+i*12)%36),a=(1-r/36)*.7,c=RB[(i+Math.floor(wt))%5];cx.strokeStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+a+')';cx.lineWidth=1.5;cx.beginPath();cx.ellipse(bp[0],bp[1],r,r*.45,0,0,6.28);cx.stroke()}
+      if(Math.random()<.25)parts.push({x:bp[0]+(Math.random()-.5)*30,y:bp[1]+(Math.random()-.5)*12,vx:0,vy:-10-Math.random()*8,life:.9,t:0,c:['#ffffff','#fff2a0','#ffc8e8','#c8e8ff'][(Math.random()*4)|0],g:0,s:Math.random()<.3?2:1})}}
   cx.restore()}
 /* 반짝 1위가 반짝을 낚으면 모두의 화면에 아주 은은한 별가루 (조용히 넣은 효과) */
 function shRain(){if($('shrain'))return;const d=document.createElement('div');d.id='shrain';let h='';for(let i=0;i<22;i++){const x=Math.random()*100,dl=Math.random()*1.6,du=2.6+Math.random()*1.4,sz=6+Math.random()*7;h+='<i style="left:'+x+'%;animation-delay:'+dl+'s;animation-duration:'+du+'s;font-size:'+sz+'px">'+(i%3?'✦':'·')+'</i>'}d.innerHTML=h;document.body.appendChild(d);setTimeout(()=>d.remove(),5200)}
@@ -10440,9 +10444,18 @@ function routeNews(t){const s=String(t||'');if(!s)return;if(/ 님/.test(s)&&!isM
 /* ===== 🎣 하루 낚시왕 (2026-11-09): 오늘 직접 낚은 마릿수 (반짝 50 · 신화 100) · 자정에 1등 1천만 골드 · 왼쪽 위 작은 판 (메뉴에서 끄기) ===== */
 let DAYK=null;
 function dkTick(){let el=$('dkpill');const vis=!!P&&$('title').hidden&&!uiOpen&&ONLINE&&Net.me&&DAYK&&!S.dkOff&&!ECO.on&&!inSea();
-  if(!el){if(!vis)return;el=document.createElement('button');el.id='dkpill';el.onclick=()=>openDayK();document.body.appendChild(el)}
-  el.hidden=!vis;if(!vis)return;const l=DAYK.list||[],me=l.findIndex(x=>x.name===Net.me.name),top=l[0];
-  const t=top?'🎣 1위 '+esc(top.name)+' <b>'+fmt(top.n)+'</b>'+(me>0?' · 나 '+(me+1)+'위 <b>'+fmt(l[me].n)+'</b>':me===0?' (나!)':''):'🎣 오늘의 낚시왕 · 아직 아무도';if(el.dataset.k!==t){el.dataset.k=t;el.innerHTML=t}}
+  if(!el){if(!vis)return;el=document.createElement('button');el.id='dkpill';el.onclick=()=>{const k=dkTick.cur;if(k==='sd'||k==='sh'){HOF_TAB=k;openHof()}else openDayK()};document.body.appendChild(el)}
+  el.hidden=!vis;if(!vis)return;const sl=dkSlides();if(!dkTick.t0)dkTick.t0=Date.now();const i=Math.floor((Date.now()-dkTick.t0)/5000)%sl.length,S1=sl[i];dkTick.cur=S1.k;
+  const t='<span class="dkc">'+S1.h+'</span><span class="dkd">'+sl.map((_,j)=>'<i'+(j===i?' class="on"':'')+'></i>').join('')+'</span>';
+  if(el.dataset.k!==t){const flip=el.dataset.i!==String(i);el.dataset.k=t;el.dataset.i=i;el.innerHTML=t;if(flip){el.classList.remove('flip');void el.offsetWidth;el.classList.add('flip')}}}
+/* 2026-11-12: 왼쪽 위 판은 「오늘의 낚시왕 → 👑 손맛 → ✨ 반짝」을 5초마다 넘겨요 (은비랜드 · 기부 · 강화는 명예의 전당에만 · 지저분하지 않게)
+   ① ② 두 명 + 나 (3위 밖이면 순위와 개수) · 누르면 보고 있던 판의 순위표 */
+function dkSlides(){const me=Net.me.name,out=[];
+  const two=(arr,u)=>{const a=arr.slice(0,2).map((x,j)=>'<u>'+(j+1)+'</u>'+esc(x.n)+(x.n===me?'(나)':'')+'<b>'+fmt(x.v)+u+'</b>').join(''),mi=arr.findIndex(x=>x.n===me);return a+(mi>=2?'<em>나 '+(mi+1)+'위 '+fmt(arr[mi].v)+u+'</em>':'')};
+  {const l=(DAYK.list||[]).map(x=>({n:x.name,v:x.n}));out.push({k:'dk',h:'🎣오늘'+(l.length?two(l,''):'아직 아무도')})}
+  const R=(ROSTER||[]).filter(r=>r&&r.name);
+  for(const [k,ic,nm] of [['sd','👑','손맛'],['sh','✨','반짝']]){const l=R.map(r=>({n:r.name,v:r[k]|0})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);if(k==='sd'&&KING&&KING.name){const ki=l.findIndex(x=>x.n===KING.name);if(ki>0)l.unshift(l.splice(ki,1)[0])}if(l.length)out.push({k,h:ic+nm+two(l,'종')})}
+  return out}
 setInterval(dkTick,1000);
 /* 🏅 주간 낚시 대회 실시간 (2026-11-12): 낚시왕 판 아래 · 대회 물고기 · 어디서 · 1위 크기 · 내 크기 · 누르면 명예의 전당 주간 */
 function wfTick(){let el=$('wfpill');const vis=!!P&&$('title').hidden&&!uiOpen&&ONLINE&&Net.me&&WF&&!S.dkOff&&!ECO.on&&!inSea();

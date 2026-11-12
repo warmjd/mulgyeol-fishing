@@ -1390,17 +1390,14 @@ function onMsg(ws, me, m) {
       const s = me.save; if (!s) return;
       const rw = petRwOf(s), e = enhOf(s), out = []; enhDaily(e, out);
       let g = 0, tk = 0, label = '';
-      if (m.kind === 'walk') {
-        if (rw.walk) return send(ws, { t: 'news', text: '오늘 산책 보상은 이미 받았어요' });
-        rw.walk = 1; g = 300 + 100 * jobRank(s, 'tam', 'walk'); tk = 1 + jobRank(s, 'tam', 'walk'); label = '산책 보상';
-      } else if (m.kind === 'wish') {
+      if (m.kind === 'wish') {
         if (rw.wish) return send(ws, { t: 'news', text: '오늘 냄새 소원 보상은 이미 받았어요' });
         const id = m.id, dex = s.dex || {}, hasD = k => !!(dex[k] && dex[k].n > 0);
         if (!Number.isInteger(id) || id < 0 || id >= FISH_N || zonesOf(s).indexOf(fishZone(id)) < 0) return;
         const full = !!m.full;
         if (full && !hasD(id)) return send(ws, { t: 'news', text: '도감에 없는 물고기예요' });
         if (!full && !Object.keys(dex).some(k => +k < FISH_N && +k !== id && fishZone(+k) === fishZone(id) && hasD(k))) return send(ws, { t: 'news', text: '같은 낚시터 물고기가 도감에 없어요' });
-        rw.wish = 1; const w = WISH_RW[fishRar(id)]; g = full ? w.g : Math.round(w.g / 2); tk = full ? w.tk : Math.floor(w.tk / 2); label = '냄새 소원 보상';
+        rw.wish = 1; const w = WISH_RW[fishRar(id)], wr = jobRank(s, 'tam', 'walk'); g = (full ? w.g : Math.round(w.g / 2)) + 100 * wr; tk = (full ? w.tk : Math.floor(w.tk / 2)) + wr; label = '냄새 소원 보상';
       } else if (m.kind === 'fetch') {
         const sp = s.pets && typeof s.pets === 'object' ? s.pets : {}, pt = sp._ && PET_IDS.includes(sp._.pt) ? sp._.pt : 'ruby', L = petLvOf(petXp(sp[pt]));
         if (rw.fetch >= (L < 20 ? 0 : fetchMax(L) + jobRank(s, 'tam', 'gift'))) return;
@@ -2893,7 +2890,7 @@ setInterval(() => { if (V && V.dk && V.dk.d !== kstDay() && !V.dk.paid) { dayClo
 function rosterSoon() { clearTimeout(rosterT); rosterT = setTimeout(rosterSend, 500); }
 function rosterSend(force) {
   const live = new Set([...players.values()].map(p => p.key));
-  const list = [...rosterCache.entries()].map(([k, r]) => ({ name: r.name, job: r.job, lv: r.lv, on: live.has(k), sit: r.sit && live.has(k), sd: r.sd | 0, gt: r.gt | 0, help: r.help | 0, jr: r.jr | 0 }));
+  const list = [...rosterCache.entries()].map(([k, r]) => ({ name: r.name, job: r.job, lv: r.lv, on: live.has(k), sit: r.sit && live.has(k), sd: r.sd | 0, gt: r.gt | 0, sh: r.sh | 0, help: r.help | 0, jr: r.jr | 0 }));
   const vdex = [...new Set([...rosterCache.values()].flatMap(r => r.dex || []))].sort((a, b) => a - b);   // 마을 도감: 모두가 만난 물고기
   const note = vNote && vNote.d === kstDay() ? vNote : null, paths = [...new Set([...rosterCache.values()].flatMap(r => r.legs || []))].sort();
   // 누릉이가 따라다니는 '오늘의 주인공': 오늘 직접 제일 많이 낚은 친구. 아직 아무도 안 낚았으면 30분마다 접속한 친구를 돌아가며
