@@ -211,6 +211,7 @@ LOOK_IDS.rod.push('rx_tide', 'rx_firework', 'rx_volcano', 'rx_typhoon', 'rx_glac
 LOOK_IDS.o.push('o_tux', 'o_wdress', 'o_warrior', 'o_hero', 'o_paladin', 'o_skyexp'); LOOK_IDS.hat.push('h_warhorn', 'h_herocirc', 'h_paladin', 'h_skygog'); LOOK_IDS.bk.push('k_warfur', 'k_hero', 'k_paladin', 'k_scout', 'k_gsword', 'k_shield'); LOOK_IDS.fa.push('f_warpaint', 'f_scar'); LOOK_IDS.ti.push('t_warrior', 't_hero', 't_paladin');
 /* 🍰❄️✨👑 치장 5.0 (2026-11-12) — index.html CUTE_DAY 블록과 같은 id */
 LOOK_IDS.hat.push('h_cherrypin', 'h_heartpin', 'h_lacebow', 'h_cake', 'h_macpin', 'h_cupcake', 'h_snowtiara', 'h_earmuff', 'h_snowbunny', 'h_firefly', 'h_starhalo', 'h_rubytiara', 'h_sapphire', 'h_emerald', 'h_pearlpin', 'h_diacrown'); LOOK_IDS.o.push('o_knit', 'o_sailorpk', 'o_cardigan', 'o_macaron', 'o_cakedress', 'o_icequeen', 'o_puffer', 'o_lightdress', 'o_pearlgown', 'o_ballgown'); LOOK_IDS.bk.push('k_balloon', 'k_starballoon', 'k_bunnybag', 'k_lollipop', 'k_cottonwing', 'k_icewing', 'k_lightwing', 'k_jewelcape'); LOOK_IDS.fa.push('f_starblush', 'f_cream', 'f_frost', 'f_gemtear'); LOOK_IDS.ft.push('ft_snow', 'ft_heart', 'ft_sugar', 'ft_shine', 'ft_gem'); LOOK_IDS.tf.push('tf_pink', 'tf_candy', 'tf_ice', 'tf_pearl', 'tf_night', 'tf_jewel'); LOOK_IDS.ti.push('t_dessert', 't_snowgirl', 't_twinkle', 't_milk', 't_catpaw', 't_slime', 't_rookie', 't_goldbag', 't_icepr', 't_macaron', 't_starwalk', 't_jewelbox', 't_heir', 't_dungeon', 't_dreamgate', 't_ribbon', 't_snowqueen', 't_sweetpr', 't_lightfairy', 't_nightmare', 't_dragonsl', 't_abyss', 't_moonpr', 't_heavenpr', 't_crown', 't_demonkill', 't_dreameat', 't_frostgod', 't_goddess', 't_savior', 't_legend', 't_angelq');
+LOOK_IDS.hat.push('h_nmhorn'); LOOK_IDS.o.push('o_nmrobe'); LOOK_IDS.bk.push('k_nmwing'); LOOK_IDS.ti.push('t_nm1', 't_nmwalk');
 LOOK_IDS.ti.push('t_pioneer', 't_islfish', 't_islbest', 't_pole', 't_pila', 't_gym', 't_ortho', 't_rock');
 LOOK_IDS.hat.push('neonband', 'sweatband', 'bandage', 'climbhelm'); LOOK_IDS.o.push('o_polefit', 'o_pilafit', 'o_gymtank', 'o_doccoat'); LOOK_IDS.bk.push('yogamat', 'chalkbag');
 LOOK_IDS.o.push('o_moondress', 'o_sakura', 'o_darkarmor', 'o_hunter'); LOOK_IDS.hat.push('h_moonpin', 'h_sakura', 'h_darkhelm', 'h_hunterhood'); LOOK_IDS.bk.push('k_moonwing', 'k_bigribbon', 'k_darkcape', 'k_axe', 'k_quiver'); LOOK_IDS.fa.push('f_glitter', 'f_blush'); LOOK_IDS.ti.push('t_raid1'); LOOK_IDS.ti.push('t_moonfairy', 't_sakura', 't_darkknight', 't_hunter'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
@@ -1059,7 +1060,8 @@ function onMsg(ws, me, m) {
       const live = liveByKey(x.key); if (live) send(live[0], { t: 'gd_watered', by: [me.name] }); else { V.gwq = V.gwq || {}; (V.gwq[x.key] = V.gwq[x.key] || []).push(me.name); V.gwq[x.key] = V.gwq[x.key].slice(-8); } vMark(); break; }   // 💧 친구 정원 물 주기 (하루 한 번)
     case 'gd_q': { if (V && V.gwq && V.gwq[me.key]) { send(ws, { t: 'gd_watered', by: V.gwq[me.key] }); delete V.gwq[me.key]; vMark(); } break; }
     case 'raid_hit': raidHit(ws, me, m); break;
-    case 'raid_get': if (V) { send(ws, Object.assign({ t: 'raid' }, raidPub())); raidClaim(ws, me); } break;
+    case 'raid_get': case 'raid_q': case 'raid_qx': raidLobby(ws, me, m); break;
+    case 'rrec_get': case 'rrec_new': case 'rrec_join': case 'rrec_leave': rrecMsg(ws, me, m); break;
     case 'hs_get': send(ws, { t: 'hs', list: hsPub() }); break;
     case 'hs_cast': hsCast(ws, me, m); break;
     case 'hpos': { const f = m.f | 0; me.hp_ = f < 0 ? null : { f: Math.min(20, f), x: m.x | 0, y: m.y | 0, at: Date.now() }; broadcast({ t: 'hpos', n: me.name, f: f < 0 ? -1 : Math.min(20, f), x: m.x | 0, y: m.y | 0, lv: m.lv | 0, hp: Math.max(0, m.hp | 0), mh: Math.max(1, m.mh | 0), pg: Math.max(0, Math.min(100, m.pg | 0)), cp: Math.max(0, m.cp | 0), d: ['down', 'up', 'left', 'right'].includes(m.d) ? m.d : 'down', mv: m.mv ? 1 : 0, sw: m.sw ? 1 : 0, wt: cleanText(m.wt, 6) }, ws); break; }   // ⚔️ 같은 사냥터 친구 보기   // ⚔️ 같은 사냥터 친구 보기
@@ -1076,7 +1078,14 @@ function onMsg(ws, me, m) {
       if (m.t === 'hunt_eq') { const i = m.i | 0, it = h.inv[i]; if (!it) return; if (!RPG_SLOTS.includes(it.t)) return; const ek = 'eq' + it.t; const lv = (s.hu && s.hu.lv) | 0 || 1; if (h[ek] !== i && itReq(it) > lv) return send(ws, { t: 'news', text: '🔒 용사 Lv' + itReq(it) + '부터 낄 수 있어요 (지금 Lv' + lv + ')' }); h[ek] = h[ek] === i ? null : i; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c }); }
       if (m.t === 'hunt_ex') { if ((h.dr | 0) < 20) return; h.dr -= 20; queueSave(me.key, s); await giveTk(me.key, 1, '💤 꿈조각 20개 → 낚시 강화권 1장'); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '강화권 1장으로 바꿨어요!' }); }
       if (m.t === 'hunt_star') {   // ⭐ 사냥터 별점: 처음 깨면 칩 · 처음 별 3개면 칩 + 10% 주문서
-        const fi = Math.max(0, Math.min(9, m.fi | 0)), st = Math.max(1, Math.min(3, m.s | 0)); h.star = h.star && typeof h.star === 'object' ? h.star : {}; const prev = h.star[fi] | 0; if (st <= prev) return;
+        const fi = Math.max(0, Math.min(9, m.fi | 0)), st = Math.max(1, Math.min(3, m.s | 0)); h.star = h.star && typeof h.star === 'object' ? h.star : {};
+        if ((m.df | 0) === 2) {   // 🌑 악몽 난이도 첫 정화: 칩 + 사냥터 10곳 모두면 칭호
+          h.nclr = h.nclr && typeof h.nclr === 'object' ? h.nclr : {}; if (h.nclr[fi]) return; const now = Date.now(); if (now - (me.hsT || 0) < 60000) return; me.hsT = now; h.nclr[fi] = 1;
+          const c = 1e6 * (fi + 1), ids = ['t_nm1']; if (Object.keys(h.nclr).length >= 10) ids.push('t_nmwalk'); e.c = (e.c | 0) + c; const got = giveCos(s, ids); if (got.length) send(ws, { t: 'cos_got', ids: got });
+          if (got.includes('t_nmwalk')) broadcast({ t: 'big', g: 5, text: '🌑 ' + me.name + ' 님이 모든 사냥터를 악몽 난이도로 정화했어요!! 칭호 「악몽을 걷는 자」' });
+          queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '🌑 악몽 첫 정화! 칩 ' + c.toLocaleString() + ' · 악몽 정화 ' + Object.keys(h.nclr).length + '/10' });
+        }
+        const prev = h.star[fi] | 0; if (st <= prev) return;
         const now = Date.now(); if (now - (me.hsT || 0) < 60000) return; me.hsT = now; h.star[fi] = st; let c = 0, note = '';
         if (!prev) { c += 5e4 * (fi + 1); note = '🌟 첫 정화 보상 · 칩 ' + (5e4 * (fi + 1)).toLocaleString(); }
         if (st === 3) { c += 2e5 * (fi + 1); const SC = scrMig(h), id = Math.random() < .5 ? 'w10' : 'a10'; SC[id] = (SC[id] | 0) + 1; note = '⭐⭐⭐ 첫 별 셋! 칩 ' + c.toLocaleString() + ' + ' + (id[0] === 'w' ? '무기' : '방어구') + ' 주문서 10% 🌟'; }
@@ -1092,11 +1101,12 @@ function onMsg(ws, me, m) {
         if ((e.c | 0) < c) return send(ws, { t: 'news', text: '칩이 모자라요 (은비랜드에서 골드를 칩으로 바꿔요)' });
         e.c -= c; h[k] = nx; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '장비를 샀어요!' });
       }
-      const now = Date.now(); if (now - (me.hkT || 0) < 250) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(10, m.t | 0)), red = !!m.red;
-      const el = !!m.el; let bo = !!m.boss; if (bo) { if (now - (me.hbT || 0) < 40000) bo = false; else me.hbT = now; }   // 우두머리 처치는 40초에 한 번까지 (조작 방지) const RS = rpgSum(h, (s.hu && s.hu.lv) | 0 || 1);
+      const now = Date.now(); if (now - (me.hkT || 0) < 250) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(10, m.tr | 0)), red = !!m.red, df = Math.max(0, Math.min(2, m.df == null ? 1 : m.df | 0)), dfC = [.6, 1, 2.2][df], dfI = [.6, 1, 1.5][df], hfi = Math.max(0, Math.min(9, m.fi | 0));
+      const el = !!m.el; let bo = !!m.boss; if (bo) { if (now - (me.hbT || 0) < 40000) bo = false; else me.hbT = now; }   // 우두머리 처치는 40초에 한 번까지 (조작 방지)
+      const RS = rpgSum(h, (s.hu && s.hu.lv) | 0 || 1);
       /* 🤝 함께 사냥: 같은 사냥터 · 가까이(약 16칸) 있는 친구 수 → 칩 · 드랍 보너스 (서버가 직접 세요) */
       let pt = 0; const H0 = me.hp_; if (H0 && now - H0.at < 3000) for (const [, q] of players) { const Q = q.hp_; if (q !== me && Q && Q.f === H0.f && now - Q.at < 3000 && Math.hypot(Q.x - H0.x, Q.y - H0.y) < 260) pt++; } pt = Math.min(3, pt); const pb = 1 + pt * .2;
-      let c = Math.round(pb * [100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100)); e.c = (e.c | 0) + c; const got = []; if (Math.random() < (bo ? .5 : el ? .08 : .015) * pb) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push('scr:' + id); } 
+      let c = Math.round(dfC * pb * [100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100)); e.c = (e.c | 0) + c; const got = []; if (Math.random() < (bo ? .5 : el ? .08 : .015) * pb) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push('scr:' + id); } 
       if (!h.sw && r >= 2 && Math.random() < (bo ? .05 : .003 * (r + 1))) { h.sw = 1; got.push('sw'); broadcast({ t: 'news', text: '⚔️✨ ' + me.name + ' 님이 사냥터에서 「전설의 낚싯바늘 검」을 주웠어요!! (상점에 없어요)' }); }
       const own = (s.cos && s.cos.own) || [];
       if (!own.includes('t_hunt1') && Math.random() < .004) got.push(...giveCos(s, ['t_hunt1']));
@@ -1104,7 +1114,15 @@ function onMsg(ws, me, m) {
       if (got.some(x => x.startsWith('t_'))) send(ws, { t: 'cos_got', ids: got.filter(x => x.startsWith('t_')) });
       luxRoll(ws, me, s, bo ? 20 : el ? 3 : 1, 'hunt');
       h.dr = (h.dr | 0) + Math.round([1, 1, 2, 3, 5][r] * (bo ? 10 : el ? 2 : 1) * (1 + Math.min(200, RS.dr * 2) / 100));
-      let item = null; if (Math.random() < (bo ? 1 : el ? .3 : .05 + r * .02) * (1 + Math.min(100, RS.luk) / 100) * pb) { const gw = tier >= 10 ? (bo ? [0, 10, 35, 30, 19, 5, 1, .12, .015] : [20, 35, 25, 13, 6, .9, .1, .004, .0004]) : bo ? [10, 30, 35, 18, 6.7, .3, 0, .01, 0] : [60, 25, 10, 4, .95, .05, 0, 0, 0];
+      if (bo) {   // 👑 사냥터 우두머리: 사냥터 · 난이도마다 주 1번 「큰 보상」 · 가까이서 함께 싸운 친구도 받아요
+        const wb = n => { const w = wfWeek(), H = n.hunt; H.wb = H.wb && H.wb.w === w ? H.wb : { w, k: {} }; const kk = hfi + ':' + df; if (H.wb.k[kk]) return 0; H.wb.k[kk] = 1;
+          const E = ebOf(n), bc = Math.round([4e4, 1.2e5, 4e5][df] * (hfi + 1)); E.c = (E.c | 0) + bc; const SC2 = scrMig(H), sid = df === 0 ? (Math.random() < .5 ? 'w60' : 'a60') : (Math.random() < .5 ? 'w10' : 'a10'); SC2[sid] = (SC2[sid] | 0) + 1; return bc; };
+        const bc = wb(s); if (bc) got.push('wb'), send(ws, { t: 'news', text: '🎁 이번 주 첫 우두머리 보상 · 칩 ' + bc.toLocaleString() + ' + 주문서 1장' });
+        if (H0) for (const [qw, q] of players) { const Q = q.hp_; if (q === me || !Q || Q.f !== H0.f || now - Q.at > 3000 || Math.hypot(Q.x - H0.x, Q.y - H0.y) >= 260) continue;
+          withLock(q.key, async () => { const qs = q.save; if (!qs || !qs.hunt) return; const b2 = wb(qs); if (!b2) return; queueSave(q.key, qs); send(qw, { t: 'hunt', hunt: qs.hunt, c: ebOf(qs).c, note: '🤝 ' + me.name + ' 님과 함께 쓰러뜨린 우두머리 · 이번 주 첫 보상 칩 ' + b2.toLocaleString() + ' + 주문서 1장' }); }).catch(() => { }); }
+        if (df === 2 && Math.random() < .08) { const nm = ['h_nmhorn', 'o_nmrobe', 'k_nmwing'].filter(id => !own.includes(id)); if (nm.length) { const g2 = giveCos(s, [nm[(Math.random() * nm.length) | 0]]); if (g2.length) { send(ws, { t: 'cos_got', ids: g2 }); broadcast({ t: 'news', text: '🌑 ' + me.name + ' 님이 악몽 우두머리에게서 악몽 치장을 얻었어요!' }); } } }
+      }
+      let item = null; if (Math.random() < (bo ? 1 : el ? .3 : .05 + r * .02) * (1 + Math.min(100, RS.luk) / 100) * pb * (bo ? 1 : dfI)) { const gw = tier >= 10 ? (bo ? [0, 10, 35, 30, 19, 5, 1, .12, .015] : [20, 35, 25, 13, 6, .9, .1, .004, .0004]) : bo ? [10, 30, 35, 18, 6.7, .3, 0, .01, 0] : [60, 25, 10, 4, .95, .05, 0, 0, 0];
         item = mkItem(tier, rollG(gw)); invPut(h, item); if (item.g >= 4) broadcast({ t: 'big', g: item.g, text: (item.g >= 6 ? '🌌🌌 ' : '🎁 ') + me.name + ' 님이 사냥터에서 【' + RPG_GN[item.g] + '】 ' + RPG_SN[item.t] + '을(를) 주웠어요!' }); }
       queueSave(me.key, s); send(ws, { t: 'hunt', hunt: h, c: e.c, gain: c, drop: got, item, pt });
     }); break;
@@ -1911,33 +1929,86 @@ function btMsg(ws, me, m) {
   if (i >= 0) { const b = B.pool.splice(i, 1)[0]; vMark(); return send(ws, { t: 'bt_got', id: b.id, text: b.text, re: b.re, at: b.at }); }
   if (Math.random() < .35) send(ws, { t: 'bt_got', id: 0, text: BT_NPC[(Math.random() * BT_NPC.length) | 0], re: 0, at: now, npc: 1 });
 }
-/* ---------- 🌑 주간 레이드 (2026-11-11): 모두가 같은 「악몽의 왕」 체력을 함께 깎아요 · 매주 월요일 새로 ----------
-   몬스터 움직임은 각자 화면에서, 체력과 피해는 서버가 모아요 (1초에 낼 수 있는 피해는 서버가 장비로 계산해 막아요) */
-const RAID_HP = +process.env.RAID_HP || 6e6, RAID_FI = 10;
-function raidState() { const w = wfWeek(); if (!V.raid || V.raid.w !== w) { V.raid = { w, hp: RAID_HP, mhp: RAID_HP, dmg: {}, nm: {}, dead: 0, pend: (V.raid && V.raid.pend) || {} }; vMark(); } return V.raid; }
-const raidPub = () => { const R = raidState(); return { w: R.w, hp: Math.max(0, Math.round(R.hp)), mhp: R.mhp, dead: R.dead, top: Object.entries(R.dmg).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, d]) => [R.nm[k] || k, Math.round(d)]), ends: Date.UTC(2026, 0, 5) + (R.w + 1) * 7 * 864e5 - 9 * 3600e3 }; };
-let raidDirty = false; setInterval(() => { if (raidDirty && V) { raidDirty = false; broadcast(Object.assign({ t: 'raid' }, raidPub())); } }, 1500);
+/* ---------- 🌑 레이드 (2026-11-12): 최소 3명 · 최대 5명이 한 팀으로 · 대기실에 3명이 모이면 20초 뒤 출발 (5명이면 바로) ----------
+   보스 체력은 모인 사람들의 공격력에 맞춰져요 · 10분 안에 쓰러뜨리면 모두 같은 보상 · 이번 주 처음이면 「큰 상자」, 이미 깼으면 「도움 상자」 */
+const RAID_FI = 10, RAID_MIN = +process.env.RAID_MIN || 3, RAID_MAX = 5, RAID_K = +process.env.RAID_K || 840, RAID_T = 10 * 60e3;
+const RL = { mem: new Set(), go: 0 }, RAIDS = new Map(); let raidSeq = 1;
+const raidAtk = s => { const lv = Math.max(1, (s.hu && s.hu.lv) | 0), h = s.hunt && typeof s.hunt === 'object' ? s.hunt : {}; return 2 + lv + (h.sw ? 3 : 0) + rpgSum(h, lv).atk; };
+const raidOf = key => { for (const R of RAIDS.values()) if (R.mem.includes(key) && !R.over) return R; return null; };
+const raidPubI = R => ({ id: R.id, w: wfWeek(), hp: Math.max(0, Math.round(R.hp)), mhp: R.mhp, dead: R.dead, fail: R.fail || 0, ends: R.end, names: R.mem.map(k => R.nm[k]), top: R.mem.map(k => [R.nm[k], Math.round(R.dmg[k] || 0)]).sort((a, b) => b[1] - a[1]) });
+const rlPub = () => ({ t: 'raid_lobby', n: RL.mem.size, min: RAID_MIN, max: RAID_MAX, names: [...RL.mem].map(k => (liveByKey(k) || [0, {}])[1].name || k), go: RL.go || 0 });
+function rlSend() { const m = rlPub(); for (const [w, p] of players) send(w, Object.assign({ mine: RL.mem.has(p.key) ? 1 : 0, inRaid: raidOf(p.key) ? 1 : 0 }, m)); }
+function raidSendI(R) { const o = Object.assign({ t: 'raid' }, raidPubI(R)); R.mem.forEach(k => { const l = liveByKey(k); if (l) send(l[0], o); }); }
+function raidLobby(ws, me, m) {
+  if (m.t === 'raid_get') { send(ws, Object.assign({ mine: RL.mem.has(me.key) ? 1 : 0, inRaid: raidOf(me.key) ? 1 : 0 }, rlPub())); const R = raidOf(me.key); if (R) send(ws, Object.assign({ t: 'raid' }, raidPubI(R))); return; }
+  if (m.t === 'raid_qx') { if (RL.mem.delete(me.key)) { if (RL.mem.size < RAID_MIN) RL.go = 0; rlSend(); } return; }
+  if (m.t !== 'raid_q' || !me.save) return; if (raidOf(me.key)) return send(ws, { t: 'news', text: '이미 레이드 중이에요' });
+  if (((me.save.hu && me.save.hu.lv) | 0) < 10) return send(ws, { t: 'news', text: '🔒 용사 Lv10부터 레이드에 갈 수 있어요' });
+  if (RL.mem.size >= RAID_MAX) return send(ws, { t: 'news', text: '대기실이 꽉 찼어요 (5명) · 이번 팀이 출발하면 다음 팀으로 가요' });
+  RL.mem.add(me.key); if (RL.mem.size >= RAID_MIN && !RL.go) { RL.go = Date.now() + 20000; for (const k of RL.mem) { const l = liveByKey(k); if (l) send(l[0], { t: 'news', text: '🌑 레이드 팀 ' + RL.mem.size + '명이 모였어요! 20초 뒤 출발해요 (5명이 되면 바로)' }); } }
+  if (RL.mem.size >= RAID_MAX) RL.go = Date.now(); rlSend();
+}
+setInterval(() => {
+  const now = Date.now(); for (const k of [...RL.mem]) if (!liveByKey(k)) RL.mem.delete(k); if (RL.mem.size < RAID_MIN && RL.go) { RL.go = 0; rlSend(); }
+  if (RL.go && now >= RL.go && RL.mem.size >= RAID_MIN) {   // 🚀 출발
+    const mem = [...RL.mem].slice(0, RAID_MAX); RL.mem.clear(); RL.go = 0; const nm = {}; let hp = 0;
+    for (const k of mem) { const l = liveByKey(k); nm[k] = l ? l[1].name : k; hp += raidAtk(l && l[1].save || {}) * RAID_K; }
+    const R = { id: raidSeq++, mem, nm, hp, mhp: hp, dmg: {}, t0: now, end: now + RAID_T, dead: 0 }; RAIDS.set(R.id, R);
+    for (const k of mem) { const l = liveByKey(k); if (l) send(l[0], { t: 'raid_go', id: R.id, names: mem.map(q => nm[q]) }); } raidSendI(R); rlSend();
+    broadcast({ t: 'news', text: '🌑 ' + mem.map(q => nm[q]).join(' · ') + ' 님이 악몽의 왕좌로 출발했어요!' });
+  }
+  for (const R of RAIDS.values()) { if (R.over) { if (now - R.over > 60e3) RAIDS.delete(R.id); continue; }
+    if (R.dirty) { R.dirty = 0; raidSendI(R); }
+    if (!R.dead && now > R.end) { R.fail = 1; R.over = now; raidSendI(R); R.mem.forEach(k => { const l = liveByKey(k); if (l) send(l[0], { t: 'raid_res', ok: 0, note: '⏰ 시간이 다 됐어요… 악몽의 왕이 꿈속으로 숨었어요. 다시 모여서 도전해요!' }); }); } }
+}, 1000);
 function raidHit(ws, me, m) {
-  if (!V || !me.save) return; const R = raidState(); if (R.dead) return; const now = Date.now(), H = me.hp_; if (!H || H.f !== RAID_FI || now - H.at > 4000) return;
-  const s = me.save, lv = Math.max(1, (s.hu && s.hu.lv) | 0), h = s.hunt && typeof s.hunt === 'object' ? s.hunt : {}, RS = rpgSum(h, lv), atk = 2 + lv + (h.sw ? 3 : 0) + RS.atk;
-  const el = Math.min(5, Math.max(.5, (now - (me.rhT || now - 1000)) / 1000)); me.rhT = now; const cap = atk * 7 * el; let d = Math.max(0, Math.min(cap, Number(m.d) || 0)); if (!d) return;
-  R.hp -= d; R.dmg[me.key] = (R.dmg[me.key] || 0) + d; R.nm[me.key] = me.name; raidDirty = true; vMark();
-  if (R.hp <= 0) { R.hp = 0; R.dead = now; raidEnd(R); }
+  if (!me.save) return; const R = raidOf(me.key); if (!R || R.dead) return; const now = Date.now(), H = me.hp_; if (!H || H.f !== RAID_FI || now - H.at > 4000) return;
+  const atk = raidAtk(me.save), el = Math.min(5, Math.max(.5, (now - (me.rhT || now - 1000)) / 1000)); me.rhT = now; const d = Math.max(0, Math.min(atk * 7 * el, Number(m.d) || 0)); if (!d) return;
+  R.hp -= d; R.dmg[me.key] = (R.dmg[me.key] || 0) + d; R.dirty = 1;
+  if (R.hp <= 0) { R.hp = 0; R.dead = now; R.over = now; raidSendI(R); raidEnd(R); }
 }
 function raidEnd(R) {
-  const tot = Object.values(R.dmg).reduce((a, b) => a + b, 0) || 1, top = Object.entries(R.dmg).sort((a, b) => b[1] - a[1]), boost = vSt() >= 8 ? 1.5 : 1;
-  broadcast({ t: 'news', text: '🌅 악몽의 왕이 쓰러졌어요!! 함께한 ' + top.length + '명 모두에게 보상이 가요 · 가장 많이 싸운 사람: ' + (R.nm[top[0][0]] || '') });
-  top.forEach(([k, d], i) => { const sh = d / tot; R.pend[k] = { c: Math.round((1e6 + 4e6 * sh) * boost), item: sh >= .02, scr: sh >= .05 ? 2 : 1, ti: i === 0, sh: Math.round(sh * 1000) / 10 }; const L = liveByKey(k); if (L) raidClaim(L[0], L[1]); });
-  broadcast(Object.assign({ t: 'raid' }, raidPub())); vMark();
+  const wk = wfWeek(), boost = vSt() >= 8 ? 1.5 : 1;
+  broadcast({ t: 'news', text: '🌅 ' + R.mem.map(k => R.nm[k]).join(' · ') + ' 님이 함께 악몽의 왕을 쓰러뜨렸어요!!' });
+  Promise.all(R.mem.map(k => loadSave(k).then(s => !!(s && s.hunt && s.hunt.rw === wk)))).then(done => {
+    const needHelp = done.some(x => !x);
+    R.mem.forEach((k, i) => withLock(k, async () => {
+      const s = await loadSave(k); if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); h.inv = Array.isArray(h.inv) ? h.inv : [];
+      const e = ebOf(s), lv = Math.max(1, (s.hu && s.hu.lv) | 0), SC = scrMig(h), L = liveByKey(k), nm = R.nm[k]; let note, it = null, cos = [];
+      if (h.rw !== wk) {   // 🎁 큰 상자 (이번 주 처음)
+        h.rw = wk; e.c = (e.c | 0) + Math.round(3e6 * boost); it = mkItem(Math.min(10, Math.max(1, Math.floor(lv / 4))), rollG([0, 5, 20, 35, 28, 9, 3, .3, .04])); invPut(h, it);
+        SC.w10 = (SC.w10 | 0) + 1; SC.a10 = (SC.a10 | 0) + 1; cos = giveCos(s, ['t_raid1']);
+        if (it.g >= 4) broadcast({ t: 'big', g: it.g, text: (it.g >= 6 ? '🌌🌌 ' : '🌅 ') + nm + ' 님이 레이드 상자에서 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] + '을(를) 받았어요!' });
+        note = '🎁 레이드 큰 상자 · 칩 ' + Math.round(3e6 * boost).toLocaleString() + ' · 【' + RPG_GN[it.g] + '】 장비 · 10% 주문서 무기 1 · 방어구 1';
+      } else if (needHelp) {   // 🤝 도움 상자 (이미 깬 사람이 친구를 도와줬을 때)
+        e.c = (e.c | 0) + Math.round(1.5e6 * boost); { const sid = Math.random() < .5 ? 'w10' : 'a10'; SC[sid] = (SC[sid] | 0) + 1; } await giveTk(k, 5, null);
+        note = '🤝 도움 상자 · 친구를 도와줘서 고마워요! 칩 ' + Math.round(1.5e6 * boost).toLocaleString() + ' · 10% 주문서 1장 · 낚시 강화권 5장';
+      } else { e.c = (e.c | 0) + 5e5; note = '🌅 레이드 완료 · 이번 주 큰 상자는 이미 받았어요 · 칩 500,000'; }
+      queueSave(k, s); if (L) { send(L[0], { t: 'hunt', hunt: h, c: e.c, note }); send(L[0], { t: 'raid_res', ok: 1, note, item: it }); if (cos.length) send(L[0], { t: 'cos_got', ids: cos }); }
+      else addMail(k, note);
+    }).catch(er => console.error('raid', er.message)));
+  });
 }
-function raidClaim(ws, me) {
-  const R = raidState(), p = R.pend[me.key]; if (!p) return; delete R.pend[me.key]; vMark();
-  withLock(me.key, async () => { const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); h.inv = Array.isArray(h.inv) ? h.inv : []; const e = ebOf(s), lv = Math.max(1, (s.hu && s.hu.lv) | 0);
-    e.c = (e.c | 0) + p.c; let it = null; if (p.item) { it = mkItem(Math.min(10, Math.max(1, Math.floor(lv / 4))), rollG([0, 5, 20, 35, 28, 9, 3, .3, .04])); invPut(h, it); if (it.g >= 4) broadcast({ t: 'big', g: it.g, text: (it.g >= 6 ? '🌌🌌 ' : '🌅 ') + me.name + ' 님이 레이드 보상으로 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] + '을(를) 받았어요!' }); }
-    const SC = scrMig(h); SC.w10 = (SC.w10 | 0) + 1; if (p.scr > 1) SC.a10 = (SC.a10 | 0) + 1; if (p.ti) giveCos(s, ['t_raid1']); queueSave(me.key, s);
-    send(ws, { t: 'hunt', hunt: h, c: e.c, note: '🌅 레이드 보상 (기여 ' + p.sh + '%) · 칩 ' + p.c.toLocaleString() + (it ? ' · 【' + RPG_GN[it.g] + '】 장비' : '') + ' · 10% 주문서 ' + p.scr + '장' + (p.ti ? ' · 칭호 「악몽을 끝낸 자」' : '') });
-  }).catch(e => console.error('raid', e.message));
+/* ⚔️ 레이드 모집 (행사 게시판): 시간을 정해 모집 · 함께 갈 사람은 「같이 가요」 · 10분 전 · 시간 되면 알려요 */
+const rrecOf = () => (V.rrec = Array.isArray(V.rrec) ? V.rrec : []);
+const rrecPub = () => ({ t: 'rrec', list: rrecOf().map(r => ({ id: r.id, host: r.hostName, at: r.at, mem: r.mem.map(x => x[1]) })) });
+function rrecMsg(ws, me, m) {
+  if (!V) return; const L = rrecOf(), now = Date.now(), err = text => send(ws, { t: 'ev_err', text });
+  if (m.t === 'rrec_get') return send(ws, rrecPub());
+  if (m.t === 'rrec_new') { const at = Number(m.at) || 0; if (at < now + 5 * 60e3 || at > now + 24 * 3600e3) return err('5분 뒤부터 24시간 안으로 정해 주세요');
+    if (L.some(r => r.host === me.key)) return err('모집은 한 번에 하나만 열 수 있어요'); L.push({ id: Date.now() % 1e9, host: me.key, hostName: me.name, at, mem: [[me.key, me.name]], w: 0 }); L.sort((a, b) => a.at - b.at);
+    broadcast({ t: 'news', text: '⚔️ ' + me.name + ' 님이 ' + kstHM(at) + ' 레이드 팀을 모집해요! 행사 게시판에서 「같이 가요」' }); }
+  else { const r = L.find(x => x.id === (m.id | 0)); if (!r) return;
+    if (m.t === 'rrec_join') { if (r.mem.some(x => x[0] === me.key)) return; if (r.mem.length >= RAID_MAX) return err('5명이 다 찼어요'); r.mem.push([me.key, me.name]); const l = liveByKey(r.host); if (l) send(l[0], { t: 'news', text: '⚔️ ' + me.name + ' 님이 ' + kstHM(r.at) + ' 레이드에 같이 가요! (' + r.mem.length + '/5)' }); }
+    else if (m.t === 'rrec_leave') { if (r.host === me.key) V.rrec = L.filter(x => x !== r); else r.mem = r.mem.filter(x => x[0] !== me.key); }
+    else return; }
+  vMark(); broadcast(rrecPub());
 }
+setInterval(() => { if (!V || !Array.isArray(V.rrec) || !V.rrec.length) return; const now = Date.now(); let ch = false;
+  for (const r of V.rrec) { const tell = text => r.mem.forEach(x => { const l = liveByKey(x[0]); if (l) send(l[0], { t: 'news', text }); });
+    if (!r.w && r.at - now <= 10 * 60e3) { r.w = 1; ch = true; tell('⏰ 10분 뒤 ' + r.hostName + ' 님 팀 레이드예요! (' + kstHM(r.at) + ')'); }
+    if (r.w === 1 && now >= r.at) { r.w = 2; ch = true; tell('⚔️ 지금 레이드 시간이에요! 꿈의 문 → 사냥터 → 「악몽의 왕좌」 대기실로 모여요'); r.mem.forEach(x => { const l = liveByKey(x[0]); if (l) send(l[0], { t: 'rrec_now' }); }); } }
+  const n0 = V.rrec.length; V.rrec = V.rrec.filter(r => now < r.at + 30 * 60e3); if (ch || n0 !== V.rrec.length) { vMark(); broadcast(rrecPub()); } }, 30000);
 const hsBoost = (me, k) => !!(me.hsOn && Date.now() < me.hsOn.until && (me.hsOn.k === k || me.hsOn.k === 'legend'));
 const liveByName = n => { for (const [ws, p] of players) if (p.name === n) return [ws, p]; return null; };
 const nearFairy = p => Math.hypot(p.x - FAIRY_XY[0], p.y - FAIRY_XY[1]) < 110;
