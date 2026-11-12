@@ -214,6 +214,7 @@ LOOK_IDS.hat.push('h_cherrypin', 'h_heartpin', 'h_lacebow', 'h_cake', 'h_macpin'
 LOOK_IDS.hat.push('h_nmhorn'); LOOK_IDS.o.push('o_nmrobe'); LOOK_IDS.bk.push('k_nmwing'); LOOK_IDS.ti.push('t_nm1', 't_nmwalk');
 /* 🌸🐱🌙⚔️ 일상 라인 · 💎 명품 한정 (2026-11-12 저녁) — index.html D6 블록과 같은 id */
 LOOK_IDS.hat.push('h_flowercrown', 'h_catknit_cream', 'h_catknit_gray', 'h_catknit_black', 'h_nightcap_blue', 'h_nightcap_pink', 'h_nightcap_yellow', 'h_feather'); LOOK_IDS.o.push('o_gingham_pink', 'o_gingham_mint', 'o_gingham_sky', 'o_apron_pink', 'o_apron_mint', 'o_apron_brown', 'o_bearpj_brown', 'o_bearpj_pink', 'o_bearpj_white', 'o_leather_brown', 'o_leather_black', 'o_aurora'); LOOK_IDS.bk.push('k_basket', 'k_cattail_cream', 'k_cattail_gray', 'k_cattail_black', 'k_pillow', 'k_quiver2'); LOOK_IDS.ti.push('t_owner');
+LOOK_IDS.ti.push('t_sd100', 't_sd200', 't_sd300', 't_sd450', 't_sd600');
 LOOK_IDS.ti.push('t_pioneer', 't_islfish', 't_islbest', 't_pole', 't_pila', 't_gym', 't_ortho', 't_rock');
 LOOK_IDS.hat.push('neonband', 'sweatband', 'bandage', 'climbhelm'); LOOK_IDS.o.push('o_polefit', 'o_pilafit', 'o_gymtank', 'o_doccoat'); LOOK_IDS.bk.push('yogamat', 'chalkbag');
 LOOK_IDS.o.push('o_moondress', 'o_sakura', 'o_darkarmor', 'o_hunter'); LOOK_IDS.hat.push('h_moonpin', 'h_sakura', 'h_darkhelm', 'h_hunterhood'); LOOK_IDS.bk.push('k_moonwing', 'k_bigribbon', 'k_darkcape', 'k_axe', 'k_quiver'); LOOK_IDS.fa.push('f_glitter', 'f_blush'); LOOK_IDS.ti.push('t_raid1'); LOOK_IDS.ti.push('t_moonfairy', 't_sakura', 't_darkknight', 't_hunter'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
@@ -612,7 +613,7 @@ wss.on('connection', (ws) => {
         if (p.save) { const e = enhOf(p.save), out = []; enhDaily(e, out); enhSession(e, out); { const l0 = e.lv | 0; e.star = e.star | 0; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv); if (e.lv > l0) out.push('🎉 강화 3.0! 모아 둔 별로 +' + l0 + ' → +' + e.lv); } rankSet(key, p.name, e, p.look); sendEnh(ws, p, { note: out }); if (out.length) queueSave(key, p.save); }
         send(ws, { t: 'champ', c: champPub() });
         rosterSet(key, p.name, p.save); rosterSend(true);
-        if (p.save) withLock(key, async () => { stampMigrate(ws, p.save); queueSave(key, p.save); await welcomeBack(ws, p); cmpOffer(ws, p.save); }).catch(e => console.error('welcome', e.message));
+        if (p.save) withLock(key, async () => { stampMigrate(ws, p.save); queueSave(key, p.save); await welcomeBack(ws, p); cmpOffer(ws, p.save); { const k0 = kingPub(); if (k0 && k0.name === p.name && V && Date.now() - (V.kgA || 0) > 10 * 60e3) { V.kgA = Date.now(); setTimeout(() => broadcast({ t: 'news', text: '👑 손맛 왕 ' + p.name + ' 님이 마을에 왔어요! (손맛 ' + k0.n + '종)' }), 1500); } } }).catch(e => console.error('welcome', e.message));
         send(ws, { t: 'pt', p: ptPub(), today: ptToday(p.save) }); if (p.save) send(ws, { t: 'vday', b: vdayOf(p.save).b });
         send(ws, { t: 'ev', list: evList() }); send(ws, vPub()); send(ws, { t: 'traps', list: trapPub() }); send(ws, dkPub()); if (V && V.snowmen) send(ws, { t: 'snowmen', list: Object.values(V.snowmen) }); if (V && Array.isArray(V.lan)) send(ws, { t: 'lans', list: V.lan.filter(l => Date.now() - l.at < 864e5) }); if (p.save) send(ws, { t: 'med', med: medPub(p.save), wkc: p.save.wkc || null, medw: p.save.medw || null }); togCheck();
         if (p.save && Array.isArray(p.save.auh) && p.save.auh.length) withLock(key, () => holdRefund(key)).catch(e => console.error('hold', e.message));
@@ -677,7 +678,7 @@ wss.on('connection', (ws) => {
         if (m.data.cosg.length) { const c = m.data.cos && typeof m.data.cos === 'object' ? m.data.cos : (m.data.cos = {}); c.own = Array.isArray(c.own) ? c.own : []; for (const id of m.data.cosg) if (!c.own.includes(id)) c.own.push(id); }
         const e = enhOf(m.data), out = [];
         enhDaily(e, out);
-        if (!first) { let pts = 0, cnt = 0; const nsdP = m.data.sdex || {}; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) cnt += dn; } for (const k in nsdP) { const dn = (nsdP[k] | 0) - (oldSd[k] | 0); if (dn > 0) pts += dn * ENH.PTS[Math.min(4, fishRar(+k) | 0)]; } if (pts) enhAddPoints(e, pts, out); if (cnt) wkAdd('fish', cnt); handBonus(ws, me, m.data, oldSd, e); }   // 강화 포인트 · 손맛 보너스는 직접 낚은 것만 (자동 낚시는 손맛 도감에 안 올라가요)
+        if (!first) { let pts = 0, cnt = 0; const nsdP = m.data.sdex || {}; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) cnt += dn; } for (const k in nsdP) { const dn = (nsdP[k] | 0) - (oldSd[k] | 0); if (dn > 0) pts += dn * ENH.PTS[Math.min(4, fishRar(+k) | 0)]; } if (pts) enhAddPoints(e, pts, out); if (cnt) wkAdd('fish', cnt); handBonus(ws, me, m.data, oldSd, e); honCheck(ws, me, m.data); }   // 강화 포인트 · 손맛 보너스는 직접 낚은 것만 (자동 낚시는 손맛 도감에 안 올라가요)
         foldItems(m.data); me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data); shipSnap(me, m.data);
         if (first) togCheck();
         if (sFixed) send(ws, { t: 'sdex', sdex: m.data.sdex });   // 손맛 도감을 서버 기록에 맞춰요
@@ -2849,11 +2850,21 @@ function xKingCheck(f, init) {
   xKing[f] = { key: best.key, name: best.name, n: best.n, since: Date.now() };
   if (!init && rosterCache.size > 1) broadcast({ t: 'news', text: XK_NAME[f][0] + ' 탄생! ' + best.name + ' 님 (' + (f === 'hl' ? '전투력 ' + best.n : best.n + XK_NAME[f][1]) + ')' });
 }
-const xKingPub = () => { const o = {}; { const eb = Object.entries((V && V.ebTop) || {}).sort((a, b) => b[1] - a[1])[0]; o.eb = eb && eb[1] > 0 ? { name: eb[0], n: eb[1] } : null; } { const d = Object.entries((V && V.don) || {}).sort((a, b) => b[1] - a[1])[0]; o.don = d && d[1] > 0 ? { name: d[0], n: d[1] } : null; } for (const f of ['gt', 'sh', 'hl']) { xKingCheck(f, !xKingCheck.ready); const k = xKing[f]; o[f] = k ? { name: k.name, n: k.n } : null; } xKingCheck.ready = 1; return o; };
+const xKingPub = () => { const o = {}; { const eb = Object.entries((V && V.ebTop) || {}).sort((a, b) => b[1] - a[1])[0]; o.eb = eb && eb[1] > 0 ? { name: eb[0], n: eb[1] } : null; } { const d = Object.entries((V && V.don) || {}).sort((a, b) => b[1] - a[1])[0]; o.don = d && d[1] > 0 ? { name: d[0], n: d[1] } : null; } for (const f of ['gt', 'sh', 'hl']) { xKingCheck(f, !xKingCheck.ready); const k = xKing[f]; o[f] = k ? { name: k.name, n: k.n } : null; } xKingCheck.ready = 1;
+  /* 🏅 주간 챔피언 · 🎣 어제의 낚시왕 · ⚒️ 강화 1위 (2026-11-12) */
+  try { const e = rankOf('enh', null), t = e && e.top && e.top[0]; o.enh = t && t.v > 0 ? { name: t.n, n: t.v } : null; } catch (er) { o.enh = null; }
+  { const y = new Date(Date.now() + 9 * 3600e3 - 864e5).toISOString().slice(0, 10), L = V && V.dkLast; o.dk = L && L.d === y ? { name: L.name, n: L.n } : null; }
+  { const H = V && Array.isArray(V.wfHist) ? V.wfHist[0] : null; o.wf = H && H.w === wfWeek() - 1 ? { name: H.n, n: H.len, id: H.id } : null; }
+  return o; };
 /* 🎣 하루 낚시왕 (2026-11-09): 오늘 직접 낚은 마릿수 · 반짝 50마리 · 신화 100마리로 쳐요 · 한국 자정에 1등에게 1천만 골드 */
 const DAYK_G = 100000000;   // 2026-11-12: 1억
 /* 🖐️ 손맛 보너스 (2026-11-12): 직접 낚은 물고기(손맛 도감에 오른 것)마다 골드 · 가끔 강화권. 자동 낚시엔 없어요 */
 const HB_G = [1e5, 2e5, 5e5, 1e6, 3e6], HB_MYTH = 1e7, HB_TK = [.01, .01, .03, .08, .2], HB_TK_DAY = 80;
+/* ❦ 손맛 명예 칭호 (2026-11-12): 손맛 도감 종 수로만 · 돈으로 못 사요 (index.html HON_SD와 같아요) */
+const HON_SD = [[100, 't_sd100'], [200, 't_sd200'], [300, 't_sd300'], [450, 't_sd450'], [600, 't_sd600']];
+function honCheck(ws, me, s) { const n = sdN(s), own = (s.cos && s.cos.own) || [], ids = HON_SD.filter(h => n >= h[0] && !own.includes(h[1])).map(h => h[1]); if (!ids.length) return;
+  const got = giveCos(s, ids); if (!got.length) return; send(ws, { t: 'cos_got', ids: got }); const top = HON_SD.filter(h => got.includes(h[1])).pop();
+  if (top && top[0] >= 300) broadcast({ t: 'big', g: 5, text: '❦ ' + me.name + ' 님이 손맛 도감 ' + top[0] + '종을 채웠어요! 명예 칭호를 받았어요' }); }
 function handBonus(ws, me, s, oldSd, e) {
   const nsd = s.sdex || {}; let g = 0, n = 0, tk = 0;
   for (const k in nsd) { const dn = Math.min(50, Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0))); if (!dn) continue; const id = +k; if (isGet(id)) continue;
