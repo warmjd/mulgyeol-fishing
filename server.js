@@ -307,7 +307,7 @@ const ENH = {
   S: [1, 1, 2, 3, 4, 6, 9, 13, 18, 24, 16, 20, 25, 31, 38, 61, 72, 84, 98, 114, 130, 150, 170, 190, 215, 240, 270, 300, 340, 380],   // 강화 3.0 (2026-11-04): +11부터 별을 줄였어요
   cost: L => (L >= 17 ? Math.round(Math.min(30, 7 * Math.pow(1.5, L - 17)) * ENH.cost0(L) / 1000) * 1000 : ENH.cost0(L)),   // 2026-11-09: +17부터 안전 강화 골드를 크게 (7배 → 최대 30배)
   cost0: L => L < 10 ? Math.round(50 * Math.pow(1.28, L) / 10) * 10 : L < 20 ? Math.round(3000 * Math.pow(1.32, L - 10) / 100) * 100 : Math.round(3000 * Math.pow(1.32, L - 10) * Math.pow(1.4, L - 19) / 1000) * 1000,   // +10부터는 골드를 꽤 써요
-  DAILY: 3, FISH_CAP: 40, FISH_PER: 25, IDLE_MIN: 40, IDLE_CAP: 30,   /* 2026-11-09: 오래 켜 두면 하루 최대 30장 */ PIECE_CAP: 20, PIECE_PER: 5, TK_MAX: 9999,
+  DAILY: 3, FISH_CAP: 40, FISH_PER: 25, IDLE_MIN: 40, IDLE_CAP: 15,   /* 2026-11-13: 켜 두기는 하루 15장 (손으로 낚으면 손맛 보상이 훨씬 커요) */ PIECE_CAP: 20, PIECE_PER: 5, TK_MAX: 9999,
   PTS: [1, 2, 5, 15, 40]
 };
 ENH.K = ENH.P.map(p => Math.max(2, Math.round(1.8 / p)));   // 안전: 이만큼 연속 실패하면 다음은 확정
@@ -316,7 +316,10 @@ const fishRar = id => isIsy(id) ? ISY_ZR[id - ISY_FIRST][1] : isGet(id) ? GET_ZR
 function legZones(save) { const d = (save && save.dex) || {}, out = []; for (const k in d) { const id = +k; if (!(d[k] && d[k].n > 0) || fishRar(id) !== 4) continue; const z = id < FISH_N ? (id < 100 ? Math.floor(id / 20) : Math.floor((id - 100) / 20)) + 1 : id >= ISLE_FIRST && id < PTY_FIRST ? 6 : 0; if (z && out.indexOf(z) < 0) out.push(z); } return out; }
 const enhDefault = () => ({ lv: 0, max: 0, tk: 0, star: 0, fl: 0, sure: 0, day: '', fp: 0, ft: 0, it: 0, idle: 0, pc: 0, pcd: 0, lit: 0, st: 0 });
 const streakBonus = st => st >= 7 ? 3 : st >= 3 ? 1 : 0;   // 연속 출석: 3일째부터 +1, 7일째부터 +3
-const CATCH_GAP = 5, CATCH_TK = 3;   // 따라잡기: 광장 동상 주인보다 5단계 이상 낮으면 출석 강화권 +2
+const CATCH_GAP = 5, CATCH_TK = 3;
+/* 2026-11-13 따라잡기 할인: 강화 1위보다 2단계 낮으면 안전 강화 골드 -40%, 3단계 이상이면 -60% (index.html catchDisc와 같아요) */
+const catchDisc = lv => { const g = champ ? (champ.lv | 0) - (lv | 0) : 0; return g >= 3 ? .6 : g >= 2 ? .4 : 0; };
+const BAG_STARS = 40;   // 🌰 강화 별 주머니: 별 +40 (넘치면 다음 단계로 이어져요)   // 따라잡기: 광장 동상 주인보다 5단계 이상 낮으면 출석 강화권 +2
 const kstDay = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
 function enhOf(save) { if (!save) return null; save.enh = Object.assign(enhDefault(), save.enh && typeof save.enh === 'object' ? save.enh : {}); return save.enh; }
 function enhDaily(e, out) {
@@ -936,7 +939,7 @@ function onMsg(ws, me, m) {
       const e = enhOf(me.save), out = []; enhDaily(e, out); if (!e.star) e.star = 0; if (!e.fl) e.fl = 0;
       const mode = m.mode === 'gamble' ? 'gamble' : 'safe', n = Math.max(1, Math.min(10, m.n | 0)), rolls = [], from = e.lv; let gold = 0, err = '';
       for (let i = 0; i < n; i++) {
-        const r = enhRoll(e, mode, (Number(me.save.gold) || 0), 1 - (1 - .1 * jobRank(me.save, 'mer', 'enh')) * zoneDisc(me.save));
+        const r = enhRoll(e, mode, (Number(me.save.gold) || 0), 1 - (1 - .1 * jobRank(me.save, 'mer', 'enh')) * zoneDisc(me.save) * (1 - catchDisc(e.lv)));
         if (r.err) { err = r.err; break; }
         if (r.cost) { me.save.gold = (Number(me.save.gold) || 0) - r.cost; gold += r.cost; }
         rolls.push({ k: r.k, ds: r.ds, sure: r.sure, to: r.to });
@@ -1079,7 +1082,12 @@ function onMsg(ws, me, m) {
       const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); const e = ebOf(s);
       h.inv = Array.isArray(h.inv) ? h.inv : [];
       if (m.t === 'hunt_eq') { const i = m.i | 0, it = h.inv[i]; if (!it) return; if (!RPG_SLOTS.includes(it.t)) return; const ek = 'eq' + it.t; const lv = (s.hu && s.hu.lv) | 0 || 1; if (h[ek] !== i && itReq(it) > lv) return send(ws, { t: 'news', text: '🔒 용사 Lv' + itReq(it) + '부터 낄 수 있어요 (지금 Lv' + lv + ')' }); h[ek] = h[ek] === i ? null : i; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c }); }
-      if (m.t === 'hunt_ex') { if ((h.dr | 0) < 20) return; h.dr -= 20; queueSave(me.key, s); await giveTk(me.key, 1, '💤 꿈조각 20개 → 낚시 강화권 1장'); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '강화권 1장으로 바꿨어요!' }); }
+      if (m.t === 'hunt_ex') {   // 💤 꿈조각 교환 (2026-11-13): 강화권은 하루 10장까지 · 남는 조각은 주문서 · 물약으로
+        const k = String(m.k || 'tk'), X = DR_EX[k]; if (!X || (h.dr | 0) < X[0]) return;
+        if (k === 'tk') { const d = kstDay(); if (!h.exd || h.exd.d !== d) h.exd = { d, n: 0 }; if (h.exd.n >= DR_TK_DAY) return send(ws, { t: 'news', text: '💤 꿈조각 → 강화권은 하루 ' + DR_TK_DAY + '장까지예요 · 남는 조각은 주문서 · 물약으로!' }); h.exd.n++; h.dr -= X[0]; queueSave(me.key, s); await giveTk(me.key, 1, '💤 꿈조각 ' + X[0] + '개 → 낚시 강화권 1장 (오늘 ' + h.exd.n + '/' + DR_TK_DAY + ')'); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '강화권 1장으로 바꿨어요!' }); }
+        h.dr -= X[0]; if (k === 'pot') h.pot = (h.pot | 0) + 10; else { const SC = scrMig(h); SC[k] = (SC[k] | 0) + 1; }
+        queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: X[1] + '(으)로 바꿨어요!' });
+      }
       if (m.t === 'hunt_star') {   // ⭐ 사냥터 별점: 처음 깨면 칩 · 처음 별 3개면 칩 + 10% 주문서
         const fi = Math.max(0, Math.min(9, m.fi | 0)), st = Math.max(1, Math.min(3, m.s | 0)); h.star = h.star && typeof h.star === 'object' ? h.star : {};
         if ((m.df | 0) === 2) {   // 🌑 악몽 난이도 첫 정화: 칩 + 사냥터 10곳 모두면 칭호
@@ -1709,6 +1717,7 @@ const EB = {
 };
 let ebJP = EB.JP_BASE;
 /* 사냥 장비 칩 값 (index.html HUNT_PRICE와 같아요) */
+const DR_EX = { tk: [20, '강화권 1장'], pot: [15, '힐링포션 ×10'], w100: [15, '무기 주문서 100%'], a100: [15, '방어구 주문서 100%'], w60: [35, '무기 주문서 60%'], a60: [35, '방어구 주문서 60%'], w10: [70, '무기 주문서 10%'], a10: [70, '방어구 주문서 10%'] }, DR_TK_DAY = 10;   // index.html DR_EX와 같아요
 const HUNT_PRICE = { w: [0, 3e5, 8e5, 1.5e6, 3e6, 6e6, 1.2e7, 2.5e7, 5e7, 1e8], a: [0, 3e5, 8e5, 1.5e6, 3e6, 6e6, 1.2e7, 2.5e7, 5e7, 1e8], b: [0, 8e5, 2.5e6, 6e6, 1.5e7, 4e7] }, HPOT_PRICE = 3e5;   // 2026-11-09: 사냥은 최상위 콘텐츠 (첫 단계 50만 칩부터)
 const ebOf = s => { const e = s.eb && typeof s.eb === 'object' ? s.eb : (s.eb = { c: 0, d: '', buy: 0, wag: 0, best: 0, vd: '' }); if (e.d !== kstDay()) { e.d = kstDay(); e.buy = 0; e.loss = 0; e.cons = 0; } return e; };
 /* 크게 잃은 날을 위한 마음 쓰기: 오늘 순손실 5,000칩마다 은비가 10%를 위로 칩으로 돌려주고, 30,000칩을 잃으면 그날은 쉬어 가요 */
@@ -2212,8 +2221,11 @@ function vilMsg(ws, me, m) {
     const s = me.save, it = medShop().find(x => x[0] === m.id); if (!s || !it) return err('이번 주에는 없는 물건이에요');
     const md = s.med || (s.med = { n: 0, tot: 0, d: kstDay(), t: 0 }); if ((md.n | 0) < it[1]) return err('도토리가 모자라요');
     if (it[0] === 'sure') {
-      const w = s.medw && s.medw.id === wkId() ? s.medw : (s.medw = { id: wkId(), sure: 0 }); if (w.sure >= 1) return err('확정권은 일주일에 1장이에요');
-      w.sure++; md.n -= it[1]; const en = enhOf(s); en.sure = (en.sure | 0) + 1; sendEnh(ws, me, { note: ['🌰 강화 확정권 +1 · 다음 강화 한 번이면 바로 다음 단계!'] });
+      const w = s.medw && s.medw.id === wkId() ? s.medw : (s.medw = { id: wkId(), sure: 0 }); if (w.sure >= 1) return err('별 주머니는 일주일에 1개예요');
+      w.sure++; md.n -= it[1]; const en = enhOf(s), from = en.lv; en.star = (en.star | 0) + BAG_STARS;
+      while (en.lv < ENH.MAX && en.star >= ENH.S[en.lv]) { en.star -= ENH.S[en.lv]; en.lv++; en.fl = 0; } if (en.lv >= ENH.MAX) en.star = 0; en.max = Math.max(en.max | 0, en.lv);
+      sendEnh(ws, me, { note: ['🌰 강화 별 주머니! 별 +' + BAG_STARS + (en.lv > from ? ' · 낚싯대 +' + en.lv + ' 달성!' : ' · +' + (en.lv + 1) + '까지 ' + (ENH.S[en.lv] - en.star) + '개')] });
+      if (en.lv > from) { lookChanged(ws, me); rankSet(me.key, me.name, en, me.look); if (en.lv >= 10) broadcast({ t: 'news', text: '✨ ' + me.name + ' 님이 낚싯대 +' + en.lv + ' 강화에 성공했어요!' }, ws); }
     } else { const own = (s.cos && s.cos.own) || []; if (own.includes(it[0])) return err('이미 가지고 있어요'); md.n -= it[1]; const got = giveCos(s, [it[0]]); send(ws, { t: 'cos_got', ids: got }); }
     queueSave(me.key, s); send(ws, { t: 'med', med: medPub(s), why: '🌰 도토리 교환 완료!', medw: s.medw || null });
   }).catch(er => console.error('med_buy', er.message));
