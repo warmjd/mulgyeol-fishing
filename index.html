@@ -5847,10 +5847,12 @@ const JOB_IDS=['fish','sch','cra','tam','mer'];
 const COMMON=[{id:'speed',n:'가벼운 발걸음',max:3,d:r=>'걷는 속도 +'+r*5+'%'},{id:'trap',n:'넉넉한 통발',max:3,d:r=>'통발 최대 +'+r*2+'마리'},{id:'hand',n:'부드러운 손길',max:3,d:r=>'쓰다듬기 기다림 -'+r*2+'분'},{id:'xp',n:'부지런한 하루',max:3,d:r=>'마을 경험치 +'+r*5+'%'}];
 const nodeOf=(job,id)=>job==='com'?COMMON.find(n=>n.id===id):JOBS[job].t.flat().find(n=>n.id===id);
 const tierOf_=(job,id)=>JOBS[job].t.findIndex(t=>t.some(n=>n.id===id));
+/* 장인 등급(+1 장인)으로 채워진 칸도 다음 줄을 여는 데 세요 — 장인이 되면 패시브가 2점에서 '최고'가 돼서 7점을 못 채우던 문제 (2026-11-12) */
+function jobSpentEff(job){const p=(jS().pts||{})[job]||{};let n=spentOf(p);if(jRank(job)>=2)for(const k in p){if(k==='_c'||k==='cap')continue;const nd=nodeOf(job,k),v=p[k]|0;if(nd&&v>0&&v<nd.max)n++}return n}
 function canUp(job,id){
   const j=jS(),nd=nodeOf(job,id);if(!nd)return'';const cur=job==='com'?rk(job,id):((j.pts[job]&&j.pts[job][id])|0),cost=nd.cost||1;   // 찍은 점만 세요 (장인 보너스 제외)
   if(cur>=nd.max)return'최고 단계';if(id==='cap'&&job!=='com'&&capLocked())return'바꾼 지 2주 뒤';if(ptsLeft()<cost)return'스킬 포인트 부족';
-  if(job!=='com'){if(j.id!==job)return'주 직업만';const need=TIER_NEED[tierOf_(job,id)];if(spentOf(j.pts[job])<need)return'이 직업에 '+need+'점 필요'}
+  if(job!=='com'){if(j.id!==job)return'주 직업만';const need=TIER_NEED[tierOf_(job,id)];if(jobSpentEff(job)<need)return'이 직업에 '+need+'점 필요'}
   return'';
 }
 function upNode(job,id){const why=canUp(job,id);if(why){toast(why);Snd.sfx('no');return}
@@ -6269,7 +6271,7 @@ function openTree(view){
       (j.id===id?'<span class="pbadge">내 직업</span>':'<button class="btn sm" data-jpick="'+id+'"'+(L<5?' disabled':'')+'>'+(j.id?'바꾸기':'고르기')+'</button>')+'</div>'+
       '<div class="muted" style="font-size:12px;margin-top:4px">'+esc(J.who)+'</div><div style="font-size:12px;margin-top:4px">만드는 것: '+esc(J.make)+'</div><div style="font-size:12px">필요한 것: '+esc(J.need)+'</div></div>'});
   }else{
-    const job=treeView,tiers=job==='com'?[COMMON]:JOBS[job].t,sp=job==='com'?spentOf(j.com):spentOf(j.pts[job]);
+    const job=treeView,tiers=job==='com'?[COMMON]:JOBS[job].t,sp=job==='com'?spentOf(j.com):jobSpentEff(job);
     if(job==='com')h+='<div class="muted" style="font-size:12px;margin-bottom:6px">누구나 찍는 편의 노드예요. 직업 특성은 건드리지 않아요.</div>';
     tiers.forEach((tier,ti)=>{
       if(job!=='com')h+='<div class="sec" style="margin-top:6px">'+['패시브 · 늘 켜져 있어요','누르는 기술','마지막 스킬'][ti]+(TIER_NEED[ti]?' · 스킬 포인트 '+TIER_NEED[ti]+' 쓰면 열려요'+(sp>=TIER_NEED[ti]?' ✓':''):'')+'</div>';

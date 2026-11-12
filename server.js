@@ -179,7 +179,7 @@ const has = (s, id, n) => (invOf(s)[id] | 0) >= n;
 /* 직업 노드 단계 (index.html의 rk와 같아요) */
 const JOB_LOCK_MS = 0;   // 직업 3.0: 바꿔도 마지막 스킬이 꺼지지 않아요
 const jobLocked = s => { const j = s && s.job; return !!(j && j.ch && Date.now() - j.ch < JOB_LOCK_MS); };
-const jobRank = (s, job, node) => { const j = s && s.job; if (!j || j.id !== job || !j.pts || !j.pts[job]) return 0; if (node === 'cap' && jobLocked(s)) return 0; return j.pts[job][node] | 0; };
+const jobRank = (s, job, node) => { const j = s && s.job; if (!j || j.id !== job || !j.pts || !j.pts[job]) return 0; return j.pts[job][node] | 0; };   // 직업 3.0 (index.html capLocked와 같아요): 바꿔도 마지막 스킬이 꺼지지 않아요
 const VL_CUM = [0, 0]; for (let L = 1; L < 30; L++) VL_CUM[L + 1] = VL_CUM[L] + Math.round(40 * Math.pow(L, 1.5));
 const vlOf = v => { const xp = v && Number.isFinite(v.xp) ? v.xp : 0; let L = 1; while (L < 30 && xp >= VL_CUM[L + 1]) L++; return L; };
 const cleanText = (t, max) => String(t || '').replace(/[\u0000-\u001f\u007f<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
