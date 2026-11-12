@@ -1155,6 +1155,11 @@ function onMsg(ws, me, m) {
       const ok = text => send(ws, { t: 'adm_ok', text });
       if (m.op === 'notice') { const text = cleanText(m.text, 80); if (text) { broadcast({ t: 'news', text: '📢 운영자: ' + text }); ok('공지를 보냈어요'); } return; }
       /* ----- 갇힘 · 이동 도구 (2026-11-05) ----- */
+      if (m.op === 'users') {   // 👥 유저 현황 (운영자만): 밸런스 볼 때
+        return (async () => { const list = []; for (const [key, r] of rosterCache) { const sv = await loadSave(key).catch(() => null); if (!sv) continue; const e = sv.enh || {}, eb = sv.eb || {};
+          list.push({ n: r.name, on: !!liveByKey(key), hl: (sv.hu && sv.hu.lv) | 0, cp: cpOf(sv), e: e.lv | 0, em: e.max | 0, tk: e.tk | 0, g: sv.gold | 0, c: eb.c | 0, sh: shN(sv), sd: sdN(sv), ct: (sv.stats && sv.stats.catches) | 0, job: jobOf(sv) || '', ls: sv.lsd || '', nc: Object.keys((sv.hunt && sv.hunt.nclr) || {}).length, rw: sv.hunt && sv.hunt.rw === wfWeek() ? 1 : 0 }); }
+          list.sort((a, b) => b.hl - a.hl || b.cp - a.cp); send(ws, { t: 'adm_users', list }); })().catch(e => console.error('adm users', e.message));
+      }
       if (m.op === 'who') {   // 접속자 위치 · 배낚시 여부
         const list = [...players.values()].map(p => { const tx = Math.floor(p.x / 16), ty = Math.floor(p.y / 16); return { name: p.name, tx, ty, where: ty >= 100 ? '배낚시 바다' : ty >= 60 ? '안개 섬' : '물결마을', pt: !!(party && party.members.includes(p.key)) }; });
         return send(ws, { t: 'adm_who', list, party: party ? { state: party.state, members: party.members.map(k => party.names[k]), hold: party.hold, need: party.need, left: Math.max(0, Math.round((party.end - Date.now()) / 1000)) } : null });
@@ -1409,6 +1414,13 @@ function onMsg(ws, me, m) {
     case 'prof': {
       const l = liveById(m.id); if (!l) return;
       const o = l[1], s = o.save || {}, dex = s.dex || {};
+      /* 🔎 친구 상세 (2026-11-12): 용사 · 낀 장비 · 치장 · 마을에 같은 걸 가진 사람 수 */
+      const hh = s.hunt && typeof s.hunt === 'object' ? s.hunt : {}, inv = Array.isArray(hh.inv) ? hh.inv : [], eq = {};
+      for (const k of RPG_SLOTS) { const it = inv[hh['eq' + k]]; if (it && it.t === k) eq[k] = it; }
+      const lk = o.look || {}, wear = ['ti', 'hat', 'o', 'bk', 'fa', 'rod', 'bob', 'ft', 'tf'].map(k => lk[k]).filter(Boolean);
+      villageOwn().then(VO => { const cnt = {}, gcnt = {}; wear.forEach(id => cnt[id] = VO.cos.get(id) || 0);
+        for (const k in eq) gcnt[k] = VO.gmax.filter(g => (g[k] | 0) >= (eq[k].g | 0)).length;
+        send(ws, { t: 'prof_x', id: o.id, hu: { lv: (s.hu && s.hu.lv) | 0, cp: cpOf(s) }, eq, cnt, gcnt }); }).catch(() => { });
       const pets = {}, sp = s.pets && typeof s.pets === 'object' ? s.pets : {};
       for (const k of PET_IDS) { const st = sp[k]; if (!st || typeof st !== 'object') continue;
         pets[k] = { a: Math.max(0, Math.min(100, st.a | 0)), xp: Math.floor(petXp(st)), h: Math.max(0, Math.min(100, st.h | 0)), hd: typeof st.hd === 'string' ? st.hd.slice(0, 10) : '' }; }
@@ -1767,11 +1779,18 @@ function ebRecord(name, game, bet, win, jack) {
   if (win > (top[name] | 0)) { top[name] = win; vMark(); }
   if (jack || win >= Math.max(20000, bet * 10)) { const L = Array.isArray(V.ebLog) ? V.ebLog : (V.ebLog = []); L.unshift({ n: name, g: game, w: win, b: bet, jk: jack ? 1 : 0, at: Date.now() }); L.length = Math.min(L.length, 15); vMark(); }
 }
+/* 🏘️ 마을 소유 현황 (2분마다 새로): 치장마다 가진 사람 수 · 사람마다 부위별 최고 장비 등급 */
+let VOWN = null, VOWN_T = 0;
+async function villageOwn() { if (VOWN && Date.now() - VOWN_T < 120e3) return VOWN; const cos = new Map(), gmax = [];
+  for (const key of rosterCache.keys()) { const sv = await loadSave(key).catch(() => null); if (!sv) continue;
+    for (const id of new Set((sv.cos && Array.isArray(sv.cos.own)) ? sv.cos.own : [])) cos.set(id, (cos.get(id) || 0) + 1);
+    const g = {}, inv = sv.hunt && Array.isArray(sv.hunt.inv) ? sv.hunt.inv : []; for (const it of inv) if (it && it.t) g[it.t] = Math.max(g[it.t] | 0, it.g | 0); if (inv.length) gmax.push(g); }
+  VOWN = { cos, gmax }; VOWN_T = Date.now(); return VOWN; }
 function rankOf(k, me) {
   const top = (arr) => { arr.sort((a, b) => b.v - a.v); const i = arr.findIndex(x => x.n === me.name); return { top: arr.slice(0, 10), me: i >= 0 ? { r: i + 1, v: arr[i].v } : null, total: arr.length }; };
   if (k === 'sd') return top([...rosterCache.values()].map(r => ({ n: r.name, v: r.sd | 0 })).filter(x => x.v > 0));
   const RV = { sh: r => r.sh | 0, gt: r => r.gt | 0, dex: r => (r.dex || []).length, hunt: r => r.hl | 0, vl: r => r.lv | 0, help: r => r.help | 0 };
-  if (RV[k]) return top([...rosterCache.values()].map(r => ({ n: r.name, v: RV[k](r) })).filter(x => x.v > 0));
+  if (RV[k]) return top([...rosterCache.values()].map(r => Object.assign({ n: r.name, v: RV[k](r) }, k === 'hunt' ? { lv: r.hlv | 0 } : {})).filter(x => x.v > 0));
   if (k === 'enh') return top([...rankCache.values()].map(r => ({ n: r.name, v: r.lv | 0, m: r.max | 0 })).filter(x => x.v > 0));
   if (k === 'don') return top(Object.entries((V && V.don) || {}).map(([n, v]) => ({ n, v: +v || 0 })).filter(x => x.v > 0));
   if (k === 'eb') return Object.assign(top(Object.entries((V && V.ebTop) || {}).map(([n, v]) => ({ n, v }))), { log: ((V && V.ebLog) || []).slice(0, 10) });
@@ -2796,7 +2815,7 @@ const rosterCache = new Map();   // key -> {name, job, lv, sit}
 let vNote = null, rosterSig = '', rosterT = 0, vBoat = null;
 function rosterSet(key, name, save) {
   const j = save && save.job, job = j && ['fish', 'sch', 'cra', 'tam', 'mer'].includes(j.id) ? j.id : '';
-  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), gt: gtN(save), sh: shN(save), dex: dexIds(save && save.dex), help: save && save.help ? save.help.n | 0 : 0, hl: cpOf(save), mar: (save && save.mar && save.mar.p) || '', jr: jrOf(save, job), jx: (save && save.job && save.job.xp && save.job.xp[job]) | 0 });
+  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), gt: gtN(save), sh: shN(save), dex: dexIds(save && save.dex), help: save && save.help ? save.help.n | 0 : 0, hl: cpOf(save), hlv: (save && save.hu && save.hu.lv) | 0, mar: (save && save.mar && save.mar.p) || '', jr: jrOf(save, job), jx: (save && save.job && save.job.xp && save.job.xp[job]) | 0 });
   if (save && save.boat && !vBoat) vBoat = { by: name };
   rosterSoon();
 }
@@ -2935,7 +2954,7 @@ setInterval(() => {
     });
   }
 }, 60000);
-db.roster().then(rows => { for (const r of rows || []) { if (String(r.key).startsWith('__')) continue; if (r.boat && !vBoat) vBoat = { by: r.name }; if (!rosterCache.has(r.key)) rosterCache.set(r.key, { name: r.name, job: r.job && r.job.id || '', lv: vlOf(r.vl), sit: false, legs: legZones({ dex: r.dex }), sd: sdN({ sdex: r.sdex }), gt: gtN({ giant: r.giant }), sh: shN({ shiny: r.shiny }), hl: cpOf({ hu: r.hu, hunt: r.hunt }), dex: dexIds(r.dex), help: r.help ? r.help.n | 0 : 0, jr: jrOf({ job: r.job }, r.job && r.job.id), jx: (r.job && r.job.xp && r.job.id && r.job.xp[r.job.id]) | 0 }); } sdKingCheck(true); console.log('현황판', rosterCache.size, '명'); }).catch(e => console.error('현황판을 읽지 못했어요', e.message));
+db.roster().then(rows => { for (const r of rows || []) { if (String(r.key).startsWith('__')) continue; if (r.boat && !vBoat) vBoat = { by: r.name }; if (!rosterCache.has(r.key)) rosterCache.set(r.key, { name: r.name, job: r.job && r.job.id || '', lv: vlOf(r.vl), sit: false, legs: legZones({ dex: r.dex }), sd: sdN({ sdex: r.sdex }), gt: gtN({ giant: r.giant }), sh: shN({ shiny: r.shiny }), hl: cpOf({ hu: r.hu, hunt: r.hunt }), hlv: (r.hu && r.hu.lv) | 0, dex: dexIds(r.dex), help: r.help ? r.help.n | 0 : 0, jr: jrOf({ job: r.job }, r.job && r.job.id), jx: (r.job && r.job.xp && r.job.id && r.job.xp[r.job.id]) | 0 }); } sdKingCheck(true); console.log('현황판', rosterCache.size, '명'); }).catch(e => console.error('현황판을 읽지 못했어요', e.message));
 db.ranks().then(rows => { for (const r of (rows || []).filter(r => !String(r.key).startsWith('__'))) rankSet(r.key, r.name, r.enh, cleanLook(r.look, { cos: { own: Array.isArray(r.own) ? r.own : [] }, enh: r.enh }, colorOf(r.key))); champBoot = true; console.log('강화 순위', rankCache.size, '명 · 동상', champ ? champ.name + ' +' + champ.lv : '없음'); }).catch(e => { champBoot = true; console.error('강화 순위를 읽지 못했어요', e.message); });
 
 // 친구 위치 묶어서 보내기

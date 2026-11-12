@@ -542,6 +542,9 @@ details.more summary::-webkit-details-marker{display:none}
 .fwtip{position:fixed;z-index:80;background:#fffdf8;border:2px solid #d8c8f0;border-radius:14px;padding:8px 11px;font-size:12.5px;line-height:1.65;color:var(--ink);box-shadow:0 6px 18px rgba(80,60,130,.22);animation:fwIn .15s ease-out}.fwtip[hidden]{display:none}.fwtip b{font-size:14px}.fwtip .fwn{color:#9a8fb0;font-size:11.5px;margin-top:2px}.fwtip small{color:#c06a8a}@keyframes fwIn{from{opacity:0;transform:translateY(4px)}}
 .mat:has(img),.fishchip,.tchip:has(img){cursor:pointer}
 .cwl{position:absolute;left:0;top:0;pointer-events:none;font-size:11px;font-weight:700;color:#fff;background:rgba(40,40,70,.42);padding:2px 8px;border-radius:99px;white-space:nowrap;text-shadow:0 1px 1px rgba(0,0,0,.3)}.cwl[hidden]{display:none}
+.pq{display:flex;gap:9px;align-items:center;border:2px solid var(--line);border-radius:14px;padding:7px 9px;margin-bottom:5px;background:#fff}.pqi{width:38px;height:38px;flex:none;border-radius:11px;border:2px solid var(--gc);display:grid;place-items:center;font-size:20px;box-shadow:inset 0 -8px 12px -10px var(--gc)}.pqb{min-width:0}.pqb b{font-size:13.5px;display:block}.pqb small{display:block;font-size:11.5px;line-height:1.45}.pquq{color:#e0408a;font-weight:800}
+.pc{display:grid;grid-template-columns:54px 1fr auto;gap:6px;align-items:center;border-bottom:1.5px dashed var(--line);padding:6px 2px;font-size:13px}.pck{font-size:11.5px;color:#9a8fb0}.pcn{min-width:0}.pcp{text-align:right;font-weight:700;font-size:12.5px}.pcp small{display:block;font-weight:400;font-size:10.5px;color:#9a8fb0}.pctot{text-align:right;font-size:13px;margin:6px 2px 10px}.pctot b{color:#d07800}
+.aut{overflow-x:auto}.aut table{border-collapse:collapse;font-size:12px;white-space:nowrap}.aut th{background:#f3ecff;padding:5px 7px;text-align:left;position:sticky;top:0}.aut td{padding:5px 7px;border-bottom:1px solid var(--line);vertical-align:top}.aut td small{display:block;color:#9a8fb0;font-size:10.5px}
 .hbpop{position:fixed;left:14px;top:calc(env(safe-area-inset-top,0px) + 52px);z-index:60;pointer-events:none;font-size:13px;font-weight:800;color:#7a4a10;background:linear-gradient(#fff8d8,#ffe9a8);border:2px solid #f0c040;border-radius:99px;padding:3px 10px;box-shadow:0 2px 6px rgba(160,110,0,.25);animation:hbUp 1.9s ease-out forwards}.hbpop b{color:#d07800}.hbpop i{font-style:normal;color:#c0408a;margin-left:4px}@keyframes hbUp{0%{opacity:0;transform:translateY(8px) scale(.9)}12%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0;transform:translateY(-16px)}}
 .stcv{width:100%;height:auto;border-radius:14px;display:block;touch-action:none;image-rendering:pixelated;background:#222}.stsg{position:absolute;left:0;top:0;pointer-events:none;text-align:center;white-space:nowrap;z-index:1}.stsg b{display:inline-block;font-size:11px;font-weight:800;color:#fff;background:rgba(40,28,56,.78);padding:2px 8px;border-radius:8px;border:1.5px solid var(--c)}.stsg.eve b{color:var(--c);text-shadow:0 0 6px var(--c);box-shadow:0 0 8px var(--c)}.stsg.al b{background:#fff;color:#111;border:2px solid #111;font-family:'Arial Black',Arial,sans-serif;font-weight:900;letter-spacing:2px;box-shadow:none;text-shadow:none}.stsg i{display:block;font-style:normal;font-size:10px;font-weight:700;color:#fff;background:#ff5a8a;border-radius:99px;padding:0 6px;margin:2px auto 0;width:max-content}.stsg i.off{background:#9a9aaa}
 .bbrow{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;margin-top:4px}.bbrow .btn{width:auto!important;margin:0!important;padding:6px 2px!important;font-size:12px}
@@ -3448,7 +3451,7 @@ function rankStrip(k,title){rankNeed(k);const R=RANKS[k];let h='<div class="rstr
   return h+(R.me?' <i>나 '+R.me.r+'위</i>':'')+'</div>'}
 function rankFull(k,title){rankNeed(k);const R=RANKS[k];let h='<div data-rkf="'+k+'" data-t="'+esc(title)+'"><div class="sec">'+title+'</div>';
   if(!R)return h+'<div class="muted" style="padding:8px;text-align:center">불러오는 중…</div></div>';
-  h+=R.top.length?R.top.map((x,i)=>'<div class="rank'+(Net.me&&x.n===Net.me.name?' me':'')+'"><span class="r">'+(MEDAL[i]||i+1)+'</span><span class="n">'+esc(x.n)+'</span><span class="v">'+rankFmt(k,x.v)+'</span></div>').join(''):'<div class="muted" style="padding:8px;text-align:center">아직 기록이 없어요</div>';
+  h+=R.top.length?R.top.map((x,i)=>'<div class="rank'+(Net.me&&x.n===Net.me.name?' me':'')+'"><span class="r">'+(MEDAL[i]||i+1)+'</span><span class="n">'+esc(x.n)+(k==='hunt'&&x.lv?' <small class="muted">Lv'+x.lv+'</small>':'')+'</span><span class="v">'+rankFmt(k,x.v)+'</span></div>').join(''):'<div class="muted" style="padding:8px;text-align:center">아직 기록이 없어요</div>';
   if(R.me&&R.me.r>10)h+='<div class="rank me"><span class="r">'+R.me.r+'</span><span class="n">나</span><span class="v">'+rankFmt(k,R.me.v)+'</span></div>';
   if(k==='eb')h+='<div class="sec" style="margin-top:10px">💥 최근 대박</div>'+((R.log||[]).length?R.log.map(e=>'<div class="rank"><span class="r">'+(e.jk?'⭐':'💥')+'</span><span class="n">'+esc(e.n)+' <small class="muted">'+(EB_GAME[e.g]||e.g)+(e.jk?' 잭팟':' ×'+Math.round(e.w/Math.max(1,e.b)))+'</small></span><span class="v">'+fmtK(e.w)+'칩</span><span class="muted" style="font-size:11px">'+ago(e.at)+'</span></div>').join(''):'<div class="muted" style="padding:8px;text-align:center">아직 대박이 없어요 · 처음 터뜨려 봐요!</div>');
   return h+'</div>'}
@@ -8360,6 +8363,7 @@ function openAdmin(){
   let h='<div class="pethead" style="background:linear-gradient(#ece8f8,#f8f4ff)"><div style="flex:1"><div style="font-size:17px">🛠️ 운영자 모드 <b>'+(admOn()?'켜짐':'꺼짐')+'</b></div><div class="muted" style="font-size:12px">켜 두면 직업을 대기 · 골드 · 레벨 없이 바로 바꿀 수 있고, 끝 노드 잠금도 없어요.</div></div><button class="btn sm '+(admOn()?'ghost':'pink')+'" data-adm="tog">'+(admOn()?'끄기':'켜기')+'</button></div>';
   h+='<div class="sec">내 직업 바로 바꾸기</div><div class="warps">'+JOB_IDS.map(id=>'<button data-adm="job" data-v="'+id+'"'+(j.id===id?' disabled':'')+'>'+JOBS[id].ic+' '+JOBS[id].name+'</button>').join('')+'</div>';
   if(ONLINE&&Net.me){
+    h+='<div class="sec">유저 현황</div><button class="btn sm mint" style="width:100%;margin:4px 0 12px" data-adm="users">👥 모두의 레벨 · 강화 · 골드 보기</button>';
     h+='<div class="sec">마을 공지</div><div style="display:flex;gap:6px;margin:4px 0 12px"><input class="tin" id="admNote" maxlength="80" placeholder="모두에게 보낼 말"><button class="btn sm" data-adm="notice">보내기</button></div>';
     h+='<div class="sec">선물 주기 · 빼기 (서버가 바로 넣어 줘요)</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0">'+
       '<select class="tin" id="admTo" style="flex:1 1 40%">'+names.map(n=>opt(n,n,ADM.to)).join('')+'</select>'+
@@ -8403,6 +8407,7 @@ function admClick(t){
   const a=t.dataset.adm,v=t.dataset.v;if(!a)return false;Snd.sfx('tap');
   if(a==='tog'){S.set.adm=!S.set.adm;saveState();recalc();openAdmin();return true}
   if(a==='job'){if(!admOn()){toast('운영자 모드를 먼저 켜 주세요');return true}pickJob(v);return true}
+  if(a==='users'){Net.send({t:'adm',op:'users'});return true}
   if(a==='notice'){const tx=($('admNote').value||'').trim();if(tx)Net.send({t:'adm',op:'notice',text:tx});$('admNote').value='';return true}
   if(a==='give'){ADM.to=$('admTo').value;ADM.k=$('admK').value;ADM.n=+$('admN').value|0;if(!ADM.n){toast('개수를 적어 주세요');return true}Net.flushSave(true);Net.send({t:'adm',op:'give',to:ADM.to,k:ADM.k,n:ADM.n});return true}
   if(a==='unjob'){Net.send({t:'adm',op:'unjob',to:v});return true}
@@ -9930,6 +9935,8 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='enh')onEnh(m);
     else if(m.t==='drop'){const k=m.src+':'+(m.id||''),p=dropSrc[k]||[P.x,P.y];delete dropSrc[k];spawnDrop(p[0],p[1],m.n|0||1,m.did)}
     else if(m.t==='prof')onProf(m);
+    else if(m.t==='prof_x')onProfX(m);
+    else if(m.t==='adm_users')openAdmUsers(m.list||[]);
     else if(m.t==='pop_ok'){if(PF.id===m.id&&PF.data){PF.data.pop=m.pop;body().innerHTML=profileHtml(PF.data,false)}toast(m.v>0?'하트를 줬어요 ♥':'인기도를 내렸어요');Snd.sfx(m.v>0?'coin':'tap')}
     else if(m.t==='pop_got'){S.pop=Object.assign({n:0,up:0,dn:0},m.pop||{});socNote('♥ '+m.name+' 님이 하트를 줬어요 (받은 하트 '+(S.pop.up|0)+')',m.name)}
     else if(m.t==='enh_rank'){forgeRank=m.list||[];if(forgeOpen()&&!FG.busy)renderForge();if(hallOpen())openHall(true)}
@@ -10093,7 +10100,20 @@ function startGame(){
   if(!ONLINE){const out=[];enhDaily(S.enh,out);if(out.length)setTimeout(()=>toast(out[0]+' 메뉴 → 낚싯대 강화소에서 돌려 보세요'),3800)}
 }
 /* ----- 스테이터스 창: 나 · 다른 친구 (인기도 · 동물 친구 호감도 · 기록) ----- */
-const PF={id:null,data:null};
+const PF={id:null,data:null,x:null,mine:false};
+/* 🔎 친구 상세 (2026-11-12): 용사 · 낀 장비 (등급 · 강화 · 능력치 · 희귀도) · 치장 (가격 · 등급 · 마을에 몇 명) */
+const GRADE_P=['55%','26%','12%','5%','1.6%','0.35%','0.05%','0.006%','0.0007%'];
+function onProfX(m){if(PF.id!==m.id||$('sheetwrap').hidden)return;PF.x=m;body().innerHTML=profileHtml(PF.mine?myProfile():(PF.data||{name:''}),PF.mine)}
+function profXHtml(X,L){if(!X)return ONLINE?'<div class="muted" style="padding:8px;text-align:center;font-size:12px">장비 · 치장 불러오는 중…</div>':'';
+  const own=n=>n<=1?'<b class="pquq">마을 유일</b>':'마을에 '+n+'명';let h='';
+  h+='<div class="sec">용사</div><div class="srcs"><div>용사 레벨 <b>Lv'+(X.hu.lv|0)+'</b></div><div>전투력 <b>💪'+fmt(X.hu.cp|0)+'</b></div></div>';
+  const ks=RPG_SLOTS.filter(k=>X.eq[k]);
+  h+='<div class="sec">낀 장비 <span class="cnt">'+ks.length+'/'+RPG_SLOTS.length+'</span></div>';
+  h+=ks.length?ks.map(k=>{const it=X.eq[k],g=it.g|0,st=itStats(it);return'<div class="pq"><span class="pqi" style="--gc:'+HG_COL[g]+'">'+itIcon(it)+'</span><div class="pqb"><b style="color:'+(g>=8?'#6a4ab0':HG_COL[g])+'">【'+HG_NAME[g]+'】 '+esc(itTitle(it))+'</b><small>'+Object.keys(st).filter(q=>RPG_STAT[q]&&st[q]).map(q=>RPG_STAT[q][0]+' '+RPG_STAT[q][1](st[q])).join(' · ')+'</small><small class="muted">'+HSLOT[k][0]+' · 착용 Lv'+itReq(it)+' · '+HG_NAME[g]+' 등급은 장비 중 '+GRADE_P[g]+' · '+(g>=3&&(X.gcnt[k]|0)<=1?'<b class="pquq">마을 유일</b>':'이 등급 이상 '+HSLOT[k][0]+' 가진 사람 '+(X.gcnt[k]|0)+'명')+'</small></div></div>'}).join(''):'<div class="muted" style="font-size:12px;padding:4px 0 8px">아직 낀 장비가 없어요</div>';
+  if(L){const rows=[['ti','칭호'],['hat','모자'],['o','옷'],['bk','등'],['fa','얼굴'],['rod','낚싯대'],['bob','찌'],['ft','발자국'],['tf','이름표']].filter(r=>COS_BY[L[r[0]]]&&COS_BY[L[r[0]]].price!==0);let tot=0;
+    h+='<div class="sec">치장</div>'+(rows.length?rows.map(r=>{const c=COS_BY[L[r[0]]],pr=c.price|0;tot+=pr;const tr=c.k==='title'&&c.tg?'<span class="tgx tg'+c.tg+(c.ts?' ts-'+c.ts:'')+'" style="font-size:11px">'+TG_NAME[c.tg]+'</span>':c.tier!=null&&TIERS[c.tier]?'<span style="color:'+TIERS[c.tier].c+';font-size:11px;font-weight:700">'+TIERS[c.tier].n+'</span>':'';
+      return'<div class="pc"><span class="pck">'+r[1]+'</span><span class="pcn">'+esc(c.name)+' '+tr+'</span><span class="pcp">'+(pr?fmtK(pr)+'골드':'<small>'+esc(rewardText(c)||'보상')+'</small>')+'<small>'+own(X.cnt[c.id]|0)+'</small></span></div>'}).join('')+'<div class="pctot">치장 총 가치 <b>'+fmtK(tot)+'골드</b></div>':'<div class="muted" style="font-size:12px">기본 모습이에요</div>')}
+  return h}
 function petRows(p){const pt0=p&&p._&&p._.pt||'ruby';return PETS.map(pt=>{const st=p&&p[pt.id],pr=lvProg(xpOfRaw(st)),hh=st&&st.hd===kstDay()?Math.min(100,st.h|0):0;
   return'<div class="pet-row"><span class="n">'+esc(pt.name)+(pt.id===pt0?'<span style="color:#e0608a;font-size:12px">★</span>':'')+'</span><div class="bar"><i style="width:'+Math.round(pr.p*100)+'%;background:var(--lav)"></i></div><span class="v">Lv'+pr.L+' ♥'+hh+'</span></div>'}).join('')+
   '<div class="muted" style="font-size:11px;margin-bottom:10px">★ 짝꿍 · 막대는 다음 레벨까지 · ♥는 오늘 호감도(매일 비워져요). Lv10이면 그 친구의 칭호</div>'}
@@ -10108,6 +10128,7 @@ function profileHtml(d,mine){
   h+='<div class="sec">동물 친구'+(mine?' <button class="btn ghost sm" data-mn="pets" style="min-height:28px;padding:2px 10px;font-size:12px;margin-left:4px">자세히</button>':'')+'</div>'+petRows(d.pets);
   h+='<div class="sec">기록</div><div class="srcs"><div>잡은 물고기 <b>'+fmt(d.catches|0)+'</b></div><div>도감 <b>'+(d.dex|0)+'종</b></div><div>최고 강화 <b>+'+(d.max|0)+'</b></div><div>지금 강화 <b>+'+(d.e|0)+'</b></div><div>💌 덕분에 <b>'+((d.help&&d.help.n)|0)+'번</b></div><div>🎪 연 행사 <b>'+(d.evn|0)+'번</b></div></div>';
   {const o=mine?null:others.get(PF.id),L=mine?S.cos.look:(o&&o.look),nm=mine?(ONLINE&&Net.me?Net.me.name:''):(o&&o.name)||d.name;if(L)h+=fxGuideHtml(L,nm,mine?S.enh.lv:(d.e|0),mine?myGs():(L.gs|0))}
+  {const o=mine?null:others.get(PF.id);h+=profXHtml(PF.x,mine?S.cos.look:(o&&o.look))}
   if(mine)h+='<div class="muted" style="font-size:12px">다른 친구나 이름표를 누르면 그 친구의 정보를 볼 수 있어요.</div>';
   return h;
 }
@@ -10130,13 +10151,16 @@ function fxGuideHtml(L,name,e,gs){const rows=[],row=(ic,src,what)=>rows.push('<d
   if(KINGS.eb&&KINGS.eb.name===name)row('🎰','은비랜드 왕 (한 번에 가장 많이 딴 사람)','빨간 777 슬롯');
   return'<div class="sec" style="margin-top:10px">✨ 보이는 효과는 어디서?</div>'+(rows.length?rows.join(''):'<div class="muted" style="font-size:12px;padding:6px">아직 특별한 효과가 없어요</div>')}
 function myProfile(){const j=jobId();return{name:ONLINE&&Net.me?Net.me.name:'나',ti:S.cos.look.ti,e:S.enh.lv,max:S.enh.max,pop:S.pop,pets:S.pets,catches:S.stats.catches,dex:Object.keys(S.dex).filter(k=>S.dex[k].n>0).length,job:j?{id:j,r:jRank(j)}:null,help:S.help||{n:0},evn:S.evn|0}}
+function openAdmUsers(L){const th=['이름','용사','전투력','강화','골드','칩','반짝','손맛','물고기','마지막'];
+  openSheet('유저 현황','<div class="muted" style="font-size:12px;margin-bottom:6px">운영자에게만 보여요 · 용사 레벨 순 · 악몽 정화 / 이번 주 레이드는 이름 아래</div><div class="aut"><table><tr>'+th.map(x=>'<th>'+x+'</th>').join('')+'</tr>'+
+    L.map(u=>'<tr><td><b>'+(u.on?'🟢 ':'')+esc(u.n)+'</b><small>'+(u.job&&JOBS[u.job]?JOBS[u.job].name:'')+(u.nc?' · 악몽 '+u.nc+'/10':'')+(u.rw?' · 레이드 ✓':'')+'</small></td><td>Lv'+u.hl+'</td><td>'+fmt(u.cp)+'</td><td>+'+u.e+'<small>최고 +'+u.em+' · 권 '+u.tk+'</small></td><td>'+fmtK(u.g)+'</td><td>'+fmtK(u.c)+'</td><td>'+u.sh+'</td><td>'+u.sd+'</td><td>'+fmt(u.ct)+'</td><td><small>'+esc(u.ls||'-')+'</small></td></tr>').join('')+'</table></div>')}
 function openProfile(o){
   if(F.mode!=='idle')return;Snd.sfx('ui');
-  if(!o){PF.id=null;openSheet('내 정보',profileHtml(myProfile(),true),()=>{PF.id=null});return}
-  PF.id=o.id;PF.data=null;openSheet(o.name+' 님','<div class="muted" style="padding:24px;text-align:center">불러오는 중…</div>',()=>{PF.id=null});
+  if(!o){PF.mine=true;PF.x=null;PF.id=ONLINE&&Net.me?Net.me.id:null;openSheet('내 정보',profileHtml(myProfile(),true),()=>{PF.id=null;PF.mine=false});if(PF.id!=null)Net.send({t:'prof',id:PF.id});return}
+  PF.mine=false;PF.x=null;PF.id=o.id;PF.data=null;openSheet(o.name+' 님','<div class="muted" style="padding:24px;text-align:center">불러오는 중…</div>',()=>{PF.id=null});
   Net.send({t:'prof',id:o.id});
 }
-function onProf(m){if(PF.id!==m.id||$('sheetwrap').hidden)return;PF.data=m;body().innerHTML=profileHtml(m,false)}
+function onProf(m){if(PF.id!==m.id||$('sheetwrap').hidden||PF.mine)return;PF.data=m;body().innerHTML=profileHtml(m,false)}
 /* ========== 마을 행사: 직업마다 하루 한 번 개최 (server.js EV_KIND와 같아야 해요) ==========
    버튼 하나로 열고 → 20~60분 동안 저절로 → 결과는 뉴스로. 참가는 평소 하던 행동 그대로 */
 const EV_KIND={
