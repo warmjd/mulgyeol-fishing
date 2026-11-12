@@ -10255,7 +10255,7 @@ function placeTags(cX,cY){
     const near=Math.hypot(a.x-P.x,a.y-P.y)<44&&!(F.mode==='result'&&HOLD),sx=ox+(Math.round(a.x)-cX)*SC,sy=oy+(Math.round(a.y)-15-cY)*SC;
     if(a.tag.hidden===near)a.tag.hidden=!near;if(near)a.tag.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,-100%)'});
   others.forEach(o=>{if(!o.seen){o.tag.hidden=true;if(o.bub)o.bub.hidden=true;return}put(o,o.x,o.y)});
-  stSignsPlace(ox,oy,cX,cY);evbPlace(ox,oy,cX,cY);cwPlace(ox,oy,cX,cY);kstPlace(ox,oy,cX,cY);cstPlace(ox,oy,cX,cY);LCAM={ox,oy,cX,cY};
+  stSignsPlace(ox,oy,cX,cY);evbPlace(ox,oy,cX,cY);cwPlace(ox,oy,cX,cY);kstPlace(ox,oy,cX,cY);LCAM={ox,oy,cX,cY};
 }
 function loginMsg(t,bad){const el=$('tMsg');el.textContent=t;el.style.color=bad?'#d9607e':'';if(bad)$('tStart').disabled=false}
 function doLogin(){
