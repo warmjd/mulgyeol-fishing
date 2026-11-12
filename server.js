@@ -212,6 +212,8 @@ LOOK_IDS.o.push('o_tux', 'o_wdress', 'o_warrior', 'o_hero', 'o_paladin', 'o_skye
 /* 🍰❄️✨👑 치장 5.0 (2026-11-12) — index.html CUTE_DAY 블록과 같은 id */
 LOOK_IDS.hat.push('h_cherrypin', 'h_heartpin', 'h_lacebow', 'h_cake', 'h_macpin', 'h_cupcake', 'h_snowtiara', 'h_earmuff', 'h_snowbunny', 'h_firefly', 'h_starhalo', 'h_rubytiara', 'h_sapphire', 'h_emerald', 'h_pearlpin', 'h_diacrown'); LOOK_IDS.o.push('o_knit', 'o_sailorpk', 'o_cardigan', 'o_macaron', 'o_cakedress', 'o_icequeen', 'o_puffer', 'o_lightdress', 'o_pearlgown', 'o_ballgown'); LOOK_IDS.bk.push('k_balloon', 'k_starballoon', 'k_bunnybag', 'k_lollipop', 'k_cottonwing', 'k_icewing', 'k_lightwing', 'k_jewelcape'); LOOK_IDS.fa.push('f_starblush', 'f_cream', 'f_frost', 'f_gemtear'); LOOK_IDS.ft.push('ft_snow', 'ft_heart', 'ft_sugar', 'ft_shine', 'ft_gem'); LOOK_IDS.tf.push('tf_pink', 'tf_candy', 'tf_ice', 'tf_pearl', 'tf_night', 'tf_jewel'); LOOK_IDS.ti.push('t_dessert', 't_snowgirl', 't_twinkle', 't_milk', 't_catpaw', 't_slime', 't_rookie', 't_goldbag', 't_icepr', 't_macaron', 't_starwalk', 't_jewelbox', 't_heir', 't_dungeon', 't_dreamgate', 't_ribbon', 't_snowqueen', 't_sweetpr', 't_lightfairy', 't_nightmare', 't_dragonsl', 't_abyss', 't_moonpr', 't_heavenpr', 't_crown', 't_demonkill', 't_dreameat', 't_frostgod', 't_goddess', 't_savior', 't_legend', 't_angelq');
 LOOK_IDS.hat.push('h_nmhorn'); LOOK_IDS.o.push('o_nmrobe'); LOOK_IDS.bk.push('k_nmwing'); LOOK_IDS.ti.push('t_nm1', 't_nmwalk');
+/* 🌸🐱🌙⚔️ 일상 라인 · 💎 명품 한정 (2026-11-12 저녁) — index.html D6 블록과 같은 id */
+LOOK_IDS.hat.push('h_flowercrown', 'h_catknit_cream', 'h_catknit_gray', 'h_catknit_black', 'h_nightcap_blue', 'h_nightcap_pink', 'h_nightcap_yellow', 'h_feather'); LOOK_IDS.o.push('o_gingham_pink', 'o_gingham_mint', 'o_gingham_sky', 'o_apron_pink', 'o_apron_mint', 'o_apron_brown', 'o_bearpj_brown', 'o_bearpj_pink', 'o_bearpj_white', 'o_leather_brown', 'o_leather_black', 'o_aurora'); LOOK_IDS.bk.push('k_basket', 'k_cattail_cream', 'k_cattail_gray', 'k_cattail_black', 'k_pillow', 'k_quiver'); LOOK_IDS.ti.push('t_owner');
 LOOK_IDS.ti.push('t_pioneer', 't_islfish', 't_islbest', 't_pole', 't_pila', 't_gym', 't_ortho', 't_rock');
 LOOK_IDS.hat.push('neonband', 'sweatband', 'bandage', 'climbhelm'); LOOK_IDS.o.push('o_polefit', 'o_pilafit', 'o_gymtank', 'o_doccoat'); LOOK_IDS.bk.push('yogamat', 'chalkbag');
 LOOK_IDS.o.push('o_moondress', 'o_sakura', 'o_darkarmor', 'o_hunter'); LOOK_IDS.hat.push('h_moonpin', 'h_sakura', 'h_darkhelm', 'h_hunterhood'); LOOK_IDS.bk.push('k_moonwing', 'k_bigribbon', 'k_darkcape', 'k_axe', 'k_quiver'); LOOK_IDS.fa.push('f_glitter', 'f_blush'); LOOK_IDS.ti.push('t_raid1'); LOOK_IDS.ti.push('t_moonfairy', 't_sakura', 't_darkknight', 't_hunter'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
@@ -1158,7 +1160,7 @@ function onMsg(ws, me, m) {
       if (m.op === 'users') {   // 👥 유저 현황 (운영자만): 밸런스 볼 때
         return (async () => { const list = []; for (const [key, r] of rosterCache) { const sv = await loadSave(key).catch(() => null); if (!sv) continue; const e = sv.enh || {}, eb = sv.eb || {};
           list.push({ n: r.name, on: !!liveByKey(key), hl: (sv.hu && sv.hu.lv) | 0, cp: cpOf(sv), e: e.lv | 0, em: e.max | 0, tk: e.tk | 0, g: sv.gold | 0, c: eb.c | 0, sh: shN(sv), sd: sdN(sv), ct: (sv.stats && sv.stats.catches) | 0, job: jobOf(sv) || '', ls: sv.lsd || '', nc: Object.keys((sv.hunt && sv.hunt.nclr) || {}).length, rw: sv.hunt && sv.hunt.rw === wfWeek() ? 1 : 0 }); }
-          list.sort((a, b) => b.hl - a.hl || b.cp - a.cp); send(ws, { t: 'adm_users', list }); })().catch(e => console.error('adm users', e.message));
+          list.forEach(u => u.idle = !u.hl && !u.ct && !u.e); list.sort((a, b) => (a.idle - b.idle) || b.hl - a.hl || b.cp - a.cp); send(ws, { t: 'adm_users', list }); })().catch(e => console.error('adm users', e.message));
       }
       if (m.op === 'who') {   // 접속자 위치 · 배낚시 여부
         const list = [...players.values()].map(p => { const tx = Math.floor(p.x / 16), ty = Math.floor(p.y / 16); return { name: p.name, tx, ty, where: ty >= 100 ? '배낚시 바다' : ty >= 60 ? '안개 섬' : '물결마을', pt: !!(party && party.members.includes(p.key)) }; });
@@ -2112,7 +2114,8 @@ const arkPub = () => { const a = arkOf(); return { st: a.st, got: a.got, dn: Obj
 function vPub() {
   if (!V) return { t: 'vil' };
   const st = vSt(), don = Object.entries(V.don).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, g]) => ({ name, g }));
-  return { t: 'vil', ark: arkPub(), ships: shipPub(), fund: { g: V.fund.g, st, need: VF[st] ? VF[st].g : 0 }, don, wk: V.wk, rsv: V.rsv.map(r => ({ kind: r.kind, host: r.hostName, at: r.at })), fest: isFest(), festH: FEST_H, tog: { n: tog.n, on: tog.on, p: togLuck() }, boom: V.boom && V.boom.until > Date.now() ? V.boom : null, shop: medShop(), medCap: medCap() };
+  let hutop = 0; for (const r of rosterCache.values()) hutop = Math.max(hutop, r.hlv | 0);
+  return { t: 'vil', hutop, ark: arkPub(), ships: shipPub(), fund: { g: V.fund.g, st, need: VF[st] ? VF[st].g : 0 }, don, wk: V.wk, rsv: V.rsv.map(r => ({ kind: r.kind, host: r.hostName, at: r.at })), fest: isFest(), festH: FEST_H, tog: { n: tog.n, on: tog.on, p: togLuck() }, boom: V.boom && V.boom.until > Date.now() ? V.boom : null, shop: medShop(), medCap: medCap() };
 }
 function vSend() { broadcast(vPub()); }
 function vSoon() { if (vT) return; vT = setTimeout(() => { vT = 0; vSend(); }, 500); }
