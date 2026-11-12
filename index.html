@@ -4795,7 +4795,7 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
 const UPD_VER='1112h',UPD_LOG=[
- ['11/12 밤','📋',[['왼쪽 위 판이 넘겨져요','🎣 오늘의 낚시왕 → 👑 손맛 → ✨ 반짝을 5초마다 · 1위 · 2위와 몇 종인지 · 누르면 그 순위표'],['🐕 루비 산책은 쉬어요','하루 한 번 일이 하나 줄었어요 · 냄새 소원은 그대로 · 동물 친구의 「산책 달인」은 「소원 달인」이 되어 냄새 소원 보상이 늘어요 (찍은 포인트 그대로)']]],
+ ['11/12 밤','📋',[['왼쪽 위 오늘의 낚시왕','1위 · 2위가 오늘 몇 마리 낚았는지 · 3위 밖이면 내 순위도'],['🐕 루비 산책은 쉬어요','하루 한 번 일이 하나 줄었어요 · 냄새 소원은 그대로 · 동물 친구의 「산책 달인」은 「소원 달인」이 되어 냄새 소원 보상이 늘어요 (찍은 포인트 그대로)']]],
  ['11/12 밤','👑',[['손맛 왕은 이 게임의 왕','왕관 이름표 「👑 물결마을 손맛 왕」 · 주변 물이 금빛으로 출렁 · 걸으면 금빛 꽃잎 · 근처에서 친구가 낚으면 찌 위에 왕관이 퐁 · 접속하면 마을에 알림 · 광장에 손맛 왕 동상'],['❦ 손맛 명예 칭호','손맛 도감 100 · 200 · 300 · 450 · 600종마다 「손맛 입문 · 장인 · 달인 · 대가 · 물결의 전설」 · 돈으로 못 사요'],['1위마다 다른 효과','⚔️ 용사 왕 발밑 문장 · 사냥터 몬스터가 움찔 · 🌊 거대 왕 주변 물속 큰 그림자 · 🎰 은비랜드 왕 걸으면 금화 · 💗 기부 왕 서 있으면 꽃 · 🏅 주간 챔피언 머리 위 대회 물고기 풍선 · 🎣 어제의 낚시왕 리본 · ⚒️ 강화 1위 불꽃'],['여러 개를 가지면','가장 높은 효과 하나만 크게 · 나머지는 이름표 아이콘'],['명예의 전당','첫 탭이 「손맛」'],['🎣 낚싯대가 좋을수록 멀리','톡 = 가까이 (2칸 · 2억 넘는 낚싯대는 3칸) · 꾹 = 낚싯대 값에 따라 최대 5 · 6 · 8 · 11 · 12 · 13칸 · 치장 상점에서 낚싯대를 누르면 최대 거리가 보여요']]],
  ['11/12 밤','🏅',[['상금이 크게 올랐어요','🏅 주간 낚시 대회 우승 10억 골드 · 🎣 하루 낚시왕 1등 1억 골드'],['주간 대회 실시간','왼쪽 위 낚시왕 판 아래에 이번 주 대회 물고기 · 사는 곳 · 1위 크기 · 내 크기가 실시간으로 · 누르면 명예의 전당 주간']]],
  ['11/12 밤','📖',[['도감 모아 보기','도감 위 버튼으로 「안 만난 · 손맛 아직 · 반짝 아직 · 지금 낚을 수 있는」 물고기만 모든 쪽에서 한 번에 · 낚시터별로 묶어서 · 누르면 바로 위에 어디서 · 언제 낚는지']]],
@@ -10446,13 +10446,14 @@ let DAYK=null;
 function dkTick(){let el=$('dkpill');const vis=!!P&&$('title').hidden&&!uiOpen&&ONLINE&&Net.me&&DAYK&&!S.dkOff&&!ECO.on&&!inSea();
   if(!el){if(!vis)return;el=document.createElement('button');el.id='dkpill';el.onclick=()=>{const k=dkTick.cur;if(k==='sd'||k==='sh'){HOF_TAB=k;openHof()}else openDayK()};document.body.appendChild(el)}
   el.hidden=!vis;if(!vis)return;const sl=dkSlides();if(!dkTick.t0)dkTick.t0=Date.now();const i=Math.floor((Date.now()-dkTick.t0)/5000)%sl.length,S1=sl[i];dkTick.cur=S1.k;
-  const t='<span class="dkc">'+S1.h+'</span><span class="dkd">'+sl.map((_,j)=>'<i'+(j===i?' class="on"':'')+'></i>').join('')+'</span>';
+  const t='<span class="dkc">'+S1.h+'</span>'+(sl.length<2?'':'<span class="dkd">'+sl.map((_,j)=>'<i'+(j===i?' class="on"':'')+'></i>').join('')+'</span>');
   if(el.dataset.k!==t){const flip=el.dataset.i!==String(i);el.dataset.k=t;el.dataset.i=i;el.innerHTML=t;if(flip){el.classList.remove('flip');void el.offsetWidth;el.classList.add('flip')}}}
 /* 2026-11-12: 왼쪽 위 판은 「오늘의 낚시왕 → 👑 손맛 → ✨ 반짝」을 5초마다 넘겨요 (은비랜드 · 기부 · 강화는 명예의 전당에만 · 지저분하지 않게)
    ① ② 두 명 + 나 (3위 밖이면 순위와 개수) · 누르면 보고 있던 판의 순위표 */
 function dkSlides(){const me=Net.me.name,out=[];
   const two=(arr,u)=>{const a=arr.slice(0,2).map((x,j)=>'<u>'+(j+1)+'</u>'+esc(x.n)+(x.n===me?'(나)':'')+'<b>'+fmt(x.v)+u+'</b>').join(''),mi=arr.findIndex(x=>x.n===me);return a+(mi>=2?'<em>나 '+(mi+1)+'위 '+fmt(arr[mi].v)+u+'</em>':'')};
-  {const l=(DAYK.list||[]).map(x=>({n:x.name,v:x.n}));out.push({k:'dk',h:'🎣오늘'+(l.length?two(l,''):'아직 아무도')})}
+  {const l=(DAYK.list||[]).map(x=>({n:x.name,v:x.n}));out.push({k:'dk',h:'🎣 오늘'+(l.length?two(l,''):' · 아직 아무도')})}
+  return out;   // 2026-11-13: 왼쪽 위는 오늘 마릿수만 (손맛 · 반짝은 명예의 전당에서)
   const R=(ROSTER||[]).filter(r=>r&&r.name);
   for(const [k,ic,nm] of [['sd','👑','손맛'],['sh','✨','반짝']]){const l=R.map(r=>({n:r.name,v:r[k]|0})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);if(k==='sd'&&KING&&KING.name){const ki=l.findIndex(x=>x.n===KING.name);if(ki>0)l.unshift(l.splice(ki,1)[0])}if(l.length)out.push({k,h:ic+nm+two(l,'종')})}
   return out}
