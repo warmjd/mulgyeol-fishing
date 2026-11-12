@@ -405,6 +405,20 @@ input.tin:focus{outline:3px solid var(--lav);outline-offset:1px}
 #banner.on{opacity:1;transform:translate(-50%,0)}
 .ntag.tf_silver{border-color:#c8ccd8;background:linear-gradient(#ffffff,#eef0f6)}
 .ntag.tf_gold{border-color:#e8b84a;background:linear-gradient(#fffbe8,#ffeeb0);box-shadow:0 0 6px rgba(255,200,80,.6)}
+.tgx.tg1{color:#3a80e8!important}.tgx.tg2{color:#8a4ae8!important;font-weight:700}.tgx.tg3{color:#c88400!important;font-weight:800;text-shadow:0 0 3px rgba(255,200,60,.55)}
+.tgx{--a:#e0408a;--b:#ff8ac0;--c:#c03070;--g:rgba(255,120,180,.75)}
+.tgx.ts-pink{--a:#e0408a;--b:#ff8ac0;--c:#c03070;--g:rgba(255,120,180,.75)}.tgx.ts-ice{--a:#2a8ad8;--b:#6ad0ff;--c:#1a6ab8;--g:rgba(120,210,255,.8)}.tgx.ts-gold{--a:#c07800;--b:#f0b020;--c:#a06000;--g:rgba(255,200,60,.8)}
+.tgx.ts-blood{--a:#b01020;--b:#ff4a3a;--c:#700818;--g:rgba(255,60,60,.7)}.tgx.ts-galaxy{--a:#6a3cff;--b:#e050c0;--c:#2a90e0;--g:rgba(160,110,255,.8)}.tgx.ts-light{--a:#d09a00;--b:#ffcc30;--c:#c08000;--g:rgba(255,230,120,.9)}
+.tgx.ts-candy{--a:#ff5a9a;--b:#30c0a0;--c:#ffa020;--g:rgba(255,160,210,.8)}.tgx.ts-night{--a:#3a3a9a;--b:#8a6ae0;--c:#2a2a6a;--g:rgba(140,120,255,.7)}
+.tgx.tg4{font-weight:800;background:linear-gradient(90deg,var(--a),var(--b),var(--c),var(--b),var(--a));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:tgShine 3.2s linear infinite;filter:drop-shadow(0 0 2px var(--g))}
+.tgx.tg5{font-weight:900;color:#fff!important;background:linear-gradient(90deg,var(--a),var(--b),var(--c),var(--b),var(--a));background-size:300% 100%;border-radius:7px;padding:0 6px;margin:1px auto 2px;width:max-content;box-shadow:0 0 0 1.5px #fff,0 0 7px var(--g);animation:tgShine 3.2s linear infinite;text-shadow:0 1px 0 rgba(0,0,0,.3);letter-spacing:.3px}
+@keyframes tgShine{from{background-position:0 0}to{background-position:300% 0}}
+.tcard{display:flex;align-items:center;justify-content:center;min-height:30px;font-size:11px;max-width:100%;overflow:hidden}.tcard .tcn{display:inline-block;white-space:nowrap}
+.tpv{text-align:center;padding:6px 0 10px}.ntag.tpvn{position:static;display:inline-block;transform:scale(1.5);transform-origin:center bottom;margin-top:18px;pointer-events:none}
+.ntag.tf_pink{border:2px dotted #ff9ec4;background:linear-gradient(#fff,#fff0f6)}.ntag.tf_candy{border:2px solid transparent;background:linear-gradient(#fffafc,#fffafc) padding-box,repeating-linear-gradient(45deg,#ff6a8a 0 4px,#fff 4px 8px) border-box}
+.ntag.tf_ice{border:2px solid #9ad8ff;background:linear-gradient(#f4fcff,#dff4ff);box-shadow:0 0 6px rgba(140,210,255,.6)}.ntag.tf_pearl{border:2px solid transparent;background:linear-gradient(#fffdfd,#fbf6ff) padding-box,linear-gradient(90deg,#f0e6f4,#fff,#ffe8f4,#fff,#e8f0ff) border-box;box-shadow:0 0 5px rgba(230,200,240,.8)}
+.ntag.tf_night{border:2px solid #6a4ab0;background:linear-gradient(#2a2a5a,#3a2a6a);color:#fff;box-shadow:0 0 6px rgba(120,90,220,.7)}.ntag.tf_night .en{color:#ffd86a}
+.ntag.tf_jewel{border:2px solid transparent;background:linear-gradient(#fffafc,#fffafc) padding-box,linear-gradient(90deg,#ff4a7a,#4ab0ff,#3ad08a,#c070ff,#ff4a7a) border-box;background-size:auto,300% 100%;animation:tgShine 4s linear infinite;box-shadow:0 0 7px rgba(200,120,255,.6)}
 .ntag.tf_rainbow{border:2px solid transparent;background:linear-gradient(#fffaf2,#fffaf2) padding-box,linear-gradient(90deg,#ff8aa8,#ffd27a,#8fd3c0,#a9b8f2,#d6a8f0) border-box;box-shadow:0 0 8px rgba(255,170,200,.6)}
 
 /* 교환 2.0 · 낚시터 문 */
@@ -2587,7 +2601,7 @@ function rodFx(g,id,x0,y0,x1,y1,P,dt,carry){const d=ROD3[id]||ISLE_ROD[id];if(!d
 const carryOn=id=>{const d=ROD3[id]||ISLE_ROD[id];return!!(d&&d.tier>=2)};
 function carryRod(x,y,dir,id,P){if(!carryOn(id))return;const s=dir==='left'?1:dir==='right'?-1:1,x0=x+s*-5,y0=y-4,x1=x+s*5,y1=y-26;drawRod(x0,y0,x1,y1,id);rodFx(cx,id,x0,y0,x1,y1,P||parts,FXDT,true)}
 /* --- 새 옷 · 모자 · 망토 · 얼굴 · 헤어 (세트로 묶어서 상점에 보여요) --- */
-const FX_FALL={drop:1,petal:1,snow:1,leaf:1,feather:1,gold:1};
+const FX_FALL={sugar:1,drop:1,petal:1,snow:1,leaf:1,feather:1,gold:1};
 const SET_TIER={'별바다 마법사':1,'심해 왕국':2,'드래곤':3,'천상':3,'흑기사':3,'대항해':2,'궁중':2,'스트리트':0,'메이드 카페':0,'가을 한정':1,'겨울 한정':1};
 [
  /* [id,종류,이름,가격,세트,효과,한정] */
@@ -2677,7 +2691,7 @@ function drawHat3(b,dir,id,hair,hairTop){const side=dir==='side',up=dir==='up';
     case'i_keepcap':{const n=[50,60,100],w=[255,255,255],r=[220,70,70],y=[255,226,110];fillR(b,4,1,8,4,n);fillR(b,4,4,8,1,w);if(side)fillR(b,10,5,4,1,n);else if(!up)fillR(b,4,5,8,1,n);if(!up&&!side){px(b,7,2,r);px(b,8,2,w);px(b,7,1,y);px(b,8,1,y)}break}
     case'i_seahelm':{const t=[40,150,150],d=[24,110,120],g=[255,206,84],l=[150,240,220];fillR(b,4,1,8,5,t);fillR(b,5,0,6,1,t);fillR(b,4,5,8,1,d);for(let x=5;x<11;x+=2)px(b,x,2,l);if(side){px(b,3,2,l);px(b,2,1,l)}else{px(b,3,3,l);px(b,2,2,l);px(b,12,3,l);px(b,13,2,l)}if(!up)px(b,side?9:7,1,g),px(b,8,1,g);break}
     case'h_rudolph':{hairTop();const br=[150,100,60];if(side){px(b,7,2,br);px(b,7,1,br);px(b,6,0,br);px(b,8,0,br)}else{px(b,4,2,br);px(b,4,1,br);px(b,3,0,br);px(b,5,0,br);px(b,11,2,br);px(b,11,1,br);px(b,10,0,br);px(b,12,0,br)}fillR(b,4,3,8,1,[200,60,60]);break}
-    default:return false}
+    default:return drawHat5(b,dir,id,hair,hairTop)}
   return true}
 function drawOutfit3(b,dir,id,sh,shD,pants){const side=dir==='side',back=dir==='up',tx=side?5:4,tw=side?6:8,arms=c=>{if(!side){fillR(b,3,12,1,4,c);fillR(b,12,12,1,4,c)}};
   const coat=(c,d,len)=>{fillR(b,tx,11,tw,len,c);fillR(b,tx,10+len,tw,1,d);arms(c)};
@@ -2717,7 +2731,7 @@ function drawOutfit3(b,dir,id,sh,shD,pants){const side=dir==='side',back=dir==='
     case'o_snow':{const w=[240,248,255],c=[190,226,250],t=[255,255,255];dress(b,dir,w,c,t,tx,tw);[[4,17],[10,16],[7,18],[12,18]].forEach(q=>px(b,q[0],q[1],t));break}
     case'i_keeper':{const y=[255,210,80],d=[220,170,50],r=[220,70,70];coat(y,d,8);fillR(b,tx,14,tw,1,r);if(!back&&!side){px(b,7,12,[60,60,72]);px(b,8,12,[60,60,72])}break}
     case'i_seadragon':{const t=[40,150,150],d=[24,110,120],g=[255,206,84],l=[150,240,220];coat(t,d,8);for(let y=12;y<18;y+=2)for(let x=tx;x<tx+tw;x+=2)px(b,x+(y%4?1:0),y,l);if(!side){px(b,3,11,g);px(b,12,11,g)}if(!back&&!side){px(b,7,12,g);px(b,8,12,g)}break}
-    default:return false}
+    default:return drawOutfit5(b,dir,id,sh,shD,pants)}
   return true}
 function drawBack3(b,dir,id){const side=dir==='side',up=dir==='up';
   if(id==='yogamat'){const p=[200,170,240],pd=[160,130,210];if(up){fillR(b,3,10,10,3,p);fillR(b,3,12,10,1,pd)}else if(side){fillR(b,2,9,3,3,p);px(b,3,10,pd)}else{fillR(b,1,9,3,3,p);fillR(b,12,9,3,3,p);px(b,2,10,pd);px(b,13,10,pd)}return}
@@ -2755,7 +2769,7 @@ function drawBack3(b,dir,id){const side=dir==='side',up=dir==='up';
     case'k_trust':cape([70,150,110],[255,206,84],()=>{for(let x=3;x<13;x+=2)px(b,x,18,[255,206,84]);px(b,7,13,[255,230,200]);px(b,8,13,[255,230,200]);px(b,7,14,[255,230,200]);px(b,8,14,[255,230,200])});break;
     case'i_lantern':{const br=[150,110,70],y=[255,226,120];if(up){fillR(b,5,11,6,5,br);fillR(b,7,8,2,3,[60,60,72]);fillR(b,6,12,4,2,y)}else if(side)fillR(b,3,11,2,5,br);break}
     case'i_seawing':wing([40,150,150],[150,240,220],1);break;
-    default:return false}
+    default:return drawBack5(b,dir,id)}
   return true}
 function drawFace3(b,dir,id){const side=dir==='side',E=side?[9]:[6,9];
   switch(id){
@@ -2768,6 +2782,7 @@ function drawFace3(b,dir,id){const side=dir==='side',E=side?[9]:[6,9];
     case'f_bandaid':{const c=[240,200,150];fillR(b,side?8:9,9,2,1,c);break}
     case'f_goggle':{const k=[60,60,72],c=[110,220,255];if(side){fillR(b,8,7,3,2,c);px(b,7,7,k)}else{fillR(b,4,7,8,1,k);fillR(b,5,8,2,1,c);fillR(b,9,8,2,1,c)}break}
     case'f_freckle':{const c=[200,140,110];if(side)px(b,8,10,c);else{px(b,5,10,c);px(b,10,10,c);px(b,6,10,c)}break}
+    default:drawFace5(b,dir,id)
   }}
 /* --- 🏝️ 안개 섬 전용 (골드 + 안개 조각 · 섬에 있어야 살 수 있어요) --- */
 const ISLE_BOB={},ISLE_ROD={};
@@ -2784,6 +2799,127 @@ Object.assign(ISLE_BOB,{
  i_dragonbob:{tier:3,rows:["t...t",".ttt.","tktkt","ttttt",".yty.","..t.."],pal:{t:'#2aa0a0',k:'#102030',y:'#ffd040'},fx:{glow:'#40e0d0',rise:['#a0fff0','#ffffff'],ring:'#40e0d0',spark:['#ffd040']}}});
 Object.assign(ISLE_ROD,{i_rodcoral:{tier:2,fx:{tip:'flower',tc:'#ff8a80',glow:'#ffa0a0',along:['#ffc8b0','#ffffff']}},i_rodfog:{tier:3,fx:{tip:'orb',tc:'#e0fff8',glow:'#a0f0e0',along:['#ffffff','#c0f0e8'],trail:1}}});
 ISLE_ITEMS.forEach(r=>COS.push({id:r[0],k:r[1],name:r[2],tier:r[5],pv:'isle',isleG:r[3],isleSh:r[4],nw:NEW_DAY,col:r[1]==='rod'?(r[0]==='i_rodfog'?['#405060','#a0c8c0','#e0fff8']:['#c05040','#ff8a80','#ffd0c0']):undefined,fx:{i_keeper:'drop',i_seadragon:'bubble',i_seawing:'bubble',i_lantern:'glow'}[r[0]]}));
+/* ===== 🍰❄️✨👑 치장 5.0 (2026-11-12): 옆으로 넓히기 · 귀여운 디저트 · 눈의 왕국 · 빛의 요정 · 보석 공주 · 러블리 데일리 · 발자국 · 이름표 · 등급 칭호 =====
+   전부 오리지널 픽셀 디자인. server.js LOOK_IDS에도 같은 id가 있어야 친구 화면에 보여요 */
+const CUTE_DAY='2026-11-12';
+Object.assign(SET_TIER,{'러블리 데일리':0,'달콤 디저트':1,'눈의 왕국':2,'빛의 요정':3,'보석 공주':3});
+[
+ /* [id,종류,이름,가격,세트,효과,등급(없으면 세트 등급)] */
+ ['h_cherrypin','hat','체리 머리핀',500000,'러블리 데일리'],['h_heartpin','hat','하트 머리핀',600000,'러블리 데일리'],['h_lacebow','hat','레이스 리본 머리띠',1200000,'러블리 데일리'],
+ ['o_knit','outfit','하트 니트',1500000,'러블리 데일리'],['o_sailorpk','outfit','핑크 세일러 원피스',2500000,'러블리 데일리'],['o_cardigan','outfit','딸기우유 가디건',2000000,'러블리 데일리'],
+ ['k_balloon','back','하트 풍선',3000000,'러블리 데일리','heart'],['k_starballoon','back','별 풍선',3000000,'러블리 데일리'],['k_bunnybag','back','토끼 백팩',2500000,'러블리 데일리'],
+ ['f_starblush','face','별 볼터치',800000,'러블리 데일리'],
+ ['h_cake','hat','딸기 케이크 모자',5000000,'달콤 디저트','sugar'],['h_macpin','hat','마카롱 머리핀',3000000,'달콤 디저트'],['h_cupcake','hat','컵케이크 모자',6000000,'달콤 디저트','sugar'],
+ ['o_macaron','outfit','마카롱 원피스',12000000,'달콤 디저트','sugar'],['o_cakedress','outfit','딸기 케이크 드레스',18000000,'달콤 디저트','sugar'],
+ ['k_lollipop','back','왕 막대사탕',8000000,'달콤 디저트'],['k_cottonwing','back','솜사탕 날개',25000000,'달콤 디저트','sugar'],['f_cream','face','볼에 묻은 생크림',1500000,'달콤 디저트'],
+ ['h_snowtiara','hat','눈꽃 티아라',15000000,'눈의 왕국','snow'],['h_earmuff','hat','복슬 귀마개',4000000,'눈의 왕국'],['h_snowbunny','hat','눈토끼 털모자',6000000,'눈의 왕국'],
+ ['o_icequeen','outfit','얼음 여왕 드레스',40000000,'눈의 왕국','snow'],['o_puffer','outfit','말랑 패딩',8000000,'눈의 왕국'],
+ ['k_icewing','back','얼음 결정 날개',50000000,'눈의 왕국','snow'],['f_frost','face','눈꽃 볼터치',2000000,'눈의 왕국'],
+ ['h_firefly','hat','반딧불 머리핀',12000000,'빛의 요정','shine'],['h_starhalo','hat','별빛 링',25000000,'빛의 요정','shine'],
+ ['o_lightdress','outfit','빛의 드레스',60000000,'빛의 요정','shine'],['k_lightwing','back','빛의 날개',90000000,'빛의 요정','shine'],
+ ['h_rubytiara','hat','루비 티아라',20000000,'보석 공주'],['h_sapphire','hat','사파이어 티아라',20000000,'보석 공주'],['h_emerald','hat','에메랄드 티아라',20000000,'보석 공주'],
+ ['h_pearlpin','hat','진주 머리핀',8000000,'보석 공주'],['h_diacrown','hat','다이아몬드 왕관',200000000,'보석 공주','gem',4],
+ ['o_pearlgown','outfit','진주 드레스',50000000,'보석 공주','shine'],['o_ballgown','outfit','보석 무도회 드레스',120000000,'보석 공주','gem',4],
+ ['k_jewelcape','back','보석 망토',150000000,'보석 공주','gem',4],['f_gemtear','face','보석 눈물점',5000000,'보석 공주']
+].forEach(r=>COS.push({id:r[0],k:r[1],name:r[2],price:r[3],set:r[4],fx:r[5]||undefined,lim:'',nw:CUTE_DAY,tier:r[6]!=null?r[6]:SET_TIER[r[4]]}));
+/* 👣 발자국 · 🏷️ 이름표 (골드로도) */
+COS.push({id:'ft_snow',k:'foot',name:'눈송이 발자국',price:5000000,nw:CUTE_DAY,tier:1},{id:'ft_heart',k:'foot',name:'하트 발자국',price:5000000,nw:CUTE_DAY,tier:1},{id:'ft_sugar',k:'foot',name:'스프링클 발자국',price:8000000,nw:CUTE_DAY,tier:1},
+ {id:'ft_shine',k:'foot',name:'빛 발자국',price:20000000,nw:CUTE_DAY,tier:2},{id:'ft_gem',k:'foot',name:'보석 발자국',price:50000000,nw:CUTE_DAY,tier:3},
+ {id:'tf_pink',k:'frame',name:'핑크 레이스 이름표',price:3000000,nw:CUTE_DAY,tier:0},{id:'tf_candy',k:'frame',name:'사탕 줄무늬 이름표',price:5000000,nw:CUTE_DAY,tier:1},{id:'tf_ice',k:'frame',name:'얼음 이름표',price:8000000,nw:CUTE_DAY,tier:1},
+ {id:'tf_pearl',k:'frame',name:'진주 이름표',price:15000000,nw:CUTE_DAY,tier:2},{id:'tf_night',k:'frame',name:'밤하늘 이름표',price:30000000,nw:CUTE_DAY,tier:2},{id:'tf_jewel',k:'frame',name:'보석 이름표',price:100000000,nw:CUTE_DAY,tier:3});
+const FOOT_FX={ft_petal:'petal',ft_star:'star',ft_drop:'drop',ft_snow:'snow',ft_heart:'heart',ft_sugar:'sugar',ft_shine:'shine',ft_gem:'gem'};
+const FRAME_COL={tf_silver:['#c8ccd8','#f4f6fa'],tf_gold:['#e8b84a','#fff2b0'],tf_rainbow:['#ff8aa8','#ffd27a','#8fd3c0','#a9b8f2'],tf_pink:['#ffb0cc','#fff0f6'],tf_candy:['#ff6a8a','#ffffff','#ff6a8a','#ffffff'],tf_ice:['#8ad8ff','#e8fbff'],tf_pearl:['#f0e6f4','#ffffff','#e8dcf0'],tf_night:['#2a2a6a','#6a4ab0','#2a2a6a'],tf_jewel:['#ff4a7a','#4ab0ff','#3ad08a','#c070ff']};
+
+/* 🏷️ 칭호 등급 (2026-11-12): 1 레어 · 2 에픽 · 3 유니크 · 4 레전더리(5억~) · 5 미스틱(15억~) · 테마 색 (ts) */
+const TG_NAME=['일반','레어','에픽','유니크','레전더리','미스틱'],TG_COL=['#9a8fb0','#3a80e8','#8a4ae8','#d08a00','#2ec27e','#ff4f8b'];
+const TS_GLYPH={pink:'♡',ice:'❄',gold:'♛',blood:'⚔',galaxy:'✧',light:'✦',candy:'✿',night:'☾'};
+[
+ /* [id,이름,가격,등급,테마] — 귀여운 · 사냥 · 반짝이는 것들 */
+ ['t_dessert','디저트 요정',1000000,1,'candy'],['t_snowgirl','눈꽃 소녀',1000000,1,'ice'],['t_twinkle','반짝반짝 작은 별',1500000,1,'light'],['t_milk','딸기우유 한 잔',800000,1,'pink'],
+ ['t_catpaw','말랑 젤리 발바닥',1200000,1,'pink'],['t_slime','슬라임 사냥꾼',2000000,1,'blood'],['t_rookie','몬스터 헌터 견습생',3000000,1,'blood'],['t_goldbag','금화 주머니',5000000,1,'gold'],
+ ['t_icepr','얼음 공주',15000000,2,'ice'],['t_macaron','마카롱 장인',12000000,2,'candy'],['t_starwalk','별빛 산책자',15000000,2,'light'],['t_jewelbox','보석 수집가',20000000,2,'gold'],
+ ['t_heir','용사의 후예',25000000,2,'blood'],['t_dungeon','던전 탐험가',20000000,2,'blood'],['t_dreamgate','꿈의 문지기',30000000,2,'night'],['t_ribbon','리본 요정',10000000,2,'pink'],
+ ['t_snowqueen','눈의 여왕',150000000,3,'ice'],['t_sweetpr','디저트 왕국의 공주',120000000,3,'candy'],['t_lightfairy','빛의 요정',150000000,3,'light'],
+ ['t_nightmare','악몽 사냥꾼',150000000,3,'blood'],['t_dragonsl','드래곤 슬레이어',200000000,3,'blood'],['t_abyss','심연의 방랑자',180000000,3,'night'],['t_moonpr','달빛 공주',150000000,3,'night'],
+ ['t_heavenpr','천상의 공주',500000000,4,'pink'],['t_crown','보석 왕관의 주인',600000000,4,'gold'],['t_demonkill','마왕 토벌자',700000000,4,'blood'],['t_dreameat','꿈을 삼킨 자',800000000,4,'galaxy'],['t_frostgod','영원한 겨울의 여신',700000000,4,'ice'],
+ ['t_goddess','은하수의 여신',1500000000,5,'galaxy'],['t_savior','세계를 구한 용사',2000000000,5,'blood'],['t_legend','물결마을의 전설',3000000000,5,'gold'],['t_angelq','별을 품은 천사',1800000000,5,'pink']
+].forEach(r=>COS.push({id:r[0],k:'title',name:r[1],price:r[2],tg:r[3],ts:r[4],nw:CUTE_DAY,tier:Math.min(TIERS.length-1,r[3]-1)}));
+/* 예전 칭호에도 등급 (보상 · 업적) */
+Object.entries({t_rich:1,t_enh15:1,t_enh20:2,t_enh25:3,t_enh30:4,t_master:3,t_smaster:3,t_myth:2,t_sh10:2,t_sh30:3,t_raid1:3,t_ebvip:2,t_jackpot:3,t_vf2:2,t_pioneer:2,t_islfish:2,t_islbest:2}).forEach(([id,g])=>{const c=COS.find(x=>x.id===id);if(c&&!c.tg)c.tg=g});
+function titleHtml(c,tagCls){if(!c)return'';const g=c.tg|0,gl=g>=4&&TS_GLYPH[c.ts]?TS_GLYPH[c.ts]:'';
+  return'<span class="'+(tagCls||'ti')+' tgx tg'+g+(c.ts?' ts-'+c.ts:'')+'">'+(gl?gl+' ':'')+'「'+esc(c.name)+'」'+(gl?' '+gl:'')+'</span>'}
+
+/* --- 그림 --- */
+function drawHat5(b,dir,id,hair,hairTop){const side=dir==='side',up=dir==='up';
+  const tiara=(band,gem,gl)=>{hairTop();const x0=side?6:5,w=side?4:6;fillR(b,x0,3,w,1,band);px(b,x0,2,band);px(b,x0+w-1,2,band);px(b,side?7:7,1,band);px(b,side?8:8,1,band);px(b,side?7:6,2,band);px(b,side?8:9,2,band);
+    if(!up){px(b,side?7:7,2,gem);px(b,side?8:8,2,gem);px(b,side?7:7,1,gl)}};
+  switch(id){
+    case'h_cherrypin':{hairTop();const r=[230,50,70],g=[90,170,80],w=[255,200,210];if(side){px(b,6,4,r);px(b,7,4,r);px(b,6,3,g)}else{px(b,10,4,r);px(b,12,4,r);px(b,11,3,g);px(b,11,2,g);px(b,10,3,g);px(b,10,4,r);px(b,12,3,g);px(b,10,5,w)}break}
+    case'h_heartpin':{hairTop();const p=[255,100,150],l=[255,200,220];if(side){px(b,5,3,p);px(b,7,3,p);fillR(b,5,4,3,1,p);px(b,6,5,p);px(b,5,3,l)}else{px(b,10,3,p);px(b,12,3,p);fillR(b,10,4,3,1,p);px(b,11,5,p);px(b,10,3,l)}break}
+    case'h_lacebow':{hairTop();const w=[255,255,255],p=[255,150,190],pd=[230,110,160];fillR(b,side?5:4,4,side?6:8,1,w);for(let x=side?5:4;x<(side?11:12);x+=2)px(b,x,3,w);
+      if(up){fillR(b,6,1,2,2,p);fillR(b,9,1,2,2,p);px(b,8,2,pd)}else if(side){fillR(b,5,1,2,2,p);px(b,7,2,pd)}else{fillR(b,9,0,2,2,p);fillR(b,12,0,2,2,p);px(b,11,1,pd);px(b,10,2,pd);px(b,13,2,pd)}break}
+    case'h_cake':{const sp=[248,214,160],cr=[255,250,242],pk=[255,182,206],r=[232,52,74],g=[100,180,90];const x0=side?6:5,w=side?4:6;hairTop();fillR(b,x0,1,w,1,pk);fillR(b,x0,2,w,1,sp);fillR(b,x0,3,w,1,cr);fillR(b,x0,4,w,1,sp);px(b,x0,2,pk);px(b,x0+w-1,3,pk);
+      px(b,side?7:7,0,r);px(b,side?8:8,0,r);if(!up&&!side)px(b,9,0,g);break}
+    case'h_macpin':{hairTop();const p=[255,170,200],c=[255,250,240],m=[160,230,210];if(side){fillR(b,5,2,3,1,p);fillR(b,5,3,3,1,c);fillR(b,5,4,3,1,p)}else{fillR(b,10,2,3,1,p);fillR(b,10,3,3,1,c);fillR(b,10,4,3,1,p);px(b,4,3,m);px(b,5,3,m);px(b,4,4,c);px(b,5,4,c)}break}
+    case'h_cupcake':{const l=[200,180,240],ld=[160,140,210],f=[255,190,214],fw=[255,240,246],r=[230,50,70];fillR(b,4,4,8,2,l);for(let x=5;x<12;x+=2){px(b,x,4,ld);px(b,x,5,ld)}fillR(b,4,2,8,2,f);fillR(b,5,1,6,1,f);fillR(b,6,0,4,1,fw);px(b,5,2,fw);px(b,9,1,fw);
+      if(!up){px(b,8,0,r);px(b,6,2,[120,210,255]);px(b,10,3,[255,226,110]);px(b,7,3,[160,230,170])}break}
+    case'h_snowtiara':{hairTop();const s=[220,236,255],i=[140,210,255],w=[255,255,255];const x0=side?6:5,wd=side?4:6;fillR(b,x0,4,wd,1,s);
+      if(side){px(b,7,3,i);px(b,7,2,w);px(b,6,2,i);px(b,8,2,i);px(b,7,1,i)}else{px(b,7,3,i);px(b,8,3,i);px(b,7,2,w);px(b,8,2,w);px(b,6,2,i);px(b,9,2,i);px(b,7,1,i);px(b,8,1,i);px(b,7,0,w);px(b,5,3,i);px(b,10,3,i)}break}
+    case'h_earmuff':{hairTop();const w=[255,250,252],p=[255,190,210];fillR(b,side?6:5,2,side?4:6,1,p);if(side){fillR(b,3,6,2,3,w);px(b,3,7,p)}else if(up){fillR(b,2,6,2,3,w);fillR(b,12,6,2,3,w)}else{fillR(b,2,6,2,3,w);fillR(b,12,6,2,3,w);px(b,2,7,p);px(b,13,7,p)}break}
+    case'h_snowbunny':{const w=[252,252,255],s=[226,232,244],p=[255,180,200];fillR(b,4,2,8,4,w);fillR(b,5,1,6,1,w);fillR(b,4,5,8,1,s);for(let x=5;x<11;x+=2)px(b,x,5,p);
+      if(side){fillR(b,7,0,1,2,w);px(b,8,0,p)}else{px(b,5,0,w);px(b,5,1,p);px(b,10,0,w);px(b,10,1,p);px(b,4,0,w);px(b,11,0,w)}if(!up&&!side){px(b,7,3,[255,226,236]);px(b,8,3,[255,226,236])}break}
+    case'h_firefly':{hairTop();const y=[230,255,120],g=[255,255,200];if(side){px(b,6,2,y);px(b,8,0,g);px(b,4,1,y)}else{px(b,10,3,y);px(b,11,3,g);px(b,12,1,y);px(b,4,2,y);px(b,6,0,g);px(b,13,0,y)}break}
+    case'h_starhalo':{hairTop();const y=[255,232,140],w=[255,255,230];fillR(b,5,0,6,1,y);px(b,4,1,y);px(b,11,1,y);px(b,7,0,w);if(!side){px(b,3,0,w);px(b,12,0,w)}break}
+    case'h_rubytiara':tiara([255,206,84],[230,30,70],[255,180,200]);break;
+    case'h_sapphire':tiara([220,226,240],[40,110,230],[170,210,255]);break;
+    case'h_emerald':tiara([255,206,84],[30,170,100],[170,240,200]);break;
+    case'h_pearlpin':{hairTop();const w=[255,255,255],p=[255,226,240];if(side){px(b,5,3,w);px(b,6,4,p);px(b,7,3,w)}else{px(b,10,2,w);px(b,11,3,p);px(b,12,4,w);px(b,11,5,p);px(b,4,3,w)}break}
+    case'h_diacrown':{const g=[255,206,84],gd=[214,150,40],d=[200,245,255],w=[255,255,255],r=[255,90,140];fillR(b,4,2,8,3,g);fillR(b,4,4,8,1,gd);[4,7,8,11].forEach(x=>px(b,x,1,g));px(b,4,0,d);px(b,11,0,d);px(b,7,0,w);px(b,8,0,d);
+      if(!up){px(b,5,3,d);px(b,10,3,d);px(b,7,2,w);px(b,8,2,d);px(b,7,3,r);px(b,8,3,r);px(b,6,3,[120,200,255]);px(b,9,3,[120,220,160])}break}
+    default:return false}
+  return true}
+function drawOutfit5(b,dir,id,sh,shD,pants){const side=dir==='side',back=dir==='up',tx=side?5:4,tw=side?6:8,arms=c=>{if(!side){fillR(b,3,12,1,4,c);fillR(b,12,12,1,4,c)}};
+  const coat=(c,d,len)=>{fillR(b,tx,11,tw,len,c);fillR(b,tx,10+len,tw,1,d);arms(c)};
+  switch(id){
+    case'o_knit':{const p=[255,170,200],pd=[230,130,170],r=[230,60,100];coat(p,pd,6);for(let x=tx;x<tx+tw;x++)px(b,x,16,pd);if(!back&&!side){px(b,6,12,r);px(b,9,12,r);fillR(b,6,13,4,1,r);fillR(b,7,14,2,1,r);px(b,7,12,[255,220,230])}break}
+    case'o_sailorpk':{const p=[255,196,214],w=[255,255,255],n=[90,110,190],r=[230,60,90];dress(b,dir,p,p,w,tx,tw);if(!back&&!side){fillR(b,5,11,6,1,n);px(b,7,12,r);px(b,8,12,r);px(b,7,13,r)}if(back)fillR(b,4,11,8,2,n);break}
+    case'o_cardigan':{const p=[255,214,226],pd=[236,176,200],w=[255,255,255];coat(p,pd,6);if(!back&&!side){fillR(b,7,11,2,6,w);px(b,6,12,[255,120,160]);px(b,6,14,[255,120,160]);px(b,9,12,[255,120,160]);px(b,9,14,[255,120,160])}fillR(b,tx,17,tw,1,[190,160,220]);break}
+    case'o_macaron':{const p=[255,186,210],m=[170,232,214],y=[255,236,150],c=[255,250,240];dress(b,dir,p,m,c,tx,tw,(sd,bk)=>{for(let y2=15;y2<19;y2++)for(let x=2;x<14;x++)if((x+y2)%4===0)px(b,x,y2,y)});if(!back&&!side){px(b,6,12,c);px(b,9,12,c)}break}
+    case'o_cakedress':{const cr=[255,248,236],pk=[255,182,206],r=[232,52,74],w=[255,255,255];dress(b,dir,cr,pk,w,tx,tw,(sd,bk)=>{fillR(b,sd?3:2,17,sd?9:12,1,cr);[[4,16],[9,16],[6,18],[11,18],[3,18]].forEach(q=>{if(!sd||q[0]<12)px(b,q[0],q[1],r)})});if(!back&&!side){px(b,7,12,r);px(b,8,12,r);px(b,7,11,[100,180,90])}break}
+    case'o_icequeen':{const t=[190,230,255],s=[150,210,250],w=[255,255,255];dress(b,dir,t,s,w,tx,tw,(sd,bk)=>{for(let y2=16;y2<19;y2++)fillR(b,sd?3:2,y2,sd?9:12,1,y2%2?s:[200,236,255]);[[3,17],[7,16],[11,18],[5,18],[9,17]].forEach(q=>px(b,q[0],q[1],w))});if(!back&&!side){px(b,7,12,w);px(b,8,12,w);px(b,6,13,[220,244,255]);px(b,9,13,[220,244,255])}break}
+    case'o_puffer':{const c=[250,240,224],d=[226,212,190],w=[255,255,255];coat(c,d,7);for(let y2=12;y2<18;y2+=2)fillR(b,tx,y2,tw,1,d);if(!side){fillR(b,3,12,1,4,c);fillR(b,12,12,1,4,c)}fillR(b,tx,11,tw,1,w);if(!back&&!side)fillR(b,7,12,2,5,[240,226,206]);break}
+    case'o_lightdress':{const w=[255,252,240],g=[255,226,140],s=[255,244,200];dress(b,dir,w,s,g,tx,tw,(sd,bk)=>{[[3,16],[7,17],[11,16],[5,18],[9,18]].forEach(q=>px(b,q[0],q[1],[255,255,255]))});if(!back&&!side){px(b,7,12,g);px(b,8,12,g);px(b,7,13,[255,255,255])}break}
+    case'o_pearlgown':{const w=[250,246,255],l=[232,222,248],p=[255,255,255],pk=[255,214,232];dress(b,dir,w,l,p,tx,tw,(sd,bk)=>{for(let x=sd?3:2;x<(sd?12:14);x+=2)px(b,x,18,p);[[4,16],[10,17],[7,17]].forEach(q=>px(b,q[0],q[1],pk))});if(!back&&!side){fillR(b,5,11,6,1,p);px(b,7,12,pk);px(b,8,12,pk)}break}
+    case'o_ballgown':{const r=[255,140,180],rd=[230,100,150],g=[255,226,120];dress(b,dir,r,rd,g,tx,tw,(sd,bk)=>{[[4,16,[230,30,70]],[9,16,[40,120,240]],[6,18,[30,180,110]],[11,18,[255,255,255]],[3,18,[170,90,240]],[7,16,[255,255,255]]].forEach(q=>{if(!sd||q[0]<12)px(b,q[0],q[1],q[2])})});
+      if(!back&&!side){px(b,7,12,[200,245,255]);px(b,8,12,[255,255,255]);px(b,6,11,g);px(b,9,11,g)}break}
+    default:return false}
+  return true}
+function drawBack5(b,dir,id){const side=dir==='side',up=dir==='up';
+  const wing=(c,l,big,dy)=>{dy=dy||0;const L=big?[[0,8],[0,9],[1,9],[0,10],[1,10],[2,10],[0,11],[1,11],[2,11],[1,12],[2,12],[2,13],[0,12],[1,13],[2,14]]:[[0,10],[0,11],[1,11],[0,12],[1,12],[2,12],[1,13],[2,13],[2,14]];
+    if(side){L.forEach(p=>px(b,p[0]+1,p[1]+dy,c));px(b,2,10+dy,l);return}
+    L.forEach(p=>{px(b,p[0],p[1]-(up?1:0)+dy,c);px(b,15-p[0],p[1]-(up?1:0)+dy,c)});px(b,1,11-(up?1:0)+dy,l);px(b,14,11-(up?1:0)+dy,l);if(up){fillR(b,3,10,1,4,c);fillR(b,12,10,1,4,c)}};
+  const balloon=(c,l,shape)=>{const s=[200,200,210],x0=side?1:13,dx=side?0:0;for(let y=4;y<14;y++)px(b,x0+((y>>2)%2),y,s);
+    if(shape==='heart'){px(b,x0-1,0,c);px(b,x0+1,0,c);fillR(b,x0-1,1,3,1,c);px(b,x0,2,c);px(b,x0+2,0,c);fillR(b,x0-1,1,4,1,c);px(b,x0+1,2,c);px(b,x0-1,0,l)}
+    else{px(b,x0,0,c);fillR(b,x0-1,1,3,1,c);px(b,x0-1,2,c);px(b,x0+1,2,c);px(b,x0,1,l)}};
+  switch(id){
+    case'k_balloon':balloon([255,90,140],[255,200,220],'heart');break;
+    case'k_starballoon':balloon([255,214,70],[255,250,200],'star');break;
+    case'k_bunnybag':{const w=[252,250,255],p=[255,180,200],k=[60,50,70];if(up){fillR(b,5,11,6,5,w);px(b,6,10,w);px(b,9,10,w);px(b,6,9,w);px(b,9,9,w);px(b,6,10,p);px(b,9,10,p);px(b,6,12,k);px(b,9,12,k);px(b,7,13,p);px(b,8,13,p)}else if(side)fillR(b,3,11,2,5,w);else{px(b,4,11,p);px(b,11,11,p)}break}
+    case'k_lollipop':{const st=[255,255,255],c=[[255,90,140],[255,226,110],[120,210,255],[160,230,170]];if(up){for(let i=0;i<8;i++)px(b,4+i,18-i,st);fillR(b,11,5,4,4,c[0]);px(b,12,6,c[1]);px(b,13,7,c[2]);px(b,12,7,c[3]);px(b,13,6,[255,255,255])}else if(side){fillR(b,3,8,1,10,st);fillR(b,1,4,4,4,c[0]);px(b,2,5,c[1]);px(b,3,6,c[2])}else{px(b,13,9,st);px(b,13,8,st);fillR(b,12,4,3,3,c[0]);px(b,13,5,c[1])}break}
+    case'k_cottonwing':wing([255,200,224],[190,226,255],1);if(!side){px(b,0,9,[190,226,255]);px(b,15,9,[190,226,255]);px(b,1,13,[255,255,255]);px(b,14,13,[255,255,255])}break;
+    case'k_icewing':wing([170,220,255],[255,255,255],1);if(!side){px(b,0,7,[220,244,255]);px(b,15,7,[220,244,255]);px(b,2,9,[255,255,255]);px(b,13,9,[255,255,255])}break;
+    case'k_lightwing':wing([255,250,226],[255,226,140],1,-2);wing([255,255,255],[255,226,140],0,1);break;
+    case'k_jewelcape':{const c=[150,110,220],d=[110,76,180],gm=[[255,60,110],[60,150,255],[40,200,120],[255,226,110]];if(up){fillR(b,3,11,10,8,c);fillR(b,3,18,10,1,d);fillR(b,4,10,8,1,d);[[5,13],[10,13],[7,15],[8,15],[5,17],[10,17]].forEach((q,i)=>px(b,q[0],q[1],gm[i%4]))}else if(side){fillR(b,3,11,3,8,c);px(b,4,14,gm[0]);px(b,4,17,gm[1])}else{fillR(b,2,11,1,7,c);fillR(b,13,11,1,7,c);px(b,2,13,gm[0]);px(b,13,13,gm[1]);px(b,2,16,gm[2]);px(b,13,16,gm[3])}break}
+    default:return false}
+  return true}
+function drawFace5(b,dir,id){const side=dir==='side';
+  switch(id){
+    case'f_starblush':{const y=[255,214,70];if(side){px(b,8,9,y)}else{px(b,5,9,y);px(b,10,9,y)}break}
+    case'f_cream':{const w=[255,255,255],p=[255,200,214];if(side){px(b,8,9,w);px(b,8,10,p)}else{px(b,5,9,w);px(b,10,10,w);px(b,10,9,p)}break}
+    case'f_frost':{const c=[170,220,255],w=[255,255,255];if(side){px(b,8,9,c);px(b,10,7,w)}else{px(b,5,9,c);px(b,10,9,c);px(b,10,7,w)}break}
+    case'f_gemtear':{const c=[80,200,255],w=[255,255,255];if(side){px(b,10,10,c);px(b,10,9,w)}else{px(b,10,9,c);px(b,10,10,w)}break}
+  }}
+
 COS.forEach(c=>COS_BY[c.id]=c);
 /* 헬퍼 */
 const limOn=c=>{const L=c&&LIMS[c.lim];if(!L)return true;const t=kstMD();return L.from<=L.to?(t>=L.from&&t<=L.to):(t>=L.from||t<=L.to)};
@@ -3385,8 +3521,8 @@ function cosIcon(id){
   else if(c.k==='face'){const f=lookSprites(Object.assign({},S.cos.look,{fa:id,hat:'nohat'})).down[0];cv=document.createElement('canvas');cv.width=12;cv.height=8;cv.getContext('2d').drawImage(f,2,4,12,8,0,0,12,8)}
   else if(c.k==='back')cv=lookSprites(Object.assign({},S.cos.look,{bk:id})).up[0];
   else if(c.k==='hstyle'){const f=lookSprites(Object.assign({},S.cos.look,{hs:c.hs,hat:'nohat'})).down[0];cv=document.createElement('canvas');cv.width=16;cv.height=15;cv.getContext('2d').drawImage(f,0,0)}
-  else if(c.k==='frame'){cv=document.createElement('canvas');cv.width=22;cv.height=12;const x=cv.getContext('2d'),g=x.createLinearGradient(0,0,22,0);({tf_silver:['#c8ccd8','#f4f6fa'],tf_gold:['#e8b84a','#fff2b0'],tf_rainbow:['#ff8aa8','#ffd27a','#8fd3c0','#a9b8f2']}[id]||['#ccc','#eee']).forEach((col,i,a)=>g.addColorStop(i/(a.length-1||1),col));x.fillStyle=g;x.fillRect(0,0,22,12);x.fillStyle='#fffaf2';x.fillRect(2,2,18,8)}
-  else if(c.k==='foot'){cv=document.createElement('canvas');cv.width=14;cv.height=14;const x=cv.getContext('2d'),col=(FX_COL[{ft_petal:'petal',ft_star:'star',ft_drop:'drop'}[id]]||['#fff']);[[2,10],[6,6],[10,2]].forEach((q,i)=>{x.fillStyle=col[i%col.length];x.fillRect(q[0],q[1],3,3)})}
+  else if(c.k==='frame'){cv=document.createElement('canvas');cv.width=22;cv.height=12;const x=cv.getContext('2d'),g=x.createLinearGradient(0,0,22,0);(FRAME_COL[id]||['#ccc','#eee']).forEach((col,i,a)=>g.addColorStop(i/(a.length-1||1),col));x.fillStyle=g;x.fillRect(0,0,22,12);x.fillStyle='#fffaf2';x.fillRect(2,2,18,8)}
+  else if(c.k==='foot'){cv=document.createElement('canvas');cv.width=14;cv.height=14;const x=cv.getContext('2d'),col=(FX_COL[FOOT_FX[id]]||['#fff']);[[2,10],[6,6],[10,2]].forEach((q,i)=>{x.fillStyle=col[i%col.length];x.fillRect(q[0],q[1],3,3)})}
   else if(c.k==='trap'||c.k==='tflag'){cv=document.createElement('canvas');cv.width=34;cv.height=34;const x=cv.getContext('2d');drawTrapTo(x,17,28,c.k==='trap'?id:'tp_bamboo',c.k==='tflag'?id:'tf_none',0,0,true)}
   else if(c.k==='dye'){cv=document.createElement('canvas');cv.width=12;cv.height=12;const x=cv.getContext('2d'),col=HAIRS[c.hc]||[0,0,0];x.fillStyle='rgb('+col.join(',')+')';x.beginPath();x.arc(6,6,5.5,0,6.28);x.fill();x.fillStyle='rgba(255,255,255,.55)';x.fillRect(3,3,2,2)}
   else if(c.k==='rod'){cv=document.createElement('canvas');cv.width=14;cv.height=14;const x=cv.getContext('2d');const n=13;for(let i=0;i<=n;i++){x.fillStyle=c.col[Math.min(c.col.length-1,(i/n*c.col.length)|0)];x.fillRect(1+i,13-i,1,1);x.fillRect(1+i,12-i,1,1)}x.fillStyle='#8c7aa8';x.fillRect(2,9,3,3)}
@@ -4532,7 +4668,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y);
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1112a',UPD_LOG=[
+const UPD_VER='1112b',UPD_LOG=[
+ ['11/12 오전','🎀',[['치장 신제품 81종','🍰 달콤 디저트 · ❄️ 눈의 왕국 · ✨ 빛의 요정 · 👑 보석 공주 · 🎀 러블리 데일리 세트 (케이크 모자 · 마카롱 원피스 · 솜사탕 날개 · 눈꽃 티아라 · 얼음 여왕 드레스 · 빛의 날개 · 루비 · 사파이어 · 에메랄드 티아라 · 다이아몬드 왕관 · 하트 풍선 등)'],['👣 발자국 · 🏷️ 이름표','눈송이 · 하트 · 스프링클 · 빛 · 보석 발자국, 핑크 레이스 · 사탕 줄무늬 · 얼음 · 진주 · 밤하늘 · 보석 이름표를 골드로 살 수 있어요 (치장 상점 「발자국·이름표」)'],['🏷️ 칭호에 등급이 생겼어요','레어 · 에픽 · 유니크 · 레전더리 · 미스틱 · 등급마다 이름 위 칭호 색이 달라요. 레전더리부터는 반짝이며 흐르는 색, 미스틱은 빛나는 리본 배지'],['칭호 미리보기','치장 상점에서 칭호를 누르면 내 이름표 위에 어떻게 보이는지 바로 보여요 · 새 칭호 32종 (귀여운 것 · 사냥 · 공주 · 여신)']]],
  ['11/12 아침','🙇',[['제작자의 사과','+20 자동 낚시가 의도보다 너무 강해서 직접 낚는 분들이 손해를 봤어요. 정말 미안해요. 접속하면 사과 편지와 선물이 와요'],['자동 낚시가 바뀌었어요','예전 +20 자동 낚시는 없어지고, 걸어두기가 「자동 낚시」가 됐어요 · 2분마다 흔한 물고기 (+20부터 1분 30초) · 하루 제한 없음'],['🖐️ 손맛 보너스','직접 낚으면 잡을 때마다 골드가 바로 들어와요 (흔함 10만 · 보통 20만 · 희귀 50만 · 영웅 100만 · 전설 300만 · 신화 이상 1000만) · 가끔 강화권도 (하루 80장까지)'],['직접 낚아야만','반짝 · 손맛 도감 · 오늘의 낚시왕 · 강화 포인트 · 희귀 이상은 직접 낚은 물고기만'],['반짝 줄다리기','흔한 물고기 반짝이 운으로 끝나지 않게, 실력으로 잡히도록 고쳤어요'],['🎁 사과 선물','모두에게 반짝 3배 미끼 3개 · 예전 자동 낚시를 못 써 본 친구에게 골드 3억 · 강화권 1000장 · 반짝 미끼 10개 · 칭호 「물결마을 개척자」']]],
  ['11/12 아침','🎪',[['행사 게시판이 마을 광장으로','시작하는 곳 바로 옆, 포탈 오른쪽에 알록달록 게시판 · 열린 행사 수가 위에 떠요'],['명예의 전당 「💗 마을 기여」','마을 발전 기금에 후원한 금액 순위']]],
  ['11/11 밤','🪝',[['자동 낚시 하루 제한 없어짐','이제 30마리 제한 없이 켜 두는 만큼 3분마다 1마리씩']]],
@@ -6291,11 +6428,11 @@ function boatClick(t){if(t.dataset.don){const i=t.dataset.don.lastIndexOf(':');d
 /* ========== 탐나는 옷 효과 · 낚시터 정복 · 물결 시장 선착장 · 4인 배낚시 ========== */
 /* ----- 옷 효과: 정복 세트를 입고 걸으면 꽃잎 · 물방울 · 거품 · (밤에) 빛 · 별가루 ----- */
 const FX_COL={petal:['#ffc4d6','#ffe0ea'],drop:['#a9d8f2','#e0f4ff'],bubble:['#ffffff','#cfeaff'],glow:['#9fe8ff','#e0fbff','#c8f4ff'],star:['#fff6b0','#ffffff','#d6b8ff']};
-Object.assign(FX_COL,{snow:['#ffffff','#e0f4ff'],ember:['#ff8040','#ffd040','#ff4020'],feather:['#ffffff','#fff4c0'],dark:['#8a5cff','#3a2a60','#c0a0ff'],gold:['#ffd040','#fff4b0'],heart:['#ff80a8','#ffd0de'],leaf:['#e8502a','#ffa040','#ffd060'],note:['#b090ff','#90d0ff','#ff90c8'],neon:['#ff4ab0','#4af0ff']});
+Object.assign(FX_COL,{sugar:['#ff9ec4','#9be6d0','#ffe27a','#c8a8ff','#ffffff'],shine:['#fffbe0','#ffffff','#ffe68a'],gem:['#ff4a7a','#4ab0ff','#3ad08a','#ffffff','#c070ff'],snow:['#ffffff','#e0f4ff'],ember:['#ff8040','#ffd040','#ff4020'],feather:['#ffffff','#fff4c0'],dark:['#8a5cff','#3a2a60','#c0a0ff'],gold:['#ffd040','#fff4b0'],heart:['#ff80a8','#ffd0de'],leaf:['#e8502a','#ffa040','#ffd060'],note:['#b090ff','#90d0ff','#ff90c8'],neon:['#ff4ab0','#4af0ff']});
 let FXDT=1/60;
 function lookFx(x,y,look,moving){
   glowFx(x,y,look===S.cos.look?myGs():(look&&look.gs)|0);
-  if(look&&look.ft){const fc=FX_COL[{ft_petal:'petal',ft_star:'star',ft_drop:'drop'}[look.ft]];if(fc){   // 2026-11-09: 발자국을 훨씬 진하게 · 바닥에 찍힌 자국이 잠깐 남아요
+  if(look&&look.ft){const fc=FX_COL[FOOT_FX[look.ft]];if(fc){   // 2026-11-09: 발자국을 훨씬 진하게 · 바닥에 찍힌 자국이 잠깐 남아요
     if(moving&&Math.random()<FXDT*24)parts.push({x:x+(Math.random()-.5)*8,y:y-1,vx:(Math.random()-.5)*10,vy:-6-Math.random()*6,life:1.8,t:0,c:fc[(Math.random()*fc.length)|0],g:4,s:Math.random()<.5?3:2});
     if(moving&&Math.random()<FXDT*6)parts.push({x:x+(Math.random()<.5?-2:2),y:y,vx:0,vy:0,life:3,t:0,c:fc[0],g:0,s:2});
     if(!moving&&Math.random()<FXDT*2)parts.push({x:x+(Math.random()-.5)*14,y:y-2-Math.random()*10,vx:0,vy:-3,life:1.4,t:0,c:fc[(Math.random()*fc.length)|0],g:0,s:1})}}
@@ -6306,7 +6443,7 @@ function lookFx1(x,y,c,moving){if(!c||!c.fx)return;const night=isNight(dayTint()
   const rate=(moving?7:1.2)*(c.fx==='glow'?(night?2:.3):1);if(Math.random()>rate*FXDT)return;const cols=FX_COL[c.fx];
   if(!cols)return;const fall=FX_FALL[c.fx];
   parts.push({x:x+(Math.random()-.5)*10,y:y-3-Math.random()*14,vx:(Math.random()-.5)*8,vy:c.fx==='drop'?4:fall?3:-9,life:.8+Math.random()*.6,t:0,
-    c:cols[(Math.random()*cols.length)|0],g:c.fx==='drop'?36:fall?6:-5,s:(c.fx==='star'||c.fx==='glow'||c.fx==='gold')&&Math.random()<.35?2:1})}
+    c:cols[(Math.random()*cols.length)|0],g:c.fx==='drop'?36:fall?6:-5,s:(c.fx==='star'||c.fx==='glow'||c.fx==='gold'||c.fx==='shine'||c.fx==='gem')&&Math.random()<.35?2:1})}
 
 /* ----- 낚시터 정복: 한 낚시터의 물고기를 모두 채우면 강화권 · 골드 · 전용 옷 세트 · 그 낚시터 판매가 +10% ----- */
 const ZRW={tk:[10,12,15,20,25,20],g:[5000,15000,40000,100000,200000,150000]}; // server.js ZRW와 같아야 해요
@@ -7955,13 +8092,13 @@ function lgDraw(x,now){const W=320,H=220,rr=(c,a,b,w,h)=>{x.fillStyle=c;x.fillRe
 let btqTab='hat',btqSet='',btqTry=null,btqDay='',btqSort='',btqQ='';
 function openBoutique(){btqTry=null;if(S.btqSeen!==NEW_DAY)btqTab='new';openSheet('치장 상점','',()=>{btqTry=null});renderBoutique()}
 function tryLook(){const L=Object.assign({},S.cos.look),c=btqTry&&COS_BY[btqTry];if(c){if(c.k==='dye')L.h=c.hc;else if(c.k==='hstyle')L.hs=c.hs;else if(['hat','outfit','face','back'].indexOf(c.k)>=0)L[LOOK_KEY[c.k]]=c.id}return lookSprites(L)}
-const BTQ_TABS=[['new','🆕 신제품',[]],['hat','모자',['hat']],['outfit','옷',['outfit']],['face','얼굴',['face']],['back','망토·날개',['back']],['hair','헤어',['dye','hstyle']],['rodbob','💎 낚싯대·찌',['rod','bob']],['season','🗓️ 시즌 한정',[]],['trap','통발',['trap','tflag']],['title','칭호',['title']],['pv','✨ 이번 주',[]],['isle','🏝️ 섬 한정',[]]];
+const BTQ_TABS=[['new','🆕 신제품',[]],['hat','모자',['hat']],['outfit','옷',['outfit']],['face','얼굴',['face']],['back','망토·날개',['back']],['hair','헤어',['dye','hstyle']],['rodbob','💎 낚싯대·찌',['rod','bob']],['season','🗓️ 시즌 한정',[]],['trap','통발',['trap','tflag']],['title','🏷️ 칭호',['title']],['deco','👣 발자국·이름표',['foot','frame']],['pv','✨ 이번 주',[]],['isle','🏝️ 섬 한정',[]]];
 let btqIsle=false,btqAsk='',btqAskT=0;
 function openIsleShop(){btqTry=null;btqIsle=true;btqTab='isle';openSheet('🏝️ 안개 섬 상점','',()=>{btqTry=null;btqIsle=false});renderBoutique()}
 function tierTag(c){const t=tierOfCos(c);return t>=0?'<span class="tierb" style="background:'+TIERS[t].c+'">'+TIERS[t].n+'</span>':''}
 function cardHtml(c,btn){const have=owns(c.id),ic=cosIcon(c.id),t=tierOfCos(c);
   return'<div class="ccard'+(btqTry===c.id?' sel':'')+(have?' have':'')+(t>=2?' glowc':'')+'" data-btry="'+c.id+'"'+(t>=0?' style="border-color:'+TIERS[t].c+'"':'')+'>'+(isNew(c)&&!have?'<span class="nwb">NEW</span>':'')+
-    (ic?'<img class="ci" src="'+ic+'" alt="">':'<span class="ttl sm">「」</span>')+tierTag(c)+'<div class="cn">'+(c.k==='title'?'「'+esc(c.name)+'」':esc(c.name))+'</div>'+(c.k==='rod'&&ROD_PERK[c.id]?'<div class="rpk">'+rodPerkTxt(c.id)+'</div>':'')+((c.k==='rod'||c.k==='bob')?sigDescHtml(c):'')+(c.lim?'<div class="limb">'+LIMS[c.lim].n+(limOn(c)?'':' · 쉬는 중')+'</div>':'')+btn+'</div>'}
+    (ic?'<img class="ci" src="'+ic+'" alt="">':c.k==='title'?'<span class="tcard">'+titleHtml(Object.assign({},c,{name:TG_NAME[c.tg|0]}),'tcn')+'</span>':'<span class="ttl sm">「」</span>')+tierTag(c)+'<div class="cn">'+(c.k==='title'?'「'+esc(c.name)+'」':esc(c.name))+'</div>'+(c.k==='rod'&&ROD_PERK[c.id]?'<div class="rpk">'+rodPerkTxt(c.id)+'</div>':'')+((c.k==='rod'||c.k==='bob')?sigDescHtml(c):'')+(c.lim?'<div class="limb">'+LIMS[c.lim].n+(limOn(c)?'':' · 쉬는 중')+'</div>':'')+btn+'</div>'}
 function renderBoutique(){
   if(btqIsle&&btqTab!=='isle')btqTab='isle';
   const T=BTQ_TABS.find(t=>t[0]===btqTab)||BTQ_TABS[0],kinds=T[2],shopable=c=>c.price!==0&&!c.pv&&!(c.egg&&!owns(c.id));
@@ -7970,7 +8107,8 @@ function renderBoutique(){
   const hideOwn=!!S.btqHide;if(hideOwn)pool=pool.filter(c=>!owns(c.id));
   const sets=[...new Set(pool.map(c=>c.set||''))].filter(Boolean);if(btqSet&&sets.indexOf(btqSet)<0)btqSet='';
   const pl=tryLook(),tc=btqTry&&COS_BY[btqTry];
-  let h='<div class="btq-prev"><div class="prev"><img src="'+pl.down[0].toDataURL()+'" alt=""><img src="'+pl.right[0].toDataURL()+'" alt=""><img src="'+pl.up[0].toDataURL()+'" alt=""></div>'+
+  const tpvOn=tc&&(tc.k==='title'||tc.k==='frame'||tc.k==='foot'),tpvT=tc&&tc.k==='title'?tc:COS_BY[S.cos.look.ti],tpvF=tc&&tc.k==='frame'?tc.id:S.cos.look.tf;
+  let h='<div class="btq-prev">'+(tpvOn?'<div class="tpv"><span class="ntag tpvn'+(tpvF?' '+tpvF:'')+'">'+(tpvT?titleHtml(tpvT):'')+esc(ONLINE&&Net.me?Net.me.name:'나')+'</span>'+(tc.k==='foot'?'<div class="muted" style="font-size:11.5px;margin-top:4px">👣 걸을 때 발밑에 '+esc(FX_NAME[FOOT_FX[tc.id]]||'')+'이(가) 톡톡</div>':'')+'</div>':'')+'<div class="prev"><img src="'+pl.down[0].toDataURL()+'" alt=""><img src="'+pl.right[0].toDataURL()+'" alt=""><img src="'+pl.up[0].toDataURL()+'" alt=""></div>'+
     '<div class="btq-cap">'+(tc?'입어 보는 중 · <b>'+esc(tc.name)+'</b>'+(tc.lim?' <small>('+limText(tc)+')</small>':''):'카드를 누르면 입어 볼 수 있어요')+'<span class="gold"><span class="coin"></span> '+fmt(S.gold)+'</span></div></div>';
   const showPrev=(tc&&(tc.k==='rod'||tc.k==='bob'))||btqTab==='rodbob';
   if(showPrev)h=h.slice(0,-6)+'<canvas id="bobprev" width="200" height="74" class="bobprev"></canvas></div>';   // 2026-11-09: 찌 · 낚싯대 미리보기도 위에 붙어 있게
@@ -9407,7 +9545,7 @@ function setTag(a,name,ti,e){
   const kg=isKingName(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name);
   const nmK=a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name,wk=isXKing('gt',nmK),sk=isXKing('sh',nmK);
   {const tf=a===ME?S.cos.look.tf:(a.look&&a.look.tf);a.tag.className='ntag'+(tf?' '+tf:'')+(kg?' king':sk?' sking':wk?' wking':'')}
-  a.tag.innerHTML=(kg?'<span class="kg">👑 손맛 1위 · '+KING.n+'종</span>':'')+(sk?'<span class="kg sk">✨ 반짝 1위 · '+KINGS.sh.n+'종</span>':'')+(wk?'<span class="kg wk">🌊 월척 1위 · '+KINGS.gt.n+'종</span>':'')+(isXKing('hl',nmK)?'<span class="kg hk">⚔️ 용사 1위 · 💪'+fmt(KINGS.hl.n)+'</span>':'')+(KINGS.eb&&KINGS.eb.name===nmK?'<span class="kg ek">🎰 777 은비랜드 1위</span>':'')+(t?'<span class="ti">「'+esc(t.name)+'」</span>':'')+jb+esc(name||'')+(e>0?'<span class="en'+(e>=30?' e30':e>=21?' e21':'')+'">+'+e+'</span>':'')+(st?'<span class="st">'+esc(st)+'</span>':'');a.tagOn=!!(name||t||e>0||jb||st);a.tagH=0;
+  a.tag.innerHTML=(kg?'<span class="kg">👑 손맛 1위 · '+KING.n+'종</span>':'')+(sk?'<span class="kg sk">✨ 반짝 1위 · '+KINGS.sh.n+'종</span>':'')+(wk?'<span class="kg wk">🌊 월척 1위 · '+KINGS.gt.n+'종</span>':'')+(isXKing('hl',nmK)?'<span class="kg hk">⚔️ 용사 1위 · 💪'+fmt(KINGS.hl.n)+'</span>':'')+(KINGS.eb&&KINGS.eb.name===nmK?'<span class="kg ek">🎰 777 은비랜드 1위</span>':'')+(t?titleHtml(t):'')+jb+esc(name||'')+(e>0?'<span class="en'+(e>=30?' e30':e>=21?' e21':'')+'">+'+e+'</span>':'')+(st?'<span class="st">'+esc(st)+'</span>':'');a.tagOn=!!(name||t||e>0||jb||st);a.tagH=0;
 }
 function showSay(a,text){
   if(a.bub)a.bub.remove();const el=document.createElement('div');el.className='bub';el.textContent=text;$('tags').appendChild(el);
@@ -9901,7 +10039,7 @@ function profileHtml(d,mine){
   return h;
 }
 /* ✨ 효과 안내: 몸에 보이는 반짝임 · 오라가 어디서 오는지 한눈에 */
-const FX_NAME={petal:'꽃잎',drop:'물방울',bubble:'거품',glow:'빛',star:'별가루',snow:'눈송이',ember:'불씨',feather:'깃털',dark:'어둠의 기운',gold:'금가루',heart:'하트',leaf:'단풍잎',note:'음표',neon:'네온'};
+const FX_NAME={sugar:'스프링클',shine:'반짝빛',gem:'보석 빛',petal:'꽃잎',drop:'물방울',bubble:'거품',glow:'빛',star:'별가루',snow:'눈송이',ember:'불씨',feather:'깃털',dark:'어둠의 기운',gold:'금가루',heart:'하트',leaf:'단풍잎',note:'음표',neon:'네온'};
 function enhFxText(e){const a=[];if(e>=1)a.push('발밑 빛');if(e>=3)a.push('반짝임');if(e>=5)a.push('빛 방울');if(e>=7)a.push('걸을 때 반짝이');if(e>=10)a.push('잔상 · 금빛');if(e>=13)a.push('빛기둥');if(e>=15)a.push('무지개빛');if(e>=20)a.push('머리 위 빛의 고리');if(e>=21)a.push('우주빛');if(e>=22)a.push('별똥별');if(e>=25)a.push('빛의 날개');if(e>=30)a.push('신의 후광 · 발밑 마법진');return a.join(' · ')}
 function fxGuideHtml(L,name,e,gs){const rows=[],row=(ic,src,what)=>rows.push('<div class="fxrow"><b>'+ic+' '+src+'</b><small>'+what+'</small></div>');
   const tierTxt=c=>c&&c.tier!=null?' <span style="color:'+TIERS[c.tier].c+'">'+TIERS[c.tier].n+'</span>':'';
