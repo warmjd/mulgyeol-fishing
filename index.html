@@ -8008,9 +8008,9 @@ function evbDraw(bx,by){const x=cx,t=performance.now(),n=EVS.length,r=(c,a,b,w,h
   r('#e05a5a',-6,-21,28,4);r('#ffffff',-6,-21,28,1);
   for(let i=0;i<7;i++){const f=Math.round(Math.sin(t/260+i)*.8);r(['#ff6a8a','#ffd34d','#6ad08a','#6ab0ff','#c08aff','#ff9a40','#ff6a8a'][i],-6+i*4,-17+f,3,3);r(['#ff6a8a','#ffd34d','#6ad08a','#6ab0ff','#c08aff','#ff9a40','#ff6a8a'][i],-5+i*4,-14+f,1,1)}
   if(n){[[-8,-24],[22,-22],[8,-28]].forEach(([a,b],i)=>{const k=(Math.sin(t/300+i*2)+1)/2;if(k>.35){x.globalAlpha=k;r('#fff8b0',a,b-1,1,3);r('#fff8b0',a-1,b,3,1);x.globalAlpha=1}})}}
-/* 📍 던지면 찌 위에 여기가 어딘지 살짝 (2.6초) */
+/* 📍 처음 던지거나 다른 낚시터로 옮겼을 때만 찌 위에 여기가 어딘지 살짝 (2.6초) */
 const CWL={el:null,t:0,txt:''};
-function castWhere(c){const sp=spotOf({x:c.x,y:c.y});CWL.txt='📍 '+zoneNm(F.zone)+(sp?' · '+SPOT_NAME[sp]:'');CWL.t=performance.now()}
+function castWhere(c){const sp=spotOf({x:c.x,y:c.y});const tx='📍 '+zoneNm(F.zone)+(sp?' · '+SPOT_NAME[sp]:'');if(tx===CWL.txt)return;CWL.txt=tx;CWL.t=performance.now()}   // 처음 던졌을 때 · 다른 물로 옮겼을 때만
 function cwPlace(ox,oy,cX,cY){let el=CWL.el;const age=(performance.now()-CWL.t)/1000,on=CWL.t&&age<2.6&&!HUNT.on&&F.target&&F.mode!=='idle';
   if(!el){if(!on)return;el=CWL.el=document.createElement('div');el.className='cwl';$('tags').appendChild(el)}
   if(el.hidden===on)el.hidden=!on;if(!on)return;if(el.k!==CWL.txt){el.k=CWL.txt;el.textContent=CWL.txt}

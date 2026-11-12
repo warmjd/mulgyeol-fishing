@@ -58,7 +58,7 @@ if (SB_URL && SB_KEY) {
       return data;
     },
     async roster() {   // 직업 현황판: 모두의 직업 · 마을 레벨 · 손맛 도감 · 덕분에
-      const { data, error } = await sb.from('players').select('key,name,job:save->job,vl:save->vl,boat:save->boat,dex:save->dex,sdex:save->sdex,giant:save->giant,help:save->help');
+      const { data, error } = await sb.from('players').select('key,name,job:save->job,vl:save->vl,boat:save->boat,dex:save->dex,sdex:save->sdex,giant:save->giant,help:save->help,shiny:save->shiny,hu:save->hu,hunt:save->hunt');
       if (error) throw error;
       return data;
     }
@@ -73,7 +73,7 @@ if (SB_URL && SB_KEY) {
     async posts() { return []; }, async addPost() {}, async delPost() {},
     async mails() { return []; }, async addMail() {},
     async ranks() { return [...mem.entries()].map(([key, r]) => ({ key, name: r.name, enh: r.save && r.save.enh, look: r.save && r.save.cos && r.save.cos.look, own: r.save && r.save.cos && r.save.cos.own })); },
-    async roster() { return [...mem.entries()].map(([key, r]) => ({ key, name: r.name, job: r.save && r.save.job, vl: r.save && r.save.vl, boat: r.save && r.save.boat, dex: r.save && r.save.dex, sdex: r.save && r.save.sdex, giant: r.save && r.save.giant, help: r.save && r.save.help })); }
+    async roster() { return [...mem.entries()].map(([key, r]) => ({ key, name: r.name, job: r.save && r.save.job, vl: r.save && r.save.vl, boat: r.save && r.save.boat, dex: r.save && r.save.dex, sdex: r.save && r.save.sdex, giant: r.save && r.save.giant, help: r.save && r.save.help, shiny: r.save && r.save.shiny, hu: r.save && r.save.hu, hunt: r.save && r.save.hunt })); }
   };
   console.warn('⚠ SUPABASE_URL / SUPABASE_SECRET_KEY가 없어 메모리에만 저장합니다 (서버가 꺼지면 사라져요).');
 }
@@ -2935,7 +2935,7 @@ setInterval(() => {
     });
   }
 }, 60000);
-db.roster().then(rows => { for (const r of rows || []) { if (String(r.key).startsWith('__')) continue; if (r.boat && !vBoat) vBoat = { by: r.name }; if (!rosterCache.has(r.key)) rosterCache.set(r.key, { name: r.name, job: r.job && r.job.id || '', lv: vlOf(r.vl), sit: false, legs: legZones({ dex: r.dex }), sd: sdN({ sdex: r.sdex }), gt: gtN({ giant: r.giant }), dex: dexIds(r.dex), help: r.help ? r.help.n | 0 : 0, jr: jrOf({ job: r.job }, r.job && r.job.id), jx: (r.job && r.job.xp && r.job.id && r.job.xp[r.job.id]) | 0 }); } sdKingCheck(true); console.log('현황판', rosterCache.size, '명'); }).catch(e => console.error('현황판을 읽지 못했어요', e.message));
+db.roster().then(rows => { for (const r of rows || []) { if (String(r.key).startsWith('__')) continue; if (r.boat && !vBoat) vBoat = { by: r.name }; if (!rosterCache.has(r.key)) rosterCache.set(r.key, { name: r.name, job: r.job && r.job.id || '', lv: vlOf(r.vl), sit: false, legs: legZones({ dex: r.dex }), sd: sdN({ sdex: r.sdex }), gt: gtN({ giant: r.giant }), sh: shN({ shiny: r.shiny }), hl: cpOf({ hu: r.hu, hunt: r.hunt }), dex: dexIds(r.dex), help: r.help ? r.help.n | 0 : 0, jr: jrOf({ job: r.job }, r.job && r.job.id), jx: (r.job && r.job.xp && r.job.id && r.job.xp[r.job.id]) | 0 }); } sdKingCheck(true); console.log('현황판', rosterCache.size, '명'); }).catch(e => console.error('현황판을 읽지 못했어요', e.message));
 db.ranks().then(rows => { for (const r of (rows || []).filter(r => !String(r.key).startsWith('__'))) rankSet(r.key, r.name, r.enh, cleanLook(r.look, { cos: { own: Array.isArray(r.own) ? r.own : [] }, enh: r.enh }, colorOf(r.key))); champBoot = true; console.log('강화 순위', rankCache.size, '명 · 동상', champ ? champ.name + ' +' + champ.lv : '없음'); }).catch(e => { champBoot = true; console.error('강화 순위를 읽지 못했어요', e.message); });
 
 // 친구 위치 묶어서 보내기
