@@ -130,6 +130,8 @@ button:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
 #act:active{transform:translateY(3px);box-shadow:0 2px 0 #e58aa6}
 @keyframes pulse{to{transform:scale(1.07)}}
 /* 낚시 줄다리기 */
+#reel.shy #rtrack{box-shadow:0 0 0 3px #fff,0 0 14px 4px rgba(255,220,120,.9),0 0 26px 8px rgba(255,150,230,.55);animation:shyGlow 1.2s ease-in-out infinite alternate}#reel.shy #rfish{filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 6px #ffe070);animation:shyFish .5s ease-in-out infinite alternate}
+@keyframes shyGlow{from{box-shadow:0 0 0 3px #fff,0 0 10px 3px rgba(255,220,120,.7),0 0 20px 6px rgba(150,220,255,.45)}to{box-shadow:0 0 0 3px #fff,0 0 16px 6px rgba(255,150,230,.85),0 0 30px 10px rgba(255,240,150,.55)}}@keyframes shyFish{from{filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px #ffe070)}to{filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 9px #ff9ae0)}}
 #reel{position:fixed;right:max(18px,env(safe-area-inset-right,0px));top:50%;transform:translateY(-62%);width:54px;z-index:6;display:flex;gap:8px;align-items:stretch}
 #rtrack{position:relative;width:34px;height:230px;border-radius:18px;background:rgba(255,250,242,.9);border:3px solid #fff;box-shadow:0 0 0 2px var(--line),0 4px 0 rgba(120,100,170,.18);overflow:hidden}
 #rbar{position:absolute;left:3px;right:3px;border-radius:12px;background:linear-gradient(#a9e8cf,#7fd1b4);opacity:.92}
@@ -4953,7 +4955,7 @@ $('bAfk').onclick=()=>{if(F.afk)stopAfk('자동 낚시를 멈췄어요');else st
 function releaseAct(){if(chgEnd())return;if(F.mode==='reel')inp.hold=false}
 function startCast(c){
   castBait();F.whoosh=0;RCAST.armed=true;
-  P.dir=c.dir;F.target={x:c.x,y:c.y,k:c.k};F.zone=W.Z[c.y][c.x];castWhere(c);hsCastHook(c);giftHint(F.zone);recWarn(F.zone);F.mode='cast';F.t=0;F.fish=null;
+  P.dir=c.dir;F.target={x:c.x,y:c.y,k:c.k};F.zone=W.Z[c.y][c.x];F.shq=false;castWhere(c);hsCastHook(c);giftHint(F.zone);recWarn(F.zone);F.mode='cast';F.t=0;F.fish=null;
   S.stats.casts++;Snd.sfx('cast');hideHint();
 }
 function castTip(){const d=P.dir,o={right:[13,-21],left:[-13,-21],up:[6,-25],down:[9,-11]}[d];let x=P.x+o[0],y=P.y+o[1];
@@ -5335,6 +5337,8 @@ function updateFishing(dt){
 const parts=[],ripples=[];
 function ripple(x,y){ripples.push({x:x,y:y,r:1,life:1.4})}
 function splashFx(x,y){for(let i=0;i<9;i++)parts.push({x:x,y:y,vx:(Math.random()-.5)*34,vy:-30-Math.random()*30,life:.6+Math.random()*.3,t:0,c:'#ffffff',g:110,s:1})}
+/* ✨ 반짝 개체가 걸리면 낚는 동안 찌 주변이 반짝반짝 (2026-11-12) */
+setInterval(()=>{if(F.shq!==true||HUNT.on)return;const md=F.mode;if(md!=='wait'&&md!=='bite'&&md!=='reel')return;try{const [x,y]=bobberPos();sparkFx(x+(Math.random()-.5)*10,y-3+(Math.random()-.5)*6,md==='wait'?1:2,['#ffffff','#fff6a0','#ffc8f0','#b8f0ff'])}catch(e){}},180);
 function sparkFx(x,y,n,cols){for(let i=0;i<n;i++){const a=Math.random()*6.28,s=20+Math.random()*50;parts.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-20,life:.7+Math.random()*.7,t:0,c:cols[(Math.random()*cols.length)|0],g:40,s:Math.random()<.3?2:1})}}
 const bflies=[],flies=[],petals=[];
 function initAmbient(){
@@ -7495,7 +7499,7 @@ function updateActBtn(a){
 }
 
 /* ----- 줄다리기 UI ----- */
-function showReel(on){$('reel').hidden=!on;if(on){$('rfish').src=F.shinyNow?shinyURL(F.fish.id):fishURL(F.fish.id);$('rtenw').hidden=!(F.reel&&F.reel.tenOn);$('rwarn').hidden=true;
+function showReel(on){$('reel').hidden=!on;$('reel').classList.toggle('shy',!!(on&&F.reelSh));if(on&&F.reelSh)setTimeout(()=>showBanner('✨ 뭔가 반짝반짝 빛나요…! 놓치지 마요!',2200),120);if(on){$('rfish').src=F.shinyNow?shinyURL(F.fish.id):fishURL(F.fish.id);$('rtenw').hidden=!(F.reel&&F.reel.tenOn);$('rwarn').hidden=true;
   const t=fishType(F.fish);if(t!=='norm'&&F.fish.rar>=2)setTimeout(()=>toast((F.fish.myth?'🌌 신화의 기척! ':'')+TYPE_NAME[t]+' 물고기예요'+({dash:' · 갑자기 달려요',jump:' · 점프하면 손을 떼요',zig:' · 위아래로 빨라요',dive:' · 자꾸 아래로 내려가요',stay:' · 놓치면 크게 깎여요'}[t])),200)}}
 function updateReelUI(inBar){
   const r=F.reel;
