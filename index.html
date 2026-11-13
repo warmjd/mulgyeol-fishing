@@ -3461,8 +3461,14 @@ function genWorld(){
   {const E=EDEN,r=RNG(2611),tr=(x,y,k)=>{if(T[y]&&T[y][x]==='g'&&!SOL[y][x]){trees.push({x,y,kind:k,seed:x*131+y*7});SOL[y][x]=true}};
    for(let x=E.x0;x<=E.x1;x++){tr(x,E.y0,x%3?'green':'sakura');tr(x,E.y1,x%4?'teal':'sakura')}
    for(let y=E.y0;y<=E.y1;y++){if(Math.abs(y-E.cy-.5)>2)tr(E.x0,y,y%2?'green':'sakura');tr(E.x1,y,y%2?'teal':'green')}
-   for(let y=E.y0+2;y<E.cy-1;y++)for(let x=E.cx+12;x<E.x1-2;x++)if(r()<.07)tr(x,y,r()<.5?'autumn':'green');
-   for(let y=E.y0+1;y<E.y1;y++)for(let x=E.x0+1;x<E.x1;x++){if(T[y][x]!=='g'||SOL[y][x])continue;const nw=x<E.cx&&y<E.cy;if(r()<(nw?.5:.1))deco.push({k:'flower',x,y,v:(r()*6)|0,c:r()<.5?0:1})}
+   {const near=(x,y,ch,d)=>{for(let j=-d;j<=d;j++)for(let i=-d;i<=d;i++){const q=T[y+j]&&T[y+j][x+i];if(q&&ch.indexOf(q)>=0)return true}return false};
+    for(let y=E.y0+2;y<=E.y1-2;y++)for(let x=E.x0+2;x<=E.x1-2;x++){if(T[y][x]!=='g'||SOL[y][x]||near(x,y,'pwks',1))continue;
+      if(E.trees.some(([a,b])=>Math.abs(a-x)<5&&Math.abs(b-y)<4))continue;if(Math.abs(x-E.cx)<10&&Math.abs(y-E.cy)<5)continue;
+      const ne=x>E.cx&&y<E.cy,se=x>E.cx&&y>E.cy,nw=x<E.cx&&y<E.cy,p=ne?.22:se?.06:nw?.1:.13;
+      if(r()<p)tr(x,y,ne?(r()<.6?'green':'autumn'):se?(r()<.5?'teal':'green'):nw?(r()<.6?'sakura':'green'):(r()<.5?'green':'autumn'))}
+    for(let y=E.y0+1;y<E.y1;y++)for(let x=E.x0+1;x<E.x1;x++){if(T[y][x]==='g'&&!SOL[y][x]&&near(x,y,'w',1)&&r()<.55)deco.push({k:'reed',x,y,v:(r()*4)|0});
+      if(T[y][x]==='w'&&MASK[y][x]===0&&r()<.16)deco.push({k:'lily',x,y,v:(r()*5)|0})}}
+   for(let y=E.y0+1;y<E.y1;y++)for(let x=E.x0+1;x<E.x1;x++){if(T[y][x]!=='g'||SOL[y][x])continue;const nw=x<E.cx&&y<E.cy;if(r()<(nw?.62:.3))deco.push({k:'flower',x,y,v:(r()*6)|0,c:r()<.5?0:1})}
    [[E.cx-E.rx+6,E.cy-9],[E.cx+E.rx-8,E.cy-9],[E.cx-E.rx+8,E.cy+10],[E.cx+E.rx-6,E.cy+10]].forEach(([x,y])=>{for(let d=0;d<4;d++){const yy=y+(y<E.cy?d:-d);if(T[yy]&&T[yy][x]==='g'&&!SOL[yy][x]){prop('bench',x,yy,false);break}}});
    for(const[x,y]of E.trees){for(let j=-1;j<=0;j++)for(let i=-1;i<=1;i++)SOL[y+j][x+i]=true}
    SOL[E.cy][E.x0]=false;SOL[E.cy+1][E.x0]=false}
@@ -9306,7 +9312,7 @@ function chopOrch(i){const o=gdS().o[i];if(!o||orchStage(o)<3||SAPLINGS[o.k][3])
   for(let k=0;k<14;k++)parts.push({x:x*TS+8+(Math.random()-.5)*16,y:y*TS-10+(Math.random()-.5)*14,vx:(Math.random()-.5)*30,vy:-20,life:1,t:0,c:Math.random()<.5?'#8a5a30':'#9ad8a0',g:60,s:1});SHK={t:.25,a:1.5};Snd.sfx('step');toast('🪓 통나무 ×'+n+' · 그루터기에서 다시 자라요');saveState()}
 /* 숲의 나무 베기 (마을 한가운데 나무는 그대로 · 12시간 뒤 다시 자라요 · 나에게만) */
 const chopS=()=>(S.chop&&typeof S.chop==='object')?S.chop:(S.chop={});
-const wildTree=t=>t.y<15||t.y>=60||t.x>=34||t.x<=1||t.x>=OW-2;
+const wildTree=t=>!inEden(t.x,t.y)&&(t.y<15||t.y>=60||t.x>=34||t.x<=1||t.x>=OW-2);
 const treeCut=t=>{const c=chopS()[t.x+','+t.y];return c&&Date.now()-c<24*3600e3};
 /* 벌목 (2026-11-05): 나무 한 그루에 도끼질 3번 · 하루 나무 도끼 15그루 · 강철 도끼 25그루 */
 /* 벌목 기력 (2026-11-05): 하루 15씩 차고(강철 도끼 25) 3일치까지 쌓여요 · 한 그루에 1 */
@@ -9464,7 +9470,7 @@ function natDrawables(list,x0,x1,y0,y1){
   drawArkShip(list);edenDraw(list,x0,x1,y0,y1);edDraw(list,x0,x1,y0,y1);
 }
 /* ===== 🌳 물결 정원 그리기 (2026-11-13): 두 나무 · 정원 문 · 샘의 물고기 · 평화의 들판 동물들 ===== */
-const ED_ANI=[{k:'sheep',x:170,y:22},{k:'lion',x:172,y:22,lie:1},{k:'lamb',x:174,y:22.4,lie:1},{k:'deer',x:160,y:24},{k:'sheep',x:180,y:19},{k:'rabbit',x:150,y:25},{k:'rabbit',x:124,y:8},{k:'deer',x:182,y:25},{k:'sheep',x:164,y:19}];
+const ED_ANI=[{k:'rabbit',x:112,y:20},{k:'rabbit',x:118,y:8},{k:'deer',x:128,y:24},{k:'sheep',x:176,y:26},{k:'deer',x:166,y:6},{k:'rabbit',x:181,y:9},{k:'sheep',x:120,y:26},{k:'sheep',x:170,y:22},{k:'lion',x:172,y:22,lie:1},{k:'lamb',x:174,y:22.4,lie:1},{k:'deer',x:160,y:24},{k:'sheep',x:180,y:19},{k:'rabbit',x:150,y:25},{k:'rabbit',x:124,y:8},{k:'deer',x:182,y:25},{k:'sheep',x:164,y:19}];
 ED_ANI.forEach((a,i)=>{a.hx=a.x;a.hy=a.y;a.t=i*1.7;a.f=1});
 const ED_SP={sheep:{c:{w:'#ffffff',W:'#e2e2ee',k:'#4a4048',p:'#ffc0c8'},r:['..wwww....','.wwwwwwk..','wwwwwwwkk.','wWwwwwwk..','.wwwwww...','.k.k.k.k..']},
  lamb:{c:{w:'#ffffff',W:'#e8e8f2',k:'#5a5058'},r:['.www.','wwwwk','wWwww','.k.k.']},
@@ -9492,7 +9498,24 @@ function edGate(){const E=EDEN,X=E.x0*TS,Y=E.cy*TS,c=cx,shut=edenShut();
   c.strokeStyle='#f2e6cc';c.lineWidth=4;c.beginPath();c.arc(X+TS/2,Y-22,TS/2+2,Math.PI,0);c.stroke();
   [[-2,-26],[4,-34],[12,-32],[TS,-24],[8,-36]].forEach((q,i)=>{c.fillStyle=['#ff9ac8','#ffd84a','#ffffff','#c8a8ff','#ff9ac8'][i];c.fillRect(X+q[0],Y+q[1],3,3)});
   if(shut){c.fillStyle='#c8a070';for(let k=0;k<4;k++)c.fillRect(X+1,Y-14+k*11,TS-2,3);c.fillStyle='#a07a50';c.fillRect(X+TS/2-1,Y-16,2,46)}}
+const ED_BUSH=(()=>{const L=[],r=RNG(4417);for(let i=0;i<150;i++){const x=EDEN.x0+3+((r()*(EDEN.x1-EDEN.x0-6))|0),y=EDEN.y0+2+((r()*(EDEN.y1-EDEN.y0-4))|0);L.push({x,y,c:['#ff9ac8','#ffd84a','#c8a8ff','#ffffff','#ff8a8a','#8ad0ff'][(r()*6)|0],s:(r()*1e4)|0})}return L})();
+const ED_DUCK=[0,1,2,3].map(i=>({a:i*1.6,sw:i===3}));
 function edenDraw(list,x0,x1,y0,y1){const E=EDEN;if(x1<E.x0-3||x0>E.x1+3||y0>E.y1+3||y1<E.y0-6)return;
+  /* 보기에 아름답고 먹기에 좋은 나무: 정원 나무마다 열매 */
+  W.trees.forEach(t=>{if(t.x<x0-2||t.x>x1+2||t.y<y0-2||t.y>y1+3||!inEden(t.x,t.y)||t.y===E.y0||t.y===E.y1||t.x===E.x0||t.x===E.x1)return;const h=(t.x*73+t.y*151)%7;if(h>4)return;const col=['#ff5a6a','#ffa040','#ffd040','#ff7ab0','#c060ff'][h];
+    list.push({y:t.y*TS+15.5,fn:()=>{const X=t.x*TS+8,Y=t.y*TS+16;[[-7,-24],[4,-27],[8,-18],[-3,-15],[-9,-17],[2,-21]].forEach((q,i)=>{if((i+h)%3===2)return;cx.fillStyle=col;cx.fillRect(X+q[0],Y+q[1],3,3);cx.fillStyle='rgba(255,255,255,.7)';cx.fillRect(X+q[0],Y+q[1],1,1)})}})});
+  ED_BUSH.forEach(b=>{if(b.x<x0-1||b.x>x1+1||b.y<y0-1||b.y>y1+1)return;const T0=W.T[b.y][b.x];if(T0!=='g'||W.SOL[b.y][b.x])return;list.push({y:b.y*TS+10,fn:()=>{const X=b.x*TS+3,Y=b.y*TS+4;cx.fillStyle='#5aa050';cx.fillRect(X,Y+3,10,6);cx.fillRect(X+1,Y+1,8,2);cx.fillStyle='#78c060';cx.fillRect(X+1,Y+3,8,3);
+    for(let k=0;k<6;k++){const fx=X+1+((b.s>>k)%9),fy=Y+((b.s>>(k+3))%6);cx.fillStyle=b.c;cx.fillRect(fx,fy,2,2)}}})});
+  /* 샘: 물방울 · 오리와 백조 */
+  list.push({y:(E.cy-1)*TS,fn:()=>{const X=(E.cx+.5)*TS,Y=(E.cy+.5)*TS;for(let k=0;k<3;k++){const r=((wt*10+k*7)%20);cx.strokeStyle='rgba(255,255,255,'+(.5-r/40)+')';cx.lineWidth=1;cx.beginPath();cx.ellipse(X,Y,r,r*.45,0,0,6.28);cx.stroke()}
+    cx.fillStyle='rgba(255,255,255,.8)';const j=Math.sin(wt*4);cx.fillRect(X-1,Y-4-Math.abs(j)*3,2,3);cx.fillRect(X-3,Y-2,1,1);cx.fillRect(X+2,Y-2,1,1)}});
+  ED_DUCK.forEach(d=>{const a=wt*.18+d.a,X=(E.cx+.5+Math.cos(a)*5.2)*TS,Y=(E.cy+.5+Math.sin(a)*2.6)*TS,f=Math.cos(a+Math.PI/2)<0?-1:1;list.push({y:Y,fn:()=>{const c=cx;c.fillStyle='rgba(255,255,255,.35)';c.fillRect(X-6,Y+3,12,1);
+    if(d.sw){c.fillStyle='#ffffff';c.fillRect(X-5,Y-2,10,5);c.fillRect(X+3*f-1,Y-8,2,7);c.fillRect(X+3*f-1+f,Y-9,3,2);c.fillStyle='#ff9a40';c.fillRect(X+3*f+2*f,Y-8,2,1)}
+    else{c.fillStyle='#f0d070';c.fillRect(X-4,Y-1,8,4);c.fillRect(X+2*f-1,Y-4,4,3);c.fillStyle='#ff9a40';c.fillRect(X+2*f+2*f,Y-3,2,1);c.fillStyle='#3a3040';c.fillRect(X+2*f+f,Y-3,1,1)}}})});
+  /* 나비 · 새 */
+  for(let i=0;i<16;i++){const bx=E.x0+10+((i*29)%(E.x1-E.x0-20)),by=E.y0+4+((i*13)%(E.y1-E.y0-8)),X=(bx+Math.sin(wt*.6+i)*3)*TS,Y=(by+Math.cos(wt*.45+i*2)*1.6)*TS,fl=Math.sin(wt*14+i)>0;if(X/TS<x0-1||X/TS>x1+1)continue;
+    list.push({y:Y+60,fn:()=>{cx.fillStyle=['#ffffff','#ffd84a','#ff9ac8','#9ad0ff','#c8a8ff'][i%5];if(fl){cx.fillRect(X-3,Y-1,2,3);cx.fillRect(X+1,Y-1,2,3)}else{cx.fillRect(X-2,Y,1,2);cx.fillRect(X+1,Y,1,2)}cx.fillStyle='#4a3a40';cx.fillRect(X,Y,1,2)}})}
+  if(!isNight(dayTint().ph)){const ph=(wt*.05)%1.6;if(ph<1){const bx=(E.x0+ph*(E.x1-E.x0))*TS,by=(E.y0+6+Math.sin(ph*6)*2)*TS;for(let k=0;k<5;k++){const X=bx-[0,8,8,16,16][k],Y=by+[0,-5,5,-10,10][k],w=Math.sin(wt*10+k)>0?1:0;list.push({y:9e6,fn:()=>{cx.fillStyle='#5a5070';cx.fillRect(X-3,Y-w,3,1);cx.fillRect(X+1,Y-w,3,1);cx.fillRect(X,Y,1,1)}})}}}
   const fs=[0,1,2,3,4];fs.forEach(i=>{const a=wt*.35+i*1.26,fx=(E.cx+.5+Math.cos(a)*4.6)*TS,fy=(E.cy+.5+Math.sin(a)*2.4)*TS;list.push({y:fy-40,fn:()=>{cx.fillStyle=['rgba(255,140,90,.75)','rgba(255,255,255,.7)','rgba(255,200,80,.7)','rgba(255,140,90,.75)','rgba(240,240,255,.7)'][i];const d=Math.cos(a+Math.PI/2)>0?1:-1;cx.fillRect(fx-3,fy-1,6,3);cx.fillRect(fx-3*d-1,fy-2,2,5)}})});
   list.push({y:(E.trees[0][1])*TS+16,fn:()=>edTree(E.trees[0][0],E.trees[0][1],true)});list.push({y:(E.trees[1][1])*TS+16,fn:()=>edTree(E.trees[1][0],E.trees[1][1],false)});
   list.push({y:(E.cy+2)*TS,fn:edGate});
