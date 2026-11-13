@@ -3252,14 +3252,16 @@ const ORCH=[[51,18],[54,18],[51,28],[54,28],[70,18],[70,28]];
 const HIVE_AT=[[46,24],[46,25],[24,20],[24,19],[10,20],[68,22],[70,22]];
 /* ⛵ 꽃배 (2026-11-05): 저마다 자기 꽃배 하나. 텃밭 · 과수원 · 벌집을 싣고 마을 꽃배 부두 ↔ 안개 섬 부두를 오가요 (server.js SHIP_N과 같아요)
    배 갑판은 꽃밭 언덕 동쪽 바다 위 「꽃배 선단」에 떠 있고, 부두에 묶인 배를 누르면 올라타요 */
-const SHIP_N=8,SHIP_W=24,SHIP_H=13,SHIP_PX=7,SHIP_PLOT_ROWS=[2,4,9,11];
+/* 2026-11-13: 정원 마당 8곳 → 「내 정원」 한 곳 (누구나 자기 정원이 보여요 · 자리 다툼 없음 · 심은 꽃 · 나무 · 꾸밈 그대로)
+   나머지 자리는 🌳 물결 정원 */
+const SHIP_N=1,SHIP_W=24,SHIP_H=13,SHIP_PX=7,SHIP_PLOT_ROWS=[2,4,9,11];
 const shipO=i=>[74+(i%4)*30,i<4?1:17];
 const SHIP_ORCH=[[2,2],[4,2],[2,10],[4,10],[19,2],[19,10]],SHIP_HIVE=[[21,6],[21,8]],SHIP_HELM=[5,6],SHIP_MAST=[12,7],SHIP_EXIT=[5,12];
 const VBERTH=[[62,41],[65,41],[62,44],[65,44],[62,47],[65,47],[62,50],[65,50]],IBERTH=[[15,64],[18,64],[15,66],[18,66],[15,68],[18,68],[15,70],[18,70]];
 for(let i=0;i<SHIP_N;i++){const[ox,oy]=shipO(i);SHIP_HIVE.forEach(([x,y])=>HIVE_AT.push([ox+x,oy+y]))}
 let SHIPS=[];
-const shipList=()=>{const L=[];for(let i=0;i<SHIP_N;i++)L.push(ONLINE?(SHIPS[i]||null):(i===0&&S.ship?{name:'나',at:S.shipAt||'v'}:null));return L};
-const shipMine=i=>ONLINE?!!(SHIPS[i]&&Net.me&&SHIPS[i].name===Net.me.name):(i===0&&!!S.ship);
+const shipList=()=>[{name:(ONLINE&&Net.me&&Net.me.name)||'나',at:'v'}];
+const shipMine=i=>i===0;
 const myShip=()=>{for(let i=0;i<SHIP_N;i++)if(shipMine(i))return i;return-1};
 const myShipAt=()=>{const i=myShip();return i<0?'':(shipList()[i].at||'v')};
 const deckAt=(x,y)=>{for(let i=0;i<SHIP_N;i++){const[ox,oy]=shipO(i);if(x>=ox&&x<ox+SHIP_W&&y>=oy&&y<oy+SHIP_H)return i}return-1};
@@ -3391,8 +3393,6 @@ function genWorld(){
     SHIP_HIVE.forEach(([x,y])=>prop('barrel',ox+x,oy+y));prop('sign',ox+SHIP_HELM[0],oy+SHIP_HELM[1]);SOL[oy+SHIP_MAST[1]][ox+SHIP_MAST[0]]=true;
     [[22,1],[22,11],[1,1]].forEach(([x,y])=>prop('lamp',ox+x,oy+y))}
   /* 🏝️ 섬 나루터 (2026-11-11): 모두의 정원 남쪽 바닷가 · 배를 타면 내 섬 */
-  for(const x of[116,117])for(let y=36;y<=43;y++){if(T[y][x]==='w'||y>=40){T[y][x]=y<39&&T[y][x]!=='w'?'p':'k';Z[y][x]=0;SOL[y][x]=false}}
-  prop('lamp',115,38);prop('sign',118,38);
   /* 물가 마스크 (육지와 맞닿은 면) */
   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){
     if(T[y][x]==='w'){SOL[y][x]=true;let m=0;
@@ -3976,8 +3976,8 @@ function regionName(){
   if(ty>=60&&tx>=139)return'소복섬 · 소복마을';
   if(tx>=113&&tx<=120&&ty>=36&&ty<=45)return'🏝️ 섬 나루터';
   if(tx>=72&&tx<=114&&ty>=32&&ty<=38)return'🏙️ 물결 생활 거리';
-  if(tx>=72&&ty<32){const i=deckAt(tx|0,ty|0),x=i>=0&&shipList()[i];return i<0?'🌻 모두의 정원':x?(shipMine(i)?'🌷 내 정원':x.name+'의 정원'):'빈 정원'}
-  if(tx>=62&&tx<66&&ty>=31&&ty<50)return'꽃배 부두';
+  if(tx>=72&&ty<32){const i=deckAt(tx|0,ty|0);return i>=0?'🌷 내 정원':'🌳 물결 정원'}
+  if(tx>=62&&tx<66&&ty>=31&&ty<52)return'섬 나루터';
   if(tx>=GARDEN.x0&&ty>=15&&ty<31)return'꽃밭 언덕';
   if(ty>=60&&ty<100){if(Math.hypot(tx-11,ty-77)<5)return'안개 연못';if(tx>=22&&ty>=73&&ty<91)return'안개 계곡';if(ty>=90)return'산호초 해안'}
   if(ty>=60)return ty<72?'안개 섬 부두':'안개 섬';
@@ -4683,7 +4683,7 @@ const BOATS=[
  {k:'xmas',x:141*TS+8,y:79*TS+12,lb:'안개섬행',to:'mist',at:(tx,ty)=>tx>=140&&tx<=143&&ty===82},
  {k:'jeju',x:19*TS+12,y:40*TS+10,lb:'제주행',to:'jeju',on:()=>JEJU_ON(),at:(tx,ty)=>tx>=16&&tx<=17&&ty>=39&&ty<=41},
  {k:'jeju',x:70*TS+8,y:49*TS+12,lb:'마을행',to:'home',at:(tx,ty)=>tx>=72&&tx<=73&&ty===51},
- {k:'isle',x:117*TS,y:44*TS+10,lb:'내 섬행',to:'myisle',at:(tx,ty)=>tx>=116&&tx<=117&&ty>=42&&ty<=43}];
+ {k:'isle',x:65*TS+2,y:49*TS+10,lb:'내 섬행',to:'myisle',at:(tx,ty)=>tx>=63&&tx<=64&&ty>=48&&ty<=51}];   // 2026-11-13: 꽃배 부두 → 섬 나루터
 function boatNear(){if(!P||HUNT.on)return null;const tx=(P.x/TS)|0,ty=(P.y/TS)|0;for(const b of BOATS){if(b.on&&!b.on())continue;if(b.at(tx,ty))return{type:'x',fn:()=>b.to==='myisle'?(sailFx(b),Snd.sfx('sail'),setTimeout(()=>openIsland(),500)):boatGo(b),label:b.to==='myisle'?'🏝️ 섬 나룻배<br>섬으로 가기':{des:'🍰 ',xmas:'🎄 ',jeju:'🍊 '}[b.k]+b.lb+'<br>배 타기'}}return null}
 function boatGo(b){Snd.sfx('sail');const go=()=>{if(b.to==='jeju'){forceTp(78*TS+8,51*TS+12,'🍊 제주 이벤트 섬에 도착했어요! 혼저옵서예');Snd.sfx('splash');return}if(b.to==='home'){forceTp(17*TS+8,46*TS+12,'⛵ 마을 부두로 돌아왔어요');return}
   const d=FERRY[b.to];S.dwStory=1;forceTp(d[0],d[1],'⛵ '+d[2]+'에 도착했어요');saveState(true);Snd.sfx('splash');if(b.to!=='mist')arriveFx(b.to);if(b.to==='win'&&!S.ski)setTimeout(()=>toast('🥶 으슬으슬… 스키복이 없으면 걸음이 느려지고 입질도 늦어요. 소복마을 털실 가게에서 만들어요'),1500)};
@@ -6164,9 +6164,9 @@ Object.assign(ITEMS,{
  cherry:{n:'체리',ic:'🍒',d:'반짝이는 체리. 물결호 재료 · 상점에서 팔아요',npc:8000},
  pie:{n:'과일 꿀파이',ic:'🥧',d:'과일 꿀파이. 상점에서 좋은 값에 팔려요',npc:12000},
  snow:{n:'눈뭉치',ic:'⛄',d:'소복섬 눈더미에서 뭉쳐요 · 눈사람 재료',npc:100},flake:{n:'반짝 눈송이',ic:'❄️',d:'소복섬에서 가끔 · 스키복 재료',npc:30000},
- fl_tulip:{n:'튤립',ic:'🌷',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:140000},fl_sun:{n:'해바라기',ic:'🌻',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:270000},fl_cosmos:{n:'코스모스',ic:'🌸',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:180000},
- fl_lav:{n:'라벤더',ic:'🪻',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:450000},fl_rose:{n:'장미',ic:'🌹',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:900000},fl_hydr:{n:'수국',ic:'💠',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:1350000},
- fl_lily:{n:'백합',ic:'🤍',d:'꽃배 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:2200000},fl_rb:{n:'무지개꽃',ic:'🌈',d:'두 가지 꽃을 나란히 피우면 가끔 · 벌집에 무지개꿀',npc:6000000},
+ fl_tulip:{n:'튤립',ic:'🌷',d:'내 정원 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:140000},fl_sun:{n:'해바라기',ic:'🌻',d:'내 정원 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:270000},fl_cosmos:{n:'코스모스',ic:'🌸',d:'내 정원 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:180000},
+ fl_lav:{n:'라벤더',ic:'🪻',d:'내 정원 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:450000},fl_rose:{n:'장미',ic:'🌹',d:'내 정원 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:900000},fl_hydr:{n:'수국',ic:'💠',d:'내 정원 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:1350000},
+ fl_lily:{n:'백합',ic:'🤍',d:'내 정원 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:2200000},fl_rb:{n:'무지개꽃',ic:'🌈',d:'두 가지 꽃을 나란히 피우면 가끔 · 벌집에 무지개꿀',npc:6000000},
  sap_oak:{n:'참나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:1000000},sap_pine:{n:'소나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:1000000},sap_apple:{n:'사과나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:2500000},
  sap_peach:{n:'복숭아나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:4000000},sap_orange:{n:'귤나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:4000000},sap_cherry:{n:'체리나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:7500000}
 });
@@ -9430,7 +9430,6 @@ function natDrawables(list,x0,x1,y0,y1){
   for(let i=0;i<SHIP_N;i++){const[ox,oy]=shipO(i);if(ox+SHIP_W+4<x0-2||ox>x1+2||oy+SHIP_H+1<y0-3||oy-4>y1+3)continue;
     shipDeco(list,i,L[i]);const g=i===me?gdS():L[i]&&L[i].gd;
     if(g){drawGd(list,normGd(g),k=>shipPlotXY(i,k),(o,k)=>shipTreeXY(i,o,k),inV);gdDecoDraw(list,i,g,inV)}}
-  for(let i=0;i<SHIP_N;i++){const x=L[i];if(!x)continue;const b=(x.at==='i'?IBERTH:VBERTH)[i];if(inV(b[0],b[1]))berthShip(list,i,x,b)}
   HIVE_AT.forEach(([x,y])=>{if(!inV(x,y))return;for(let k=0;k<2;k++){const a=wt*3+k*3.1+x,bx=x*TS+8+Math.cos(a)*7,by=y*TS+2+Math.sin(a*1.3)*4;list.push({y:y*TS+16,fn:()=>{cx.fillStyle='#ffc020';cx.fillRect(Math.round(bx),Math.round(by),2,1);cx.fillStyle='#302010';cx.fillRect(Math.round(bx)+1,Math.round(by),1,1)}})}});
   BUGS.forEach(b=>list.push({y:b.y+30,fn:()=>drawBug(b)}));
   drawArkShip(list);
@@ -9512,9 +9511,9 @@ function shipAct(tx,ty){const L=shipList(),di=deckAt(tx,ty);
   if(di>=0){const[ox,oy]=shipO(di);
     if(!L[di]&&myShip()<0&&Math.abs(tx-ox-SHIP_EXIT[0])+Math.abs(ty-oy-SHIP_EXIT[1])<=2)return{type:'x',fn:claimShip,label:'🌷 이 정원<br>받기'};
     if(L[di]&&!shipMine(di)&&ONLINE&&Math.abs(tx-ox-SHIP_MAST[0])+Math.abs(ty-oy-SHIP_MAST[1])<=2)return{type:'x',fn:()=>gdWaterFriend(di),label:(GW_DONE[L[di].name]===kstDay()?'오늘 물<br>줬어요':'💧 친구 정원<br>물 주기')};
-    if(Math.abs(tx-ox-SHIP_HELM[0])+Math.abs(ty-oy-SHIP_HELM[1])<=1)return shipMine(di)?{type:'ship_helm',label:'꽃배<br>조타대'}:{type:'ship_info',i:di,label:'누구<br>배?'};
+    if(Math.abs(tx-ox-SHIP_HELM[0])+Math.abs(ty-oy-SHIP_HELM[1])<=1)return shipMine(di)?{type:'ship_helm',label:'내 정원<br>팻말'}:{type:'ship_info',i:di,label:'누구<br>배?'};
     return null}
-  const isle=ty>=60,B=isle?IBERTH:VBERTH;
+  return null;const isle=ty>=60,B=isle?IBERTH:VBERTH;
   for(let i=0;i<SHIP_N;i++){const x=L[i];if(!x||(x.at==='i')!==isle)continue;const b=B[i];if(Math.abs(b[0]-tx)+Math.abs(b[1]-ty)<=1)return{type:'ship_on',i,label:shipMine(i)?'내 꽃배<br>타기':'꽃배<br>구경'}}
   return null}
 function boardShip(i){const x=shipList()[i];if(!x)return;const[ox,oy]=shipO(i);Snd.sfx('gate');
@@ -9523,7 +9522,8 @@ function leaveShip(i){const x=shipList()[i],at=x?x.at:'v',b=(at==='i'?IBERTH:VBE
   forceTp(sx*TS+8,b[1]*TS+12,at==='i'?'🌫️ 안개 섬 부두에 내렸어요':'🏘️ 꽃배 부두에 내렸어요')}
 const onMyDeck=()=>{const i=myShip();return i>=0&&P&&deckAt((P.x/TS)|0,((P.y-2)/TS)|0)===i};
 const SHIP_STORY='⛵ <b>꽃배 이야기</b><br>방주를 짓던 목수들이 남은 판자로 마을 사람마다 작은 배를 한 척씩 지어 주었어요. 갑판에 흙을 깔고, 꽃씨를 뿌리고, 벌집도 올렸죠.<br>이제 내 정원은 바다 위에 떠 있어요. <b>마을 꽃배 부두</b>에 묶어 두면 친구들이 오가며 구경하고, <b>안개 섬</b>까지 끌고 가면 벌들이 바위틈 꽃을 찾아 꿀에 가끔 <b>석청</b>이 섞여요.';
-function shipHtml(){const L=shipList(),me=myShip();let h='<div class="wishc" style="background:#eef6ff;border-color:#b8d4f0;font-size:12.5px;line-height:1.65">'+SHIP_STORY+'</div>';
+function shipHtml(){return'<div class="wishc" style="background:#f0fbf0;border-color:#a8e0b0;font-size:13px;line-height:1.7">🌷 <b>내 정원</b>은 꽃밭 언덕 바로 오른쪽 위에 있어요<br>누구나 자기 정원이 보여요 · 심은 꽃 · 나무 · 꾸민 것은 그대로예요<br><span class="muted" style="font-size:12px">정원 안 흙 칸 앞에 서서 심기 · 꽃 따기 · 팻말에서 화단 · 꾸미기</span></div>'}
+function shipHtmlOld(){const L=shipList(),me=myShip();let h='<div class="wishc" style="background:#eef6ff;border-color:#b8d4f0;font-size:12.5px;line-height:1.65">'+SHIP_STORY+'</div>';
   if(me<0){const free=L.filter(x=>!x).length;
     h+=free?'<button class="btn pink" data-gd="ship_claim" style="width:100%;margin-top:8px">🌷 내 꽃배 받기 (무료) · 남은 배 '+free+'척</button><div class="muted" style="font-size:12px;margin-top:4px">한 사람에 한 척 · 지금 심어 둔 꽃과 나무도 그대로 실려요</div>'
       :'<div class="wishc" style="margin-top:8px;font-size:12.5px">빈 꽃배가 없어요. 7일 넘게 안 들어온 사람의 배는 조선소로 돌아가 빈 배가 돼요 (그 사람의 꽃은 그대로 남아요). 그때 받을 수 있어요.</div><button class="btn sm" data-gd="ship_claim" style="width:100%;margin-top:6px">다시 확인하기</button>'}
@@ -9615,7 +9615,7 @@ function natAction(tx,ty){
 function natPress(a){
   switch(a.type){case'nat_plant':openPlant(a.i);return true;case'nat_pick':harvestPlot(a.i);return true;case'nat_water':waterPlot();return true;
     case'nat_info':{const p=gdS().p[a.i],F=FLOWERS[p.f],left=Math.max(1,Math.ceil((F[3]*60000-(Date.now()-p.t0))/60000));toast(F[0]+' · '+['씨앗','새싹','봉오리'][flStage(p)]+' · 약 '+fmtMin(left)+' 뒤 활짝'+(gdS().wd===kstDay()?' (오늘 물 줌 ✓)':' (오늘 물 아직)'));return true}
-    case'nat_lock':toast('꽃배 조타대(관리소)에서 화단을 넓혀요');return true;case'nat_tree':openTreePick(a.x,a.y);return true;case'nat_fruit':pickFruit(a.i);return true;case'nat_chop':chopOrch(a.i);return true;
+    case'nat_lock':toast('내 정원 팻말에서 화단을 넓혀요');return true;case'nat_tree':openTreePick(a.x,a.y);return true;case'nat_fruit':pickFruit(a.i);return true;case'nat_chop':chopOrch(a.i);return true;
     case'nat_tinfo':{const o=gdS().o[a.i],T=SAPLINGS[o.k],st=orchStage(o);toast(T[0]+' · '+(st<3?'약 '+fmtMin(Math.max(1,Math.ceil((T[2]*60000-(Date.now()-o.t0))/60000)))+' 뒤 다 자라요':T[3]?'열매가 다시 열리는 중 ('+fmtMin(Math.max(1,Math.ceil(((o.fr||0)-Date.now())/60000)))+')':'다 자란 '+T[0]+' · 도끼로 베면 통나무 '+T[4]+'개'));return true}
     case'nat_hive':takeHoney();return true;case'garden':openGarden();return true;case'ship_on':boardShip(a.i);return true;case'ship_helm':GD_TAB='ship';openGarden();return true;case'ship_off':leaveShip(a.i);return true;case'ship_info':{const x=shipList()[a.i];toast(x?'🌷 '+x.name+' 님의 꽃배 · 활짝 '+shipBloom(x.gd)+'송이':'⛵ 아직 주인이 없는 빈 꽃배예요 · 꽃밭 언덕 관리소에서 받을 수 있어요');return true}case'nat_rock':seekWild(a.r);return true;case'nat_bug':catchBug(a.b);return true}
   return false}
@@ -9657,11 +9657,11 @@ function todayHtml(){const id=jkey(),D=jdS(),dn=D.done[id]||[],b=vdayB(),e=S.enh
   h+='<div class="sec" style="margin-top:10px">⏳ 쌓여 있는 것 <span class="cnt">놓쳐도 손해 없어요</span></div>'+
     todayRow('🪓','벌목 기력',Math.floor(chopE().v)+' / '+chopMax(),axeLv()?'하루 '+chopCap()+'씩 차요 · 나무 한 그루에 1':'도끼는 꽃밭 언덕 관리소에서')+
     todayRow('🍯','벌집 꿀',Math.floor(hiveTick())+' / 30통','꽃이 많이 필수록 빨리 차요')+
-    (myShip()>=0?todayRow('💧','꽃배 물 주기',gdS().wd===kstDay()?'오늘 줌 ✓':'아직','하루 한 번 · 안 줘도 시들지 않아요 (조금 늦게 필 뿐)'):'')+
+    (myShip()>=0?todayRow('💧','정원 물 주기',gdS().wd===kstDay()?'오늘 줌 ✓':'아직','하루 한 번 · 안 줘도 시들지 않아요 (조금 늦게 필 뿐)'):'')+
     todayRow('🪨','석청 바위','20시간마다','안개 섬 바위마다 다시 차요');
   h+='<div class="sec" style="margin-top:10px">💰 내 재화 <span class="cnt">4가지</span></div>'+
     todayRow('💰','골드',fmt(S.gold),'낚시로 벌고, 무엇이든 사요 · 눌러서 자세히','gold')+
-    todayRow('🔹','안개 조각',fmt(itN('shard')),'안개 섬에서만 · 섬 장비 · 꽃배 나무','shard')+
+    todayRow('🔹','안개 조각',fmt(itN('shard')),'안개 섬에서만 · 섬 장비 · 정원 나무','shard')+
     todayRow('🌰','도토리',fmt(MED.n|0),'친구랑 함께 놀면 · 행사 · 부탁 · 마을 일 · 주간 목표 → 도토리 상점','med')+
     todayRow('🎫','강화권',fmt(e.tk|0),'강화소에서 써요 · 반짝 조각 '+e.pc+'/'+ENH.PIECE_PER+'개면 한 장','tk')+
     '<div style="display:flex;gap:6px;margin-top:8px">'+(ONLINE?'<button class="btn sm pink" data-today="shop" style="flex:1">🌰 도토리 상점</button>':'')+'<button class="btn sm ghost" data-cur="gold" style="flex:1">📦 재화 알아보기</button></div>'+
@@ -9722,7 +9722,7 @@ const UPD1109B='<div class="upd">'+
 setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.upd1109b||!S.upd1109)return;if(ONLINE&&!Net.me)return;S.upd1109b=1;saveState(true);Snd.sfx('page');openSheet('11월 9일 업데이트 2',UPD1109B)},3500);
 setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.upd1109||!S.cur2)return;if(ONLINE&&!Net.me)return;S.upd1109=1;saveState(true);Snd.sfx('page');openSheet('11월 9일 업데이트',UPD1109)},3000);
 /* ===== 길 안내: 메뉴에서 장소를 누르면 화살표가 그 건물 문까지 데려다줘요 ===== */
-const GO_PLACES=[['garden','🌷','꽃밭 언덕',[57,23],()=>{const n=bloomCount();return n?'활짝 '+n+'송이':'꽃 · 나무 · 꿀'}],['shipdock','⛵','꽃배 부두',[63,37],()=>{const i=myShip();return i<0?'내 꽃배 받기':myShipAt()==='i'?'내 배: 안개 섬':'내 배: 여기'}],['forge','🔨','강화소',null,()=>'+'+S.enh.lv+' · 강화권 '+S.enh.tk],['shop','🛒','물결 상점',null,()=>'팔기 · 장비'],['boutique','🎀','치장 상점',null,()=>S.btqSeen!==NEW_DAY?'🆕 신제품!':'옷 · 한정'],['trade','🔁','교환소',null,()=>'게시판 · 교환'],
+const GO_PLACES=[['garden','🌷','꽃밭 언덕',[57,23],()=>{const n=bloomCount();return n?'활짝 '+n+'송이':'꽃 · 나무 · 꿀'}],['shipdock','🏝️','섬 나루터',[63,47],()=>'내 섬으로 가는 배'],['myyard','🌷','내 정원',[79,15],()=>{const n=shipBloom(gdS());return n?'활짝 '+n+'송이':'꽃 · 나무 · 꾸미기'}],['forge','🔨','강화소',null,()=>'+'+S.enh.lv+' · 강화권 '+S.enh.tk],['shop','🛒','물결 상점',null,()=>'팔기 · 장비'],['boutique','🎀','치장 상점',null,()=>S.btqSeen!==NEW_DAY?'🆕 신제품!':'옷 · 한정'],['trade','🔁','교환소',null,()=>'게시판 · 교환'],
  ['lib','📚','도감관',null,()=>'도감'],['evboard','🎪','행사 게시판',[21,24],()=>EVS.length?EVS.length+'개 열림':'행사'],['roster','📋','일꾼 현황판',[13,24],()=>'직업 · 예보'],['ebland','🎰','은비랜드',null,()=>'축제 광장'],
  ['aqua','🐠','수족관',null,()=>'축제 광장'],['hunthut','🌀','꿈의 문 (사냥터)',[17,21],()=>'물결 용사 Lv'+huS().lv],['home','🏠','우리 집',null,()=>'다리 옆'],['islport','🏝️','섬 나루터',[116,41],()=>'내 섬 · 친구 섬'],['street','🏙️','물결 생활 거리',[90,37],()=>'멤버 가게 6곳 · 라운지'],['party','⚓','물결 어선',[17,46],()=>PTY&&PTY.state==='lobby'?PTY.members.length+'명 탐':PTY&&PTY.state==='sea'?'바다 위':'배낚시'],['boat','⛵','물결호 부두',[17,57],()=>boatReady()?'안개 섬':'배 만들기']];
 let GUIDE=null;
