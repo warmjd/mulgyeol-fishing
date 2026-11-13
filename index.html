@@ -3254,6 +3254,8 @@ const HIVE_AT=[[46,24],[46,25],[24,20],[24,19],[10,20],[68,22],[70,22]];
    배 갑판은 꽃밭 언덕 동쪽 바다 위 「꽃배 선단」에 떠 있고, 부두에 묶인 배를 누르면 올라타요 */
 /* 2026-11-13: 정원 마당 8곳 → 「내 정원」 한 곳 (누구나 자기 정원이 보여요 · 자리 다툼 없음 · 심은 꽃 · 나무 · 꾸밈 그대로)
    나머지 자리는 🌳 물결 정원 */
+const EDEN={x0:101,x1:191,y0:1,y1:30,cx:146,cy:15,rx:36,ry:11,trees:[[138,11],[154,11]]};   // 🌳 물결 정원 · trees: 금빛 열매 나무 · 생명의 나무
+const inEden=(tx,ty)=>tx>=EDEN.x0&&tx<=EDEN.x1&&ty>=EDEN.y0&&ty<=EDEN.y1;
 const SHIP_N=1,SHIP_W=24,SHIP_H=13,SHIP_PX=7,SHIP_PLOT_ROWS=[2,4,9,11];
 const shipO=i=>[74+(i%4)*30,i<4?1:17];
 const SHIP_ORCH=[[2,2],[4,2],[2,10],[4,10],[19,2],[19,10]],SHIP_HIVE=[[21,6],[21,8]],SHIP_HELM=[5,6],SHIP_MAST=[12,7],SHIP_EXIT=[5,12];
@@ -3392,7 +3394,17 @@ function genWorld(){
     for(const y of SHIP_PLOT_ROWS)for(let x=0;x<10;x++){T[oy+y][ox+SHIP_PX+x]='F';SOL[oy+y][ox+SHIP_PX+x]=true}
     SHIP_HIVE.forEach(([x,y])=>prop('barrel',ox+x,oy+y));prop('sign',ox+SHIP_HELM[0],oy+SHIP_HELM[1]);SOL[oy+SHIP_MAST[1]][ox+SHIP_MAST[0]]=true;
     [[22,1],[22,11],[1,1]].forEach(([x,y])=>prop('lamp',ox+x,oy+y))}
-  /* 🏝️ 섬 나루터 (2026-11-11): 모두의 정원 남쪽 바닷가 · 배를 타면 내 섬 */
+  /* 🌳 물결 정원 (2026-11-13): 샘에서 네 줄기 강 (낚시 금지 · Z=0) · 한 바퀴 걷는 길 · 나무다리 · 금모래 시냇가 */
+  {const E=EDEN;for(let y=E.y0;y<=E.y1;y++)for(let x=E.x0;x<=E.x1;x++){T[y][x]='g';Z[y][x]=0;SOL[y][x]=false}
+   const water=(x,y)=>{if(x>E.x0+1&&x<E.x1-1&&y>E.y0+1&&y<E.y1-1){T[y][x]='w';Z[y][x]=0}};
+   const river=(x1,y1,amp,ph)=>{const n=Math.ceil(Math.hypot(x1-E.cx,y1-E.cy)*3);for(let i=0;i<=n;i++){const t=i/n,x=E.cx+(x1-E.cx)*t,y=E.cy+(y1-E.cy)*t+Math.sin(t*Math.PI*2+ph)*amp*t;water(Math.round(x),Math.round(y));water(Math.round(x)+1,Math.round(y))}};
+   river(E.x0+3,E.y0+3,3,0);river(E.x0+3,E.y1-3,3,1.5);river(E.x1-3,E.y0+3,3,2.4);river(E.x1-3,E.y1-3,3,.7);
+   for(let y=E.cy-4;y<=E.cy+4;y++)for(let x=E.cx-7;x<=E.cx+7;x++)if(((x+.5-E.cx-.5)/6.5)**2+((y+.5-E.cy-.5)/3.6)**2<1){T[y][x]='w';Z[y][x]=0}
+   const pave=(x,y)=>{if(T[y][x]==='w'){T[y][x]='k'}else if(T[y][x]==='g')T[y][x]='p'};
+   for(let i=0;i<900;i++){const a=i/900*Math.PI*2,x=Math.round(E.cx+Math.cos(a)*E.rx),y=Math.round(E.cy+Math.sin(a)*E.ry);pave(x,y);pave(x+1,y)}
+   for(let x=E.x0;x<=E.cx-E.rx;x++){pave(x,E.cy);pave(x,E.cy+1)}
+   for(let x=E.cx-E.rx;x<=E.cx-8;x++){pave(x,E.cy);pave(x,E.cy+1)}for(let x=E.cx+8;x<=E.cx+E.rx;x++){pave(x,E.cy);pave(x,E.cy+1)}
+   for(let y=E.y0;y<=E.y1;y++)for(let x=E.x0;x<E.cx-6;x++)if(y>E.cy+2&&T[y][x]==='g'){let nw=false;for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++)if(T[y+j]&&T[y+j][x+i]==='w')nw=true;if(nw)T[y][x]='s'}}
   /* 물가 마스크 (육지와 맞닿은 면) */
   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){
     if(T[y][x]==='w'){SOL[y][x]=true;let m=0;
@@ -3440,6 +3452,15 @@ function genWorld(){
    for(let y=16;y<=30;y+=2)if(y<22||y>25){trees.push({x:71,y:y,kind:'teal',seed:y*7});SOL[y][71]=true}
    for(let x=56;x<=64;x++){clear(x,30);T[30][x]='p'}
    const r3=RNG(79);for(let y=16;y<=30;y++)for(let x=GARDEN.x0;x<71;x++)if(T[y][x]==='g'&&!SOL[y][x]&&r3()<.16)deco.push({k:'flower',x:x,y:y,v:(r3()*6)|0,c:r3()<.5?0:1})}
+  /* 🌳 물결 정원: 울타리 나무 · 꽃 정원 · 열매 숲 · 벤치 · 가운데 두 나무 */
+  {const E=EDEN,r=RNG(2611),tr=(x,y,k)=>{if(T[y]&&T[y][x]==='g'&&!SOL[y][x]){trees.push({x,y,kind:k,seed:x*131+y*7});SOL[y][x]=true}};
+   for(let x=E.x0;x<=E.x1;x++){tr(x,E.y0,x%3?'green':'sakura');tr(x,E.y1,x%4?'teal':'sakura')}
+   for(let y=E.y0;y<=E.y1;y++){if(Math.abs(y-E.cy-.5)>2)tr(E.x0,y,y%2?'green':'sakura');tr(E.x1,y,y%2?'teal':'green')}
+   for(let y=E.y0+2;y<E.cy-1;y++)for(let x=E.cx+12;x<E.x1-2;x++)if(r()<.07)tr(x,y,r()<.5?'autumn':'green');
+   for(let y=E.y0+1;y<E.y1;y++)for(let x=E.x0+1;x<E.x1;x++){if(T[y][x]!=='g'||SOL[y][x])continue;const nw=x<E.cx&&y<E.cy;if(r()<(nw?.5:.1))deco.push({k:'flower',x,y,v:(r()*6)|0,c:r()<.5?0:1})}
+   [[E.cx-E.rx+6,E.cy-9],[E.cx+E.rx-8,E.cy-9],[E.cx-E.rx+8,E.cy+10],[E.cx+E.rx-6,E.cy+10]].forEach(([x,y])=>{for(let d=0;d<4;d++){const yy=y+(y<E.cy?d:-d);if(T[yy]&&T[yy][x]==='g'&&!SOL[yy][x]){prop('bench',x,yy,false);break}}});
+   for(const[x,y]of E.trees){for(let j=-1;j<=0;j++)for(let i=-1;i<=1;i++)SOL[y+j][x+i]=true}
+   SOL[E.cy][E.x0]=false;SOL[E.cy+1][E.x0]=false}
   const doors={};buildings.forEach(b=>doors[b.id]={x0:b.x,x1:b.x+b.w-1,y:b.y+1});
   return{T:T,Z:Z,SOL:SOL,MASK:MASK,fences:fences,gates:gates,buildings:buildings,props:props,deco:deco,trees:trees,doors:doors,inb:inb,
     spawn:{x:17*TS+8,y:23*TS+12}};
@@ -3976,7 +3997,7 @@ function regionName(){
   if(ty>=60&&tx>=139)return'소복섬 · 소복마을';
   if(tx>=113&&tx<=120&&ty>=36&&ty<=45)return'🏝️ 섬 나루터';
   if(tx>=72&&tx<=114&&ty>=32&&ty<=38)return'🏙️ 물결 생활 거리';
-  if(tx>=72&&ty<32){const i=deckAt(tx|0,ty|0);return i>=0?'🌷 내 정원':'🌳 물결 정원'}
+  if(tx>=72&&ty<32){const i=deckAt(tx|0,ty|0);return i>=0?'🌷 내 정원':inEden(tx|0,ty|0)?'🌳 물결 정원':'🌻 꽃밭 언덕'}
   if(tx>=62&&tx<66&&ty>=31&&ty<52)return'섬 나루터';
   if(tx>=GARDEN.x0&&ty>=15&&ty<31)return'꽃밭 언덕';
   if(ty>=60&&ty<100){if(Math.hypot(tx-11,ty-77)<5)return'안개 연못';if(tx>=22&&ty>=73&&ty<91)return'안개 계곡';if(ty>=90)return'산호초 해안'}
@@ -7054,7 +7075,7 @@ function drawTile(x,y){
   else if(t==='f'){cx.drawImage(SP.grass[h],px_,py_);cx.drawImage(soilCan(),px_,py_)}
   else if(t==='F'){cx.drawImage(SP.plank,px_,py_);cx.drawImage(soilCan(),px_,py_)}
   else if(t==='w'){
-    const f=((wt*2.2+x*.35+y*.2)|0)%4;cx.drawImage(SP.water[W.Z[y][x]][f],px_,py_);
+    const f=((wt*2.2+x*.35+y*.2)|0)%4;cx.drawImage((SP.water[W.Z[y][x]]||SP.water[2])[f],px_,py_);
     const m=W.MASK[y][x];
     if(m){cx.fillStyle='rgba(255,255,255,.55)';
       if(m&1)cx.fillRect(px_,py_,TS,1);if(m&4)cx.fillRect(px_,py_+TS-1,TS,1);if(m&8)cx.fillRect(px_,py_,1,TS);if(m&2)cx.fillRect(px_+TS-1,py_,1,TS);}
@@ -7337,7 +7358,7 @@ function drawWeather(dt){
 let last=0,saveT=0,lastTrack='',lastRegion='';
 function update(dt){
   if(HUNT.on){huUpdate(dt);saveT+=dt;if(saveT>8){saveT=0;saveState()}if(ONLINE)Net.tick(dt);return}
-  wedTick(dt);discTick(dt);touchTick(dt);surpTick(dt);npcRoutine(dt);
+  wedTick(dt);discTick(dt);if(P&&inEden((P.x/TS)|0,(P.y/TS)|0))edAniTick(dt);touchTick(dt);surpTick(dt);npcRoutine(dt);
   S.t=realPh()*DAY_LEN;
   {const k=kbVec(),mm=Math.hypot(k[0]||inp.x,k[1]||inp.y);
     if(F.afk&&mm>.4&&!uiOpen)stopAfk('자동 낚시를 멈췄어요');
@@ -7363,7 +7384,7 @@ function update(dt){
   // BGM
   const want=F.mode==='idle'||F.mode==='result'?(isNight(dayTint().ph)?'night':'town'):'fish';
   const wantT=F.mode==='idle'||F.mode==='result'?want:'fish';
-  const tr=(F.mode!=='idle'&&F.mode!=='result')||F.zone&&false?'fish':onWinter()?'snow':onDessert()?'sweet':(isNight(dayTint().ph)?'night':'town');
+  const tr=(F.mode!=='idle'&&F.mode!=='result')||F.zone&&false?'fish':onWinter()?'snow':onDessert()?'sweet':(P&&inEden((P.x/TS)|0,(P.y/TS)|0))||isNight(dayTint().ph)?'night':'town';
   if(Snd.ready&&tr!==lastTrack){lastTrack=tr;Snd.setTrack(tr)}
   const rg=regionName();if(rg!==lastRegion){lastRegion=rg;showRegion(rg)}
   saveT+=dt;if(saveT>8){saveT=0;saveState()}
@@ -9432,8 +9453,44 @@ function natDrawables(list,x0,x1,y0,y1){
     if(g){drawGd(list,normGd(g),k=>shipPlotXY(i,k),(o,k)=>shipTreeXY(i,o,k),inV);gdDecoDraw(list,i,g,inV)}}
   HIVE_AT.forEach(([x,y])=>{if(!inV(x,y))return;for(let k=0;k<2;k++){const a=wt*3+k*3.1+x,bx=x*TS+8+Math.cos(a)*7,by=y*TS+2+Math.sin(a*1.3)*4;list.push({y:y*TS+16,fn:()=>{cx.fillStyle='#ffc020';cx.fillRect(Math.round(bx),Math.round(by),2,1);cx.fillStyle='#302010';cx.fillRect(Math.round(bx)+1,Math.round(by),1,1)}})}});
   BUGS.forEach(b=>list.push({y:b.y+30,fn:()=>drawBug(b)}));
-  drawArkShip(list);
+  drawArkShip(list);edenDraw(list,x0,x1,y0,y1);
 }
+/* ===== 🌳 물결 정원 그리기 (2026-11-13): 두 나무 · 정원 문 · 샘의 물고기 · 평화의 들판 동물들 ===== */
+const ED_ANI=[{k:'sheep',x:170,y:22},{k:'lion',x:172,y:22,lie:1},{k:'lamb',x:174,y:22.4,lie:1},{k:'deer',x:160,y:24},{k:'sheep',x:180,y:19},{k:'rabbit',x:150,y:25},{k:'rabbit',x:124,y:8},{k:'deer',x:182,y:25},{k:'sheep',x:164,y:19}];
+ED_ANI.forEach((a,i)=>{a.hx=a.x;a.hy=a.y;a.t=i*1.7;a.f=1});
+const ED_SP={sheep:{c:{w:'#ffffff',W:'#e2e2ee',k:'#4a4048',p:'#ffc0c8'},r:['..wwww....','.wwwwwwk..','wwwwwwwkk.','wWwwwwwk..','.wwwwww...','.k.k.k.k..']},
+ lamb:{c:{w:'#ffffff',W:'#e8e8f2',k:'#5a5058'},r:['.www.','wwwwk','wWwww','.k.k.']},
+ lion:{c:{m:'#c87a30',y:'#f0c060',k:'#5a3a20',n:'#3a2a20'},r:['..mmm.......','.mmymm......','mmyyymyyyyy.','mmynyyyyyyyy','.mmyyyyyyyy.','..yk..yy..yk']},
+ deer:{c:{b:'#c08850',w:'#fff4e0',k:'#4a3020',a:'#8a6038'},r:['a.a.......','.a........','.bb.......','.bkbbbbbb.','..bbbbbbbb','..bwbbbwb.','..b.b.b.b.']},
+ rabbit:{c:{w:'#f6f0f6',p:'#ffb0c8',k:'#4a4048'},r:['.w.w..','.p.p..','wwww..','wkwww.','wwwwww','.w..w.']}};
+function edAniDraw(a){const S0=ED_SP[a.k];if(!S0)return;const R=S0.r,w=R[0].length,X=Math.round(a.x*TS+8-w/2),Y=Math.round(a.y*TS+14-R.length),c=cx;
+  c.fillStyle='rgba(0,0,0,.14)';c.fillRect(X+1,Y+R.length-1,w-2,2);
+  for(let j=0;j<R.length;j++)for(let i=0;i<w;i++){const ch=R[j][a.f<0?w-1-i:i],col=S0.c[ch];if(col){c.fillStyle=col;c.fillRect(X+i,Y+j+(a.lie?0:(Math.sin(wt*6+a.t)>.6&&a.mv?-1:0)),1,1)}}
+  if(a.lie&&a.k==='lion'&&((wt*.5+a.t)%6)<1.4){c.fillStyle='#ffffff';c.font='bold 7px sans-serif';c.fillText('z',X+w,Y-2-((wt*3)%3))}}
+function edAniTick(dt){ED_ANI.forEach(a=>{if(a.lie)return;a.t+=dt;if(a.mv){const dx=a.tx-a.x,dy=a.ty-a.y,d=Math.hypot(dx,dy);if(d<.05){a.mv=0;a.wait=2+Math.random()*5}else{const sp=(a.k==='rabbit'?1.4:.5)*dt;a.x+=dx/d*Math.min(sp,d);a.y+=dy/d*Math.min(sp,d);a.f=dx<0?-1:1}}
+  else{a.wait=(a.wait||0)-dt;if(a.wait<=0){const nx=a.hx+(Math.random()-.5)*8,ny=a.hy+(Math.random()-.5)*4;const T0=W.T[Math.round(ny)]&&W.T[Math.round(ny)][Math.round(nx)];if(T0==='g'||T0==='p'){a.tx=nx;a.ty=ny;a.mv=1}else a.wait=1}}})}
+function edTree(x,y,gold){const X=x*TS+8,Y=y*TS+16,c=cx,sw=Math.sin(wt*.8+x)*1.2;
+  if(!gold){const g=c.createRadialGradient(X,Y-30,4,X,Y-30,58);g.addColorStop(0,'rgba(255,252,225,'+(.42+.12*Math.sin(wt*1.3))+')');g.addColorStop(1,'rgba(255,252,225,0)');c.fillStyle=g;c.fillRect(X-60,Y-90,120,120)}
+  c.fillStyle='rgba(0,0,0,.16)';c.beginPath();c.ellipse(X,Y,20,5,0,0,6.28);c.fill();
+  c.fillStyle=gold?'#8a5a34':'#c8b8a0';c.fillRect(X-4,Y-24,8,24);c.fillStyle=gold?'#a06a3c':'#e0d4c0';c.fillRect(X-4,Y-24,3,24);
+  const cr=gold?['#5a9a50','#78c060','#9ad870']:['#bfe6d4','#d8f4e8','#f2fffa'];
+  [[0,-44,24,17],[-15,-34,15,12],[15,-34,15,12]].forEach(q=>{c.fillStyle=cr[0];c.beginPath();c.ellipse(X+q[0]+sw,Y+q[1],q[2],q[3],0,0,6.28);c.fill()});
+  [[0,-46,21,14],[-14,-36,12,9],[14,-36,12,9]].forEach(q=>{c.fillStyle=cr[1];c.beginPath();c.ellipse(X+q[0]+sw,Y+q[1],q[2],q[3],0,0,6.28);c.fill()});
+  c.fillStyle=cr[2];c.beginPath();c.ellipse(X-6+sw,Y-52,9,5,0,0,6.28);c.fill();
+  if(gold){[[-12,-40],[8,-50],[16,-36],[-4,-30],[-18,-30],[2,-42],[12,-28]].forEach((q,i)=>{const gx=X+q[0]+sw,gy=Y+q[1];c.fillStyle='#ffc840';c.fillRect(gx-2,gy-2,4,4);c.fillStyle='#fff6c8';c.fillRect(gx-1,gy-2,1,1);if(((wt*2+i)%5)<.15){c.fillStyle='#ffffff';c.fillRect(gx-4,gy,9,1);c.fillRect(gx,gy-4,1,9)}})}
+  else{for(let i=0;i<9;i++){const a=wt*.6+i*.7,gx=X+Math.cos(a)*20+sw,gy=Y-40+Math.sin(a*1.3)*12;c.fillStyle='rgba(255,255,255,'+(.6+.4*Math.sin(wt*3+i))+')';c.fillRect(gx,gy,2,2)}}}
+function edGate(){const E=EDEN,X=E.x0*TS,Y=E.cy*TS,c=cx,shut=edenShut();
+  c.fillStyle='#e8d8b8';c.fillRect(X-2,Y-26,4,58);c.fillRect(X+TS-2,Y-26,4,58);
+  c.strokeStyle='#f2e6cc';c.lineWidth=4;c.beginPath();c.arc(X+TS/2,Y-22,TS/2+2,Math.PI,0);c.stroke();
+  [[-2,-26],[4,-34],[12,-32],[TS,-24],[8,-36]].forEach((q,i)=>{c.fillStyle=['#ff9ac8','#ffd84a','#ffffff','#c8a8ff','#ff9ac8'][i];c.fillRect(X+q[0],Y+q[1],3,3)});
+  if(shut){c.fillStyle='#c8a070';for(let k=0;k<4;k++)c.fillRect(X+1,Y-14+k*11,TS-2,3);c.fillStyle='#a07a50';c.fillRect(X+TS/2-1,Y-16,2,46)}}
+function edenDraw(list,x0,x1,y0,y1){const E=EDEN;if(x1<E.x0-3||x0>E.x1+3||y0>E.y1+3||y1<E.y0-6)return;
+  const fs=[0,1,2,3,4];fs.forEach(i=>{const a=wt*.35+i*1.26,fx=(E.cx+.5+Math.cos(a)*4.6)*TS,fy=(E.cy+.5+Math.sin(a)*2.4)*TS;list.push({y:fy-40,fn:()=>{cx.fillStyle=['rgba(255,140,90,.75)','rgba(255,255,255,.7)','rgba(255,200,80,.7)','rgba(255,140,90,.75)','rgba(240,240,255,.7)'][i];const d=Math.cos(a+Math.PI/2)>0?1:-1;cx.fillRect(fx-3,fy-1,6,3);cx.fillRect(fx-3*d-1,fy-2,2,5)}})});
+  list.push({y:(E.trees[0][1])*TS+16,fn:()=>edTree(E.trees[0][0],E.trees[0][1],true)});list.push({y:(E.trees[1][1])*TS+16,fn:()=>edTree(E.trees[1][0],E.trees[1][1],false)});
+  list.push({y:(E.cy+2)*TS,fn:edGate});
+  ED_ANI.forEach(a=>list.push({y:a.y*TS+14,fn:()=>edAniDraw(a)}));
+  if(isNight(dayTint().ph))for(let i=0;i<14;i++){const fx=(E.x0+8+((i*37)%(E.x1-E.x0-16))+Math.sin(wt*.7+i)*2)*TS,fy=(E.y0+3+((i*11)%(E.y1-E.y0-6))+Math.cos(wt*.5+i)*1.5)*TS;list.push({y:fy+200,fn:()=>{cx.fillStyle='rgba(255,240,140,'+(.4+.4*Math.sin(wt*3+i))+')';cx.fillRect(fx,fy,2,2)}})}}
+const edenShut=()=>false;   // 매일의 열매 단계에서 채워요
 /* 꽃배 그림: 선체 · 난간 · 뱃머리 · 돛대와 이름 깃발 */
 const shipCol=name=>{let h=0;for(const c of String(name||''))h=(h*31+c.charCodeAt(0))>>>0;return['#ff8ab0','#5d9be8','#ffb040','#7ac070','#b090ff','#ff6b6b','#40c0c0','#ffd34d'][h%8]};
 const SHIP_LQ=[],SHIP_TAGS=[];
