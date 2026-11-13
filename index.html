@@ -3449,6 +3449,11 @@ function genWorld(){
 const $=id=>document.getElementById(id);
 const SAVE_KEY='mulgyeol-fishing-v1';
 const DAY_LEN=1200;   // 2026-11-09: 하루 20분 (예전 8분) · 노을도 길게
+/* 2026-11-13 🕰️ 실제 시간 하늘: 한국 시각 그대로 · 새벽 5~7 · 낮 7~17 · 노을 17~19 · 밤 19~5 (kstSlot과 같아요)
+   빛깔 곡선(ph)은 그대로 두고, 실제 시각을 ph로 바꿔요 */
+const kstHM=()=>{const d=new Date(Date.now()+9*3600e3);return d.getUTCHours()+d.getUTCMinutes()/60+d.getUTCSeconds()/3600};
+function realPh(h){if(h===undefined)h=kstHM();const L=(a,b,x0,x1)=>x0+(x1-x0)*a/b;
+  if(h>=5&&h<7)return(L(h-5,2,.95,1.10))%1;if(h>=7&&h<17)return L(h-7,10,.10,.60);if(h>=17&&h<19)return L(h-17,2,.60,.76);return L((h-19+24)%24,10,.76,.95)}
 function defaultState(){return{v:1,gold:60,inv:{},dex:{},gear:{rod:1,bob:1,lure:1,reel:1,trap:1},zones:[1],t:DAY_LEN*.16,
   stats:{casts:0,catches:0,sold:0,earned:0},set:{bgm:.6,sfx:.8,mute:false,mode:'hard'},px:null,py:null,hinted:false,
   rev:0, // 4단계: 서버가 교환으로 가방을 바꿀 때마다 1씩 올라가는 번호
@@ -3562,8 +3567,12 @@ function spotOf(t){
 const condNow=t=>({t:timeSlot(),w:weatherNow(),s:spotOf(t)});
 const needOk=n=>!n||(lampLv()>=(n.lamp|0)&&igLv('rod')>=(n.rod|0));
 const needText=n=>!n?'':[n.lamp?'방수 등불 '+n.lamp+'단계':'',n.rod?'섬 낚싯대 '+n.rod+'단계':''].filter(Boolean).join(' · ')+' 필요';
-function condOk(f,c){const w=f.when;if(f.isl&&w&&w.w==='fog'&&!lampLv())return false;if(f.need&&!needOk(f.need))return false;if(!w)return true;if(w.td&&w.td!==tideNow())return false;if(w.t&&w.t.split('|').indexOf(c.t)<0)return false;if(w.w&&w.w!==c.w)return false;if(w.s&&w.s!==c.s)return false;return true}
-function condText(f){if(condHidden(f))return'??? (숨은 조건)';const w=f.when;const a=[];if(f.need)a.push(needText(f.need));if(!w)return a.join(' · ');if(w.t)a.push(w.t.split('|').map(k=>TIME_NAME[k]).join('·'));if(w.w)a.push(WX_COND[w.w]);if(w.s)a.push(SPOT_NAME[w.s]);if(w.td)a.push(TIDE_NAME[w.td]+' 때');if(w.gs)a.push(GS_NAME[w.gs]);return a.join(' · ')}
+/* 2026-11-13 실제 시간이 되면서 · 밤 물고기는 비 오는 날 · 안개 섬에서도 / 새벽 물고기는 안개 낀 날에도 / 노을 물고기는 안개 · 무지개 날에도 (전설 신화는 그대로) */
+const TIME_ALT={night:c=>c.w==='rain'||onIsle(),dawn:c=>c.w==='fog',dusk:c=>c.w==='fog'||c.w==='rainbow'};
+const TIME_ALT_TXT={night:'비 오는 날 · 안개 섬도',dawn:'안개 낀 날도',dusk:'안개 · 무지개 날도'};
+const timeOk=(f,ts,c)=>ts.indexOf(c.t)>=0||(!f.myth&&ts.some(k=>TIME_ALT[k]&&TIME_ALT[k](c)));
+function condOk(f,c){const w=f.when;if(f.isl&&w&&w.w==='fog'&&!lampLv())return false;if(f.need&&!needOk(f.need))return false;if(!w)return true;if(w.td&&w.td!==tideNow())return false;if(w.t&&!timeOk(f,w.t.split('|'),c))return false;if(w.w&&w.w!==c.w)return false;if(w.s&&w.s!==c.s)return false;return true}
+function condText(f){if(condHidden(f))return'??? (숨은 조건)';const w=f.when;const a=[];if(f.need)a.push(needText(f.need));if(!w)return a.join(' · ');if(w.t){const ts=w.t.split('|');a.push(ts.map(k=>TIME_NAME[k]).join('·')+(!f.myth&&!w.w&&ts.length===1&&TIME_ALT_TXT[ts[0]]?' ('+TIME_ALT_TXT[ts[0]]+')':''))}if(w.w)a.push(WX_COND[w.w]);if(w.s)a.push(SPOT_NAME[w.s]);if(w.td)a.push(TIDE_NAME[w.td]+' 때');if(w.gs)a.push(GS_NAME[w.gs]);return a.join(' · ')}
 function rollFish(zone,c){
   {const wf=wedFish(zone);if(wf)return wf}
   c=c||condNow(null);
@@ -3878,7 +3887,7 @@ function npcRoutine(dt){if(!P||HUNT.on)return;const slot=timeSlot();NPCS.forEach
   const near=Math.hypot(n.x*TS+8-P.x,n.y*TS+12-P.y)<26;if(near)return;const dx=n.tx-n.x,dy=n.ty-n.y,d=Math.hypot(dx,dy);if(d>.02){const v=Math.min(d,dt*1.6);n.x+=dx/d*v;n.y+=dy/d*v}});}
 function npcZ(list){NPCS.forEach(n=>{if(!n.sleep||Math.abs(n.x*TS-P.x)>VW||Math.abs(n.y*TS-P.y)>VH)return;list.push({y:1e6,fn:()=>{const ph=(wt*.6)%1;[0,.5].forEach(o=>{const k=(ph+o)%1;cx.globalAlpha=Math.sin(k*Math.PI);cx.fillStyle='#8a80d8';cx.font='bold '+(6+k*4|0)+'px sans-serif';cx.textAlign='left';cx.fillText('z',n.x*TS+12+k*6,n.y*TS-14-k*10)});cx.globalAlpha=1}})})}
 const npcStep=id=>((S.npcq||{})[id]|0);
-const npcWork=n=>n.work.indexOf(timeSlot())>=0;
+const npcWork=n=>{const h=kstHM();return n.id==='sobok'?!(h>=11&&h<15):h>=7};   // 2026-11-13 실제 시간: 아침 7시~자정 (소복옹은 낮잠 11~15시)
 function npcHave(q){if(q.item)return itN(q.item)>=q.n;let c=0;for(const k in S.inv){const f=FISH[k];if(f&&S.inv[k]>0&&q.z.indexOf(f.zone)>=0&&(f.myth?4:f.rar)>=q.r)c+=S.inv[k]}return c>=q.n}
 function npcTake(q){if(q.item){itAdd(q.item,-q.n);return}let left=q.n;Object.keys(S.inv).map(Number).filter(k=>FISH[k]&&S.inv[k]>0&&q.z.indexOf(FISH[k].zone)>=0&&(FISH[k].myth?4:FISH[k].rar)>=q.r).sort((a,b)=>FISH[a].price-FISH[b].price).forEach(k=>{while(left>0&&S.inv[k]>0){S.inv[k]--;left--}})}
 function npcNear(){if(!P)return null;let b=null,bd=22;NPCS.forEach(n=>{const d=Math.hypot(n.x*TS+8-P.x,n.y*TS+12-P.y);if(d<bd){bd=d;b=n}});return b}
@@ -7329,7 +7338,7 @@ let last=0,saveT=0,lastTrack='',lastRegion='';
 function update(dt){
   if(HUNT.on){huUpdate(dt);saveT+=dt;if(saveT>8){saveT=0;saveState()}if(ONLINE)Net.tick(dt);return}
   wedTick(dt);discTick(dt);touchTick(dt);surpTick(dt);npcRoutine(dt);
-  S.t+=dt;
+  S.t=realPh()*DAY_LEN;
   {const k=kbVec(),mm=Math.hypot(k[0]||inp.x,k[1]||inp.y);
     if(F.afk&&mm>.4&&!uiOpen)stopAfk('자동 낚시를 멈췄어요');
     if(P.sit&&mm>.4&&!uiOpen){P.sit=null;P.y+=10;if(blockedAt(P.x,P.y))P.y-=10}
@@ -7406,7 +7415,7 @@ let lastPcs='';
 function updateHud(){
   if(S.gold!==lastGold){lastGold=S.gold;$('gold').textContent=fmtShort(S.gold)}
   {const k='✦'+S.enh.pc;if(k!==lastPcs){lastPcs=k;$('pcs').textContent=k}}
-  const ph=(S.t%DAY_LEN)/DAY_LEN,h=(5+ph*24)%24,c=String(Math.floor(h)).padStart(2,'0')+':'+(Math.floor(h%1*6)*10===0?'00':String(Math.floor(h%1*6)*10));
+  const ph=(S.t%DAY_LEN)/DAY_LEN,h=kstHM(),c=String(Math.floor(h)).padStart(2,'0')+':'+(Math.floor(h%1*6)*10===0?'00':String(Math.floor(h%1*6)*10));
   const tl=onIsle()?Math.ceil((1200000-Date.now()%1200000)/60000):0,k=(onIsle()?'':TIME_NAME[timeSlot(ph)]+' ')+c+' '+WX_NAME[weatherNow()]+(onIsle()?' · '+TIDE_NAME[tideNow()]+' '+tl+'분':'');
   if(k!==lastClock){lastClock=k;$('clock').textContent=k}
 }
