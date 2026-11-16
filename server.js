@@ -237,6 +237,7 @@ function cleanLook(l, save, color) {
   o.e = enh ? enh.lv | 0 : 0;   // 이름표 옆 +강화 수치: 서버 기록 그대로
   { const cup = (save && save.cup) || {}; o.gs = Math.max(cup[o.o] | 0, cup[o.hat] | 0, cup[o.bk] | 0, cup[o.fa] | 0); }   // 치장 별 (입은 것 중 가장 높은 별)
   o.j = typeof l.j === 'string' && /^(fish|sch|cra|tam|mer)[0-3]$/.test(l.j) ? l.j : '';
+  o.kc = /^(gold|pink|sky|mint|lav|rb|night)$/.test(l.kc) ? l.kc : '';   // 👑 손맛 왕 이름표 색 (2026-11-16)
   o.cp = typeof l.cp === 'string' && l.cp.length <= 40 && /^(cat|dog)[0-3]\|[^|<>]{1,8}\|\d{1,2}\|[a-z_]{0,12}$/.test(l.cp) ? l.cp : '';   // 🐾 반려동물 (종류·털색|이름|레벨|장식)   // 직업 배지 (아이콘 + 등급 별)
   return o;
 }
@@ -757,7 +758,7 @@ function onMsg(ws, me, m) {
       const until = now + (D.dur ? D.dur(s) * 60e3 : 0), out = { t: 'skill_ok', k, until, next: D.daily ? 0 : c[k] };
       if (k === 'boom') { V.boom = { by: me.name, until }; vMark(); vSend(); broadcast({ t: 'news', text: '🔮 ' + me.name + ' 님의 대박 예보! ' + Math.round((until - now) / 60000) + '분 동안 마을 모두 희귀 이상 2배!' }); }
       if (k === 'shx') me.shx = until;
-      if (k === 'cat') { const e = enhOf(s); e.tk = Math.min(ENH.TK_MAX, e.tk + 1); out.enh = e; out.note = '🔨 장인의 손길: 강화권 +1'; }   // 2026-11-05: 촉매 대신 강화권
+      if (k === 'cat') { s.dropx = until; out.note = '⚒️ 장비 사냥! ' + Math.round((until - now) / 60000) + '분 동안 사냥터 장비 · 주문서 드랍 2배'; }
       queueSave(me.key, s); send(ws, out);
     }).catch(e => console.error('skill', e.message)); break;
     case 'ark_put': withLocks([me.key, '__ark'], async () => {
@@ -1087,7 +1088,7 @@ function onMsg(ws, me, m) {
       if (m.t === 'hunt_eq') { const i = m.i | 0, it = h.inv[i]; if (!it) return; if (!RPG_SLOTS.includes(it.t)) return; const ek = 'eq' + it.t; const lv = (s.hu && s.hu.lv) | 0 || 1; if (h[ek] !== i && itReq(it) > lv) return send(ws, { t: 'news', text: '🔒 용사 Lv' + itReq(it) + '부터 낄 수 있어요 (지금 Lv' + lv + ')' }); h[ek] = h[ek] === i ? null : i; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c }); }
       if (m.t === 'hunt_ex') {   // 💤 꿈조각 교환 (2026-11-13): 강화권은 하루 10장까지 · 남는 조각은 주문서 · 물약으로
         const k = String(m.k || 'tk'), X = DR_EX[k]; if (!X || (h.dr | 0) < X[0]) return;
-        if (k === 'tk') { const d = kstDay(); if (!h.exd || h.exd.d !== d) h.exd = { d, n: 0 }; if (h.exd.n >= DR_TK_DAY) return send(ws, { t: 'news', text: '💤 꿈조각 → 강화권은 하루 ' + DR_TK_DAY + '장까지예요 · 남는 조각은 주문서 · 물약으로!' }); h.exd.n++; h.dr -= X[0]; queueSave(me.key, s); await giveTk(me.key, 1, '💤 꿈조각 ' + X[0] + '개 → 낚시 강화권 1장 (오늘 ' + h.exd.n + '/' + DR_TK_DAY + ')'); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '강화권 1장으로 바꿨어요!' }); }
+        if (k === 'tk') { const d = kstDay(); if (!h.exd || h.exd.d !== d) h.exd = { d, n: 0 }; if (DR_TK_DAY && h.exd.n >= DR_TK_DAY) return send(ws, { t: 'news', text: '💤 꿈조각 → 강화권은 하루 ' + DR_TK_DAY + '장까지예요 · 남는 조각은 주문서 · 물약으로!' }); h.exd.n++; h.dr -= X[0]; queueSave(me.key, s); await giveTk(me.key, 1, '💤 꿈조각 ' + X[0] + '개 → 낚시 강화권 1장' + (DR_TK_DAY ? ' (오늘 ' + h.exd.n + '/' + DR_TK_DAY + ')' : '')); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '강화권 1장으로 바꿨어요!' }); }
         h.dr -= X[0]; if (k === 'pot') h.pot = (h.pot | 0) + 10; else { const SC = scrMig(h); SC[k] = (SC[k] | 0) + 1; }
         queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: X[1] + '(으)로 바꿨어요!' });
       }
@@ -1120,7 +1121,8 @@ function onMsg(ws, me, m) {
       const RS = rpgSum(h, (s.hu && s.hu.lv) | 0 || 1);
       /* 🤝 함께 사냥: 같은 사냥터 · 가까이(약 16칸) 있는 친구 수 → 칩 · 드랍 보너스 (서버가 직접 세요) */
       let pt = 0; const H0 = me.hp_; if (H0 && now - H0.at < 3000) for (const [, q] of players) { const Q = q.hp_; if (q !== me && Q && Q.f === H0.f && now - Q.at < 3000 && Math.hypot(Q.x - H0.x, Q.y - H0.y) < 260) pt++; } pt = Math.min(3, pt); const pb = 1 + pt * .2;
-      let c = Math.round(dfC * pb * [100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100)); e.c = (e.c | 0) + c; const got = []; if (Math.random() < (bo ? .5 : el ? .08 : .015) * pb) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push('scr:' + id); } 
+      const DX = (+s.dropx || 0) > Date.now() ? 2 : 1;   // ⚒️ 공방 장인 「장비 사냥」: 장비 · 주문서 드랍 2배
+      let c = Math.round(dfC * pb * [100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100)); e.c = (e.c | 0) + c; const got = []; if (Math.random() < (bo ? .5 : el ? .08 : .015) * pb * DX) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push('scr:' + id); } 
       if (!h.sw && r >= 2 && Math.random() < (bo ? .05 : .003 * (r + 1))) { h.sw = 1; got.push('sw'); broadcast({ t: 'news', text: '⚔️✨ ' + me.name + ' 님이 사냥터에서 「전설의 낚싯바늘 검」을 주웠어요!! (상점에 없어요)' }); }
       const own = (s.cos && s.cos.own) || [];
       if (!own.includes('t_hunt1') && Math.random() < .004) got.push(...giveCos(s, ['t_hunt1']));
@@ -1136,7 +1138,7 @@ function onMsg(ws, me, m) {
           withLock(q.key, async () => { const qs = q.save; if (!qs || !qs.hunt) return; const b2 = wb(qs); if (!b2) return; queueSave(q.key, qs); send(qw, { t: 'hunt', hunt: qs.hunt, c: ebOf(qs).c, note: '🤝 ' + me.name + ' 님과 함께 쓰러뜨린 우두머리 · 이번 주 첫 보상 칩 ' + b2.toLocaleString() + ' + 주문서 1장' }); }).catch(() => { }); }
         if (df === 2 && Math.random() < .08) { const nm = ['h_nmhorn', 'o_nmrobe', 'k_nmwing'].filter(id => !own.includes(id)); if (nm.length) { const g2 = giveCos(s, [nm[(Math.random() * nm.length) | 0]]); if (g2.length) { send(ws, { t: 'cos_got', ids: g2 }); broadcast({ t: 'news', text: '🌑 ' + me.name + ' 님이 악몽 우두머리에게서 악몽 치장을 얻었어요!' }); } } }
       }
-      let item = null; if (Math.random() < (bo ? 1 : el ? .3 : .05 + r * .02) * (1 + Math.min(100, RS.luk) / 100) * pb * (bo ? 1 : dfI)) { const gw = tier >= 10 ? (bo ? [5, 25, 35, 25, 8, 1.5, .2, .02, 0] : [45, 28, 15, 8, 2, .2, .02, 0, 0]) : bo ? [10, 30, 35, 18, 6.7, .3, 0, .01, 0] : [60, 25, 10, 4, .95, .05, 0, 0, 0];
+      let item = null; if (Math.random() < (bo ? 1 : el ? .3 : .05 + r * .02) * (1 + Math.min(100, RS.luk) / 100) * pb * (bo ? 1 : dfI) * DX) { const gw = tier >= 10 ? (bo ? [5, 25, 35, 25, 8, 1.5, .2, .02, 0] : [45, 28, 15, 8, 2, .2, .02, 0, 0]) : bo ? [10, 30, 35, 18, 6.7, .3, 0, .01, 0] : [60, 25, 10, 4, .95, .05, 0, 0, 0];
         item = mkItem(tier, rollG(gw)); invPut(h, item); if (item.g >= 5) broadcast({ t: 'big', g: item.g, text: (item.g >= 6 ? '🌌🌌 ' : '🎁 ') + me.name + ' 님이 사냥터에서 【' + RPG_GN[item.g] + '】 ' + RPG_SN[item.t] + '을(를) 주웠어요!' }); }
       queueSave(me.key, s); send(ws, { t: 'hunt', hunt: h, c: e.c, gain: c, drop: got, item, pt });
     }); break;
@@ -1720,7 +1722,7 @@ const EB = {
 };
 let ebJP = EB.JP_BASE;
 /* 사냥 장비 칩 값 (index.html HUNT_PRICE와 같아요) */
-const DR_EX = { tk: [20, '강화권 1장'], pot: [15, '힐링포션 ×10'], w100: [15, '무기 주문서 100%'], a100: [15, '방어구 주문서 100%'], w60: [35, '무기 주문서 60%'], a60: [35, '방어구 주문서 60%'], w10: [70, '무기 주문서 10%'], a10: [70, '방어구 주문서 10%'] }, DR_TK_DAY = 10;   // index.html DR_EX와 같아요
+const DR_EX = { tk: [20, '강화권 1장'], pot: [15, '힐링포션 ×10'], w100: [15, '무기 주문서 100%'], a100: [15, '방어구 주문서 100%'], w60: [35, '무기 주문서 60%'], a60: [35, '방어구 주문서 60%'], w10: [70, '무기 주문서 10%'], a10: [70, '방어구 주문서 10%'] }, DR_TK_DAY = 0;   // 2026-11-16: 하루 제한 없음 (0 = 제한 없음) · 사냥을 해야 강화권이 많이 생겨요   // index.html DR_EX와 같아요
 const HUNT_PRICE = { w: [0, 3e5, 8e5, 1.5e6, 3e6, 6e6, 1.2e7, 2.5e7, 5e7, 1e8], a: [0, 3e5, 8e5, 1.5e6, 3e6, 6e6, 1.2e7, 2.5e7, 5e7, 1e8], b: [0, 8e5, 2.5e6, 6e6, 1.5e7, 4e7] }, HPOT_PRICE = 3e5;   // 2026-11-09: 사냥은 최상위 콘텐츠 (첫 단계 50만 칩부터)
 const ebOf = s => { const e = s.eb && typeof s.eb === 'object' ? s.eb : (s.eb = { c: 0, d: '', buy: 0, wag: 0, best: 0, vd: '' }); if (e.d !== kstDay()) { e.d = kstDay(); e.buy = 0; e.loss = 0; e.cons = 0; } return e; };
 /* 크게 잃은 날을 위한 마음 쓰기: 오늘 순손실 5,000칩마다 은비가 10%를 위로 칩으로 돌려주고, 30,000칩을 잃으면 그날은 쉬어 가요 */
@@ -2338,7 +2340,7 @@ const SKILLS = {
   legend: { job: 'fish', node: 'cap', daily: true },
   boom: { job: 'sch', node: 'fc', dur: s => 30 + 5 * jobRank(s, 'sch', 'note'), cd: () => 240 },
   shx: { job: 'sch', node: 'cap', dur: () => 30, cd: () => 360 },
-  cat: { job: 'cra', node: 'cat', cd: s => 120 - 30 * jobRank(s, 'cra', 'cat2') },
+  cat: { job: 'cra', node: 'cat', dur: s => 30 + 10 * jobRank(s, 'cra', 'cat2'), daily: true },   // 2026-11-16 「장비 사냥」: 하루 한 번 30분(+10분/단계) 장비 · 주문서 드랍 2배
   auto: { job: 'tam', node: 'auto', dur: s => 10 + 5 * jobRank(s, 'tam', 'sit'), cd: () => 180 },
   gold: { job: 'mer', node: 'gold', dur: s => 10 + 5 * jobRank(s, 'mer', 'cons'), cd: () => 240 } };
 /* 낚시꾼 패시브 '강화의 손맛': 직접 낚을 때 강화 별 (하루 10개) */
