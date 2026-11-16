@@ -3273,6 +3273,11 @@ const Snd=(()=>{
   tracks.sweet={bpm:92,steps:64,gain:null,step(i,t,loop,out,sd){const bar=i>>4,ch=SW_CH[bar];if(i%8===0){pad(out,ch.slice(1),t,sd*8,.04);bass(out,ch[0],t,sd*4,.11)}if(i%2===1)pluck(out,mtof(ch[1+(i>>1)%3]+12),t,sd*1.5,.03);SW_MEL.forEach(n=>{if(n[0]===i)bell(out,mtof(n[1]),t,sd*2.5,.07)})}};
   const DR_CH=[[45,57,64,69,72],[41,57,60,65,69],[48,55,64,67,72],[43,55,62,67,71]],DR_MEL=[[0,81],[2,84],[4,88],[6,84],[8,83],[10,79],[12,81],[16,77],[18,81],[20,84],[22,81],[24,79],[28,76],[32,79],[34,84],[36,88],[38,91],[40,88],[44,84],[48,83],[50,79],[52,76],[54,79],[56,81],[60,84]];
   tracks.dream={bpm:84,steps:64,gain:null,step(i,t,loop,out,sd){const bar=i>>4,ch=DR_CH[bar];if(i%8===0){pad(out,ch.slice(1),t,sd*8,.05);bass(out,ch[0],t,sd*6,.12)}if(i%2===0)pluck(out,mtof(ch[1+(i>>1)%4]+12),t,sd*1.4,.03);if(i%4===2)nz(out,t,.05,'highpass',6000,4000,.012,1);DR_MEL.forEach(n=>{if(n[0]===i)bell(out,mtof(n[1]),t,sd*2.4,.07)})}};
+  /* ☁️ 하늘낚시 음악: 밤 「별빛 자장가」(오르골 · 느린 패드) · 낮 「구름 산책」(플루트) */
+  const SKN_CH=[[41,60,65,69],[38,57,62,65],[43,59,62,67],[36,55,60,64]],SKN_MEL=[[0,81],[4,84],[8,86],[12,84],[16,81],[22,79],[28,77],[32,81],[36,84],[40,88],[44,86],[48,84],[52,81],[56,79],[60,77]];
+  tracks.skyn={bpm:54,steps:64,gain:null,step(i,t,loop,out,sd){const bar=i>>4,ch=SKN_CH[bar];if(i%16===0){pad(out,ch.slice(1),t,sd*16,.05);bass(out,ch[0],t,sd*12,.08)}if(i%4===2)bell(out,mtof(ch[1+(i>>2)%3]+24),t,sd*3,.018);if(i%16===10)nz(out,t,3,'bandpass',800,1600,.006,.8);SKN_MEL.forEach(n=>{if(n[0]===i)bell(out,mtof(n[1]+(loop%2?12:0)),t,sd*5,.06)})}};
+  const SKD_CH=[[48,64,67,72],[45,64,69,72],[41,65,69,72],[43,62,67,71]],SKD_MEL=[[0,76,3],[4,79,2],[6,81,2],[8,84,4],[16,83,3],[20,79,2],[22,76,2],[24,74,4],[32,76,3],[36,81,2],[38,84,2],[40,86,4],[48,84,3],[52,81,2],[54,79,2],[56,76,6]];
+  tracks.skyd={bpm:70,steps:64,gain:null,step(i,t,loop,out,sd){const bar=i>>4,ch=SKD_CH[bar];if(i%8===0){pad(out,ch.slice(1),t,sd*8,.045);bass(out,ch[0],t,sd*6,.09)}if(i%4===0)pluck(out,mtof(ch[1+(i>>2)%3]+12),t,sd*2,.025);if(i%32===16)nz(out,t,4,'bandpass',500,1200,.008,.7);SKD_MEL.forEach(n=>{if(n[0]===i)flute(out,mtof(n[1]),t,sd*n[2]*.95,.05)})}};
   tracks.night={bpm:60,steps:64,gain:null, // 밤의 마을: 한 옥타브 낮고 느리게 (town 코드 재사용)
     step(i,t,loop,out,sd){
       const bar=i>>3,s=i&7,ch=TOWN_CH[bar];
@@ -3342,6 +3347,14 @@ const Snd=(()=>{
     meteor(){const t=ctx.currentTime;glide(sfxBus,1600,200,t,.4,.06,'sine');nz(sfxBus,t+.4,.9,'lowpass',700,60,.3,.7)},
     sail(){const t=ctx.currentTime;nz(sfxBus,t,1.6,'lowpass',600,250,.06,.8);[72,76,79,84,88].forEach((m,i)=>bell(sfxBus,mtof(m),t+.15+i*.13,1.4,.045));glide(sfxBus,330,392,t+.1,.9,.03,'sine')},
     wood(){const t=ctx.currentTime;glide(sfxBus,440,380,t,.05,.14,'square');glide(sfxBus,330,300,t+.09,.05,.08,'square')},
+    /* ☁️ 하늘낚시 (2026-11-16): 물소리 대신 바람 · 종 · 하프 */
+    skycast(){const t=ctx.currentTime;nz(sfxBus,t,.5,'bandpass',600,2400,.06,1.2);glide(sfxBus,400,1400,t,.35,.04,'sine');bell(sfxBus,1568,t+.35,1,.06)},
+    skybite(){const t=ctx.currentTime;[2093,2637,2349,3136,2794].forEach((f,i)=>bell(sfxBus,f,t+i*.06+Math.random()*.02,1.2,.05))},
+    skyhook(){const t=ctx.currentTime;[72,76,79,84].forEach((m,i)=>pluck(sfxBus,mtof(m),t+i*.04,.4,.06))},
+    skyreel(p){const t=ctx.currentTime;pluck(sfxBus,mtof(72+[0,2,4,7,9,12,14,16,19,21,24][Math.min(10,Math.round((p||0)*10))]),t,.35,.045)},
+    skycatch(r){const t=ctx.currentTime,sc=[72,74,76,79,81,84,86,88,91,93];const n=4+(r|0);for(let i=0;i<n;i++)bell(sfxBus,mtof(sc[i%10]+(i>=10?12:0)),t+i*.08,1.3,.07);if(r>=2)pad(sfxBus,[60,64,67,72],t,2.2,.08);if(r>=4){for(let i=0;i<8;i++)bell(sfxBus,mtof(96+[0,4,7,12][i%4]),t+.8+i*.09,1.2,.05);glide(sfxBus,523,1046,t+.5,1.2,.03,'sine')}},
+    skymiss(){const t=ctx.currentTime;[3136,2794,2349,2093,1760,1568].forEach((f,i)=>bell(sfxBus,f,t+i*.05,.5,.025))},
+    skywish(){const t=ctx.currentTime;pad(sfxBus,[60,64,67,72,76],t,2.6,.14);glide(sfxBus,1600,300,t,.5,.04,'sine');[84,88,91,96].forEach((m,i)=>bell(sfxBus,mtof(m),t+.4+i*.12,1.4,.06))},
     /* 배낚시: 갈매기 · 파도 · 뱃고동 */
     gull(){const t=ctx.currentTime;[0,.16].forEach((d,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.setValueAtTime(1900-i*150,t+d);o.frequency.exponentialRampToValueAtTime(1100,t+d+.14);
       g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.05,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.16);o.connect(g);g.connect(sfxBus);o.start(t+d);o.stop(t+d+.2)})},
@@ -3868,6 +3881,7 @@ function nearAction0(){
   if(hbNear(tx,ty))return boatAway()?{type:'boatinfo',label:'배낚시<br>나감'}:{type:'board',label:'어선<br>타기'};
   {const ea=edAct(tx,ty);if(ea)return ea}
   {const wo=wowTarget();if(wo&&wo.wowed!==wo.hold.at)return{type:'wow',o:wo,label:'우와!'}}
+  if(skyCanCast())return{type:'x',fn:skyStart,label:'하늘에<br>던지기'};
   for(const g of W.gates){if(!hasZone(g.zone)&&Math.abs(g.x-tx)+Math.abs(g.y-ty)<=1)return{type:'gate',zone:g.zone,label:'문 열기'}}
   if(P.sit)return{type:'stand',label:'일어나기'};
   if(Math.abs(P.x-(17*TS+8))<14&&Math.abs(P.y-(20*TS+12))<14)return{type:'hunthut',label:'꿈의 문<br>들어가기'};
@@ -4600,7 +4614,7 @@ const WR_PC=[
  ['cra','🧿','장인의 손',{charm_p:3,b_legend_p:3,b_shine_p:3}],['sch','📖','도감 박사의 기록',{clue:20}],
  ['eden','🌳','물결 정원의 약속',null,()=>(edS().n|0)>=30,'정원지기와 함께 걸은 날 30일'],['sd','🎣','손맛 삼백',null,()=>sdTotal()>=300,'손맛 도감 300종'],
  ['hu','⚔️','꿈 사냥꾼의 용기',null,()=>huS().lv>=30,'용사 Lv30'],['sh','✨','반짝이 쉰 마리',null,()=>shTotal()>=50,'반짝 도감 50종'],
- ['mt1','⛰️','구름 너머 산 · 산 수정',0],['mt2','🏔️','만년설 위의 꽃',0],['mt3','🦅','독수리의 깃털',0],['sp1','🌌','별바다의 별먼지',0],['sp2','🌙','달의 조각',0],['sp3','☄️','혜성의 꼬리',0],['deep','🐚','가장 깊은 바다의 진주',0],
+ ['mt1','⛰️','구름 너머 산 · 산 수정',0],['mt2','🏔️','만년설 위의 꽃',0],['mt3','🦅','독수리의 깃털',0],['sp1','🌌','별바다의 별먼지',{sp_dust:30}],['sp2','🌙','달의 조각',{sp_moon:3}],['sp3','☄️','혜성의 꼬리',{sp_comet:1}],['deep','🐚','가장 깊은 바다의 진주',0],
  ['last','🕊️','마지막 조각',0]];
 const WR_NEED={knack:500},WR_G=1e8;
 const wrS=()=>{if(!S.wr||typeof S.wr!=='object')S.wr={d:[]};if(!Array.isArray(S.wr.d))S.wr.d=[];return S.wr};
@@ -5142,7 +5156,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1116b',UPD_LOG=[
+const UPD_VER='1116c',UPD_LOG=[
+ ['11/16 밤','☁️',[['☁️ 하늘낚시','마을 북쪽 끝에 서서 하늘로 줄을 던져요 · 별 등불이 반짝이면 누르고, 누르고 떼며 빛의 원 안에 손님을 담아요 · 직접 낚기만 돼요'],['📖 하늘 도감 59종','하늘 물고기 42 · 별자리 12 · 특별 5 · 새벽 · 낮 · 노을 · 밤 · 진짜 보름달과 그믐 · 비 · 안개 · 무지개 · 겨울마다 다른 손님 · 전설 · 신화는 아주 아주 드물어요'],['⭐ 별자리','계절마다 제철 별자리 셋 · 조각 다섯 개를 모으면 내 밤하늘에 이어져요 · 열두 개를 다 이으면…'],['🌠 별똥별','하늘낚시 중 별똥별이 지나가면 바로 눌러 소원을 빌어요'],['🎵 하늘의 소리','하늘을 보면 「별빛 자장가」 · 낮엔 「구름 산책」 · 바람 · 종 · 하프 소리'],['💍 온 세상의 반지','별먼지 · 달 조각 · 혜성의 꼬리 조각이 하늘낚시로 열렸어요']]],
  ['11/16 저녁','🌅',[['🌅 진짜 하늘','서울의 진짜 해돋이 · 해넘이에 맞춰 하늘빛이 바뀌어요 · 마을 북쪽 끝으로 걸어가면 지평선 · 먼 산 · 구름 · 밤엔 별과 은하수 · 별똥별 · 오늘 진짜 달 모양 (보름달엔 토끼도…)'],['🌊 물에 비친 하늘','물 위로 구름이 흘러가고 · 밤엔 달빛 · 아침저녁엔 햇빛이 반짝여요'],['💠 꿈의 정수','+20부터 강화 한 번에 정수 1개 · 사냥터 우두머리(어려움일수록 많이) · 바다 보스 · 레이드 · 칩 교환(한 주 10개) · 이미 +20인 분께 20개를 드렸어요'],['🌑 레이드 2.0','보스 다섯 (악몽의 왕 · 서리 거인 · 용암 고래 · 폭풍 문어 · 별삼킨 해파리) · 모두 같은 순간에 같은 패턴 · 함께 때리면 합동 공격 · 노란 원에 모여서 나눠 맞기 · 쓰러진 친구 일으켜 주기'],['👑 손맛 왕의 마을','손맛 1등이 마을 주인 · 가게 세금 0~5% · 하루 한 번 마을 공지 · 손맛 축제(30분 판매가 +10%) · 벤치 · 벌집을 놓고 치워요 · 마을 사람은 부탁하고 왕이 허락해요 (메뉴 → 왕의 마을)'],['💍 반지 공방','결혼반지는 공방 장인만 만들어요 · 상자로 주고받아요 · 엔딩 「온 세상의 반지」: 스물네 곳의 조각을 새겨요 (아직 아무도 못 간 곳도…) · 청혼하면 무릎 꿇고 반지 상자 · 꽃길 · 불꽃놀이'],['🧺 덧미끼','장인 미끼는 상점 미끼와 함께 끼울 수 있어요 · 새 장인 미끼 👯 쌍둥이 · 🖐️ 손맛'],['🔮 새 직업','별빛 예언자: 친구 운세(대길~대흉 · 2시간) · 흉운 보내기 · 운명의 별 / 🏹 꿈 사냥꾼: 사냥 칩 · 경험치 · 정수'],['🐾 펫','동물 친구 직업이면 펫이 1.5배 빨리 자라요 · 짝꿍 Lv40 · 99 행운 · Lv50 반짝 · 레벨 혜택 표'],['🔨 주간 경매 · 💪 성실 보상','골드로 입찰(밀리면 바로 환불) · 이번 주 직접 낚은 마릿수로 상자 5단계'],['🌹 새 치장','티아라 · 여왕의 왕관 · 무도회 드레스 · 공주님 드레스 · 별밤 드레스 · 왕자님 예복 · 비눗방울 잠자리채 · 새 낚싯대 10자루'],['🌦️ 주민 이야기','비 오면 우산 · 날씨와 달에 따라 한마디 · 그리고 몇 가지 비밀…'],['❓ ??? 도감','칸마다 「깊은 물」 · 🌙 밤 표시']]],
  ['11/16','🍂',[['🍂 가을이 왔어요','마을과 꽃밭 언덕 나무들이 노란 은행나무로 · 흔들면 은행잎이 우수수 · 바닥에도 은행잎 (현실 가을 동안)'],['🎃 가을 축제 치장','호박 풍선 · 거대 은행잎 우산 · 거대 호박 모자 (가을 한정) · 거대 리본'],['👣 새 발자국 8가지','은행잎(가을 한정) · 초록 숲 · 나비 · 꽃길 · 그림자 · 칼날 · 불씨 · 맹수'],['🐾 반려동물 이름표','친구 화면에도 내 반려동물 이름과 레벨이 보여요'],['🎣 찌 던지기','친구가 던지는 찌도 날아가서 첨벙 · 입질 중에도 보여요'],['💤 꿈조각 → 강화권','하루 제한이 없어졌어요'],['⚒️ 공방 장인 새 기술 「장비 사냥」','하루 한 번 · 30분 동안 사냥터 장비 · 주문서 드랍 2배 (예전 「장인의 손길」 자리)'],['👑 손맛 왕 이름표 색','손맛 왕은 내 정보에서 이름표 색을 고를 수 있어요 (7가지)']]],
  ['11/13 낮','🌳',[['🌳 물결 정원','꽃밭 언덕 동쪽 · 샘에서 흘러나온 네 줄기 강 · 정원 한가운데 두 나무 · 평화로운 동물들 · 강은 쉼의 물이라 낚시는 못 해요'],['🌷 내 정원','정원 마당 8곳 → 누구나 자기 정원 한 곳 · 심은 꽃 · 나무 · 꾸민 것 그대로 · 꽃밭 언덕 바로 동쪽 위'],['🏝️ 섬 나루터','꽃배 부두 끝에서 내 섬으로 가요'],['🕰️ 진짜 시간','하늘이 한국 시각 그대로 · 밤 물고기는 비 오는 날 · 안개 섬에서도 / 새벽 물고기는 안개 낀 날에도 / 노을 물고기는 안개 · 무지개 날에도'],['🍎 그리고…','하루에 한 번, 발밑에 무언가 굴러올 거예요']]],
@@ -5267,6 +5282,7 @@ function pressAct(){
   if(HUNT.on){huAttack();return}
   if(!P||uiOpen||$('title')&&!$('title').hidden)return;
   Snd.resume();
+  if(F.mode==='sky'){skyPress();return}
   if(F.mode==='idle'){
     const a=nearAction();if(!a){toast('물가나 건물 가까이로 가보세요');Snd.sfx('no');return}
     actFx(a);ACT_PICK=null;
@@ -5328,7 +5344,7 @@ $('bossbtn').addEventListener('pointerdown',e=>{e.preventDefault();bossTap()});
 $('trapbtn').onclick=()=>{if(uiOpen)return;claimTrap();Snd.resume()};
 $('pthome').onclick=()=>{if(!inSea())return;if(PTY.practice){practiceEnd();return}Net.send({t:'pt_home'});Snd.sfx('tap')};
 $('bAfk').onclick=()=>{if(F.afk)stopAfk('자동 낚시를 멈췄어요');else startAfk()};
-function releaseAct(){if(chgEnd())return;if(F.mode==='reel')inp.hold=false}
+function releaseAct(){if(F.mode==='sky'){skyRelease();return}if(chgEnd())return;if(F.mode==='reel')inp.hold=false}
 function startCast(c){
   castBait();F.whoosh=0;RCAST.armed=true;
   P.dir=c.dir;F.target={x:c.x,y:c.y,k:c.k};F.zone=W.Z[c.y][c.x];F.shq=false;castWhere(c);hsCastHook(c);giftHint(F.zone);recWarn(F.zone);F.mode='cast';F.t=0;F.fish=null;
@@ -7692,7 +7708,7 @@ function render(dt){
     W.buildings.forEach(b=>{const hx=b.x*TS+(b.w*TS-48)/2-cX,hy=(b.y+1)*TS-50-cY;if(hx<-60||hx>VW+20||hy<-60||hy>VH+20)return;[10,32].forEach((wx,i)=>{const fl=.8+.2*Math.sin(wt*2+b.x+i*2);cx.fillStyle='rgba(255,170,60,'+(.95*fl)+')';cx.fillRect(hx+wx+1,hy+28,6,7);const g=cx.createRadialGradient(hx+wx+4,hy+32,1,hx+wx+4,hy+32,20);g.addColorStop(0,'rgba(255,190,90,'+(.6*fl)+')');g.addColorStop(1,'rgba(255,200,110,0)');cx.fillStyle=g;cx.fillRect(hx+wx-14,hy+14,36,36)})});
     cx.globalCompositeOperation='source-over'}
   if(SEAV&&(night||dtn.ph>.62&&dtn.ph<.76)){cx.globalCompositeOperation='lighter';const sx=279+2-cX+SEA.sx,sy=1726+54-cY+SEA.bob,g=cx.createRadialGradient(sx,sy,0,sx,sy,46);g.addColorStop(0,'rgba(255,226,150,.6)');g.addColorStop(1,'rgba(255,226,150,0)');cx.fillStyle=g;cx.fillRect(sx-46,sy-46,92,92);cx.globalCompositeOperation='source-over'}   // 돛대 등불
-  try{skyGlint(cX,cY,x0,x1,y0,y1);drawSkyFront()}catch(e){}
+  try{skyGlint(cX,cY,x0,x1,y0,y1);drawSkyFront();skyDraw(cX,cY)}catch(e){}
   if(DARK.t>0){DARK.t-=dt;cx.fillStyle='rgba(20,18,60,'+Math.min(.32,DARK.t*.25)+')';cx.fillRect(0,0,VW,VH)}
   // 비네팅
   const vg=cx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.45,VW/2,VH/2,Math.max(VW,VH)*.75);vg.addColorStop(0,'rgba(80,60,130,0)');vg.addColorStop(1,'rgba(80,60,130,.22)');cx.fillStyle=vg;cx.fillRect(0,0,VW,VH);
@@ -7786,6 +7802,174 @@ function skyGlint(cX,cY,x0,x1,y0,y1){if(atSeaView&&atSeaView())return;const K=sk
   if(moon){const R=10,mc=moonCan(K.p,R);let fy=-1;for(let sy=Math.round(VH*.3);sy<VH;sy+=4){const tx=Math.floor((gx+cX)/TS),ty=Math.floor((sy+cY)/TS);if(W.T[ty]&&W.T[ty][tx]==='w'&&W.T[ty+1]&&W.T[ty+1][tx]==='w'){fy=sy+10;break}}
     if(fy>0){cx.globalAlpha=.22+.22*K.illum;for(let r=0;r<mc.height;r+=1){const o=Math.round(Math.sin(wt*3+r*.9)*2);cx.drawImage(mc,0,mc.height-1-r,mc.width,1,Math.round(gx-R-1+o),fy+(r*.6|0),mc.width,1)}cx.globalAlpha=1}}
   cx.restore()}
+/* ---------- ☁️ 하늘낚시 (2026-11-16): 마을 북쪽 끝 지평선에서 하늘에 줄을 던져요 ----------
+   하늘 도감 59종 (물고기 42 · 별자리 12 · 특별 5) · 시간대 · 진짜 달 · 날씨 · 계절 별자리 · 직접 낚기만 (자동 없음)
+   손맛 「별 잡기」: 누르면 빛의 원이 오른쪽으로, 떼면 왼쪽으로 · 손님을 원 안에 두면 끌려 내려와요 */
+const SKY_RW=[100,45,16,4,.8,.12],SKY_RN=['흔함','보통','희귀','영웅','전설','신화'],SKY_RC=['#9aa8c0','#5aa8e0','#a070e0','#e0a020','#ff5a8a','#c0a0ff'];
+const SKY_PRICE=[3e4,8e4,3e5,1.5e6,8e6,4e7],SKY_RING=[58,50,42,36,30,26],SKY_SPD=[26,36,50,64,80,96],SKY_BITE=[1.3,1.2,1.05,.95,.85,.75];
+const SKY_SLOT={dawn:'🌅 새벽',day:'☀️ 낮',dusk:'🌇 노을',night:'🌙 밤',any:'언제든'},SKY_COND={full:'🌕 보름달',new:'🌑 그믐',rain:'🌧️ 비',fog:'🌫️ 안개',rainbow:'🌈 무지개',winter:'❄️ 겨울'};
+/* [id, 이름, 시간, 조건, 희귀도, 모양, 색, 무늬, 무늬색, 이야기] */
+const SKY_FR=[
+ ['d1','구름잉어','day','',0,'round','#f4f6ff',4,'#c8d4f0','몽실몽실 구름을 뜯어 먹고 살아요.'],
+ ['d2','솜사탕 붕어','day','',0,'round','#ffd6ea',2,'#ffffff','한 입 물면 달다는 소문이 있지만, 아무도 못 물어 봤어요.'],
+ ['d3','바람 날치','day','',0,'sail','#bfe6ff',1,'#ffffff','바람이 불 때만 지느러미를 활짝 펴요.'],
+ ['d4','햇살 송사리','day','',0,'tiny','#fff2a0',3,'#ffc040','햇살 한 줄기를 꼬리에 달고 다녀요.'],
+ ['d5','연꼬리 금붕어','day','',1,'fancy','#ff9a7a',6,'#fff0e0','아이들이 날린 연을 따라 하늘까지 올라왔어요.'],
+ ['d6','깃털 가오리','day','',1,'ray','#ffffff',2,'#d0e0ff','깃털처럼 가벼워서 바람에 둥실 떠다녀요.'],
+ ['d7','하늘빛 청어','day','',1,'long','#9ad8ff',3,'#e0f6ff','하늘과 같은 색이라 찾기가 어려워요.'],
+ ['d8','비눗방울 복어','day','',2,'puff','#d8f0ff',5,'#ffc0e8','부풀면 무지갯빛 비눗방울이 돼요.'],
+ ['d9','뭉게구름 고래','day','',3,'whale','#f8faff',4,'#c0d0ea','여름 하늘의 큰 구름은 사실 이 고래의 등이래요.'],
+ ['d10','해님 금잉어','day','',4,'fancy','#ffd040',6,'#fff6c0','해가 가장 높이 뜬 순간에만 반짝여요.'],
+ ['a1','새벽이슬 송사리','dawn','',0,'tiny','#d0e8ff',2,'#ffffff','풀잎 끝 이슬 한 방울에서 태어났어요.'],
+ ['a2','여명 붕어','dawn','',1,'round','#ffc8e0',4,'#c8b8f0','밤과 아침 사이, 분홍빛 하늘을 좋아해요.'],
+ ['a3','첫 햇살 은어','dawn','',2,'long','#fff0d0',3,'#ffb070','하루의 첫 햇살을 가장 먼저 마셔요.'],
+ ['a4','샛별 잉어','dawn','',3,'fancy','#fff6c0',6,'#a0c0ff','가장 먼저 뜨고 가장 늦게 지는 별을 닮았어요.'],
+ ['u1','노을 가오리','dusk','',0,'ray','#ff9a6a',3,'#ffd0a0','노을이 질 때 하늘에 펼쳐지는 주홍빛 날개.'],
+ ['u2','귀갓길 참새치','dusk','',0,'tiny','#e0a070',2,'#fff0c0','노을이 지면 서둘러 집으로 돌아가요.'],
+ ['u3','저녁놀 해마','dusk','',1,'seahorse','#ff7a9a',1,'#ffd060','노을빛 꼬리로 구름에 매달려 쉬어요.'],
+ ['u4','주홍 구름고래','dusk','',2,'whale','#ff8a6a',4,'#ffc0a0','해 질 녘 구름이 주홍빛인 건 이 고래 때문이래요.'],
+ ['u5','마지막 햇살 장어','dusk','',3,'eel','#ffb050',7,'#ff6a4a','해가 지는 마지막 한 줄기를 꼭 붙잡고 있어요.'],
+ ['n1','반딧불 정어리','night','',0,'tiny','#3a4a2a',2,'#e8ff80','배에서 반딧불처럼 빛이 나요.'],
+ ['n2','밤하늘 피라미','night','',0,'long','#2a3060',2,'#ffffff','몸에 작은 별이 촘촘히 박혀 있어요.'],
+ ['n3','별가오리','night','',1,'ray','#2a2a6a',2,'#fff6b0','밤하늘이 처음 바다에 비치던 날 태어났대요.'],
+ ['n4','은하 해마','night','',1,'seahorse','#4a4a9a',5,'#c0d0ff','은하수의 물결을 타고 올라왔어요.'],
+ ['n5','달맞이 붕어','night','',1,'round','#f0e8c0',4,'#8a8ac0','달이 뜨면 고개를 들고 달을 바라봐요.'],
+ ['n6','밤바람 날치','night','',1,'sail','#3a3a7a',1,'#a0a0ff','밤바람을 타면 별까지 날아갈 수 있대요.'],
+ ['n7','꿈나라 금붕어','night','',2,'fancy','#b090e0',6,'#ffd0f0','잠든 아이들의 꿈속을 헤엄쳐요.'],
+ ['n8','오로라 장어','night','',2,'eel','#60e0b0',7,'#c080ff','지나간 자리에 오로라가 남아요.'],
+ ['n9','별빛 복어','night','',2,'puff','#c0e0ff',2,'#ffffff','부풀면 작은 별처럼 반짝여요.'],
+ ['n10','성운 가자미','night','',3,'flat','#5a3a8a',5,'#ff9ad0','먼 성운의 빛깔을 등에 지고 있어요.'],
+ ['n11','별똥 꼬리 잉어','night','',3,'fancy','#ffe080',3,'#ff8a40','꼬리를 흔들면 별똥별이 떨어진대요.'],
+ ['n12','밤의 여왕 엔젤','night','',4,'angel','#2a1a4a',6,'#ffd060','밤하늘에서 가장 우아한 물고기.'],
+ ['n13','은하수 고래','night','new',4,'whale','#1a1a4a',2,'#e0e0ff','은하수를 마시며 헤엄쳐요. 그믐밤에만 보여요.'],
+ ['c1','달빛 잉어','night','full',3,'fancy','#fff8dc',4,'#e0d8a0','보름달 빛을 비늘 하나하나에 담았어요.'],
+ ['c2','보름 은어','night','full',2,'long','#e8e8f0',3,'#ffffff','보름달이 뜨면 물 위로 튀어 올라 하늘까지 가요.'],
+ ['c3','그믐 그림자어','night','new',3,'angler','#101030',2,'#6060a0','달이 숨은 밤, 빛 하나를 들고 길을 찾아요.'],
+ ['c4','빗방울 송사리','any','rain',0,'tiny','#a0c8f0',2,'#ffffff','빗방울 하나하나가 사실 이 송사리래요.'],
+ ['c5','천둥 메기','any','rain',3,'cat','#4a4a6a',7,'#ffe060','수염이 번쩍이면 곧 천둥이 쳐요.'],
+ ['c6','무지개 다리어','any','rainbow',3,'sail','#ff9ad0',5,'#80e0ff','무지개를 다리 삼아 하늘을 건너요.'],
+ ['c7','안개꽃 엔젤','any','fog',2,'angel','#e8e8f0',2,'#c0c0d0','안개 속에서만 꽃처럼 피어나요.'],
+ ['c8','첫눈 은어','any','winter',2,'long','#ffffff',2,'#c0e0ff','첫눈이 오는 날 하늘에서 함께 내려와요.'],
+ ['m1','구름 정원의 백룡','day','',5,'eel','#f8fbff',3,'#ffe0a0','구름 위 정원을 지키는 용. 평생 한 번 볼까 말까.'],
+ ['m2','창공의 대왕고래','any','',5,'whale','#8ad0ff',4,'#ffffff','하늘 전체가 이 고래의 바다예요.']];
+/* 별자리: 다섯 조각을 모으면 밤하늘에 이어져요 · 제철 별자리가 훨씬 잘 나와요 */
+const SKY_CON=[
+ ['leo','사자자리','spring',[[0,10],[8,4],[16,8],[28,10],[38,18]]],['vir','처녀자리','spring',[[0,2],[10,8],[20,6],[26,16],[36,22]]],['boo','목동자리','spring',[[18,0],[10,10],[26,10],[14,24],[24,24]]],
+ ['lyr','거문고자리 · 직녀','summer',[[20,0],[14,10],[26,10],[12,24],[28,24]]],['aql','독수리자리 · 견우','summer',[[0,14],[12,10],[20,8],[28,10],[40,14]]],['cyg','백조자리','summer',[[20,0],[20,12],[20,26],[4,12],[36,12]]],
+ ['peg','페가수스자리','autumn',[[0,0],[24,0],[24,20],[0,20],[38,4]]],['and','안드로메다자리','autumn',[[0,22],[10,16],[20,12],[30,6],[40,0]]],['psc','물고기자리','autumn',[[0,0],[10,8],[20,14],[32,10],[40,2]]],
+ ['ori','오리온자리','winter',[[4,0],[34,2],[14,12],[20,13],[26,14]]],['gem','쌍둥이자리','winter',[[6,0],[26,0],[8,12],[28,12],[18,24]]],['cma','큰개자리','winter',[[20,0],[16,10],[6,18],[26,18],[34,26]]]];
+const SKY_SEASON_NM={spring:'봄',summer:'여름',autumn:'가을',winter:'겨울'};
+const SKY_SP=[['rabbit','달토끼','night','full',5,'보름달에서 떡방아를 찧다가 깜빡 떨어졌대요.'],['moonp','달 조각','night','full',4,'보름달에서 떨어진 작은 조각. 온 세상의 반지에 새길 수 있어요.'],
+ ['meteor','별똥별','night','wish',3,'소원을 빌면 내려와요. 하늘낚시 중에 별똥별이 지나가면 바로 눌러요!'],['comet','혜성의 꼬리','night','wish',5,'별똥별에 소원을 빌다 아주 가끔 함께 내려와요.'],
+ ['promise','약속의 별','night','promise',5,'열두 별자리를 모두 이은 사람만 만나요.']];
+const SKY=[];SKY_FR.forEach(r=>SKY.push({id:r[0],name:r[1],k:'f',slot:r[2],cond:r[3],rar:r[4],tpl:r[5],c:r[6],pat:r[7],pc:r[8],d:r[9]}));
+SKY_CON.forEach(r=>SKY.push({id:r[0],name:r[1],k:'c',slot:'night',cond:'',rar:2,ss:r[2],pts:r[3],d:SKY_SEASON_NM[r[2]]+' 밤하늘의 별자리 · 조각 다섯 개를 모으면 밤하늘에 이어져요'}));
+SKY_SP.forEach(r=>SKY.push({id:r[0],name:r[1],k:'s',slot:r[2],cond:r[3],rar:r[4],d:r[5]}));
+const SKY_BY={};SKY.forEach(e=>SKY_BY[e.id]=e);
+ITEMS.sp_dust=ITEMS.sp_dust||{n:'별먼지',ic:'✨',d:'밤 하늘낚시에서 가끔 묻어 와요 · 온 세상의 반지 「별바다의 별먼지」',npc:20000};
+ITEMS.sp_moon=ITEMS.sp_moon||{n:'달 조각',ic:'🌙',d:'보름달 밤 하늘낚시에서 아주 가끔 · 온 세상의 반지 「달의 조각」',npc:500000};
+ITEMS.sp_comet=ITEMS.sp_comet||{n:'혜성의 꼬리',ic:'☄️',d:'별똥별에 소원을 빌다 아주 가끔 · 온 세상의 반지 「혜성의 꼬리」',npc:2000000};
+['sp_dust','sp_moon','sp_comet'].forEach(k=>{if(ITEM_IDS.indexOf(k)<0)ITEM_IDS.push(k)});
+const skyD=()=>{if(!S.skyd||typeof S.skyd!=='object')S.skyd={};return S.skyd};
+const skyConDone=id=>(skyD()[id]|0)>=5;
+const skyAllCon=()=>SKY_CON.every(c=>skyConDone(c[0]));
+function skyCondOk(e){const K=skyNow(),night=K.sa<-4,w=weatherNow(),sl=timeSlot();
+  if(e.slot!=='any'&&e.slot!==sl)return false;
+  switch(e.cond){case'full':return night&&K.p>.43&&K.p<.57;case'new':return night&&(K.p<.07||K.p>.93);case'rain':case'fog':case'rainbow':return w===e.cond;case'winter':return kstSeason(Date.now())==='winter';case'wish':return false;case'promise':return skyAllCon();default:return true}}
+function skyRoll(){const L=[],lk=1+Math.max(0,(ST.luck||1)-1)*.5,season=kstSeason(Date.now()),w=weatherNow();
+  SKY.forEach(e=>{if(!skyCondOk(e))return;let wt=SKY_RW[e.rar]*(e.rar>=2?lk:1);
+    if(e.k==='c'){if(w==='rain'||w==='fog')return;wt=e.ss===season?9:.9}
+    else if(e.id==='rabbit')wt=.06;else if(e.id==='moonp')wt=.5;else if(e.id==='promise')wt=.25;
+    L.push([e,wt])});
+  let r=Math.random()*L.reduce((a,b)=>a+b[1],0);for(const[e,wt]of L){r-=wt;if(r<=0)return e}return L.length?L[0][0]:SKY[0]}
+/* 그림 */
+const SKYI={};
+function skyIcon(e){if(SKYI[e.id])return SKYI[e.id];let c;
+  if(e.k==='f'){c=toCan(buildFish({tpl:e.tpl,c:e.c,pat:e.pat,pc:e.pc},e.id.charCodeAt(0)*31+e.id.length*7))}
+  else{c=document.createElement('canvas');const g=c.getContext('2d'),P_=(x,y,col,w,h)=>{g.fillStyle=col;g.fillRect(x,y,w||1,h||1)};
+    if(e.k==='c'){c.width=46;c.height=32;g.strokeStyle='rgba(180,200,255,.8)';g.lineWidth=1;g.beginPath();e.pts.forEach((p,i)=>{const x=p[0]+3.5,y=p[1]+3.5;i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();e.pts.forEach(p=>{P_(p[0]+2,p[1]+3,'#fff6c0',3,1);P_(p[0]+3,p[1]+2,'#fff6c0',1,3);P_(p[0]+3,p[1]+3,'#ffffff')})}
+    else if(e.id==='rabbit'){c.width=16;c.height=16;const W_=[244,240,236],pk=[255,170,190];const R=['....w..w....','....ww.ww...','....wp.wp...','....ww.ww...','...wwwwwww..','..wwwkwwkww.','..wwwwppwww.','...wwwwwww..','..wwwwwwwww.','.wwwwwwwwwww','.wwwwwwwwww.','..ww....ww..'];R.forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch==='w')P_(x+2,y+2,'rgb('+W_+')');else if(ch==='p')P_(x+2,y+2,'rgb('+pk+')');else if(ch==='k')P_(x+2,y+2,'#403040')}))}
+    else if(e.id==='moonp'){c.width=14;c.height=14;for(let y=0;y<14;y++)for(let x=0;x<14;x++){const d=Math.hypot(x-7,y-7),d2=Math.hypot(x-10,y-5);if(d<6&&d2>4.5)P_(x,y,(x+y)%5?'#fff4c0':'#e8d890')}}
+    else if(e.id==='meteor'||e.id==='comet'){c.width=20;c.height=14;const col=e.id==='comet'?['#a0e0ff','#ffffff']:['#ffe080','#ffffff'];for(let i=0;i<12;i++)P_(1+i,11-i*.7|0,i>8?col[1]:col[0],1,1);P_(13,2,col[1],3,3);P_(14,1,'#ffffff');if(e.id==='comet')for(let i=0;i<10;i++)P_(i,12-(i*.6|0),'rgba(160,220,255,.5)')}
+    else{c.width=16;c.height=16;const st=[[8,0],[9,0],[8,1],[9,1]];for(let y=0;y<16;y++)for(let x=0;x<16;x++){const dx=Math.abs(x-7.5),dy=Math.abs(y-7.5);if(dx*dy<3&&dx+dy<8)P_(x,y,dx+dy<3?'#ffffff':'#ffe27a')}st.length}}
+  return SKYI[e.id]=c}
+const skyURL=e=>skyIcon(e).toDataURL();
+/* 상태 */
+const SKYF={m:'off'};
+function skyCanCast(){return!!(P&&!HUNT.on&&F.mode==='idle'&&!F.afk&&P.y<3.4*TS&&P.y<99*TS&&!(typeof inSea==='function'&&inSea())&&SKF.on&&SKF.hy>VH*.22)}
+function skyStart(){if(!skyCanCast())return;F.mode='sky';SKYF.m='wait';SKYF.t=3.5+Math.random()*6*(ST.wait||1);SKYF.lx=Math.max(24,Math.min(VW-24,(VW/2)+(Math.random()-.5)*90));SKYF.lk=.38+Math.random()*.28;SKYF.met=null;SKYF.e=null;SKYF.hold=false;
+  Snd.sfx('skycast');if(!S.skyHint){S.skyHint=1;showBanner('☁️ 하늘낚시! 별 등불이 반짝이면 눌러요 · 걸리면 누르고 떼서 빛의 원 안에 손님을 담아요',4200)}}
+function skyEnd(msg){if(F.mode!=='sky')return;F.mode='idle';SKYF.m='off';SKYF.met=null;if(msg)toast(msg)}
+function skyLy(){return Math.max(30,(SKF.hy||100)*SKYF.lk)}
+function skyPress(){if(SKYF.met&&SKYF.met.t>0&&!SKYF.met.ok){skyWish();return}
+  if(SKYF.m==='wait'){toast('아직이에요… 별 등불이 반짝일 때 눌러요');Snd.sfx('tap');SKYF.t+=1;return}
+  if(SKYF.m==='bite'){const e=SKYF.e;SKYF.m='reel';SKYF.rx=VW/2;SKYF.rv=0;SKYF.fx=VW/2+(Math.random()-.5)*40;SKYF.fv=0;SKYF.ft=0;SKYF.prog=28;SKYF.wind=0;SKYF.wt=2+Math.random()*2;SKYF.hold=true;SKYF.rt=0;Snd.sfx('skyhook');return}
+  if(SKYF.m==='reel')SKYF.hold=true}
+function skyRelease(){SKYF.hold=false}
+function skyWish(){const M=SKYF.met;M.ok=1;const comet=Math.random()<.05,e=SKY_BY[comet?'comet':'meteor'];Snd.sfx('skywish');skyGot(e,true);if(comet)itAdd('sp_comet',1)}
+function skyTick(dt){if(F.mode!=='sky')return;const k=kbVec(),mm=Math.hypot(k[0]||inp.x,k[1]||inp.y);
+  if(mm>.5&&SKYF.m!=='reel'){skyEnd('하늘낚시를 멈췄어요');return}
+  if(!SKF.on){skyEnd();return}
+  const night=skyNow().sa<-4;
+  if(SKYF.met){SKYF.met.t-=dt;if(SKYF.met.t<=0)SKYF.met=null}
+  else if(night&&SKYF.m==='wait'&&Math.random()<dt/80){SKYF.met={t:1.8,x:VW*(.3+Math.random()*.6),y:(SKF.hy||100)*(.15+Math.random()*.3)};Snd.sfx('meteor');toast('🌠 별똥별! 지금 눌러서 소원을 빌어요')}
+  if(SKYF.m==='wait'){SKYF.t-=dt;if(SKYF.t<=0){SKYF.e=skyRoll();SKYF.m='bite';SKYF.t=SKY_BITE[SKYF.e.rar];Snd.sfx('skybite');try{navigator.vibrate&&navigator.vibrate(25)}catch(er){}}return}
+  if(SKYF.m==='bite'){SKYF.t-=dt;if(SKYF.t<=0){SKYF.m='wait';SKYF.t=3+Math.random()*5;Snd.sfx('skymiss');toast('반짝임을 놓쳤어요… 다시 기다려요')}return}
+  if(SKYF.m==='reel'){const e=SKYF.e,r=e.rar,W_=SKY_RING[r],x0=14,x1=VW-14;
+    SKYF.rv+=(SKYF.hold?360:-300)*dt;SKYF.rv*=Math.exp(-dt*2.2);SKYF.wt-=dt;if(SKYF.wt<=0){SKYF.wt=1.6+Math.random()*2.6;SKYF.wind=(Math.random()-.5)*(40+r*14)}SKYF.rv+=SKYF.wind*dt;
+    SKYF.rx+=SKYF.rv*dt;if(SKYF.rx<x0+W_/2){SKYF.rx=x0+W_/2;SKYF.rv=Math.abs(SKYF.rv)*.3}if(SKYF.rx>x1-W_/2){SKYF.rx=x1-W_/2;SKYF.rv=-Math.abs(SKYF.rv)*.3}
+    SKYF.ft-=dt;if(SKYF.ft<=0){SKYF.ft=.45+Math.random()*1.1;SKYF.fv=(Math.random()<.5?-1:1)*SKY_SPD[r]*(.35+Math.random()*.65)}
+    SKYF.fx+=SKYF.fv*dt;if(SKYF.fx<x0+6){SKYF.fx=x0+6;SKYF.fv=Math.abs(SKYF.fv)}if(SKYF.fx>x1-6){SKYF.fx=x1-6;SKYF.fv=-Math.abs(SKYF.fv)}
+    const inR=Math.abs(SKYF.fx-SKYF.rx)<W_/2;SKYF.inR=inR;SKYF.prog+=(inR?24*(1-.05*r):-16*(1+.1*r))*dt;
+    SKYF.rt-=dt;if(inR&&SKYF.rt<=0){SKYF.rt=.22;Snd.sfx('skyreel',SKYF.prog/100)}
+    if(SKYF.prog>=100){skyGot(e,false);SKYF.m='wait';SKYF.t=3.5+Math.random()*6*(ST.wait||1);SKYF.lx=Math.max(24,Math.min(VW-24,VW/2+(Math.random()-.5)*90));SKYF.lk=.38+Math.random()*.28}
+    else if(SKYF.prog<=0){SKYF.m='wait';SKYF.t=3+Math.random()*5;Snd.sfx('skymiss');toast('「'+(SKYF.e.k==='f'?'하늘 손님':'반짝임')+'」이(가) 구름 속으로 숨었어요…')}}}
+function skyGot(e,wish){const d=skyD(),was=d[e.id]|0;d[e.id]=was+1;S.skyn=(S.skyn|0)+1;let note='';
+  if(e.k!=='c'){const g=SKY_PRICE[e.rar];S.gold+=g;note=' · +'+fmtShort(g)+'골드'}
+  if(e.id==='moonp')itAdd('sp_moon',1);
+  if(skyNow().sa<-4&&e.k==='f'&&Math.random()<.25){itAdd('sp_dust',1);note+=' · ✨ 별먼지'}
+  if(!wish)Snd.sfx('skycatch',e.rar);
+  const nw=!was,lab=e.k==='c'?'⭐ 「'+e.name+'」 조각 '+Math.min(5,was+1)+'/5':(nw?'🆕 ':'')+'【'+SKY_RN[e.rar]+'】 '+e.name;
+  showBanner('☁️ '+lab+note,e.rar>=4?4200:2400);
+  if(e.k==='c'&&was+1===5){setTimeout(()=>{showBanner('🌌 「'+e.name+'」이(가) 밤하늘에 이어졌어요!',4200);Snd.sfx('page')},1600);if(skyAllCon())setTimeout(()=>showBanner('✨ 열두 별자리를 모두 이었어요… 밤하늘 어딘가 「약속의 별」이 떴대요',5000),4200)}
+  try{const x=P.x,y=P.y-30;for(let i=0;i<(e.rar>=3?30:14);i++){const a=Math.random()*6.28,s2=20+Math.random()*50;parts.push({x,y,vx:Math.cos(a)*s2,vy:Math.sin(a)*s2-20,life:1,t:0,c:[SKY_RC[e.rar],'#ffffff','#fff6c0'][i%3],g:20,s:2})}}catch(er){}
+  if(e.rar>=4&&ONLINE&&Net.me)Net.send({t:'sky_news',id:e.id,n:e.name,r:e.rar,nw:nw?1:0});
+  saveState();if(skyDexOpen())renderSkyDex()}
+/* 그리기 (화면 좌표 · 하늘 앞) */
+function skyDraw(cX,cY){if(!SKF.on)return;const hy=SKF.hy;
+  /* 이은 별자리 */
+  if(SKF.dark>.2){cx.save();cx.globalAlpha=Math.min(1,SKF.dark)*.75;SKY_CON.forEach((c,i)=>{if(!skyConDone(c[0]))return;const span=VW*1.6,bx=((i*span/12+20-SKF.par*60)%span+span)%span-VW*.3,by=hy*(.12+((i*37)%5)*.08);if(bx<-50||bx>VW+10||by+30>hy-40)return;
+    cx.strokeStyle='rgba(190,210,255,.55)';cx.lineWidth=1;cx.beginPath();c[3].forEach((p,j)=>{const x=bx+p[0],y=by+p[1];j?cx.lineTo(x,y):cx.moveTo(x,y)});cx.stroke();c[3].forEach(p=>{const tw=.6+.4*Math.sin(wt*2+p[0]);cx.fillStyle='rgba(255,250,220,'+tw+')';cx.fillRect(bx+p[0]-1,by+p[1],3,1);cx.fillRect(bx+p[0],by+p[1]-1,1,3)})});cx.restore()}
+  if(F.mode!=='sky')return;
+  const px_=P.x-cX,py_=P.y-cY-16,lx=SKYF.lx,ly=skyLy(),bite=SKYF.m==='bite';
+  /* 별똥별 (소원) */
+  if(SKYF.met){const M=SKYF.met,k=1-M.t/1.8,x=M.x-k*120,y=M.y+k*50;cx.save();cx.globalCompositeOperation='lighter';const g=cx.createLinearGradient(x,y,x+60,y-25);g.addColorStop(0,'rgba(255,250,210,.95)');g.addColorStop(1,'rgba(255,250,210,0)');cx.strokeStyle=g;cx.lineWidth=2;cx.beginPath();cx.moveTo(x,y);cx.lineTo(x+60,y-25);cx.stroke();cx.fillStyle='#fff';cx.fillRect(x-1,y-1,3,3);cx.restore();
+    if(!M.ok){cx.fillStyle='#fff6c0';cx.font='bold 10px sans-serif';cx.textAlign='center';cx.fillText('🌠 지금 눌러요!',x+20,y-12)}}
+  /* 줄 */
+  const sag=SKYF.m==='reel'?2:8;cx.strokeStyle='rgba(255,255,255,.75)';cx.lineWidth=1;cx.beginPath();cx.moveTo(px_+6,py_);cx.quadraticCurveTo((px_+lx)/2,(py_+ly)/2+sag,SKYF.m==='reel'?SKYF.fx:lx,ly);cx.stroke();
+  if(SKYF.m!=='reel'){/* 별 등불 */const pul=bite?1+.5*Math.abs(Math.sin(wt*14)):1+.15*Math.sin(wt*3),R=5*pul;cx.save();cx.globalCompositeOperation='lighter';const g=cx.createRadialGradient(lx,ly,0,lx,ly,R*4);g.addColorStop(0,bite?'rgba(255,240,150,.9)':'rgba(255,240,200,.55)');g.addColorStop(1,'rgba(255,240,200,0)');cx.fillStyle=g;cx.fillRect(lx-R*4,ly-R*4,R*8,R*8);cx.restore();
+    cx.fillStyle=bite?'#fff6a0':'#fff2d0';cx.fillRect(lx-1,ly-3,3,7);cx.fillRect(lx-3,ly-1,7,3);cx.fillStyle='#ffffff';cx.fillRect(lx,ly,1,1);if(bite){cx.fillStyle='#fff';cx.font='bold 12px sans-serif';cx.textAlign='center';cx.fillText('!',lx,ly-10)}return}
+  /* 별 잡기 */
+  const e=SKYF.e,W_=SKY_RING[e.rar],x0=14,x1=VW-14,col=SKY_RC[e.rar];
+  cx.fillStyle='rgba(20,24,60,.35)';cx.fillRect(x0,ly-9,x1-x0,18);cx.strokeStyle='rgba(255,255,255,.35)';cx.strokeRect(x0+.5,ly-8.5,x1-x0-1,17);
+  cx.save();cx.globalCompositeOperation='lighter';const rg=cx.createRadialGradient(SKYF.rx,ly,0,SKYF.rx,ly,W_/2);rg.addColorStop(0,'rgba(255,250,210,'+(SKYF.inR?.5:.25)+')');rg.addColorStop(1,'rgba(255,250,210,.05)');cx.fillStyle=rg;cx.fillRect(SKYF.rx-W_/2,ly-9,W_,18);cx.restore();
+  cx.strokeStyle=SKYF.inR?'#fff6a0':'rgba(255,255,255,.7)';cx.lineWidth=1.5;cx.strokeRect(SKYF.rx-W_/2,ly-9,W_,18);
+  {const im=skyIcon(e),s2=Math.min(1.6,30/Math.max(im.width,im.height)),w2=im.width*s2,h2=im.height*s2,bob=Math.sin(wt*6)*1.5;cx.save();cx.translate(SKYF.fx,ly+bob);if(SKYF.fv<0)cx.scale(-1,1);cx.drawImage(im,-w2/2,-h2/2,w2,h2);cx.restore()}
+  cx.fillStyle='rgba(255,255,255,.2)';cx.fillRect(x0,ly+12,x1-x0,3);cx.fillStyle=col;cx.fillRect(x0,ly+12,(x1-x0)*Math.max(0,Math.min(1,SKYF.prog/100)),3);
+  cx.fillStyle='#fff';cx.font='bold 9px sans-serif';cx.textAlign='left';cx.fillText((e.k==='f'&&(skyD()[e.id]|0)>0?e.name:'???')+' · '+SKY_RN[e.rar],x0,ly-13)}
+/* 하늘 도감 */
+let SKYTAB='f';
+const skyDexOpen=()=>!$('sheetwrap').hidden&&$('sheettitle').textContent==='☁️ 하늘 도감';
+function openSkyDex(){openSheet('☁️ 하늘 도감','');renderSkyDex()}
+function renderSkyDex(){const d=skyD(),found=SKY.filter(e=>(d[e.id]|0)>0).length,K=skyNow(),season=kstSeason(Date.now());
+  let h='<div class="skd-top"><div><b>'+found+'</b><small>/ '+SKY.length+' 발견</small></div><div><b>'+fmt(S.skyn|0)+'</b><small>하늘 손맛</small></div><div><b>'+SKY_CON.filter(c=>skyConDone(c[0])).length+'</b><small>/ 12 별자리</small></div></div>';
+  h+='<div class="muted" style="font-size:11.5px;line-height:1.6;margin:6px 2px">마을 북쪽 끝에서 하늘에 던져요 · 오늘 달 '+MOON_IC(K.p)+' '+MOON_NM(K.p)+' · 지금 '+SKY_SEASON_NM[season]+' 별자리 철 · 직접 낚기만 돼요</div>';
+  h+='<div class="tabs">'+[['f','🐟 하늘 물고기'],['c','⭐ 별자리'],['s','✨ 특별']].map(t=>'<button class="tab'+(SKYTAB===t[0]?' on':'')+'" data-skt="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+  const L=SKY.filter(e=>e.k===SKYTAB);
+  h+='<div class="skd-grid">'+L.map(e=>{const n=d[e.id]|0,known=n>0,hid=!known&&e.rar>=4;const cond=e.k==='c'?'🌙 밤 · '+SKY_SEASON_NM[e.ss]+(e.ss===season?' (지금 제철!)':''):hid?'???':(SKY_SLOT[e.slot]+(e.cond&&SKY_COND[e.cond]?' · '+SKY_COND[e.cond]:e.cond==='wish'?' · 🌠 소원':e.cond==='promise'?' · 열두 별자리':''));
+    return'<div class="skd-c'+(known?' on':'')+'" style="--rc:'+SKY_RC[e.rar]+'"><div class="skd-i"><img src="'+skyURL(e)+'" style="height:'+Math.min(40,skyIcon(e).height*(e.k==='c'?1.2:2.4))+'px;'+(known?'':'filter:brightness(0) opacity(.35)')+'"></div><b>'+(known||e.rar<3?esc(e.name):'???')+'</b><small class="skd-r">'+SKY_RN[e.rar]+'</small><small>'+cond+'</small>'+(e.k==='c'?'<div class="skd-p"><i style="width:'+Math.min(100,n/5*100)+'%"></i></div><small>조각 '+Math.min(5,n)+'/5</small>':known?'<small>'+n+'마리</small>':'')+(known&&e.d?'<small class="skd-d">'+esc(e.d)+'</small>':'')+'</div>'}).join('')+'</div>';
+  $('sheetbody').innerHTML=h+'<style>.skd-top{display:flex;gap:6px}.skd-top>div{flex:1;background:linear-gradient(135deg,#eef2ff,#f8eeff);border-radius:12px;padding:6px;text-align:center}.skd-top b{font-size:18px;display:block}.skd-top small{font-size:11px;color:var(--ink-soft)}.skd-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.skd-c{border:1.5px solid #e6e2f0;border-radius:12px;padding:6px 8px;background:#fbfaff;display:flex;flex-direction:column;gap:2px}.skd-c.on{border-color:var(--rc);background:#fff}.skd-i{height:48px;display:flex;align-items:center;justify-content:center;background:linear-gradient(#1c2050,#3a3a7a);border-radius:8px}.skd-i img{max-width:92%;image-rendering:pixelated}.skd-c b{font-size:12.5px}.skd-c small{font-size:10.5px;color:var(--ink-soft)}.skd-r{color:var(--rc)!important;font-weight:700}.skd-d{line-height:1.4}.skd-p{height:5px;background:#eee;border-radius:3px;overflow:hidden}.skd-p i{display:block;height:100%;background:linear-gradient(90deg,#a0c0ff,#fff0a0)}</style>'}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-skt]');if(!t)return;SKYTAB=t.dataset.skt;Snd.sfx('tap');renderSkyDex()});
 const skyIc=()=>{try{const K=skyNow();return K.ma>0&&K.sa<-4?MOON_IC(K.p)+' ':''}catch(e){return''}};
 /* ----- 4단계: 날씨 그리기 (화면 좌표) ----- */
 const rain=[];let wxNow='',wxFade=0;
@@ -7832,13 +8016,13 @@ function update(dt){
     }
   }else P.moving=false;
   walkTick(dt);petTick();bugTick(dt);
-  updateFishing(dt);
+  updateFishing(dt);try{skyTick(dt)}catch(e){console.error(e)}
   const a=nearAction();updateActBtn(a);
   recastTick();if(P)plateTick();
   // BGM
   const want=F.mode==='idle'||F.mode==='result'?(isNight(dayTint().ph)?'night':'town'):'fish';
   const wantT=F.mode==='idle'||F.mode==='result'?want:'fish';
-  const tr=(F.mode!=='idle'&&F.mode!=='result')||F.zone&&false?'fish':onWinter()?'snow':onDessert()?'sweet':(P&&inEden((P.x/TS)|0,(P.y/TS)|0))||isNight(dayTint().ph)?'night':'town';
+  const tr=F.mode==='sky'||render.sv?(skyNow().sa<-4?'skyn':'skyd'):(F.mode!=='idle'&&F.mode!=='result')||F.zone&&false?'fish':onWinter()?'snow':onDessert()?'sweet':(P&&inEden((P.x/TS)|0,(P.y/TS)|0))||isNight(dayTint().ph)?'night':'town';
   if(Snd.ready&&tr!==lastTrack){lastTrack=tr;Snd.setTrack(tr)}
   const rg=regionName();if(rg!==lastRegion){lastRegion=rg;showRegion(rg)}
   saveT+=dt;if(saveT>8){saveT=0;saveState()}
@@ -8004,6 +8188,7 @@ function updateActBtn(a){
     case'bite':txt='지금!';cls='hot';break;
     case'reel':txt='누르고<br>있기';cls='hot';break;
     case'pull':txt='...';break;
+    case'sky':txt=SKYF.m==='bite'?'지금!':SKYF.m==='reel'?'누르고<br>떼고':SKYF.met&&!SKYF.met.ok?'🌠 소원':'기다리는 중';cls=SKYF.m==='bite'||SKYF.m==='reel'||(SKYF.met&&!SKYF.met.ok)?'hot':'off';break;
     case'result':txt=a&&a.type==='fish'?'다시<br>던지기':'확인';cls='';break;
   }
   if(F.afk&&F.mode==='wait'){txt='자동<br><small>'+(F.wait>=60?Math.ceil(F.wait/60)+'분':Math.ceil(F.wait)+'초')+'</small>';cls=''}
@@ -9197,6 +9382,7 @@ $('sheetbody').addEventListener('click',e=>{
     if(k==='raid'){openRaid();return}
     if(k==='kt'){openKt();return}
     if(k==='auc'){openAuc();return}
+    if(k==='skyd'){openSkyDex();return}
     if(k==='wh'){openWh();return}
     if(k==='ev'){openEvents();return}
     if(k==='go'){openGoList();return}
@@ -10393,7 +10579,7 @@ function openMenu(){
   let h='<div class="mhead"><button class="mme" data-mn="me"><span class="mav">'+esc((ONLINE&&Net.me?Net.me.name:'나').slice(0,1))+'</span><span><b>'+esc(ONLINE&&Net.me?Net.me.name:'내 정보')+'</b><small>내 정보 · 기록 보기</small></span></button>'+
     '<div class="mq">'+T('nlog','🔔','#fff1d6','소식함',nl,0,'nlogDot')+T('mail','🎁','#ffe6ef','우편함',ml,1,'mailDot')+T('set','⚙️','#eceaf4','설정')+'</div></div>';
   h+='<div class="msec">성장</div><div class="mgrid">'+T('tree','⭐','#e6edff',j?JOBS[j].name:'직업')+T('pets','🐾','#ffe9f2','동물 친구')+T('cp','🐶','#fff0e0',c?'반려동물':'분양센터')+T('isl','🏝️','#dff3ff','내 섬')+T('craft','🔨','#fff1df','공방')+T('today','📋','#e6f7e6','오늘 할 일')+'</div>';
-  h+='<div class="msec">모험</div><div class="mgrid">'+T('hunt','⚔️','#ffe4e0','사냥터')+T('raid','🌑','#ebe2ff','레이드',RLOB.n>0)+T('ev','🎪','#ffe9f4','행사',EVS.length>0)+T('dayk','🏆','#fff3cf','낚시왕')+T('fest','🗓️','#e8f4ff','축제 달력')+T('go','🧭','#e4f6ef','길 안내')+T('auc','🔨','#ffeede','경매')+T('wh','💪','#e6f4ff','성실 보상')+T('kt','👑','#fff6cf',iAmKing()?'내 마을':'왕의 마을',iAmKing()&&KT&&(KT.req||[]).length>0)+'</div>'+
+  h+='<div class="msec">모험</div><div class="mgrid">'+T('hunt','⚔️','#ffe4e0','사냥터')+T('raid','🌑','#ebe2ff','레이드',RLOB.n>0)+T('ev','🎪','#ffe9f4','행사',EVS.length>0)+T('dayk','🏆','#fff3cf','낚시왕')+T('fest','🗓️','#e8f4ff','축제 달력')+T('go','🧭','#e4f6ef','길 안내')+T('skyd','☁️','#e6eeff','하늘 도감')+T('auc','🔨','#ffeede','경매')+T('wh','💪','#e6f4ff','성실 보상')+T('kt','👑','#fff6cf',iAmKing()?'내 마을':'왕의 마을',iAmKing()&&KT&&(KT.req||[]).length>0)+'</div>'+
     (mt?'<div class="mtrap"><span>내 통발 · '+esc(ZONES[mt.z-1].name)+' · '+trapN(mt,Date.now())+'/'+mt.cap+'마리</span><button class="btn xs mint" data-mn="trapgo">길 안내</button></div>':'');
   h+='<div class="msec">추억</div><div class="mgrid">'+T('diary','📔','#fff4dc','낚시 일기',0,1)+T('gallery','🖼️','#fff0e4','내 그림',0,1)+T('photo','📷','#e6f0ff','사진 찍기',0,1)+T('upd','📰','#fff4d0','업데이트',nu,1)+'</div>';
   h+='<div class="msec">화면</div><div class="mtog">'+[['mmap','미니맵',mmOn()],['qoff','할 일 알림판',!S.qOff],['dkoff2','낚시왕 순위판',!S.dkOff]].map(x=>'<button class="mtg'+(x[2]?' on':'')+'" data-mn="'+x[0]+'"><i></i>'+x[1]+'</button>').join('')+'</div>';
