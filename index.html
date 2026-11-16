@@ -3688,7 +3688,7 @@ function recalc(){
   if((S.rest|0)>0)ST.luck*=1.3;
   if(typeof rodPerk==='function')rodPerk();   // 돌아온 친구의 휴식 행운 (직접 낚을 때마다 1씩 줄어요)
   ST.luck*=1+cheerLuck()+(amKing()?.1:0);   // 👑 손맛 왕: 행운 +10%   // 마을의 응원: 손맛 도감이 마을 1등보다 많이 뒤처지면
-  jobMods();jobBadge();
+  jobMods();try{fortMods()}catch(e){}jobBadge();
 }
 const POOL={};FISH.forEach(f=>{if(f.season)return;if(f.id>=MAIN_N&&!f.isl&&!f.pty&&!f.mk&&!f.v2&&!f.isx&&!f.isy&&!f.jeju&&!f.hid)return;const k=f.zone+'-'+f.rar;(POOL[k]=POOL[k]||[]).push(f)});
 
@@ -4312,7 +4312,7 @@ const huCP=()=>cpCalc(huS().lv,rpgSum(),S.hunt&&S.hunt.sw);
 /* 🤝 함께 사냥: 같은 사냥터에서 가까이(약 16칸) 있는 친구 수 (최대 3명) */
 const huParty=()=>{if(!HUNT.on)return 0;const now=Date.now();let n=0;for(const k in HOTH){const o=HOTH[k];if(o.f===HUNT.fi&&now-o.at<3000&&Math.hypot(o.x-HUNT.x,o.y-HUNT.y)<260)n++}return Math.min(3,n)};
 function huKill(m){m.die=.9;HUNT.free=HUNT.free||[];HUNT.free.push({id:m.f.id,x:m.x,y:m.y-16,t:0});const u=huS(),t=HFIELDS[HUNT.fi].t,coop=huParty();
-  if(HUNT.run){HUNT.run.k++;if(m.boss){HUNT.run.boss++;u.clr=u.clr||{};if(!u.clr[HUNT.fi]){u.clr[HUNT.fi]=1;setTimeout(()=>showBanner('🔓 다음 사냥터가 열렸어요!'),1800)}}}const xp=Math.round([4,8,16,40,100][m.f.rar]*(1+t)*(fieldDone(HUNT.fi)?1.5:1)*(m.red?2:1)*(m.f.myth?5:1)*(m.el?3:1)*(m.boss?12:1)*((1+coop*.3))*HDF[HUNT.df|0].xp*huCatch());u.xp+=xp;if(HUNT.run)HUNT.run.xp+=xp;u.kills++;HUNT.kc++;Snd.hfx('kill');if([100,300,1000,3000,10000,30000].includes(u.kills)){setTimeout(()=>showBanner('🫧 지금까지 구해 준 친구 '+u.kills.toLocaleString()+'마리!! 물고기들이 용사님 이야기를 해요'),900);try{diaryAdd('🫧','지금까지 꿈방울에서 구해 준 친구 '+u.kills+'마리')}catch(e){}}
+  if(HUNT.run){HUNT.run.k++;if(m.boss){HUNT.run.boss++;u.clr=u.clr||{};if(!u.clr[HUNT.fi]){u.clr[HUNT.fi]=1;setTimeout(()=>showBanner('🔓 다음 사냥터가 열렸어요!'),1800)}}}const xp=Math.round([4,8,16,40,100][m.f.rar]*(1+t)*(fieldDone(HUNT.fi)?1.5:1)*(m.red?2:1)*(m.f.myth?5:1)*(m.el?3:1)*(m.boss?12:1)*((1+coop*.3))*HDF[HUNT.df|0].xp*huCatch()*(skOn('rage')?2:1)*(1+.1*rk('hun','trk')));u.xp+=xp;if(jobId()==='hun'&&(m.boss||m.el))jxpAdd(m.boss?30:4,'사냥','hun');if(HUNT.run)HUNT.run.xp+=xp;u.kills++;HUNT.kc++;Snd.hfx('kill');if([100,300,1000,3000,10000,30000].includes(u.kills)){setTimeout(()=>showBanner('🫧 지금까지 구해 준 친구 '+u.kills.toLocaleString()+'마리!! 물고기들이 용사님 이야기를 해요'),900);try{diaryAdd('🫧','지금까지 꿈방울에서 구해 준 친구 '+u.kills+'마리')}catch(e){}}
   {const R=HUNT.run;if(R&&!R.raid&&!m.boss&&!R.clear){const g=R.goal,w=1+Math.min(2,Math.floor(R.k*3/g));if(w>R.wave){R.wave=w;showBanner(w===2?'🌊 두 번째 물결! 악몽이 짙어져요':'🌊🌊 마지막 물결! 대장들이 몰려와요');Snd.hfx('boss')}if(R.k>=g&&!HUNT.boss&&!R.bossCalled){R.bossCalled=1;setTimeout(huBoss,1500)}}}
   huPop(m.x,m.y-40,'+'+xp+' 경험치','xp');huPop(m.x,m.y-56,pick(['고마워요!','자유다~','꿈에서 깼어요!','뽀글!']),'blue');Snd.chime(84,.2);for(let i=0;i<18;i++){const a=i/18*6.28;parts.push({x:m.x+Math.cos(a)*10,y:m.y-14+Math.sin(a)*10,vx:Math.cos(a)*70,vy:Math.sin(a)*70,life:.5,t:0,c:i%2?'#ffffff':'#bfe6ff',g:0,s:2})}for(let i=0;i<4;i++)parts.push({x:m.x,y:m.y-20,vx:(Math.random()-.5)*20,vy:-24,life:1.2,t:0,heart:true,g:0});
   while(u.xp>=huNeed(u.lv)){u.xp-=huNeed(u.lv);u.lv++;HUNT.hp=huMaxHp();Snd.hfx('lv');showBanner('⚔️ 물결 용사 Lv'+u.lv+'! 공격 +1 · 체력 +6');for(let i=0;i<30;i++)parts.push({x:HUNT.x,y:HUNT.y-10,vx:(Math.random()-.5)*60,vy:-60-Math.random()*40,life:1.2,t:0,c:'#fff6b0',g:40,s:2})}
@@ -5751,7 +5751,7 @@ function updatePets(dt){
   catInit();catMeets(dt);
 }
 function drawPet(a){
-  const s=SP.pet[a.p.id],L=a.face<0;let img;
+  const s=SP.pet[a.p.id],L=a.face<0;let img;{const lv=petLv(a.p.id);if(lv>=50&&Math.random()<(lv>=99?.12:.05))parts.push({x:a.x+(Math.random()-.5)*12,y:a.y-6-Math.random()*10,vx:0,vy:-8,life:.8,t:0,c:lv>=99?['#ff9ab8','#ffd060','#7ae08a','#7ac8ff','#c08aff'][(Math.random()*5)|0]:'#fff6c0',g:0,s:1})}
   if(a.boat){catBoatDraw(a,s.sit);catBubble(a,s.sit);return}
   if(a.state==='walk')img=(L?s.walkL:s.walk)[((a.anim*6)|0)%2];else if(a.state==='sleep')img=L?s.sleepL:s.sleep;else img=s.sit;
   cx.fillStyle='rgba(60,50,100,.14)';cx.beginPath();cx.ellipse(Math.round(a.x),Math.round(a.y)-1,img.width*.38,2,0,0,6.28);cx.fill();
@@ -5796,7 +5796,7 @@ const josa=(w,a,b)=>{const c=w.charCodeAt(w.length-1)-0xac00;return w+(c>=0&&c<1
 const actorOf=id=>pets.find(a=>a.p.id===id);
 const fetchMax=L=>L<20?0:(L>=70?3:L>=30?2:1)+rk('tam','gift');
 const PET_SKILL={ruby:'물어오기 — 강화권 · 반짝 조각을 더 자주 물어와요',dot:'장난꾸러기 — 줄다리기 초록 막대가 넓어져요',nurung:'활달함 — 자동 낚시 하루 한도가 늘어요',kkam:'부엉이 눈 — 밤에 희귀 이상이 더 잘 걸려요',churi:'야무짐 — 물고기를 팔 때 골드를 더 받아요'};
-const LV_RW=[[10,'칭호 · 고양이 짝꿍은 어디든 따라와요'],[20,'하루 1번 선물을 물어와요'],[30,'선물 하루 2번'],[40,'짝꿍 특기가 열려요 (다음 업데이트)'],[50,'짝꿍 외형이 바뀌어요 (다음 업데이트)'],[70,'선물 하루 3번 · 강화권이 더 자주 나와요'],[99,'전용 칭호와 반짝이 (다음 업데이트)']];
+const LV_RW=[[10,'칭호 · 고양이 짝꿍은 어디든 따라와요'],[20,'하루 1번 선물을 물어와요'],[30,'선물 하루 2번'],[40,'짝꿍 특기 · 짝꿍이면 내 행운 +3%'],[50,'반짝반짝 빛이 나요'],[70,'선물 하루 3번 · 강화권이 더 자주 나와요'],[99,'무지개 반짝이 · 짝꿍이면 내 행운 +5%']];
 
 /* 골드 · 강화권 보상: 혼자 모드는 이 기기에서, 온라인은 서버가 하루 한 번씩 확인하고 줘요 (server.js pet_rw와 같은 규칙)
    돌려주는 값: 혼자 모드 {g,tk} · 온라인 null (서버 소식으로 알려 줘요) */
@@ -5810,7 +5810,8 @@ function petReward(kind,o){o=o||{};
   return{g:g,tk:tk}}
 
 const PFD_MAX=5;   // 2026-11-09: 간식 · 장난감은 하루 5번까지 (돈으로 레벨을 몰아 올리지 않게)
-function addXp(id,n){if(!(n>0))return;n*=1+.2*rk('tam','pxp');const st=petSt(id),b=lvOf(st.xp);st.xp+=Math.round(n);const L=lvOf(st.xp);if(L>b)onPetLevel(id,b,L)}
+function addXp(id,n){if(!(n>0))return;n*=(1+.2*rk('tam','pxp'))*(jobId()==='tam'?1.5:1);   // 🐾 동물 친구 직업: 펫 성장 1.5배
+const st=petSt(id),b=lvOf(st.xp);st.xp+=Math.round(n);const L=lvOf(st.xp);if(L>b)onPetLevel(id,b,L)}
 function onPetLevel(id,from,to){
   if(id===partnerId())evSitThanks();
   const a=actorOf(id),nm=petName(id);
@@ -6080,6 +6081,7 @@ function openPetsOverview(){
   let h='<div class="muted" style="font-size:12px;margin-bottom:8px">짝꿍은 게임을 켜 둔 시간만큼 자라요. 루비와 고양이들은 마을 모두의 친구라, 누구를 골라도 다른 친구와 겹쳐도 괜찮아요.</div>';
   PETS.forEach(p=>{const pr=lvProg(petSt(p.id).xp),hh=heartOf(p.id);
     h+='<button class="prow" data-pt="'+p.id+'"><img src="'+petImgURL(p.id)+'" alt=""><span class="pn">'+esc(p.name)+(p.id===pt?' <b class="pbadge">짝꿍</b>':'')+'<small>'+esc(p.desc)+'</small></span><span class="pl">Lv'+pr.L+'<small>♥'+hh+'/100</small></span></button>'});
+  {const L=pt?petLv(pt):0;h+='<div class="sec">레벨 혜택 <span class="cnt">짝꿍 '+(pt?esc(petName(pt))+' Lv'+L:'없음')+'</span></div>'+LV_RW.map(r=>'<div class="rank"><span class="r">'+(L>=r[0]?'✅':'⬜')+'</span><span class="n"><b>Lv'+r[0]+'</b> · '+esc(r[1])+'</span></div>').join('')+'<div class="muted" style="font-size:11.5px;margin-top:6px">'+(jobId()==='tam'?'🐾 동물 친구 직업이라 펫이 1.5배 빨리 자라요!':'🐾 동물 친구 직업이면 펫이 1.5배 빨리 자라요')+'</div>'}
   openSheet('동물 친구들',h);
 }
 function openPetSheet(id){
@@ -6154,7 +6156,16 @@ const JOBS={
  mer:{name:'떠돌이 상인',ic:'💰',col:'#2f9a7a',who:'숫자 굴리고 장사하는 사람',make:'솜씨 재료 · 수입 돛 · 펫 장난감 (이 직업만) · 위탁 판매',need:'팔 물건(모두)',
   t:[[{id:'price',n:'흥정 솜씨',max:3,k:'p',d:r=>'물고기 판매가 +'+r*10+'%'},{id:'enh',n:'강화 흥정',max:3,k:'p',d:r=>'낚싯대 안전 강화 골드 -'+r*10+'%'}],
      [{id:'gold',n:'황금 시세',max:1,k:'a',d:()=>'누르면 10분 동안 내가 파는 물고기 2배 (쿨타임 4시간)'},{id:'cons',n:'위탁 판매',max:1,k:'u',d:()=>'친구가 맡긴 물고기를 팔아 줘요 (친구 1.15배 · 나 0.15배) · 황금 시세 +5분'}],
-     [{id:'cap',n:'수입품 가게',max:1,cost:3,k:'p',d:()=>'솜씨 재료 · 수입 돛 · 펫 장난감을 사 올 수 있어요 (이 직업만!)'}]]}
+     [{id:'cap',n:'수입품 가게',max:1,cost:3,k:'p',d:()=>'솜씨 재료 · 수입 돛 · 펫 장난감을 사 올 수 있어요 (이 직업만!)'}]]},
+ /* 2026-11-16 새 직업 둘 */
+ pro:{name:'별빛 예언자',ic:'🔮',col:'#8a5ae0',who:'친구의 하루를 점쳐 주는 사람 (가끔 장난도)',make:'오늘의 운세 (대길 ~ 대흉 · 2시간)',need:'친구들',
+  t:[[{id:'eye',n:'별자리 읽기',max:3,k:'p',d:r=>'내가 봐 주는 운세가 좋게 나올 확률 +'+r*8+'%'},{id:'luck',n:'행운의 별',max:3,k:'p',d:r=>'내가 봐 준 대길 · 길의 행운 효과 +'+r*20+'%'}],
+     [{id:'fort',n:'운세 보기',max:1,k:'a',d:()=>'친구 한 명(또는 나)의 운세를 봐 줘요 · 대길 · 길 · 중길 · 흉 · 대흉 · 2시간 (쿨타임 1시간)'},{id:'hex',n:'흉운 보내기',max:2,k:'u',d:r=>'하루 '+r+'번 · 고른 친구에게 흉이나 대흉을 보내요 (장난은 적당히!)'}],
+     [{id:'cap',n:'운명의 별',max:1,cost:3,k:'a',d:()=>'하루 한 번 · 지금 마을에 있는 모두에게 좋은 운세 (길 이상) · 2시간'}]]},
+ hun:{name:'꿈 사냥꾼',ic:'🏹',col:'#c0602a',who:'꿈의 사냥터를 누비는 사람',make:'💠 꿈의 정수 · 사냥 전리품',need:'힐링포션 · 주문서',
+  t:[[{id:'trk',n:'추적',max:3,k:'p',d:r=>'사냥터 칩 +'+r*10+'% · 경험치 +'+r*10+'%'},{id:'ess',n:'정수 감각',max:3,k:'p',d:r=>'우두머리 · 정예의 💠 꿈의 정수 '+r*20+'% 더'}],
+     [{id:'rage',n:'사냥 본능',max:1,k:'a',d:()=>'누르면 20분 동안 사냥터 칩 · 경험치 2배 (쿨타임 3시간)'},{id:'rage2',n:'야성',max:2,k:'u',d:r=>'사냥 본능 +'+r*5+'분'}],
+     [{id:'cap',n:'전리품 사냥꾼',max:1,cost:3,k:'p',d:()=>'사냥터 장비 드랍 +25% · 레이드 상자에 💠 꿈의 정수 +3'}]]}
 };
 /* ========== 직업 3.0: 누르는 기술 (server.js SKILLS와 같아요) ========== */
 const SK={focus:{job:'fish',node:'focus',ic:'🎯',n:'집중 낚시',dur:()=>10,cd:()=>180-45*rk('fish','focus2')},
@@ -6163,7 +6174,24 @@ const SK={focus:{job:'fish',node:'focus',ic:'🎯',n:'집중 낚시',dur:()=>10,
  shx:{job:'sch',node:'cap',ic:'💎',n:'반짝 탐지',dur:()=>30,cd:()=>360},
  cat:{job:'cra',node:'cat',ic:'⚒️',n:'장비 사냥',dur:()=>30+10*rk('cra','cat2'),daily:true},   // 2026-11-16: 하루 한 번 · 사냥터 장비 · 주문서 드랍 2배
  auto:{job:'tam',node:'auto',ic:'🐾',n:'짝꿍 출동',dur:()=>10+5*rk('tam','sit'),cd:()=>180},
- gold:{job:'mer',node:'gold',ic:'💰',n:'황금 시세',dur:()=>10+5*rk('mer','cons'),cd:()=>240}};
+ gold:{job:'mer',node:'gold',ic:'💰',n:'황금 시세',dur:()=>10+5*rk('mer','cons'),cd:()=>240},
+ fort:{job:'pro',node:'fort',ic:'🔮',n:'운세 보기',cd:()=>60,pick:1},
+ hex:{job:'pro',node:'hex',ic:'🌧️',n:'흉운 보내기',daily:true,pick:1},
+ fate:{job:'pro',node:'cap',ic:'🌟',n:'운명의 별',daily:true},
+ rage:{job:'hun',node:'rage',ic:'🏹',n:'사냥 본능',dur:()=>20+5*rk('hun','rage2'),cd:()=>180}};
+
+/* 🔮 오늘의 운세 (별빛 예언자 · 2026-11-16): 대길 · 길 · 중길 · 흉 · 대흉 · 2시간 (server.js FORT와 같아요) */
+const FORT={dg:['대길','🌟','#e0a020',{luck:.3,sell:.1,wait:-.15}],g:['길','☀️','#e07a2c',{luck:.15,sell:.05}],mg:['중길','🌤️','#5d9be8',{luck:.05}],h:['흉','🌧️','#7a7aa0',{luck:-.1,wait:.1}],dh:['대흉','⛈️','#5a4a7a',{luck:-.2,wait:.2,sell:-.05}]};
+const fortOn=()=>S.fort&&S.fort.until>Date.now()&&FORT[S.fort.k]?S.fort:null;
+function fortMods(){const f=fortOn();if(!f)return;const e=FORT[f.k][3],m=f.k==='dg'||f.k==='g'?1+(f.bo||0):1;if(e.luck)ST.luck*=1+e.luck*m;if(e.sell)ST.sell*=1+e.sell*m;if(e.wait)ST.wait*=1+e.wait}
+function fortPick(k){const me=Net.me&&Net.me.name,L=[...new Set([...others.values()].map(o=>o.name).filter(Boolean))].filter(n=>n!==me);
+  let h='<div class="muted" style="font-size:12.5px;margin-bottom:8px">'+(k==='hex'?'🌧️ 흉운을 보낼 친구를 골라요 · 하루 '+Math.max(1,rk('pro','hex'))+'번 (장난은 적당히!)':'🔮 누구의 운세를 봐 줄까요? 결과는 하늘의 뜻이에요 · 2시간 동안 이어져요')+'</div>';
+  if(k==='fort')h+='<button class="btn pink" style="width:100%;margin-bottom:6px" data-fortto="'+k+'|'+esc(me)+'">🙋 나의 운세</button>';
+  h+=L.length?L.map(n=>'<button class="btn ghost" style="width:100%;margin-bottom:5px" data-fortto="'+k+'|'+esc(n)+'">'+esc(n)+'</button>').join(''):'<div class="muted" style="text-align:center;padding:8px">지금 근처에 친구가 없어요</div>';
+  openSheet(k==='hex'?'🌧️ 흉운 보내기':'🔮 운세 보기',h)}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-fortto]');if(!t)return;const[k,n]=t.dataset.fortto.split('|');Snd.sfx('tap');closeSheet();Net.send({t:'skill',k,to:n})});
+function onFort(m){S.fort=m.fort||null;recalc();updateItemHud();const f=fortOn();if(!f)return true;const F_=FORT[f.k];showBanner(F_[1]+' '+(m.by&&m.by!==(Net.me&&Net.me.name)?m.by+' 님이 봐 준 ':'')+'오늘의 운세 · 【'+F_[0]+'】 '+(f.k==='dg'?'모든 일이 술술 풀려요!':f.k==='g'?'좋은 기운이 함께해요':f.k==='mg'?'무난하고 평온한 하루':f.k==='h'?'오늘은 조심조심…':'먹구름이 잔뜩… 그래도 힘내요!'),4200);Snd.sfx(f.k==='h'||f.k==='dh'?'no':'page');
+  if(P)sparkFx(P.x,P.y-16,24,f.k==='h'||f.k==='dh'?['#7a7aa0','#b0b0d0']:['#ffe27a','#ffffff']);return true}
 const skS=()=>{if(!S.sk||typeof S.sk!=='object')S.sk={};return S.sk};
 const skOn=k=>{const x=skS()[k];return!!(x&&Date.now()<x.u)};
 const skMine=()=>Object.keys(SK).filter(k=>SK[k].job===jobId()&&rk(SK[k].job,SK[k].node)>0);
@@ -6171,7 +6199,7 @@ const boomOn=()=>!!(VIL&&VIL.boom&&Date.now()<VIL.boom.until);
 const mmss=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return s>=3600?Math.floor(s/3600)+'시간 '+Math.floor(s%3600/60)+'분':Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 function skState(k){const x=skS()[k]||{},now=Date.now(),D=SK[k];if(x.u&&now<x.u)return{on:true,t:mmss(x.u-now)};if(D.daily){return x.d===kstDay()?{wait:true,t:'내일'}:{ready:true}}if(x.n&&now<x.n)return{wait:true,t:mmss(x.n-now)};return{ready:true}}
 function castSkill(k){const D=SK[k];if(!D)return;const st=skState(k);if(st.on){toast(D.ic+' '+D.n+' 사용 중 · '+st.t+' 남음');return}if(st.wait){toast(D.ic+' '+D.n+' · '+st.t+(D.daily?' 다시 쓸 수 있어요':' 뒤에 다시'));return}
-  Snd.sfx('ui');if(ONLINE&&Net.me){Net.send({t:'skill',k});return}
+  Snd.sfx('ui');if(D.pick&&ONLINE&&Net.me){fortPick(k);return}if(ONLINE&&Net.me){Net.send({t:'skill',k});return}
   const now=Date.now();skOk({k,until:now+(D.dur?D.dur()*60e3:0),next:D.daily?0:now+D.cd()*60e3*(jRank(D.job)>=3?.75:1)})}
 function skOk(m){const D=SK[m.k];if(!D)return;skS()[m.k]={u:m.until,n:m.next,d:D.daily?kstDay():''};
   if(m.enh)S.enh=Object.assign(enhDefault(),m.enh);
@@ -6179,7 +6207,7 @@ function skOk(m){const D=SK[m.k];if(!D)return;skS()[m.k]={u:m.until,n:m.next,d:D
   if(m.k==='boom'&&!ONLINE){VIL=VIL||{};VIL.boom={by:'나',until:m.until}}
   if(m.k==='auto')AUTO.t=0;
   if(m.k==='cat'&&!ONLINE)S.dropx=m.until;
-  const msg={focus:'10분 동안 매번 완벽한 손맛! 크기 +20%',legend:'다음 입질은 전설이에요!',boom:'마을 모두 희귀 이상 2배!',shx:'반짝 확률 3배!',cat:'강화권 +1 (지금 '+((S.enh&&S.enh.tk)|0)+'장)',auto:'짝꿍이 대신 낚아 와요!',gold:'내가 파는 물고기 2배!'}[m.k];
+  const msg={fort:'운세를 봐 줬어요',hex:'흉운을 보냈어요… 후후',fate:'마을 모두에게 좋은 운세!',rage:'사냥 본능! 칩 · 경험치 2배',focus:'10분 동안 매번 완벽한 손맛! 크기 +20%',legend:'다음 입질은 전설이에요!',boom:'마을 모두 희귀 이상 2배!',shx:'반짝 확률 3배!',cat:'강화권 +1 (지금 '+((S.enh&&S.enh.tk)|0)+'장)',auto:'짝꿍이 대신 낚아 와요!',gold:'내가 파는 물고기 2배!'}[m.k];
   showBanner(D.ic+' '+D.n+'! '+msg);Snd.sfx('page');if(P)sparkFx(P.x,P.y-24,22,['#ffffff','#ffe28a','#c8b8ff']);saveState();skHud()}
 function skErr(m){toast(m.text);if(m.k&&SK[m.k]){const x=skS()[m.k]||(skS()[m.k]={});if(m.next)x.n=m.next;if(m.used)x.d=kstDay();skHud()}}
 /* 화면 버튼: 내 직업 기술 (말 버튼 위) */
@@ -6201,7 +6229,7 @@ function autoTick(){if(!skOn('auto'))return;AUTO.t-=1;if(AUTO.t>0)return;AUTO.t=
   const pt=pets.find(a=>a.p.id===partnerId())||pets[0];floats.push({x:pt?pt.x:P.x,y:(pt?pt.y:P.y)-16,t:0,img:fishCan(id),txt:''});if(pt)parts.push({x:pt.x,y:pt.y-14,vx:0,vy:-14,life:1,t:0,heart:true,g:0});
   toast('🐾 짝꿍이 '+f.name+' '+len+'cm를 물어 왔어요'+(isNew?' (새 물고기!)':''));Snd.sfx('tap');grantRewards();recalc();saveState()}
 
-const JOB_IDS=['fish','sch','cra','tam','mer'];
+const JOB_IDS=['fish','sch','cra','tam','mer','pro','hun'];
 const COMMON=[{id:'speed',n:'가벼운 발걸음',max:3,d:r=>'걷는 속도 +'+r*5+'%'},{id:'trap',n:'넉넉한 통발',max:3,d:r=>'통발 최대 +'+r*2+'마리'},{id:'hand',n:'부드러운 손길',max:3,d:r=>'쓰다듬기 기다림 -'+r*2+'분'},{id:'xp',n:'부지런한 하루',max:3,d:r=>'마을 경험치 +'+r*5+'%'}];
 const nodeOf=(job,id)=>job==='com'?COMMON.find(n=>n.id===id):JOBS[job].t.flat().find(n=>n.id===id);
 const tierOf_=(job,id)=>JOBS[job].t.findIndex(t=>t.some(n=>n.id===id));
@@ -6231,13 +6259,15 @@ function pickJob(id){
    숙련도는 그 직업 일을 해야만 올라요 (마을 레벨과 따로). 견습 → 숙련 → 장인 → 명장 */
 const JR=[{n:'견습',x:0},{n:'숙련',x:300},{n:'장인',x:1200},{n:'명장',x:4000},{n:'대명장',x:15000},{n:'전설',x:40000},{n:'신화',x:100000}];   // 이름표 ★는 3개까지 · 대명장부터는 순위표 · 직업 카드에만
 const RANK_GIFT=['','직업 전용 에픽 찌 · 칭호 「숙련 …」 · 이름표 ★','직업 전용 유니크 낚싯대 · 모든 직업 노드 한 단계 더 · 칭호 · ★★','직업 전용 레전더리 찌 · 하루 한 번 마을 축복 · 명장 망토 · 칭호 · ★★★ · 이후 명장★','직업 전용 레전더리 낚싯대 · 직업 능력 1단계 강화 · 칭호','직업 전용 미스틱 찌 · 직업 능력 2단계 강화 · 칭호','직업 전용 미스틱 낚싯대 · 직업 능력 3단계 강화 · 칭호 「신화」'];
-const JOB_HOW={fish:'희귀 이상 · 대물 낚기',sch:'새 물고기 등록 · 솜씨 재료 · 항로 지도 · 예보',cra:'만들기 (전설 미끼는 크게)',tam:'쓰다듬기 · 냄새 소원 · 짝꿍 재료',mer:'물고기 팔기 · 수입품 · 위탁 판매'};
+const JOB_HOW={fish:'희귀 이상 · 대물 낚기',sch:'새 물고기 등록 · 솜씨 재료 · 항로 지도 · 예보',cra:'만들기 (전설 미끼는 크게)',tam:'쓰다듬기 · 냄새 소원 · 짝꿍 재료',mer:'물고기 팔기 · 수입품 · 위탁 판매',pro:'운세 봐 주기 (운명의 별은 크게)',hun:'사냥터 정예 · 우두머리 처치'};
 const JTASK={
  fish:[{k:'rare',n:5,t:'희귀 이상 5마리 낚기'},{k:'catch',n:40,t:'직접 40마리 낚기'},{k:'zones',n:3,t:'서로 다른 낚시터 3곳에서 낚기'}],
  sch:[{k:'newsp',n:8,t:'서로 다른 물고기 8종 낚기'},{k:'zones',n:3,t:'낚시터 3곳 둘러보며 낚기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
  cra:[{k:'craft',n:6,t:'아무거나 6개 만들기'},{k:'bait',n:3,t:'미끼 3개 만들기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
  tam:[{k:'pet',n:5,t:'동물 친구 5번 쓰다듬기'},{k:'wish',n:1,t:'루비 냄새 소원 들어주기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
  mer:[{k:'sellg',n:3000,t:'물고기 3,000골드어치 팔기'},{k:'trade',n:1,t:'친구와 교환 1번'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
+ pro:[{k:'catch',n:30,t:'직접 30마리 낚기'},{k:'zones',n:3,t:'낚시터 3곳 둘러보며 낚기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
+ hun:[{k:'rare',n:5,t:'희귀 이상 5마리 낚기'},{k:'catch',n:30,t:'직접 30마리 낚기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}],
  none:[{k:'catch',n:40,t:'직접 40마리 낚기'},{k:'zones',n:3,t:'서로 다른 낚시터 3곳에서 낚기'},{k:'req',n:1,t:'의뢰 1개 해결하기'}]};
 /* 누가 만드는 물건인지 (server.js MAKER와 같아요) */
 const MAKER={b_shine_p:'cra',charm_p:'cra',b_legend_p:'cra',flesh:'cra',b_dough:'cra',soup:'cra',grill:'cra',b_shine:'cra',snack:'cra',charm:'cra',b_legend:'cra',knack:'any',note:'sch',map:'sch',shell:'tam',weed:'tam',pearl:'tam',feather:'tam',scale:'fish',thread:'mer',sail:'mer',toy:'mer'};
@@ -6259,7 +6289,7 @@ function jxpAdd(n,why,job){
 }
 /* 이름표 배지: 직업 아이콘 + 등급 별 (친구 화면에도 보여요) */
 function jobBadge(){const id=jobId(),b=id?id+Math.min(3,jRank(id)):'';if(S.cos&&S.cos.look&&S.cos.look.j!==b){S.cos.look.j=b;if(ONLINE&&Net.me)Net.send({t:'look',look:S.cos.look});try{if(ME.tag)refreshMe()}catch(e){}}}
-const badgeHtml=b=>{const m=/^(fish|sch|cra|tam|mer)([0-3])$/.exec(b||'');return m?'<span class="jb" style="color:'+JOBS[m[1]].col+'">'+JOBS[m[1]].ic+'★'.repeat(+m[2])+'</span>':''};
+const badgeHtml=b=>{const m=/^(fish|sch|cra|tam|mer|pro|hun)([0-3])$/.exec(b||'');return m?'<span class="jb" style="color:'+JOBS[m[1]].col+'">'+JOBS[m[1]].ic+'★'.repeat(+m[2])+'</span>':''};
 /* 오늘의 일 */
 /* 🏘️ 오늘의 마을 일 (2026-11-05): 세 가지 중 두 가지를 하면 강화권 3 · 도토리 3 · 선물 하나. 하루에 한 몫씩 쌓이고(3일치까지), 받으면 새 일이 나와요 */
 function jdS(){if(!S.jd||typeof S.jd.done!=='object'||Array.isArray(S.jd.done))S.jd={c:{},done:{}};return S.jd}
@@ -6355,7 +6385,7 @@ function rqClick(t){
 function jobMods(){
   ST.wait*=1-.06*rk('fish','quick')-(buffOn('orange')?.05:0)-(buffOn('charm')?.1:0)-(buffOn('charm_p')?.15:0);ST.biteX=.1*rk('fish','quick');
   ST.bar*=1+.06*rk('fish','net');
-  ST.luck*=1+(typeof starSum==='function'?starSum()*.01:0)+(typeof cpLuck==='function'?cpLuck():0)+(typeof groupLuck==='function'?groupLuck():0)+.08*rk('fish','luck')+(buffOn('soup')?.1:0)+(buffOn('apple')?.05:0)+(buffOn('cherry')?.08:0)+(buffOn('pie')?.1:0)+(arkSt()>=5?.1:0)+(arkSt()>=2&&typeof onIsle==='function'&&onIsle()?.05:0)+(buffOn('charm')?.15:0)+(buffOn('charm_p')?.25:0);
+  ST.luck*=1+(()=>{try{const L=petLv(partnerId());return L>=99?.05:L>=40?.03:0}catch(e){return 0}})()+(typeof starSum==='function'?starSum()*.01:0)+(typeof cpLuck==='function'?cpLuck():0)+(typeof groupLuck==='function'?groupLuck():0)+.08*rk('fish','luck')+(buffOn('soup')?.1:0)+(buffOn('apple')?.05:0)+(buffOn('cherry')?.08:0)+(buffOn('pie')?.1:0)+(arkSt()>=5?.1:0)+(arkSt()>=2&&typeof onIsle==='function'&&onIsle()?.05:0)+(buffOn('charm')?.15:0)+(buffOn('charm_p')?.25:0);
   ST.sell*=1+(typeof starSum==='function'?starSum()*.005:0)+(typeof cpSell==='function'?cpSell():0)+.1*rk('mer','price')+(buffOn('grill')?.1:0)+(buffOn('peach')?.05:0)+(buffOn('pie')?.1:0)+(arkSt()>=5?.1:0);
 }
 const afkCap=()=>AFK_CAP+10*rk('fish','afk')+(typeof cpAfk==='function'?cpAfk():0);
@@ -6698,7 +6728,7 @@ function renderCraft(){
   body().innerHTML=h;
 }
 function updateItemHud(){const el=$('itpill');if(!el)return;const b=S.bait&&itN(S.bait)>0?S.bait:null,bf=Object.keys(buffS()).filter(buffOn);
-  const b2=S.bait2&&itN(S.bait2)>0?S.bait2:null,t=(b?ITEMS[b].ic+' '+ITEMS[b].n.replace(/ 미끼$/,'')+' ×'+itN(b):'🪱 미끼 끼우기')+(b2?' + '+ITEMS[b2].ic+'×'+itN(b2):'')+(bf.length?' '+bf.map(k=>ITEMS[k].ic).join(''):'');el.hidden=false;el.classList.toggle('none',!b);if(el.textContent!==t)el.textContent=t}
+  const b2=S.bait2&&itN(S.bait2)>0?S.bait2:null,t=(b?ITEMS[b].ic+' '+ITEMS[b].n.replace(/ 미끼$/,'')+' ×'+itN(b):'🪱 미끼 끼우기')+(b2?' + '+ITEMS[b2].ic+'×'+itN(b2):'')+(bf.length?' '+bf.map(k=>ITEMS[k].ic).join(''):'')+(typeof fortOn==='function'&&fortOn()?' '+FORT[S.fort.k][1]+FORT[S.fort.k][0]:'');el.hidden=false;el.classList.toggle('none',!b);if(el.textContent!==t)el.textContent=t}
 /* 🪱 미끼 고르기 (2026-11-11): 화면 왼쪽 위 미끼 버튼 → 가진 미끼를 한눈에 · 바로 끼우기 · 상점 미끼 탭으로 */
 function openBaitPick(){Snd.sfx('ui');const ids=ITEM_IDS.filter(k=>ITEMS[k].bait&&itN(k)>0);
   let h='<div class="muted" style="text-align:center;margin-bottom:8px">끼운 미끼는 던질 때마다 1개씩 써요 · 자동 낚시엔 안 써요</div><div class="wishc" style="font-size:12px;line-height:1.6;background:#fff8ec;border-color:#f0d8a8">🧺 <b>덧미끼</b> · 공방 장인이 만든 미끼는 상점 미끼와 <b>함께</b> 끼울 수 있어요 (힘이 겹쳐요). 🧭 길잡이 · 👯 쌍둥이 · 🖐️ 손맛 미끼는 장인만 만들어요.'+(S.bait2&&itN(S.bait2)?'<br>지금 덧미끼: '+ITEMS[S.bait2].ic+' '+ITEMS[S.bait2].n+' ×'+itN(S.bait2):'')+'</div>';
@@ -9350,6 +9380,7 @@ function cpSheet(){const c=cpS();
     '<div class="trbar" style="margin-top:6px"><i style="width:'+(L>=99?100:Math.min(100,cur/need*100))+'%"></i><span>'+(L>=99?'최고 레벨!':cur+' / '+need+'분')+'</span></div></div></div>'+
     '<div class="muted" style="font-size:12.5px;margin:8px 0">켜 둔 시간 1분 = 경험치 1 · 다음 레벨까지 약 '+(L>=99?0:fmtMin(need-cur))+'</div>'+
     '<div class="sec">함께여서 좋은 점</div><div style="font-size:13px;line-height:1.7">행운 +'+(cpLuck()*100).toFixed(1)+'% · 판매가 +'+(cpSell()*100).toFixed(1)+'% · 자동 낚시 +'+cpAfk()+'마리'+(L>=50?' · 몸에서 반짝임':'')+(L>=80?' · 은은한 빛':'')+'</div>'+
+    '<details class="more"><summary>레벨 혜택 표</summary><div style="font-size:12.5px;line-height:1.8">· 레벨마다 행운 +0.2% · 판매가 +0.1%'+(jobId()==='tam'?' <b>(동물 친구 직업 ×1.5)</b>':'')+'<br>· 10레벨마다 자동 낚시 +1마리<br>· '+[[10,'자동 낚시 +1'],[30,'자동 낚시 +3 · 행운 +6%'],[50,'몸에서 반짝임'],[80,'은은한 빛'],[99,'행운 +19.8% · 판매가 +9.9% · 자동 낚시 +9']].map(r=>(L>=r[0]?'✅ ':'⬜ ')+'Lv'+r[0]+' '+r[1]).join('<br>· ')+'</div></details>'+
     '<div class="sec">장식 <span class="cnt">다른 친구에게도 보여요</span></div><div class="cpgrid">'+Object.keys(CP_ACC).map(id=>{const own=(c.own||[]).indexOf(id)>=0,on=c.acc===id;return'<button class="cpc'+(on?' on':'')+'" data-cpacc="'+id+'"><b>'+CP_ACC[id][0]+'</b><small>'+(on?'하는 중':own?'하기':fmtShort(CP_ACC[id][1])+' 골드')+'</small></button>'}).join('')+'</div>'+(c.acc?'<button class="btn ghost sm" data-cpacc="">장식 빼기</button>':'')+'</div>';
   return h}
 let CPF={k:'cat',c:0};
@@ -10683,6 +10714,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(onRpgMsg(m)){}
     else if(onSocMsg(m)){}
     else if(m.t==='skill_ok')skOk(m);
+    else if(m.t==='fort')onFort(m);
     else if(m.t==='sk_reset'){S.sk={};saveState();if(typeof updSkillBar==='function')updSkillBar()}
     else if(m.t==='skill_err')skErr(m);
     else if(m.t==='welcome'){S.rest=(S.rest|0)+(m.rest|0);recalc();saveState();setTimeout(()=>{showBanner('🎁 그동안 모아 둔 선물! ('+m.away+'일 치) 골드 +'+fmt(m.g)+' · 강화권 +'+m.tk);Snd.sfx('page')},1500);setTimeout(()=>toast('🌙 휴식 행운: 다음 '+m.rest+'마리는 행운 +30%'+(m.behind?' · 📣 마을이 응원하고 있어요':'')),5000);vilHud()}

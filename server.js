@@ -196,7 +196,7 @@ const LOOK_IDS = {
   bob: ['basicbob', 'heartbob', 'mushbob', 'catbob', 'goldbob', 'duck', 'leafbob', 'starfish', 'starbob', 'sb_pearl', 'sb_prism', 'sb_rainbow', 'sb_star'],
   ti: ['', 't_new', 't_villager', 't_nap', 't_cat', 't_big', 't_luck', 't_rich', 't_pond', 't_stream', 't_beach', 't_sea', 't_moon', 't_master', 't_enh10', 't_enh15', 't_enh20', 't_pet_ruby', 't_pet_dot', 't_pet_nurung', 't_pet_kkam', 't_pet_churi', 't_s1', 't_s2', 't_s3', 't_s4', 't_s5', 't_s6', 't_smaster', 't_ebvip', 't_jackpot', 't_cup', 't_bounty', 't_host', 't_a_pearl', 't_a_moon', 't_a_tea', 't_a_star', 't_a_cloud', 't_a_sea', 't_fest', 't_medal', 't_regular', 't_vf1', 't_vf2',
     't_sh1', 't_sh10', 't_sh30', 't_myth',
-    ...['fish', 'sch', 'cra', 'tam', 'mer'].flatMap(j => [1, 2, 3].map(r => 't_j' + j + r))]
+    ...['fish', 'sch', 'cra', 'tam', 'mer', 'pro', 'hun'].flatMap(j => [1, 2, 3].map(r => 't_j' + j + r))]
 };
 /* 치장 3.0 (2026-11-05): 명품 찌 · 낚싯대 · 세트 · 섬 전용 — index.html COS와 같은 id */
 LOOK_IDS.bob.push(["b_cherry", "b_icecream", "b_strawberry", "b_donut", "b_clover", "b_frog", "b_penguin", "b_bunny", "b_sushi", "b_moon", "b_bell", "b_lantern", "b_rubber", "b_crystal", "b_jelly", "b_cloud", "b_ghost", "b_heart2", "b_music", "b_planet", "b_lotus", "b_snowglobe", "b_whale", "b_phoenix", "b_gem", "b_clock", "b_dragon", "b_angel", "b_sun", "b_galaxy", "b_crown", "b_rainbowp", "b_hourglass", "b_starheart", "b_acorn", "b_maple2", "b_pepero", "b_snowman", "b_gift", "b_lucky", "i_fogbob", "i_clambob", "i_lanternfish", "i_dragonbob"]);
@@ -219,7 +219,7 @@ LOOK_IDS.ti.push('t_sd100', 't_sd200', 't_sd300', 't_sd450', 't_sd600');
 LOOK_IDS.ti.push('t_pioneer', 't_islfish', 't_islbest', 't_pole', 't_pila', 't_gym', 't_ortho', 't_rock');
 LOOK_IDS.hat.push('neonband', 'sweatband', 'bandage', 'climbhelm'); LOOK_IDS.o.push('o_polefit', 'o_pilafit', 'o_gymtank', 'o_doccoat'); LOOK_IDS.bk.push('yogamat', 'chalkbag');
 LOOK_IDS.o.push('o_moondress', 'o_sakura', 'o_darkarmor', 'o_hunter'); LOOK_IDS.hat.push('h_moonpin', 'h_sakura', 'h_darkhelm', 'h_hunterhood'); LOOK_IDS.bk.push('k_moonwing', 'k_bigribbon', 'k_darkcape', 'k_axe', 'k_quiver'); LOOK_IDS.fa.push('f_glitter', 'f_blush'); LOOK_IDS.ti.push('t_raid1'); LOOK_IDS.ti.push('t_moonfairy', 't_sakura', 't_darkknight', 't_hunter'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
-LOOK_IDS.ti.push('t_enh25', 't_enh30', ...['fish', 'sch', 'cra', 'tam', 'mer'].flatMap(j => [4, 5, 6].map(r => 't_j' + j + r)));
+LOOK_IDS.ti.push('t_enh25', 't_enh30', ...['fish', 'sch', 'cra', 'tam', 'mer', 'pro', 'hun'].flatMap(j => [4, 5, 6].map(r => 't_j' + j + r)));
 for (const j of ['fish', 'sch', 'cra', 'tam', 'mer']) { LOOK_IDS.rod.push('jr4_' + j, 'jr6_' + j); LOOK_IDS.bob.push('jb5_' + j); }   // 강화 칭호는 서버 기록으로 확인
 const FREE = new Set(['straw', 'nohat', 'tee', 'bamboo', 'basicbob', '']);
 const HAIR_N = 22, HAIR_FREE = 8, HS_N = 16;   // index.html HAIRS · HSTYLES와 같아야 해요
@@ -396,13 +396,13 @@ const postOk = p => !!(p.give || p.want);
 /* ---------- 직업 2.0: 의뢰판 · 이름 붙은 생산물 · 오늘의 일 · 명장 축복 ---------- */
 const MAKER = { knack: 'any', b_shine_p: 'cra', charm_p: 'cra', b_legend_p: 'cra', flesh: 'cra', b_dough: 'cra', soup: 'cra', grill: 'cra', b_shine: 'cra', snack: 'cra', charm: 'cra', b_legend: 'cra', note: 'sch', map: 'sch', shell: 'tam', weed: 'tam', pearl: 'tam', feather: 'tam', scale: 'fish', thread: 'mer', sail: 'mer', toy: 'mer' };   // index.html MAKER와 같아야 해요
 const ITEM_NAME = { knack: '솜씨 재료', b_shine_p: '명품 반짝 미끼', charm_p: '명품 행운 부적', b_legend_p: '명품 전설 미끼', flesh: '생선살', b_dough: '반죽 미끼', soup: '생선 수프', grill: '소금구이', b_shine: '반짝 미끼', snack: '펫 간식', charm: '행운 부적', b_legend: '전설 미끼', note: '연구 노트', map: '항로 지도', shell: '조개껍데기', weed: '해초', pearl: '진주', feather: '반짝 깃털', scale: '대물 비늘', thread: '반짝 실', sail: '수입 돛', toy: '펫 장난감' };
-const JOB_NAME = { fish: '물결 낚시꾼', sch: '도감 박사', cra: '공방 장인', tam: '동물 친구', mer: '떠돌이 상인' };
+const JOB_NAME = { fish: '물결 낚시꾼', sch: '도감 박사', cra: '공방 장인', tam: '동물 친구', mer: '떠돌이 상인', pro: '별빛 예언자', hun: '꿈 사냥꾼' };
 const jobOf = s => (s && s.job && MAKER_JOBS.includes(s.job.id)) ? s.job.id : '';
-const MAKER_JOBS = ['fish', 'sch', 'cra', 'tam', 'mer'];
+const MAKER_JOBS = ['fish', 'sch', 'cra', 'tam', 'mer', 'pro', 'hun'];
 const REQ_DAYS = 3, REQ_MAX = 3, JR_MASTER = 4000;
 const reqsOf = s => Array.isArray(s.req) ? s.req : (s.req = []);
 /* 마을(NPC) 의뢰: 날짜로 정해져요. 직업마다 2개, 사람마다 하루 한 번씩 해결 */
-const NPC_POOL = { cra: [['b_dough', 3], ['soup', 2], ['grill', 2], ['b_shine', 2], ['snack', 2]], sch: [['knack', 2], ['map', 1]], tam: [['shell', 3], ['weed', 3], ['knack', 2]], mer: [['knack', 2], ['toy', 1]], fish: [['knack', 2], ['f', 2]] };
+const NPC_POOL = { cra: [['b_dough', 3], ['soup', 2], ['grill', 2], ['b_shine', 2], ['snack', 2]], sch: [['knack', 2], ['map', 1]], tam: [['shell', 3], ['weed', 3], ['knack', 2]], mer: [['knack', 2], ['toy', 1]], fish: [['knack', 2], ['f', 2]], pro: [['knack', 2], ['clue', 1]], hun: [['knack', 3], ['shell', 3]] };
 const NPC_WHO = ['잡화점 할머니', '도감관 사서', '조선소 할아버지', '시장 아주머니', '등대지기', '꼬마 낚시꾼'];
 function npcReqs() {
   const d = kstDay(), seed = +d.replace(/-/g, ''), rnd = i => { const x = Math.sin(seed * 9301 + i * 49297) * 233280; return x - Math.floor(x); }, out = [];
@@ -757,13 +757,21 @@ function onMsg(ws, me, m) {
     case 'skill': withLock(me.key, async () => { const s = me.save; if (!s) return; const k = String(m.k || ''), D = SKILLS[k]; if (!D) return;
       if (jobOf(s) !== D.job || !jobRank(s, D.job, D.node)) return send(ws, { t: 'skill_err', text: '이 기술은 ' + JOB_NAME[D.job] + '만 쓸 수 있어요' });
       const now = Date.now(), c = objOf(s, 'skc'), r = jrOf(s, D.job);
-      if (D.daily) { if (c[k] === kstDay()) return send(ws, { t: 'skill_err', text: '오늘은 이미 썼어요. 내일 다시!', k, used: true }); c[k] = kstDay(); }
+      let tgt = null; if (k === 'fort' || k === 'hex') { const nm = cleanText(m.to, 12); tgt = nm === me.name ? [ws, me] : liveByName(nm); if (!tgt) return send(ws, { t: 'skill_err', text: '그 친구가 지금 마을에 없어요' }); if (k === 'hex' && tgt[1] === me) return send(ws, { t: 'skill_err', text: '나에게 흉운은 보낼 수 없어요' }); }
+      if (k === 'hex') { const d = kstDay(), hx = objOf(s, 'hexd'); if (hx.d !== d) { hx.d = d; hx.n = 0; } if ((hx.n | 0) >= Math.max(1, jobRank(s, 'pro', 'hex'))) return send(ws, { t: 'skill_err', text: '오늘 흉운은 다 보냈어요', k, used: true }); hx.n++; if (hx.n >= Math.max(1, jobRank(s, 'pro', 'hex'))) c[k] = d; }
+      else if (D.daily) { if (c[k] === kstDay()) return send(ws, { t: 'skill_err', text: '오늘은 이미 썼어요. 내일 다시!', k, used: true }); c[k] = kstDay(); }
       else { const next = (c[k] | 0); if (now < next) return send(ws, { t: 'skill_err', text: Math.ceil((next - now) / 60000) + '분 뒤에 다시 쓸 수 있어요', k, next });
         c[k] = now + D.cd(s) * 60e3 * (r >= 3 ? .75 : 1); }   // 명장이면 쿨타임 25% 짧게
       const until = now + (D.dur ? D.dur(s) * 60e3 : 0), out = { t: 'skill_ok', k, until, next: D.daily ? 0 : c[k] };
       if (k === 'boom') { V.boom = { by: me.name, until }; vMark(); vSend(); broadcast({ t: 'news', text: '🔮 ' + me.name + ' 님의 대박 예보! ' + Math.round((until - now) / 60000) + '분 동안 마을 모두 희귀 이상 2배!' }); }
       if (k === 'shx') me.shx = until;
       if (k === 'cat') { s.dropx = until; out.note = '⚒️ 장비 사냥! ' + Math.round((until - now) / 60000) + '분 동안 사냥터 장비 · 주문서 드랍 2배'; }
+      if (k === 'rage') s.huntx = until;
+      if (k === 'fort' || k === 'hex' || k === 'fate') { const ey = jobRank(s, 'pro', 'eye'), bo = .2 * jobRank(s, 'pro', 'luck'); giveJxp(me.key, 'pro', k === 'fate' ? 40 : 15, null).catch(() => { });
+        if (k === 'fate') { let n = 0; for (const [, p] of players) if (p.save && p.key) { fortGive(p.key, fortRoll([30, 45, 25, 0, 0]), me.name, bo).catch(() => { }); n++; } broadcast({ t: 'news', text: '🌟 별빛 예언자 ' + me.name + ' 님이 「운명의 별」을 띄웠어요! 마을 ' + n + '명 모두 좋은 운세 · 2시간' }); }
+        else { const fk = k === 'hex' ? fortRoll([0, 0, 0, 60, 40]) : fortRoll([10 + ey * 4, 25 + ey * 4, 35, 20 - ey * 4, 10 - ey * 4]); fortGive(tgt[1].key, fk, me.name, k === 'hex' ? 0 : bo).catch(() => { });
+          out.note = (k === 'hex' ? '🌧️ ' : '🔮 ') + (tgt[1] === me ? '나' : tgt[1].name + ' 님') + '의 운세 · 【' + FORT_NM[fk] + '】';
+          if (tgt[1] !== me && (fk === 'dg' || fk === 'dh')) broadcast({ t: 'news', text: (fk === 'dg' ? '🌟 ' : '⛈️ ') + me.name + ' 님이 ' + tgt[1].name + ' 님의 운세를 봤더니… 【' + FORT_NM[fk] + '】!' }); } }
       queueSave(me.key, s); send(ws, out);
     }).catch(e => console.error('skill', e.message)); break;
     case 'ark_put': withLocks([me.key, '__ark'], async () => {
@@ -1129,15 +1137,15 @@ function onMsg(ws, me, m) {
       const RS = rpgSum(h, (s.hu && s.hu.lv) | 0 || 1);
       /* 🤝 함께 사냥: 같은 사냥터 · 가까이(약 16칸) 있는 친구 수 → 칩 · 드랍 보너스 (서버가 직접 세요) */
       let pt = 0; const H0 = me.hp_; if (H0 && now - H0.at < 3000) for (const [, q] of players) { const Q = q.hp_; if (q !== me && Q && Q.f === H0.f && now - Q.at < 3000 && Math.hypot(Q.x - H0.x, Q.y - H0.y) < 260) pt++; } pt = Math.min(3, pt); const pb = 1 + pt * .2;
-      const DX = (+s.dropx || 0) > Date.now() ? 2 : 1;   // ⚒️ 공방 장인 「장비 사냥」: 장비 · 주문서 드랍 2배
-      let c = Math.round(dfC * pb * [100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100)); e.c = (e.c | 0) + c; const got = []; if (Math.random() < (bo ? .5 : el ? .08 : .015) * pb * DX) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push('scr:' + id); } 
+      const DX = ((+s.dropx || 0) > Date.now() ? 2 : 1) * (jobOf(s) === 'hun' && jobRank(s, 'hun', 'cap') ? 1.25 : 1), HX = ((+s.huntx || 0) > Date.now() ? 2 : 1) * (jobOf(s) === 'hun' ? 1 + .1 * jobRank(s, 'hun', 'trk') : 1);   // ⚒️ 공방 장인 「장비 사냥」: 장비 · 주문서 드랍 2배
+      let c = Math.round(dfC * pb * [100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100) * HX); e.c = (e.c | 0) + c; const got = []; if (Math.random() < (bo ? .5 : el ? .08 : .015) * pb * DX) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push('scr:' + id); } 
       if (!h.sw && r >= 2 && Math.random() < (bo ? .05 : .003 * (r + 1))) { h.sw = 1; got.push('sw'); broadcast({ t: 'news', text: '⚔️✨ ' + me.name + ' 님이 사냥터에서 「전설의 낚싯바늘 검」을 주웠어요!! (상점에 없어요)' }); }
       const own = (s.cos && s.cos.own) || [];
       if (!own.includes('t_hunt1') && Math.random() < .004) got.push(...giveCos(s, ['t_hunt1']));
       if (r >= 4 && !own.includes('t_hunt2') && Math.random() < .05) got.push(...giveCos(s, ['t_hunt2']));
       if (got.some(x => x.startsWith('t_'))) send(ws, { t: 'cos_got', ids: got.filter(x => x.startsWith('t_')) });
       luxRoll(ws, me, s, bo ? 20 : el ? 3 : 1, 'hunt');
-      let ess = bo ? [1, 2, 3][df] : el && Math.random() < .03 ? 1 : 0; if (ess) { essAdd(s, ess); got.push('es:' + ess); }   // 💠 꿈의 정수
+      const er = jobOf(s) === 'hun' ? jobRank(s, 'hun', 'ess') : 0; let ess = bo ? [1, 2, 3][df] + (Math.random() < .2 * er ? 1 : 0) : el && Math.random() < .03 * (1 + .2 * er) ? 1 : 0; if (ess) { essAdd(s, ess); got.push('es:' + ess); }   // 💠 꿈의 정수
       h.dr = (h.dr | 0) + Math.round([1, 1, 2, 3, 5][r] * (bo ? 10 : el ? 2 : 1) * (1 + Math.min(200, RS.dr * 2) / 100));
       if (bo) {   // 👑 사냥터 우두머리: 사냥터 · 난이도마다 주 1번 「큰 보상」 · 가까이서 함께 싸운 친구도 받아요
         const wb = n => { const w = wfWeek(), H = n.hunt; H.wb = H.wb && H.wb.w === w ? H.wb : { w, k: {} }; const kk = hfi + ':' + df; if (H.wb.k[kk]) return 0; H.wb.k[kk] = 1;
@@ -2034,7 +2042,7 @@ function raidEnd(R) {
       const e = ebOf(s), lv = Math.max(1, (s.hu && s.hu.lv) | 0), SC = scrMig(h), L = liveByKey(k), nm = R.nm[k]; let note, it = null, cos = [];
       if (h.rw !== wk) {   // 🎁 큰 상자 (이번 주 처음)
         h.rw = wk; e.c = (e.c | 0) + Math.round(3e6 * boost); it = mkItem(Math.min(10, Math.max(1, Math.floor(lv / 4))), rollG([0, 5, 20, 35, 28, 9, 3, .3, .04])); invPut(h, it);
-        SC.w10 = (SC.w10 | 0) + 1; SC.a10 = (SC.a10 | 0) + 1; cos = giveCos(s, ['t_raid1']); essAdd(s, 6);
+        SC.w10 = (SC.w10 | 0) + 1; SC.a10 = (SC.a10 | 0) + 1; cos = giveCos(s, ['t_raid1']); essAdd(s, 6 + (jobOf(s) === 'hun' && jobRank(s, 'hun', 'cap') ? 3 : 0));
         if (it.g >= 4) broadcast({ t: 'big', g: it.g, text: (it.g >= 6 ? '🌌🌌 ' : '🌅 ') + nm + ' 님이 레이드 상자에서 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] + '을(를) 받았어요!' });
         note = '🎁 레이드 큰 상자 · 칩 ' + Math.round(3e6 * boost).toLocaleString() + ' · 【' + RPG_GN[it.g] + '】 장비 · 10% 주문서 무기 1 · 방어구 1 · 💠 꿈의 정수 6';
       } else if (needHelp) {   // 🤝 도움 상자 (이미 깬 사람이 친구를 도와줬을 때)
@@ -2372,7 +2380,13 @@ const SKILLS = {
   shx: { job: 'sch', node: 'cap', dur: () => 30, cd: () => 360 },
   cat: { job: 'cra', node: 'cat', dur: s => 30 + 10 * jobRank(s, 'cra', 'cat2'), daily: true },   // 2026-11-16 「장비 사냥」: 하루 한 번 30분(+10분/단계) 장비 · 주문서 드랍 2배
   auto: { job: 'tam', node: 'auto', dur: s => 10 + 5 * jobRank(s, 'tam', 'sit'), cd: () => 180 },
-  gold: { job: 'mer', node: 'gold', dur: s => 10 + 5 * jobRank(s, 'mer', 'cons'), cd: () => 240 } };
+  gold: { job: 'mer', node: 'gold', dur: s => 10 + 5 * jobRank(s, 'mer', 'cons'), cd: () => 240 },
+  fort: { job: 'pro', node: 'fort', cd: () => 60 }, hex: { job: 'pro', node: 'hex', daily: true }, fate: { job: 'pro', node: 'cap', daily: true },
+  rage: { job: 'hun', node: 'rage', dur: s => 20 + 5 * jobRank(s, 'hun', 'rage2'), cd: () => 180 } };
+/* 🔮 오늘의 운세 (index.html FORT와 같아요): 대길 · 길 · 중길 · 흉 · 대흉 · 2시간 */
+const FORT_K = ['dg', 'g', 'mg', 'h', 'dh'], FORT_NM = { dg: '대길', g: '길', mg: '중길', h: '흉', dh: '대흉' }, FORT_MS = 2 * 3600e3;
+function fortRoll(w) { let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < w.length; i++) { r -= w[i]; if (r <= 0) return FORT_K[i]; } return 'mg'; }
+async function fortGive(key, k, by, bo) { const l = liveByKey(key); return withLock(key, async () => { const s = await loadSave(key); if (!s) return; s.fort = { k, until: Date.now() + FORT_MS, by, bo: bo || 0 }; queueSave(key, s); if (l) { l[1].save = s; send(l[0], { t: 'fort', fort: s.fort, by }); } }); }
 /* 낚시꾼 패시브 '강화의 손맛': 직접 낚을 때 강화 별 (하루 10개) */
 function starCatch(ws, s, oldSd) { const r = jobRank(s, 'fish', 'star'); if (!r) return; const nsd = s.sdex || {}; let dn = 0; for (const k in nsd) dn += Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (!dn) return;
   const e = enhOf(s), d = kstDay(); if (!e.sfd || e.sfd.d !== d) e.sfd = { d, n: 0 }; let got = 0; while (dn-- > 0 && e.sfd.n < 10) if (Math.random() < .03 * r) { got++; e.sfd.n++; }
