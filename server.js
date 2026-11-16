@@ -643,7 +643,7 @@ wss.on('connection', (ws) => {
       if (!Number.isFinite(x) || !Number.isFinite(y)) return;
       me.x = Math.round(x); me.y = Math.round(y);
       me.d = ['up', 'down', 'left', 'right'].includes(m.d) ? m.d : 'down';
-      me.m = m.m ? 1 : 0; me.here = true; me.dirty = true;
+      me.m = (m.m | 0) & 3;   // 1 걷는 중 · +2 꽃배 위 (2026-11-16) me.here = true; me.dirty = true;
       me.b = Number.isInteger(m.b) && m.b >= 0 && m.b < 100000 ? m.b : 0; me.f = (m.f | 0) >= 0 && (m.f | 0) <= 4 ? m.f | 0 : 0;   // 낚시 단계 (친구 화면에 입질 · 줄다리기 · 낚아채기) // 낚시 중인 찌 위치 (친구 화면에 낚싯대 · 찌 스킨)
     } else if (m.t === 'save' && m.data && typeof m.data === 'object') {
       withLock(me.key, () => {
@@ -904,6 +904,8 @@ function onMsg(ws, me, m) {
     case 'tr_req': {
       const o = liveById(m.to);
       if (!o || o[1] === me || o[1].tr || me.tr) return send(ws, { t: 'tr_no', msg: '지금은 교환할 수 없어요' });
+      { const H = o[1].hp_; if (H && Date.now() - H.at < 6000) return send(ws, { t: 'tr_no', msg: '⚔️ ' + o[1].name + ' 님은 지금 사냥 중이에요 · 나중에 신청해요' }); }   // 2026-11-16: 사냥 중엔 교환 신청을 받지 않아요
+      { const now = Date.now(), k = 'trq_' + o[1].key; me.trq = me.trq || {}; if (now - (me.trq[k] || 0) < 30000) return send(ws, { t: 'tr_no', msg: '같은 친구에게는 30초 뒤에 다시 신청할 수 있어요' }); me.trq[k] = now; }
       send(o[0], { t: 'tr_req', from: me.id, name: me.name }); break;
     }
     case 'tr_ans': {

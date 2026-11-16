@@ -3877,6 +3877,16 @@ let W=genWorld(),P=null;
 W.lilyNear=new Set();W.deco.forEach(d=>{if(d.k==='lily')for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)W.lilyNear.add((d.x+dx)+','+(d.y+dy))});
 const gateAt={};W.gates.forEach(g=>gateAt[g.x+','+g.y]=g);
 const isSolid=(tx,ty)=>{if(!W.inb(tx,ty))return true;if(W.SOL[ty][tx])return true;const g=gateAt[tx+','+ty];return!!(g&&!hasZone(g.zone))};
+/* ⛵ 내 꽃배 부르기 (2026-11-16): 낚싯대 +25부터 물에 들어서면 꽃배가 와서 물 위를 가로질러요 (먼바다 · 사냥터 · 배 위에선 안 돼요) */
+const boatOK=()=>ENH_LV()>=25&&!S.noBoat&&P&&P.aboard==null&&!(typeof HUNT!=='undefined'&&HUNT.on)&&!(typeof SAIL!=='undefined'&&SAIL);
+const isWaterT=(tx,ty)=>!!(W.T[ty]&&W.T[ty][tx]==='w');
+function boatPass(x,y){if(y>=99*TS)return false;const hw=4,c=[[x-hw,y],[x+hw,y],[x-hw,y-4],[x+hw,y-4]];for(const[a,b]of c){const tx=Math.floor(a/TS),ty=Math.floor(b/TS);if(!W.inb(tx,ty))return false;if(isSolid(tx,ty)&&!isWaterT(tx,ty))return false}return true}
+const passAt=(x,y)=>!blockedAt(x,y)||(boatOK()&&boatPass(x,y));
+const onBoatNow=()=>!!(P&&boatOK()&&isWaterT(Math.floor(P.x/TS),Math.floor((P.y-2)/TS)));
+function drawFlowerBoat(c,x,y,mv,col){const X=Math.round(x),Y=Math.round(y+Math.sin(wt*2.2+x*.01)*1);c.fillStyle='rgba(30,60,90,.25)';c.beginPath();c.ellipse(X,Y+3,13,3,0,0,6.28);c.fill();
+  c.fillStyle='#8a5a3a';c.beginPath();c.moveTo(X-13,Y-4);c.lineTo(X+13,Y-4);c.lineTo(X+9,Y+2);c.lineTo(X-9,Y+2);c.closePath();c.fill();   // 선체
+  c.fillStyle='#b07a4a';c.fillRect(X-12,Y-5,24,2);c.fillStyle=col||'#ff9ab8';for(let i=-10;i<=10;i+=4){c.fillRect(X+i,Y-7,2,2)}c.fillStyle='#ffe27a';c.fillRect(X-8,Y-7,1,1);c.fillRect(X+6,Y-7,1,1);   // 난간 꽃
+  if(mv&&Math.random()<.5)parts.push({x:X-(Math.random()-.5)*20,y:Y+2,vx:(Math.random()-.5)*10,vy:-4,life:.6,t:0,c:'rgba(230,245,255,.9)',g:10,s:1})}
 function blockedAt(x,y){const hw=4;return isSolid(Math.floor((x-hw)/TS),Math.floor(y/TS))||isSolid(Math.floor((x+hw)/TS),Math.floor(y/TS))||isSolid(Math.floor((x-hw)/TS),Math.floor((y-4)/TS))||isSolid(Math.floor((x+hw)/TS),Math.floor((y-4)/TS))}
 function newPlayer(){P={x:S.px||W.spawn.x,y:S.py||W.spawn.y,dir:'down',anim:0,moving:false,stepT:0};if(blockedAt(P.x,P.y)){P.x=W.spawn.x;P.y=W.spawn.y}
   if(P.y>=100*TS){P.x=17*TS+8;P.y=46*TS+12}}   // 배 위에서 껐다 켜면 일단 항구 부두에서 시작 (아직 바다 위면 서버가 알려 줘서 다시 갑판으로)
@@ -5206,7 +5216,7 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
 const UPD_VER='1116h',UPD_LOG=[
- ['11/16 자정 넘어','🏅',[['🔢 은비 주간 숫자','은비랜드에서 한 주에 한 번 1~5 중 하나를 골라요 (공짜) · 월요일 0시에 은비가 숫자를 뽑아 맞힌 사람 중 한 명에게 도토리 30개 · 아무도 못 맞히면 다음 주로 쌓여요 (최대 90)'],['🐰 은비랜드 주인','은비땅 님이 은비랜드 주인 · 손님이 잃은 칩의 20%가 주인 몫이에요 (손님이 따로 내는 건 없어요)'],['✨ 반짝 축제','반짝 1위가 하루 한 번 · 30분 동안 마을 모두 반짝 확률 1.5배 (메뉴 → 왕의 마을 → 마을의 1위들)'],['🎣 친구의 손맛이 보여요','친구가 입질을 받으면 찌가 쑥 잠기고 「!」 · 줄다리기 중엔 낚싯대가 휘고 물보라 · 낚아채면 휙! 올라와요'],['🔨 여러 개 분해','버튼이 안 눌리던 것 고쳤어요']]],
+ ['11/16 자정 넘어','🏅',[['🔢 은비 주간 숫자','은비랜드에서 한 주에 한 번 1~5 중 하나를 골라요 (공짜) · 월요일 0시에 은비가 숫자를 뽑아 맞힌 사람 중 한 명에게 도토리 30개 · 아무도 못 맞히면 다음 주로 쌓여요 (최대 90)'],['🐰 은비랜드 주인','은비땅 님이 은비랜드 주인 · 손님이 잃은 칩의 20%가 주인 몫이에요 (손님이 따로 내는 건 없어요)'],['✨ 반짝 축제','반짝 1위가 하루 한 번 · 30분 동안 마을 모두 반짝 확률 1.5배 (메뉴 → 왕의 마을 → 마을의 1위들)'],['🎣 친구의 손맛이 보여요','친구가 입질을 받으면 찌가 쑥 잠기고 「!」 · 줄다리기 중엔 낚싯대가 휘고 물보라 · 낚아채면 휙! 올라와요'],['🔨 여러 개 분해','버튼이 안 눌리던 것 고쳤어요'],['⛵ 내 꽃배 부르기','낚싯대 +25부터 물에 들어서면 꽃배가 와서 물 위를 가로질러요 · 친구 화면에도 꽃배가 보여요 (먼바다 · 사냥터에선 안 돼요)'],['🙅 사냥 중 교환 신청','사냥하는 동안엔 교환 신청이 오지 않아요 · 같은 친구에게는 30초에 한 번만 신청할 수 있어요']]],
  ['11/16 자정','🕳️',[['🕳️ 꿈의 심연 1 · 2 · 3','악몽 숲보다 깊은 새 사냥터 셋 · 용사 Lv40부터 · 「꿈의 끝 · 악몽 숲」을 악몽 난이도로 정화하면 열려요 · 더 센 장비 · 우두머리 💠 꿈의 정수 더 많이'],['📖 심연의 규칙','도감에 없는 물고기는 체력 · 공격 100배 (사실상 못 잡아요) · 그 사냥터 물고기가 도감에 하나라도 없으면 우두머리도 100배 · 피해 다녀도 소용없어요'],['🌑 레이드 혼자서도','친구가 없어도 1명부터 출발 · 체력은 모인 사람에 맞춰요 · 보스 다섯 중 하나가 나와요'],['⏳ 하루 사냥 보상','용사 Lv40부터만: 하루 보상 처치 1,000 · 우두머리 12번 (그 뒤엔 싸울 순 있어도 보상이 없어요) · 처음 오는 사람 · 따라잡는 사람은 제한 없어요'],['⚔️ 용사 1위 통행세','꿈의 문을 지나 사냥하면 번 칩의 3%가 용사 1위에게 가요 (1위 본인은 안 내요)']]],
  ['11/16 한밤','🍃',[['🍃 손맛 모드','물가에서 「🍃 손맛」을 켜요 · 손맛 도감에 아직 없는 물고기만 걸려요 · 아주 천천히 와요 (흔한 물고기 5분쯤 ~ 드문 물고기 30분 ~ 2시간) · 자동 낚시는 안 돼요'],['🌿 쉬어 가는 낚시','찌를 띄워 두고 바람과 물결을 바라봐요 · 물고기가 오면 소리 · 진동으로 깨워 줘요 (절전 화면도) · 놓쳐도 물고기가 곁에 남아 다시 와요'],['🎁 기다린 만큼','기다린 시간과 물고기 등급만큼 골드(5분 흔한 물고기 약 100만 ~ 2시간 전설 약 8,400만) · 강화권 · 20분마다 💠 꿈의 정수']]],
  ['11/16 늦은 밤','🛠️',[['🔤 또렷한 글자','반려동물 이름표 · 떠오르는 글자(주문서 · 장비 획득) · 하늘낚시 이름표 등 게임 화면 속 글자가 더 이상 뭉개지지 않아요 · 반려동물 이름표는 내 이름표와 같은 모양'],['🚶 걷는 모습','발을 디딜 때마다 몸이 살짝 들썩이고 팔을 흔들어요 · 발소리에 맞춰 흙먼지 · 빨라지면 걸음도 빨라져요'],['🐾 반려동물 효과 강화','행운 레벨마다 +0.5% (예전 0.2%) · 판매가 +0.3% (예전 0.1%) · 새로: 손으로 낚을 때 입질이 빨라지고 (Lv99 약 15%) · Lv50부터 대물 확률 +'],['🔨 여러 개 분해','꿈의 문 가방에서 「여러 개 분해」 → 하나씩 고르거나 등급별로 한 번에 · 장착한 장비는 빠져요'],['🧪 힐링포션','한 번 마시면 8초 뒤에 다시 마실 수 있어요 (버튼에 시간이 보여요)'],['🔮 🏹 직업 창','별빛 예언자 · 꿈 사냥꾼 직업 창이 안 열리고 닫히던 것 고쳤어요 · 이제 기술(운세 보기 · 사냥 본능 등)을 누를 수 있어요'],['💰 골드 표시','21억 골드가 넘으면 유저 현황에 마이너스로 보이던 것 고쳤어요 (실제 골드는 그대로였어요)'],['👗 치장 상점','미리보기 그림을 가볍게 바꿔서 덜 버벅여요'],['🌙 달 · 해','달의 어두운 쪽이 파란 원판 대신 밤하늘에 녹아들어요 (아주 옅은 지구빛) · 밝은 쪽엔 은은한 바다 무늬 · 부드러운 경계 · 해는 겹겹의 빛무리와 둥근 원반, 해 질 녘엔 붉고 크게']]],
@@ -7282,7 +7292,7 @@ function forceTp(x,y,why){if(!P)return;if(F.afk)stopAfk();if(WK)stopWalk();P.sit
   P.x=x;P.y=y;if(blockedAt(P.x,P.y)){P.x=W.spawn.x;P.y=W.spawn.y}camX=P.x-VW/2;camY=P.y-VH/2;
   if(!$('sheetwrap').hidden)closeSheet();ptBar();bossUI();evBanner();sparkFx(P.x,P.y-10,14,['#ffffff','#ffd34d']);Snd.sfx('gate');if(why)toast(why);saveState(true)}
 const lostAtSea=()=>!!(P&&P.y>=100*TS&&!inSea()&&!(PTY&&PTY.practice)&&!(SAIL&&SAIL.me)&&!admOn());
-const stuckHere=()=>!!(P&&(lostAtSea()||(P.aboard==null&&!P.sit&&!SAIL&&blockedAt(P.x,P.y))));
+const stuckHere=()=>!!(P&&(lostAtSea()||(P.aboard==null&&!P.sit&&!SAIL&&!P.onBoat&&blockedAt(P.x,P.y))));
 let homeAsk=0,homeLast=0;
 function goHome(){const now=Date.now();
   if(now-homeLast<180000&&!stuckHere()){Snd.sfx('no');toast('귀환은 3분에 한 번 쓸 수 있어요 ('+Math.ceil((180000-(now-homeLast))/1000)+'초 남음)');return}
@@ -7294,7 +7304,7 @@ function goHome(){const now=Date.now();
 let stuckN=0,wallN=0;
 setInterval(()=>{if(!P||($('title')&&!$('title').hidden))return;
   stuckN=lostAtSea()?stuckN+1:0;if(stuckN>=2){stuckN=0;seaHome('⚓ 배낚시가 끝나서 항구로 돌아왔어요')}
-  wallN=(P.aboard==null&&!P.sit&&!SAIL&&F.mode==='idle'&&blockedAt(P.x,P.y))?wallN+1:0;if(wallN>=3){wallN=0;forceTp(W.spawn.x,W.spawn.y,'끼어 있어서 마을 광장으로 옮겨 줬어요')}},2000);
+  wallN=(P.aboard==null&&!P.sit&&!SAIL&&!P.onBoat&&F.mode==='idle'&&blockedAt(P.x,P.y))?wallN+1:0;if(wallN>=3){wallN=0;forceTp(W.spawn.x,W.spawn.y,'끼어 있어서 마을 광장으로 옮겨 줬어요')}},2000);
 
 /* ========== 배낚시 장면 3.0: 진짜 배를 타고 먼바다에 나온 느낌 ==========
    흐르는 바다 · 출렁이는 선체 · 뱃머리 물보라 · 항적 · 돛 · 조타실 · 어창 · 만선 풍어기
@@ -7650,7 +7660,8 @@ function drawPlayer(){
   auraTick(ME,P.x,P.y,S.enh.lv,P.moving,spr);auraUnder(ME,P.x,P.y,S.enh.lv);
   cx.fillStyle='rgba(60,50,100,.16)';cx.beginPath();cx.ellipse(Math.round(P.x),Math.round(P.y)-1,6,2.5,0,0,6.28);cx.fill();
   if(!fishing&&d!=='up')carryRod(P.x,P.y-(P.sit?5:0),d,S.cos.look.rod);
-  cx.drawImage(spr,Math.round(P.x-8),Math.round(P.y-21+bob-(P.sit?5:0)));
+  if(P.onBoat){drawFlowerBoat(cx,P.x,P.y,P.moving);bob=Math.round(Math.sin(wt*2.2+P.x*.01))-3}
+  cx.drawImage(P.onBoat?SP.pl[d][0]:spr,Math.round(P.x-8),Math.round(P.y-21+bob-(P.sit?5:0)));
   if(!fishing&&d==='up')carryRod(P.x,P.y-(P.sit?5:0),d,S.cos.look.rod);
   auraOver(ME,P.x,P.y-(P.sit?5:0),S.enh.lv);bigCosDraw(cx,S.cos.look,P.x,P.y-(P.sit?5:0),P.dir,P.moving);if(ONLINE&&Net.me)xkFx(Net.me.name,P.x,P.y-(P.sit?5:0));
   if(amKing())kingFx(P.x,P.y);
@@ -8132,7 +8143,8 @@ function update(dt){
       const sp=62*walkSpeed()*enhSpeed(S.enh.lv)*Math.min(1,m);
       if(Math.abs(mx)>Math.abs(my))P.dir=mx>0?'right':'left';else P.dir=my>0?'down':'up';
       const nx=P.x+mx/m*sp*dt,ny=P.y+my/m*sp*dt;
-      if(!blockedAt(nx,P.y)){P.x=nx;P.moving=true}if(!blockedAt(P.x,ny)){P.y=ny;P.moving=true}
+      if(passAt(nx,P.y)){P.x=nx;P.moving=true}if(passAt(P.x,ny)){P.y=ny;P.moving=true}
+      {const was=P.onBoat;P.onBoat=onBoatNow();if(P.onBoat&&!was){Snd.sfx('splash');if(!S.boatTip){S.boatTip=1;toast('⛵ 내 꽃배를 불렀어요! 물 위를 가로질러요 (낚싯대 +25 특권)')}}}
       if(P.moving){const i0=((P.anim*8)|0)%4;P.anim+=dt*Math.min(1.7,Math.max(.75,sp/62));const i1=((P.anim*8)|0)%4;   // 빨라지면 걸음도 빨라져요
         if(i1!==i0&&!(i1&1)){Snd.sfx('step');stepDust(P.x,P.y,P.dir)}}   // 발이 땅에 닿을 때 발소리 · 흙먼지
     }
@@ -11042,7 +11054,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='kicked'){this.kicked=true;netBanner()}
     else if(m.t==='join')addOther(m);
     else if(m.t==='leave'){const o=others.get(m.id);if(o){o.tag.remove();if(o.bub)o.bub.remove();others.delete(m.id)}if(TR.asking===m.id)TR.asking=0;if(tradeOpen())renderTrade()}
-    else if(m.t==='s')m.p.forEach(a=>{const o=others.get(a[0]);if(!o)return;o.tx=a[1];o.ty=a[2];o.d=a[3];o.m=a[4];{const nb=a[5]|0;if(nb!==o.b&&nb>0){o.castAt=performance.now();o.landed=0;o._b=nb}o.b=nb;const nf=a[6]|0;if(nf!==o.fs){if(nf===4||(o.fs===3&&nf===0&&nb===0))o.yankAt=performance.now();if(nf===2)o.biteAt=performance.now();o.fs=nf}}if(!o.seen){o.x=o.tx;o.y=o.ty;o.seen=true}});
+    else if(m.t==='s')m.p.forEach(a=>{const o=others.get(a[0]);if(!o)return;o.tx=a[1];o.ty=a[2];o.d=a[3];o.m=a[4]&1;o.boat=a[4]>=2;{const nb=a[5]|0;if(nb!==o.b&&nb>0){o.castAt=performance.now();o.landed=0;o._b=nb}o.b=nb;const nf=a[6]|0;if(nf!==o.fs){if(nf===4||(o.fs===3&&nf===0&&nb===0))o.yankAt=performance.now();if(nf===2)o.biteAt=performance.now();o.fs=nf}}if(!o.seen){o.x=o.tx;o.y=o.ty;o.seen=true}});
     /* 3단계: 친구의 외형 · 말 · 감정표현 */
     else if(m.t==='look'){const o=others.get(m.id);if(o){o.look=cleanLook(m.look,o.color);setTag(o,o.name,o.look.ti,o.look.e)}}
     else if(m.t==='say'){const o=others.get(m.id);if(o)showSay(o,cleanText(m.text))}
@@ -11120,7 +11132,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='bd_list'){TR.wait=0;TR.err='';TR.posts=m.posts||[];TR.mail=m.mail||TR.mail;renderTrade()}
     else if(m.t==='bd_err'){TR.wait=0;toast(m.msg||'교환소에서 처리하지 못했어요');Net.send({t:'bd_list'})}
     else if(m.t==='mail'){TR.mail.unshift({at:Date.now(),text:m.text});toast(m.text);if(tradeOpen()&&TR.tab==='board')renderTrade()}
-    else if(m.t==='tr_req'){if(TR.ses||askFrom||F.mode!=='idle')Net.send({t:'tr_ans',from:m.from,ok:false,busy:true});else showAsk(m.from,m.name)}
+    else if(m.t==='tr_req'){if(TR.ses||askFrom||F.mode!=='idle'||HUNT.on)Net.send({t:'tr_ans',from:m.from,ok:false,busy:true});else showAsk(m.from,m.name)}
     else if(m.t==='tr_no'){TR.asking=0;toast(m.msg||'교환이 성사되지 않았어요');if(tradeOpen())renderTrade()}
     else if(m.t==='tr_open'){TR.asking=0;TR.ses={id:m.with,name:m.name,mine:{},theirs:{},okMe:false,okThem:false};TR.tab='direct';TR.pick=null;TR.bag=null;TR.goldp=null;
       if(!$('sheetwrap').hidden&&!tradeOpen()){openSheet.onClose=null;closeSheet()}
@@ -11133,8 +11145,8 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     if(!this.me||this.state!=='open')return;
     this.posT-=dt;this.hbT-=dt;
     if(P&&this.posT<=0){this.posT=.1;const x=Math.round(P.x),y=Math.round(P.y),mv=P.moving?1:0,
-      b=(F.mode==='wait'||F.mode==='nibble'||F.mode==='bite'||F.mode==='pull'||F.mode==='reel')&&F.target?F.target.y*MW+F.target.x+1:0,fs=b?({nibble:1,bite:2,reel:3,pull:4}[F.mode]|0):0,k=x+','+y+','+P.dir+','+mv+','+b+','+fs;   // fs: 친구 화면에 입질 · 챔질 · 줄다리기 · 낚아채기 (2026-11-16)
-      if(k!==this.lastPos||this.hbT<=0){this.lastPos=k;this.hbT=20;this.send({t:'pos',x:x,y:y,d:P.dir,m:mv,b:b,f:fs})}}
+      bt=P.onBoat?2:0,b=(F.mode==='wait'||F.mode==='nibble'||F.mode==='bite'||F.mode==='pull'||F.mode==='reel')&&F.target?F.target.y*MW+F.target.x+1:0,fs=b?({nibble:1,bite:2,reel:3,pull:4}[F.mode]|0):0,k=x+','+y+','+P.dir+','+mv+','+b+','+fs+','+bt;   // fs: 친구 화면에 입질 · 챔질 · 줄다리기 · 낚아채기 (2026-11-16)
+      if(k!==this.lastPos||this.hbT<=0){this.lastPos=k;this.hbT=20;this.send({t:'pos',x:x,y:y,d:P.dir,m:mv+bt,b:b,f:fs})}}
     if(this.saveQ&&performance.now()-this.saveT>3000)this.flushSave();
   },
   save(now){this.saveQ=true;if(now||performance.now()-this.saveT>3000)this.flushSave()},
@@ -11166,7 +11178,7 @@ function drawOthers(dt,list){
     list.push({y:o.y,fn:()=>{auraUnder(o,o.x,o.y,olv);cx.fillStyle='rgba(60,50,100,.16)';cx.beginPath();cx.ellipse(Math.round(o.x),Math.round(o.y)-1,6,2.5,0,0,6.28);cx.fill();
       const ht=o.hold&&!mv?(performance.now()-o.hold.at)/1000:99;
       if(ht<(o.hold&&o.hold.miss?1.5:4.2)){if(o.hold.miss)drawFlopAt(o.x,o.y,spr,ht);else drawHoldAt(o.x,o.y,lookSprites(o.look).down[0],o.hold,ht,o.look&&o.look.k);return}
-      const ofish=o.b>0&&!mv;if(!ofish&&o.d!=='up')carryRod(o.x,o.y,o.d,o.look.rod);cx.drawImage(spr,Math.round(o.x-8),Math.round(o.y-21+owp.bob));if(!ofish&&o.d==='up')carryRod(o.x,o.y,o.d,o.look.rod);bigCosDraw(cx,o.look,o.x,o.y,o.d,mv);auraOver(o,o.x,o.y,olv);xkFx(o.name,o.x,o.y);if(isKingName(o.name))kingFx(o.x,o.y);
+      const ofish=o.b>0&&!mv;if(!ofish&&o.d!=='up')carryRod(o.x,o.y,o.d,o.look.rod);if(o.boat){drawFlowerBoat(cx,o.x,o.y,mv);cx.drawImage(lookSprites(o.look)[o.d][0],Math.round(o.x-8),Math.round(o.y-24+Math.sin(wt*2.2+o.x*.01)))}else cx.drawImage(spr,Math.round(o.x-8),Math.round(o.y-21+owp.bob));if(!ofish&&o.d==='up')carryRod(o.x,o.y,o.d,o.look.rod);bigCosDraw(cx,o.look,o.x,o.y,o.d,mv);auraOver(o,o.x,o.y,olv);xkFx(o.name,o.x,o.y);if(isKingName(o.name))kingFx(o.x,o.y);
       // 친구가 낚시 중이면 그 친구의 낚싯대 · 찌 스킨으로
       if(o.b>0&&!mv){const bx=((o.b-1)%MW)*TS+8,by=Math.floor((o.b-1)/MW)*TS+8,off={right:[13,-21],left:[-13,-21],up:[6,-25],down:[9,-11]}[o.d]||[9,-11],tip=[o.x+off[0],o.y+off[1]];
         drawRod(o.x+({right:4,left:-4,up:3,down:3}[o.d]||3),o.y-12,tip[0],tip[1],o.look.rod);rodGlow(o.x+({right:4,left:-4,up:3,down:3}[o.d]||3),o.y-12,tip,olv);const dy=Math.sin(wt*3+String(o.id).length)*.8;{const ct=(performance.now()-(o.castAt||0))/420;if(ct<1){const t=Math.max(0,ct),fx=tip[0]+(bx-tip[0])*t,fy=tip[1]+(by-tip[1])*t-Math.sin(t*Math.PI)*26;lineBetween(tip,[fx,fy],2,olv);bobFx(cx,o.look.bob,fx,fy,parts,FXDT);drawBob(bobCan(o.look.bob),fx,fy);if(Math.random()<.7)parts.push({x:fx,y:fy,vx:0,vy:0,life:.35,t:0,c:'rgba(255,255,255,.85)',g:0,s:1});return}
