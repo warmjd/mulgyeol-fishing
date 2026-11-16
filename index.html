@@ -5243,7 +5243,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1117c',UPD_LOG=[
+const UPD_VER='1117d',UPD_LOG=[
+ ['11/17 안정','🛟',[['🛟 게임이 멈추지 않게','화면에서 오류가 한 번 나도 게임이 멈추지 않고 계속 돌아요 (멈추면 친구 화면에서 내가 사라질 수 있었어요)'],['⛵ 물 위를 걷는 친구','낚싯대 +25 「내 꽃배 부르기」예요 · 꽃배를 타고 물 위를 건너요 (버그가 아니에요)']]],
  ['11/17 칩','⭐',[['⭐ 장비 별 강화 (새로)','꿈의 문 가방에서 장비를 누르면 「⭐ 별 강화」 · 은비랜드 칩으로 · 실패 없음 · +10까지 · 단계마다 기본 능력치가 올라요'],['📜 없어진 것: 칩으로 주문서 사기','주문서는 이제 사냥 드랍 · 장비 분해 · 💤 꿈조각 교환으로만 얻어요 (주문서가 넘쳐서 칩이 쓸모없던 것 정리) · 갖고 있던 주문서는 그대로예요']]],
  ['11/17 꿈 사냥꾼','🏹',[['🌧️ 꿈 화살비 (새 기술)','사냥터에서 누르면 주변 꿈방울 모두에게 화살비 · 공격력 ×6 · 쿨타임 2분'],['🛡️ 단단한 몸 (새 패시브)','사냥터 체력 +8% · 방어 +2 (단계마다 · 3단계까지)'],['🏹 원래 기술','추적 · 정수 감각 · 사냥 본능 · 야성 · 전리품 사냥꾼은 그대로예요 (예전엔 직업 창이 안 열려서 안 보였어요)']]],
  ['11/17','🌊',[['👥 지금 접속한 친구','시계 옆 👥 숫자 (골드가 가려지던 것도 고쳤어요) · 누르면 누가 마을 어디에 있는지 · 낚시 중인지 보여요'],['🌊 물에 비친 달빛 · 햇빛','먼 달 · 해의 비침이 화면보다 느리게 미끄러지던 것을 고쳐서 보는 사람과 함께 자연스럽게 움직여요 · 은은한 빛 기둥 · 잔물결에 부서지는 빛 · 반짝 점 · 물에 하늘빛이 살짝']]],
@@ -8223,12 +8224,15 @@ function update(dt){
 function frame(ts){
   if(ECO.on){ // 절전: 그리지 않고 0.5초마다 게임만 돌려요
     const real=Math.min(5,(ts-last)/1000||0);if(real<.5){requestAnimationFrame(frame);return}last=ts;
-    for(let t=real;t>0;t-=.05)update(Math.min(.05,t));ecoInfo();requestAnimationFrame(frame);return}
+    try{for(let t=real;t>0;t-=.05)update(Math.min(.05,t));ecoInfo()}catch(e){cerr(e,'eco')}requestAnimationFrame(frame);return}
   const dt=Math.min(.05,(ts-last)/1000||0);last=ts;
-  if(P&&!$('title').hidden===false){}
-  if(P){update(dt);TXQ.length=0;TXON=true;try{render(dt)}finally{TXON=false;flushText()}updateHud()}
-  requestAnimationFrame(frame);
+  requestAnimationFrame(frame);   // 2026-11-17: 먼저 다음 장면을 예약해요 (한 번 오류가 나도 게임이 멈추지 않게)
+  if(P){try{update(dt)}catch(e){cerr(e,'update');try{if(ONLINE)Net.tick(dt)}catch(_){}}
+    TXQ.length=0;TXON=true;try{render(dt)}catch(e){cerr(e,'render')}finally{TXON=false;flushText()}try{updateHud()}catch(e){cerr(e,'hud')}}
 }
+/* 🐞 오류 알림 (2026-11-17): 누군가의 화면에서 오류가 나면 운영자 도구에서 볼 수 있게 서버로 짧게 보내요 (같은 오류는 1분에 한 번) */
+const CERR={};function cerr(e,where){try{const msg=String(e&&e.message||e).slice(0,140),st=String(e&&e.stack||'').split('\n').slice(1,3).join(' | ').replace(/https?:[^ )]*\//g,'').slice(0,200),k=where+msg,now=Date.now();if(CERR[k]&&now-CERR[k]<60000)return;CERR[k]=now;console.error('[물결]',where,e);if(ONLINE&&Net.me)Net.send({t:'cerr',w:where,m:msg,s:st,v:UPD_VER})}catch(_){}}
+window.addEventListener('error',ev=>cerr(ev.error||ev.message,'win'));
 
 /* ----- 절전 모드 ----- */
 const ECO={on:false,c0:0,lock:null,tap:0};
@@ -9395,7 +9399,7 @@ function openAdmin(){
   h+='<div class="sec">내 직업 바로 바꾸기</div><div class="warps">'+JOB_IDS.map(id=>'<button data-adm="job" data-v="'+id+'"'+(j.id===id?' disabled':'')+'>'+JOBS[id].ic+' '+JOBS[id].name+'</button>').join('')+'</div>';
   if(ONLINE&&Net.me){
     h+='<div class="sec">유저 현황</div><button class="btn sm mint" style="width:100%;margin:4px 0 12px" data-adm="users">👥 모두의 레벨 · 강화 · 골드 보기</button>';
-    h+='<div class="sec">마을 공지</div><div style="display:flex;gap:6px;margin:4px 0 12px"><input class="tin" id="admNote" maxlength="80" placeholder="모두에게 보낼 말"><button class="btn sm" data-adm="notice">보내기</button></div><button class="btn sm mint" data-adm="brag" style="width:100%;margin:-6px 0 12px">🎣📣 오늘 낚은 마릿수 자랑하기 (진짜 오늘 기록 · 하루 3번)</button>';
+    h+='<div class="sec">마을 공지</div><div style="display:flex;gap:6px;margin:4px 0 12px"><input class="tin" id="admNote" maxlength="80" placeholder="모두에게 보낼 말"><button class="btn sm" data-adm="notice">보내기</button></div><button class="btn sm mint" data-adm="brag" style="width:100%;margin:-6px 0 12px">🎣📣 오늘 낚은 마릿수 자랑하기 (진짜 오늘 기록 · 하루 3번)</button><button class="btn sm ghost" data-adm="errs" style="width:100%;margin:-6px 0 12px">🐞 최근 화면 오류 보기 (누구 화면에서 무엇이)</button>';
     h+='<div class="sec">선물 주기 · 빼기 (서버가 바로 넣어 줘요)</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0">'+
       '<select class="tin" id="admTo" style="flex:1 1 40%">'+names.map(n=>opt(n,n,ADM.to)).join('')+'</select>'+
       '<select class="tin" id="admK" style="flex:1 1 40%">'+opt('tk','강화권',ADM.k)+opt('g','골드',ADM.k)+ITEM_IDS.map(k=>opt('i:'+k,ITEMS[k].ic+' '+ITEMS[k].n,ADM.k)).join('')+'</select>'+
@@ -9441,6 +9445,7 @@ function admClick(t){
   if(a==='job'){if(!admOn()){toast('운영자 모드를 먼저 켜 주세요');return true}pickJob(v);return true}
   if(a==='users'){Net.send({t:'adm',op:'users'});return true}
   if(a==='brag'){Net.send({t:'adm',op:'brag'});return true}
+  if(a==='errs'){Net.send({t:'adm',op:'errs'});return true}
   if(a==='notice'){const tx=($('admNote').value||'').trim();if(tx)Net.send({t:'adm',op:'notice',text:tx});$('admNote').value='';return true}
   if(a==='give'){ADM.to=$('admTo').value;ADM.k=$('admK').value;ADM.n=+$('admN').value|0;if(!ADM.n){toast('개수를 적어 주세요');return true}Net.flushSave(true);Net.send({t:'adm',op:'give',to:ADM.to,k:ADM.k,n:ADM.n});return true}
   if(a==='unjob'){Net.send({t:'adm',op:'unjob',to:v});return true}
@@ -11121,7 +11126,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     /* 4단계: 교환 · 가방 동기화 */
     else if(m.t==='delta'){if(m.shd&&typeof m.shd==='object')S.shd=m.shd;applyDelta(m.d,m.rev,m.why)}
     else if(m.t==='gift')onGift(m);
-    else if(m.t==='adm_ok')toast('🛠️ '+m.text);
+    else if(m.t==='adm_ok'){if(String(m.text).indexOf('\n')>=0||String(m.text).indexOf('[')>=0)openSheet('🐞 최근 화면 오류','<pre style="white-space:pre-wrap;font-size:11.5px;line-height:1.5;user-select:text;-webkit-user-select:text">'+esc(m.text)+'</pre>');else toast('🛠️ '+m.text)}
     else if(m.t==='adq'){ADM.q=m.list||[];if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='운영자 도구')openAdmin()}
     else if(m.t==='cos_back'){S.cos.own=S.cos.own.filter(x=>x!==m.id);const L=S.cos.look;for(const k in L)if(L[k]===m.id)L[k]=k==='hat'?'nohat':k==='o'?'tee':'';refreshMe();saveState()}
     else if(m.t==='tp'){if(m.to==='spawn')forceTp(W.spawn.x,W.spawn.y,m.why);else if(Number.isFinite(m.x)&&Number.isFinite(m.y)&&m.x>0)forceTp(m.x,m.y,m.why)}

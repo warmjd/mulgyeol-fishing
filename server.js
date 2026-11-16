@@ -757,6 +757,7 @@ function onMsg(ws, me, m) {
       if (!text || now - me.sayT < 600) return; me.sayT = now;
       broadcast({ t: 'say', id: me.id, text }, ws); break;
     }
+    case 'cerr': { const now = Date.now(); if (now - (me.ceT || 0) < 5000) break; me.ceT = now; CERRS.push({ at: now, n: me.name, w: cleanText(m.w || '', 10), m: cleanText(m.m || '', 140), s: String(m.s || '').slice(0, 200), v: cleanText(m.v || '', 10) }); while (CERRS.length > 60) CERRS.shift(); console.log('화면 오류', me.name, m.w, m.m, m.s); break; }   // 🐞 2026-11-17
     case 'skill': withLock(me.key, async () => { const s = me.save; if (!s) return; const k = String(m.k || ''), D = SKILLS[k]; if (!D) return;
       if (jobOf(s) !== D.job || !jobRank(s, D.job, D.node)) return send(ws, { t: 'skill_err', text: '이 기술은 ' + JOB_NAME[D.job] + '만 쓸 수 있어요' });
       const now = Date.now(), c = objOf(s, 'skc'), r = jrOf(s, D.job);
@@ -1203,6 +1204,7 @@ function onMsg(ws, me, m) {
     case 'adm': {
       if (!me.admin) return;
       const ok = text => send(ws, { t: 'adm_ok', text });
+      if (m.op === 'errs') { const L = CERRS.slice(-12).reverse(); return send(ws, { t: 'adm_ok', text: L.length ? L.map(e => new Date(e.at + 9 * 3600e3).toISOString().slice(11, 16) + ' ' + e.n + ' [' + e.w + '] ' + e.m + (e.s ? ' ← ' + e.s.slice(0, 80) : '')).join('\n') : '최근 화면 오류가 없어요 🎉' }); }
       if (m.op === 'brag') { const d = kstDay(), r = V && V.dk && V.dk.d === d && V.dk.p[me.key]; const n = r ? r.n | 0 : 0; if (!n) return ok('오늘 직접 낚은 물고기가 아직 없어요'); if (me.bragD === d && (me.bragN | 0) >= 3) return ok('오늘 자랑은 세 번까지예요'); me.bragN = me.bragD === d ? (me.bragN | 0) + 1 : 1; me.bragD = d; broadcast({ t: 'big', g: 3, text: '🎣📣 운영자 ' + me.name + ' 님도 오늘 ' + n.toLocaleString() + '마리를 낚았어요!' }); return ok('자랑했어요 (오늘 ' + n + '마리)'); }   // 2026-11-16: 진짜 오늘 마릿수만 (지어낸 숫자는 안 돼요)
       if (m.op === 'notice') { const text = cleanText(m.text, 80); if (text) { broadcast({ t: 'news', text: '📢 운영자: ' + text }); ok('공지를 보냈어요'); } return; }
       /* ----- 갇힘 · 이동 도구 (2026-11-05) ----- */
@@ -2420,6 +2422,7 @@ function mentorCheck(me, s, oldSd) {
   }
 }
 /* ---------- 직업 3.0: 누르는 기술 (index.html SK와 같아요). 쿨타임은 서버가 save.skc에 지켜요 ---------- */
+const CERRS = [];   // 🐞 화면 오류 (메모리에만)
 const SKILLS = {
   focus: { job: 'fish', node: 'focus', dur: () => 10, cd: s => 180 - 45 * jobRank(s, 'fish', 'focus2') },
   legend: { job: 'fish', node: 'cap', daily: true },
