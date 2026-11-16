@@ -1075,6 +1075,7 @@ function onMsg(ws, me, m) {
     case 'gd_q': { if (V && V.gwq && V.gwq[me.key]) { send(ws, { t: 'gd_watered', by: V.gwq[me.key] }); delete V.gwq[me.key]; vMark(); } break; }
     case 'raid_hit': raidHit(ws, me, m); break;
     case 'raid_down': case 'raid_up': case 'raid_rev': raidDown(ws, me, m); break;
+    case 'kt_get': case 'tax': case 'kt_req': case 'kt_rate': case 'kt_note': case 'kt_fest': case 'kt_prop': case 'kt_ok': ktMsg(ws, me, m); break;
     case 'raid_get': case 'raid_q': case 'raid_qx': raidLobby(ws, me, m); break;
     case 'rrec_get': case 'rrec_new': case 'rrec_join': case 'rrec_leave': rrecMsg(ws, me, m); break;
     case 'hs_get': send(ws, { t: 'hs', list: hsPub() }); break;
@@ -2149,7 +2150,7 @@ function vPub() {
   if (!V) return { t: 'vil' };
   const st = vSt(), don = Object.entries(V.don).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, g]) => ({ name, g }));
   let hutop = 0; for (const r of rosterCache.values()) hutop = Math.max(hutop, r.hlv | 0);
-  return { t: 'vil', hutop, ark: arkPub(), ships: shipPub(), fund: { g: V.fund.g, st, need: VF[st] ? VF[st].g : 0 }, don, wk: V.wk, rsv: V.rsv.map(r => ({ kind: r.kind, host: r.hostName, at: r.at })), fest: isFest(), festH: FEST_H, tog: { n: tog.n, on: tog.on, p: togLuck() }, boom: V.boom && V.boom.until > Date.now() ? V.boom : null, shop: medShop(), medCap: medCap() };
+  return { t: 'vil', hutop, ark: arkPub(), ships: shipPub(), fund: { g: V.fund.g, st, need: VF[st] ? VF[st].g : 0 }, don, wk: V.wk, rsv: V.rsv.map(r => ({ kind: r.kind, host: r.hostName, at: r.at })), fest: isFest(), festH: FEST_H, tog: { n: tog.n, on: tog.on, p: togLuck() }, boom: V.boom && V.boom.until > Date.now() ? V.boom : null, shop: medShop(), medCap: medCap(), kt: ktPub() };
 }
 function vSend() { broadcast(vPub()); }
 function vSoon() { if (vT) return; vT = setTimeout(() => { vT = 0; vSend(); }, 500); }
@@ -2875,6 +2876,45 @@ function sdKingCheck(init) {
   console.log('손맛 왕', best.name, best.n);
 }
 const kingPub = () => sdKing ? { name: sdKing.name, n: sdKing.n, since: sdKing.since } : null;
+
+/* ---------- 👑 손맛 왕의 마을 (2026-11-16): 세금 · 마을 공지 · 손맛 축제 · 벤치 · 벌집 놓기/치우기 · 마을 사람 부탁 허락 ----------
+   세금은 산 사람이 서버에서 직접 내요 (가게 골드 구매의 0~5%) · 왕 몫은 하루 10억까지, 5분마다 모아서 보내요 */
+const KT_PAY_DAY = 3e8, KT_KING_DAY = 1e9, KT_ONE = 5e7, KT_PROP_MAX = 16, KT_REQ_MAX = 20;
+const ktOf = () => { V.kt = V.kt && typeof V.kt === 'object' ? V.kt : {}; const K = V.kt; K.rate = Math.max(0, Math.min(5, K.rate | 0)); K.pend = +K.pend || 0; K.p = K.p && typeof K.p === 'object' ? K.p : { rm: [], add: [] }; K.p.rm = Array.isArray(K.p.rm) ? K.p.rm : []; K.p.add = Array.isArray(K.p.add) ? K.p.add : []; K.req = Array.isArray(K.req) ? K.req : []; return K; };
+const ktPub = () => { if (!V) return null; const K = ktOf(), now = Date.now(); return { rate: K.rate, got: K.gotD === kstDay() ? K.got | 0 : 0, tot: +K.tot || 0, p: K.p, req: K.req.map(r => ({ id: r.id, n: r.n, k: r.k, x: r.x, y: r.y, op: r.op, why: r.why })), note: K.note && now - K.note.at < 6 * 3600e3 ? K.note : null, fest: K.fest && K.fest.until > now ? K.fest : null }; };
+const isKing = me => !!(sdKing && me && me.key === sdKing.key);
+function ktSend() { broadcast({ t: 'kt', kt: ktPub(), king: kingPub() }); }
+function ktMsg(ws, me, m) {
+  if (!V || !me.save) return; const K = ktOf(), now = Date.now(), day = kstDay();
+  if (m.t === 'kt_get') return send(ws, { t: 'kt', kt: ktPub(), king: kingPub() });
+  if (m.t === 'tax') {   // 가게에서 골드로 샀어요 → 왕 세금
+    if (!sdKing || isKing(me) || !K.rate) return; const b = Math.max(0, Math.min(2e10, Math.round(+m.b || 0))); let tax = Math.min(KT_ONE, Math.round(b * K.rate / 100)); if (tax < 1) return;
+    const sv = me.save; if (sv.taxD !== day) { sv.taxD = day; sv.taxN = 0; } tax = Math.min(tax, KT_PAY_DAY - (sv.taxN | 0), Math.max(0, Number(sv.gold) || 0)); if (tax < 1) return;
+    if (K.gotD !== day) { K.gotD = day; K.got = 0; } tax = Math.min(tax, KT_KING_DAY - (K.got | 0) - K.pend); if (tax < 1) return;
+    sv.taxN = (sv.taxN | 0) + tax; K.pend += tax; vMark();
+    return withLock(me.key, () => changeBag(me.key, { g: -tax }, '👑 세금 ' + tax.toLocaleString() + '골드 (손맛 왕 ' + sdKing.name + ' 님 · ' + K.rate + '%)')).catch(() => { });
+  }
+  if (m.t === 'kt_req') {   // 마을 사람의 부탁: 여기에 벤치 · 벌집을 놓거나 치워 주세요
+    if (isKing(me)) return; const k = m.k === 'hive' ? 'hive' : 'bench', op = m.op === 'rm' ? 'rm' : 'add', x = m.x | 0, y = m.y | 0; if (x < 1 || x > 71 || y < 1 || y > 58) return send(ws, { t: 'news', text: '마을 안에서만 부탁할 수 있어요' });
+    if (K.req.filter(r => r.key === me.key).length >= 2) return send(ws, { t: 'news', text: '부탁은 두 개까지 기다릴 수 있어요' });
+    K.req.push({ id: (K.rid = (K.rid | 0) + 1), key: me.key, n: me.name, k, op, x, y, why: cleanText(m.why || '', 40), at: now }); while (K.req.length > KT_REQ_MAX) K.req.shift(); vMark(); ktSend();
+    const l = liveByKey(sdKing && sdKing.key); if (l) send(l[0], { t: 'news', text: '📜 ' + me.name + ' 님의 부탁: ' + (op === 'rm' ? '치워 주세요' : '놓아 주세요') + ' (' + (k === 'hive' ? '벌집' : '벤치') + ') · 👑 마을 관리에서 허락해요' });
+    return send(ws, { t: 'news', text: '📜 손맛 왕에게 부탁을 보냈어요' });
+  }
+  if (!isKing(me)) return send(ws, { t: 'news', text: '👑 손맛 왕만 할 수 있어요' });
+  if (m.t === 'kt_rate') { K.rate = Math.max(0, Math.min(5, m.rate | 0)); vMark(); ktSend(); return broadcast({ t: 'news', text: '👑 손맛 왕 ' + me.name + ' 님이 가게 세금을 ' + K.rate + '%로 정했어요' + (K.rate ? ' (하루 한 사람 최대 ' + (KT_PAY_DAY / 1e8) + '억)' : '') }); }
+  if (m.t === 'kt_note') { if (K.noteD === day) return send(ws, { t: 'news', text: '마을 공지는 하루에 한 번이에요' }); const text = cleanText(m.text || '', 60); if (text.length < 2) return; K.noteD = day; K.note = { text, by: me.name, at: now }; vMark(); ktSend(); return broadcast({ t: 'ktnote', text, by: me.name }); }
+  if (m.t === 'kt_fest') { if (K.festD === day) return send(ws, { t: 'news', text: '손맛 축제는 하루에 한 번이에요' }); K.festD = day; K.fest = { until: now + 30 * 60e3, by: me.name }; vMark(); ktSend(); return broadcast({ t: 'news', text: '🎉 손맛 왕 ' + me.name + ' 님이 「손맛 축제」를 열었어요! 30분 동안 모두 물고기 판매가 +10%' }); }
+  if (m.t === 'kt_prop' || m.t === 'kt_ok') {
+    let o = m; if (m.t === 'kt_ok') { const i = K.req.findIndex(r => r.id === (m.id | 0)); if (i < 0) return; const r = K.req.splice(i, 1)[0]; const rl = liveByKey(r.key); if (!m.ok) { vMark(); ktSend(); if (rl) send(rl[0], { t: 'news', text: '👑 손맛 왕이 이번 부탁은 어렵대요' }); return; } o = r; if (rl) send(rl[0], { t: 'news', text: '👑 손맛 왕이 부탁을 들어줬어요!' }); }
+    const k = o.k === 'hive' ? 'hive' : 'bench', x = o.x | 0, y = o.y | 0; if (x < 1 || x > 71 || y < 1 || y > 58) return;
+    if (o.op === 'rm') { const ai = K.p.add.findIndex(a => a.x === x && a.y === y); if (ai >= 0) K.p.add.splice(ai, 1); else if (!K.p.rm.includes(x + ',' + y) && K.p.rm.length < 40) K.p.rm.push(x + ',' + y); }
+    else { const ri = K.p.rm.indexOf(x + ',' + y); if (ri >= 0) K.p.rm.splice(ri, 1); else { if (K.p.add.length >= KT_PROP_MAX) return send(ws, { t: 'news', text: '새로 놓을 수 있는 건 ' + KT_PROP_MAX + '개까지예요' }); if (!K.p.add.some(a => a.x === x && a.y === y)) K.p.add.push({ k, x, y }); } }
+    vMark(); ktSend(); return;
+  }
+}
+setInterval(() => { if (!V) return; const K = ktOf(); if (K.pend < 1 || !sdKing) return; const g = Math.floor(K.pend), day = kstDay(); K.pend = 0; if (K.gotD !== day) { K.gotD = day; K.got = 0; } K.got = (K.got | 0) + g; K.tot = (+K.tot || 0) + g; vMark();
+  changeBag(sdKing.key, { g }, '👑 마을 세금 +' + g.toLocaleString() + '골드').catch(() => { }); }, 5 * 60e3);
 /* 🌊 월척 왕 (거대 개체 종 수) · ✨ 반짝 왕 (반짝 종 수) (2026-11-09): 손맛 왕처럼 1등만, 같으면 지금 왕이 지켜요 */
 const xKing = { gt: null, sh: null, hl: null }, XK_NAME = { gt: ['🌊 월척 왕', '종 월척'], sh: ['✨ 반짝 왕', '종 반짝'], hl: ['⚔️ 용사 왕', '전투력'] };
 function xKingCheck(f, init) {
