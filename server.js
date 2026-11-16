@@ -218,7 +218,7 @@ LOOK_IDS.ft.push('ft_ginkgo', 'ft_forest', 'ft_bfly', 'ft_flower', 'ft_dark', 'f
 LOOK_IDS.ti.push('t_sd100', 't_sd200', 't_sd300', 't_sd450', 't_sd600');
 LOOK_IDS.ti.push('t_pioneer', 't_islfish', 't_islbest', 't_pole', 't_pila', 't_gym', 't_ortho', 't_rock');
 LOOK_IDS.hat.push('neonband', 'sweatband', 'bandage', 'climbhelm'); LOOK_IDS.o.push('o_polefit', 'o_pilafit', 'o_gymtank', 'o_doccoat'); LOOK_IDS.bk.push('yogamat', 'chalkbag');
-LOOK_IDS.ti.push('t_auc', 't_hard1', 't_hard2');   // 2026-11-16 경매 · 성실 칭호
+LOOK_IDS.ti.push('t_auc', 't_hard1', 't_hard2'); LOOK_IDS.hat.push('h_tiara', 'h_queencrown'); LOOK_IDS.o.push('o_balldress', 'o_princess', 'o_starnight', 'o_prince'); LOOK_IDS.bk.push('k_bubblenet'); LOOK_IDS.ti.push('t_ballqueen', 't_royal'); LOOK_IDS.rod.push('rz_bubble', 'rz_ribbon', 'rz_ginkgo', 'rz_lantern', 'rz_sakura2', 'rz_aurora2', 'rz_comet', 'rz_unicorn', 'rz_harp', 'rz_eden');   // 2026-11-16 경매 · 성실 칭호
 LOOK_IDS.o.push('o_moondress', 'o_sakura', 'o_darkarmor', 'o_hunter'); LOOK_IDS.hat.push('h_moonpin', 'h_sakura', 'h_darkhelm', 'h_hunterhood'); LOOK_IDS.bk.push('k_moonwing', 'k_bigribbon', 'k_darkcape', 'k_axe', 'k_quiver'); LOOK_IDS.fa.push('f_glitter', 'f_blush'); LOOK_IDS.ti.push('t_raid1'); LOOK_IDS.ti.push('t_moonfairy', 't_sakura', 't_darkknight', 't_hunter'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
 LOOK_IDS.ti.push('t_enh25', 't_enh30', ...['fish', 'sch', 'cra', 'tam', 'mer', 'pro', 'hun'].flatMap(j => [4, 5, 6].map(r => 't_j' + j + r)));
 for (const j of ['fish', 'sch', 'cra', 'tam', 'mer']) { LOOK_IDS.rod.push('jr4_' + j, 'jr6_' + j); LOOK_IDS.bob.push('jb5_' + j); }   // 강화 칭호는 서버 기록으로 확인

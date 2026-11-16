@@ -2767,6 +2767,13 @@ COS.push({id:'neonband',k:'hat',name:'네온 헤어밴드',pv:1},{id:'o_polefit'
  {id:'chalkbag',k:'back',name:'초크 가방',pv:1},{id:'climbhelm',k:'hat',name:'클라이밍 헬멧',pv:1},{id:'t_rock',k:'title',name:'볼더러',pv:1});
 /* 헤어스타일 8~15번 */
 const HSTYLES3=[['웨이브 롱',300000],['히메컷',400000],['투블럭',250000],['하이 포니테일',350000],['한 갈래 땋은 머리',500000],['트윈 드릴',1000000],['리젠트',400000],['별빛 롱헤어',2000000]];
+/* 🌹 무도회 · 👑 물결 왕실 (2026-11-16): 드레스 · 왕관 · 티아라 · 왕자님 예복 · 비눗방울 잠자리채 */
+Object.assign(SET_TIER,{'무도회':3,'물결 왕실':4,'비눗방울':2});
+[
+ ['h_tiara','hat','은빛 티아라',20000000,'무도회','star'],['o_balldress','outfit','장미 무도회 드레스',60000000,'무도회','petal'],['o_princess','outfit','공주님 리본 드레스',50000000,'무도회','heart'],['t_ballqueen','title','무도회의 주인공',15000000,'무도회'],
+ ['h_queencrown','hat','물결 여왕의 왕관',90000000,'물결 왕실','star'],['o_starnight','outfit','별밤 이브닝 드레스',90000000,'물결 왕실','star'],['o_prince','outfit','왕자님 예복',60000000,'물결 왕실'],['t_royal','title','물결 왕실',30000000,'물결 왕실'],
+ ['k_bubblenet','back','비눗방울 잠자리채',12000000,'비눗방울']
+].forEach(r=>COS.push({id:r[0],k:r[1],name:r[2],price:r[3],set:r[4],fx:r[5]||undefined,lim:'',nw:'2026-11-16',tier:SET_TIER[r[4]]}));
 HSTYLES3.forEach((h,i)=>{HSTYLES.push(h[0]);COS.push({id:'hs'+(8+i),k:'hstyle',name:h[0],hs:8+i,price:h[1],nw:NEW_DAY})});
 function drawHairStyle3(b,dir,hs,hair,top){const side=dir==='side',up=dir==='up',dk=darken(hair,.16),lt=lighten(hair,.3);
   switch(hs){
@@ -2785,6 +2792,9 @@ function drawHat3(b,dir,id,hair,hairTop){const side=dir==='side',up=dir==='up';
     case'sweatband':{hairTop();const w=[250,250,252],r=[230,60,70];fillR(b,side?5:4,4,side?6:8,1,w);if(!up&&!side){px(b,7,4,r);px(b,8,4,r)}else if(side)px(b,9,4,r);break}
     case'bandage':{hairTop();const w=[248,244,236],sd=[214,206,190];fillR(b,side?5:4,3,side?6:8,2,w);fillR(b,side?5:4,4,side?6:8,1,sd);if(!up&&!side){px(b,10,2,w);px(b,11,2,w);px(b,11,1,w);px(b,9,3,[240,150,160])}break}
     case'climbhelm':{const o=[255,150,60],od=[220,110,40],k=[60,60,70];fillR(b,4,1,8,4,o);fillR(b,5,0,6,1,o);fillR(b,4,4,8,1,od);if(!up&&!side){px(b,6,1,[255,205,150]);px(b,7,2,k);px(b,8,2,k);px(b,4,5,k);px(b,11,5,k)}else if(side)px(b,6,5,k);break}
+    case'h_tiara':{hairTop();const sv=[226,232,246],sd=[170,178,204],g=[140,210,255],pk=[255,140,190],tw=((wt*2)|0)%2;if(up)fillR(b,4,3,8,1,sv);else if(side){fillR(b,5,3,6,1,sv);px(b,8,2,sv);px(b,8,1,g)}else{fillR(b,4,3,8,1,sv);px(b,5,2,sv);px(b,10,2,sv);fillR(b,7,1,2,2,sv);px(b,7,0,sv);px(b,8,0,sv);px(b,7,1,g);px(b,8,1,g);px(b,5,3,pk);px(b,10,3,pk);px(b,9,0,tw?[255,255,255]:sd)}break}
+    case'h_queencrown':{hairTop();const go=[255,206,70],gd=[204,140,40],r=[230,60,90],bl=[90,150,255],w=[255,255,255],tw=((wt*2)|0)%2,x0=side?5:4,ww=side?6:8;fillR(b,x0,2,ww,2,go);fillR(b,x0,3,ww,1,gd);
+      const sp=side?[5,8,10]:[4,7,8,11];sp.forEach(x=>{px(b,x,1,go);px(b,x,0,go)});if(!up){px(b,side?8:7,2,r);if(!side){px(b,8,2,r);px(b,5,2,bl);px(b,10,2,bl)}else px(b,6,2,bl)}px(b,side?8:7,0,tw?w:go);break}
     case'h_moonpin':{hairTop();const L=[200,180,240],Ld=[160,140,210],sv=[240,244,255],tw=((wt*2)|0)%2;if(side){px(b,6,3,L);px(b,5,2,L);px(b,7,2,L);px(b,6,1,sv)}else{px(b,11,3,L);px(b,10,2,L);px(b,12,2,L);px(b,10,4,Ld);px(b,12,4,Ld);px(b,11,1,sv);px(b,12,0,tw?sv:[255,250,200])}break}
     case'h_sakura':{hairTop();const pk=[255,190,210],wh=[255,240,245],y=[255,220,120];const xs=side?[5,7,9]:[4,6,8,10];xs.forEach((x,i)=>{px(b,x,3,i%2?wh:pk);px(b,x+1,3,i%2?pk:wh);px(b,x,2,pk);px(b,x+1,4,pk)});if(!side&&!up){px(b,7,3,y);px(b,9,3,y)}break}
     case'h_hunterhood':{const g=[86,110,70],gd=[60,80,48];fillR(b,side?5:4,1,side?7:8,4,g);fillR(b,side?5:3,4,1,5,gd);if(!side)fillR(b,12,4,1,5,gd);fillR(b,side?6:5,0,side?4:6,1,g);if(up)fillR(b,4,5,8,4,g);else fillR(b,side?6:5,4,side?5:6,1,gd);break}
@@ -2823,6 +2833,10 @@ function drawOutfit3(b,dir,id,sh,shD,pants){const side=dir==='side',back=dir==='
     case'o_gymtank':{const k=[44,44,52],kd=[26,26,32],r=[230,60,70];fillR(b,tx,11,tw,6,k);fillR(b,tx,16,tw,1,kd);if(!back&&!side){px(b,7,13,r);px(b,8,13,r);px(b,6,12,r);px(b,9,12,r)}fillR(b,tx,17,tw,2,[70,84,120]);break}
     case'o_doccoat':{const w=[250,250,252],wd=[214,218,226],bl=[110,170,230];coat(w,wd,8);if(!back&&!side){fillR(b,7,11,2,2,bl);px(b,5,13,[230,70,80]);px(b,10,13,[150,150,160]);px(b,10,14,[150,150,160])}break}
     case'o_moondress':{const L=[206,188,244],Ld=[170,150,220],w=[255,255,255],sv=[236,240,255];coat(L,Ld,8);fillR(b,tx-1,16,tw+2,2,L);fillR(b,tx-1,18,tw+2,1,Ld);if(!back&&!side){px(b,7,11,w);px(b,8,11,w)}const tw2=(wt*3)|0;for(let i=0;i<5;i++){const xx=tx+((i*5+tw2)%tw),yy=12+((i*3+tw2)%6);px(b,xx,yy,i%2?sv:[255,248,200])}break}
+    case'o_balldress':{const R=[220,52,84],Rd=[168,30,60],Rl=[255,124,150],g=[255,210,90];coat(R,Rd,4);for(let y=15;y<20;y++){const ex=Math.min(3,y-14);fillR(b,tx-ex,y,tw+ex*2,1,y===19?Rd:y%2?R:Rl)}if(!back&&!side){px(b,7,11,g);px(b,8,11,g);px(b,6,12,Rl);px(b,9,12,Rl)}const t2=(wt*2)|0;px(b,tx+((t2*3)%tw),17,[255,190,200]);break}
+    case'o_princess':{const P=[255,176,212],Pd=[232,122,172],w=[255,250,255],r=[255,110,160];coat(P,Pd,4);if(!side){fillR(b,2,11,2,2,w);fillR(b,12,11,2,2,w)}else fillR(b,tx-1,11,2,2,w);for(let y=15;y<20;y++){const ex=Math.min(2,(y-14)>>1);fillR(b,tx-ex,y,tw+ex*2,1,y===17||y===19?w:P)}if(!back&&!side){px(b,7,13,r);px(b,8,13,r);px(b,6,12,r);px(b,9,12,r)}break}
+    case'o_starnight':{const N=[44,48,110],Nd=[26,28,72],Nl=[80,86,170],sv=[255,248,200];coat(N,Nd,4);for(let y=15;y<20;y++){const ex=Math.min(2,y-14);fillR(b,tx-ex,y,tw+ex*2,1,y%2?N:Nl)}const t3=(wt*3)|0;for(let i=0;i<6;i++){const xx=tx-1+((i*5+t3)%(tw+2)),yy=12+((i*4+t3)%8);px(b,xx,yy,i%2?sv:[200,220,255])}break}
+    case'o_prince':{const N=[40,60,130],Nd=[26,40,96],go=[255,206,70],r=[214,50,70],w=[250,250,255];coat(N,Nd,8);if(!back){if(!side){for(let y=12;y<17;y+=2)px(b,7,y,go);for(let i=0;i<5;i++)px(b,5+i,11+i,r);fillR(b,3,11,2,1,go);fillR(b,11,11,2,1,go);px(b,8,11,w)}else{px(b,7,12,go);px(b,7,14,go)}}break}
     case'o_sakura':{const pk=[255,204,218],pd=[236,160,184],w=[255,255,255],r=[255,120,160];coat(pk,pd,8);fillR(b,tx-1,17,tw+2,2,pk);if(!back&&!side){px(b,7,11,w);px(b,8,11,w);px(b,6,11,w);px(b,9,11,w)}fillR(b,tx,14,tw,1,r);if(!back&&!side){px(b,6,13,r);px(b,9,13,r);px(b,7,14,[255,200,220]);px(b,8,14,[255,200,220])}[[5,16],[9,12],[10,17],[6,12]].forEach(q=>{if(q[0]>=tx&&q[0]<tx+tw)px(b,q[0],q[1],[255,170,200])});break}
     case'o_darkarmor':{const k=[58,58,72],kd=[34,34,46],r=[170,30,44],sv=[170,170,190];coat(k,kd,8);if(!side){fillR(b,3,11,1,2,r);fillR(b,12,11,1,2,r)}fillR(b,tx,15,tw,1,kd);if(!back&&!side){fillR(b,7,12,2,3,r);px(b,5,12,sv);px(b,10,12,sv);px(b,5,16,sv);px(b,10,16,sv)}fillR(b,tx,18,tw,1,r);break}
     case'o_hunter':{const g=[76,112,64],l=[118,84,52],ld=[84,58,36],k=[60,40,26],gd=[220,170,70];coat(g,[52,80,44],8);if(!side){fillR(b,tx,11,2,6,l);fillR(b,tx+tw-2,11,2,6,l)}else fillR(b,tx,11,2,6,l);fillR(b,tx,15,tw,1,k);if(!back&&!side){px(b,7,15,gd);fillR(b,9,15,2,2,ld);fillR(b,5,15,2,2,ld)}fillR(b,5,18,6,1,ld);break}
@@ -2856,6 +2870,7 @@ function drawOutfit3(b,dir,id,sh,shD,pants){const side=dir==='side',back=dir==='
     default:return drawOutfit5(b,dir,id,sh,shD,pants)}
   return true}
 function drawBack3(b,dir,id){const side=dir==='side',up=dir==='up';
+  if(id==='k_bubblenet'){const h=[214,170,120],hp=[170,226,255],hl=[255,255,255],pk=[255,190,230];if(up){for(let i=0;i<9;i++)px(b,5+i,18-i,h);for(let a=0;a<12;a++){const q=a/12*6.28;px(b,Math.round(13+Math.cos(q)*2.4),Math.round(6+Math.sin(q)*2.4),a%3?hp:pk)}}else if(side){fillR(b,3,8,1,10,h);for(let a=0;a<12;a++){const q=a/12*6.28;px(b,Math.round(3+Math.cos(q)*2.4),Math.round(5+Math.sin(q)*2.4),a%3?hp:pk)}}else{px(b,12,9,h);px(b,13,8,h);px(b,13,7,h);for(let a=0;a<12;a++){const q=a/12*6.28;px(b,Math.round(14+Math.cos(q)*2),Math.round(4+Math.sin(q)*2),a%3?hp:pk)}px(b,13,3,hl)}return}
   if(id==='yogamat'){const p=[200,170,240],pd=[160,130,210];if(up){fillR(b,3,10,10,3,p);fillR(b,3,12,10,1,pd)}else if(side){fillR(b,2,9,3,3,p);px(b,3,10,pd)}else{fillR(b,1,9,3,3,p);fillR(b,12,9,3,3,p);px(b,2,10,pd);px(b,13,10,pd)}return}
   if(id==='chalkbag'){const c=[60,140,220],w=[255,255,255];if(up){fillR(b,6,16,4,3,c);fillR(b,6,15,4,1,w)}else if(side){fillR(b,3,15,2,3,c);px(b,3,14,w)}else{fillR(b,12,16,2,2,c);px(b,12,15,w)}return}
   const cape=(c,lining,emb)=>{if(up){fillR(b,3,11,10,8,c);fillR(b,3,18,10,1,darken(c,.2));fillR(b,4,10,8,1,darken(c,.1));if(emb)emb()}else if(side){fillR(b,3,11,3,8,c);px(b,4,18,lining)}else{fillR(b,2,11,1,7,c);fillR(b,13,11,1,7,c);px(b,2,17,lining);px(b,13,17,lining);fillR(b,3,18,1,1,c);fillR(b,12,18,1,1,c)}};
@@ -4842,6 +4857,19 @@ const TIER_SET=['레어','에픽','유니크','레전더리','미스틱','태초
  ['rx_rbdragon','무지개 용 낚싯대',700000000,6,['#ff6a6a','#ffd34d','#6ad08a','#4ab0ff','#a06aff'],{glow:'#ffffff',tip:'star',tc:'#ffffff',along:['#ff6a6a','#ffd34d','#6ad08a','#4ab0ff','#a06aff'],rb:1,trail:1}],
  ['rx_genesis','창세의 낚싯대',1500000000,7,['#ffffff','#ffe8f8','#e0f4ff','#fff8d0'],{glow:'#ffffff',tip:'star',tc:'#ffffff',along:['#ffffff','#ffd0f0','#c0f0ff','#fff8c0'],rb:1,trail:1}]
 ].forEach(r=>{const id=r[0];ROD3[id]={tier:r[3],fx:r[5]};const c={id,k:'rod',name:r[1],price:r[2],tier:r[3],col:r[4],nw:'2026-11-11',set:TIER_SET[r[3]]+' 낚싯대'};COS.push(c);COS_BY[id]=c});
+/* 🎣 새 낚싯대 열 자루 (2026-11-16) */
+[
+ ['rz_bubble','비눗방울 낚싯대',30000000,2,['#bfe8ff','#ffffff','#ffc0e8'],{glow:'#c0f0ff',tip:'orb',tc:'#ffffff',along:['#c0f0ff','#ffd0f0','#ffffff']}],
+ ['rz_ribbon','리본 요정 낚싯대',30000000,2,['#ff9ac8','#ffd0e6','#ffffff'],{glow:'#ffb0d8',tip:'heart',tc:'#ff6aa8',along:['#ffb0d8','#ffffff']}],
+ ['rz_ginkgo','노란 은행잎 낚싯대',80000000,3,['#8a6a30','#ffd040','#fff0a0'],{glow:'#ffd860',tip:'leaf',tc:'#ffd040',along:['#ffd040','#ffb020','#fff0a0'],trail:1}],
+ ['rz_lantern','꽃등불 낚싯대',80000000,3,['#6a3a20','#ff9a50','#ffe0a0'],{glow:'#ffb060',tip:'orb',tc:'#ffd890',along:['#ffb060','#ffe0a0']}],
+ ['rz_sakura2','겹벚꽃 가지 낚싯대',80000000,3,['#7a4a40','#ffc0d8','#ffffff'],{glow:'#ffc0d8',tip:'flower',tc:'#ff90b8',along:['#ffc0d8','#ffe6f0'],trail:1}],
+ ['rz_aurora2','오로라 커튼 낚싯대',200000000,4,['#2a3a6a','#60e0b0','#c080ff'],{glow:'#80f0c0',tip:'star',tc:'#c0ffe8',along:['#60e0b0','#c080ff','#80c0ff'],rb:1,trail:1}],
+ ['rz_comet','혜성 꼬리 낚싯대',200000000,4,['#1a2040','#80c0ff','#ffffff'],{glow:'#a0d8ff',tip:'star',tc:'#ffffff',along:['#ffffff','#a0d8ff','#80a0ff'],trail:1}],
+ ['rz_unicorn','유니콘 뿔 낚싯대',500000000,5,['#fff0fa','#ffc0e0','#c0e0ff','#fff0a0'],{glow:'#ffffff',tip:'star',tc:'#ffd0f0',along:['#ffc0e0','#c0e0ff','#fff0a0','#ffffff'],rb:1,trail:1}],
+ ['rz_harp','천사의 하프 낚싯대',500000000,5,['#fff8e0','#ffe080','#ffffff'],{glow:'#fff0b0',tip:'note',tc:'#ffffff',along:['#fff0b0','#ffffff'],trail:1}],
+ ['rz_eden','생명나무 가지 낚싯대',1200000000,6,['#5a3a20','#7ac060','#ffe070','#ffffff'],{glow:'#b0ff90',tip:'leaf',tc:'#ffe070',along:['#b0ff90','#ffe070','#ffffff'],trail:1}]
+].forEach(r=>{const id=r[0];ROD3[id]={tier:r[3],fx:r[5]};const c={id,k:'rod',name:r[1],price:r[2],tier:r[3],col:r[4],nw:'2026-11-16',set:TIER_SET[r[3]]+' 낚싯대'};COS.push(c);COS_BY[id]=c});
 [
  ['bx_flame','불꽃 연꽃 찌',40000000,3,["...y...","..yoy..",".o.r.o.","pprrrpp",".ppppp.","..ggg.."],{y:'#fff0a0',o:'#ff9030',r:'#ff4020',p:'#ff90b8',g:'#4a9a5a'},{glow:'#ff7030',rise:['#ff9030','#ffd040','#ff4020'],sig:'fire'}],
  ['bx_frost','얼음 결정 찌',40000000,3,["...w...",".w.c.w.","..ccc..","wcccccw","..ccc..",".w.c.w.","...w..."],{w:'#ffffff',c:'#a8e4ff'},{glow:'#bff0ff',fall:['#ffffff','#e0f6ff'],ring:'#bff0ff',sig:'ice'}],
