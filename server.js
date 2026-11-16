@@ -238,7 +238,7 @@ function cleanLook(l, save, color) {
   o.e = enh ? enh.lv | 0 : 0;   // 이름표 옆 +강화 수치: 서버 기록 그대로
   { const cup = (save && save.cup) || {}; o.gs = Math.max(cup[o.o] | 0, cup[o.hat] | 0, cup[o.bk] | 0, cup[o.fa] | 0); }   // 치장 별 (입은 것 중 가장 높은 별)
   o.j = typeof l.j === 'string' && /^(fish|sch|cra|tam|mer)[0-3]$/.test(l.j) ? l.j : '';
-  o.kc = /^(gold|pink|sky|mint|lav|rb|night)$/.test(l.kc) ? l.kc : '';   // 👑 손맛 왕 이름표 색 (2026-11-16)
+  o.kc = /^(gold|pink|sky|mint|lav|rb|night|plain)$/.test(l.kc) ? l.kc : '';   // 👑 손맛 왕 이름표 색 (2026-11-16)
   o.cp = typeof l.cp === 'string' && l.cp.length <= 40 && /^(cat|dog)[0-3]\|[^|<>]{1,8}\|\d{1,2}\|[a-z_]{0,12}$/.test(l.cp) ? l.cp : '';   // 🐾 반려동물 (종류·털색|이름|레벨|장식)   // 직업 배지 (아이콘 + 등급 별)
   return o;
 }
