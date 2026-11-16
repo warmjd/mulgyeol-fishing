@@ -1108,7 +1108,7 @@ function onMsg(ws, me, m) {
       const cos = st === 2 ? giveCos(s, [N[3]]) : []; queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: N[st] }, '💝 부탁을 들어준 답례'); send(ws, { t: 'npc_ok', cos });
       if (st === 2) broadcast({ t: 'news', text: '💝 ' + me.name + ' 님이 ' + ({ grand: '파도 할멈', sugar: '디저트 요정 슈가', sobok: '소복옹' }[m.id]) + '의 마지막 부탁까지 들어줬어요!' });
     }); break;
-    case 'fdrop': case 'it_scr': case 'it_dis': case 'it_dis_many': case 'sc_buy': withLock(me.key, async () => rpgMsg(ws, me, m)).catch(e => console.error('rpg', e.message)); break;
+    case 'fdrop': case 'it_scr': case 'it_dis': case 'it_dis_many': case 'it_star': case 'sc_buy': withLock(me.key, async () => rpgMsg(ws, me, m)).catch(e => console.error('rpg', e.message)); break;
     case 'hunt_buy': case 'hunt_kill': case 'hunt_pot': case 'hunt_die': case 'hunt_eq': case 'hunt_ex': case 'hunt_star': withLock(me.key, async () => {   // ⚔️ 사냥터 (3차-4): 장비는 은비랜드 칩으로만 · 처치하면 칩 · 아주 가끔 상점에 없는 것
       const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); const e = ebOf(s);
       h.inv = Array.isArray(h.inv) ? h.inv : [];
@@ -1925,6 +1925,7 @@ function mkItem(tier, g, sl) {
   const no = [0, 1, 1, 2, 2, 3, 4, 5, 6][g], pool = RPG_SUB.slice(); for (let i = 0; i < no; i++) { const k = pool.splice((Math.random() * pool.length) | 0, 1)[0]; it.o.push([k, Math.max(1, Math.round((1 + tier * .4) * (1 + g * .4) * (.4 + Math.random() * .6)))]); }
   return it;
 }
+const STAR_MAX = 10, starCost = it => Math.round(3e5 * (1 + (it.g | 0)) * Math.pow(1.7, it.e | 0) / 1000) * 1000;   // index.html과 같아요
 const enhB = it => (it.e | 0) * Math.max(1, Math.ceil((it.b | 0) * .15)) + (it.up | 0);
 /* 📜 메이플식 주문서: 무기 주문서(무기) · 방어구 주문서(그 외) · 100%(+1) 60%(+2) 10%(+5) × 장비 계열 · 장비마다 업그레이드 가능 횟수 */
 const SCR_P = { 100: 1, 60: .6, 10: .1 }, SCR_G = { 100: 1, 60: 2, 10: 5 }, SCR_SLOTS = [5, 6, 7, 7, 8, 9, 10, 12, 15], SCR_PRICE = { 100: 3e5, 60: 8e5, 10: 1.5e6 };
@@ -1962,6 +1963,13 @@ async function rpgMsg(ws, me, m) {
     if (!it || RPG_SLOTS.some(k => h['eq' + k] === i)) return; const n = Math.round([1, 2, 4, 8, 16, 40, 120, 500, 2000][it.g] * (1 + (it.e | 0) * .2)); h.dr = (h.dr | 0) + n; let sc = 0; if (Math.random() < (it.g + 1) / 14) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; sc = id; }
     invDel(h, i); return out({ note: '🔨 분해했어요 · 꿈조각 +' + n + (sc ? ' · 📜 ' + (sc[0] === 'w' ? '무기' : '방어구') + ' 주문서 ' + sc.slice(1) + '% +1' : '') });
   }
+  if (m.t === 'it_star') {   // ⭐ 장비 별 강화 (2026-11-17): 은비랜드 칩으로 · 실패 없음 · +10까지 · 단계마다 기본 능력치 +15%
+    if (!it) return; const st = it.e | 0; if (st >= STAR_MAX) return out({ note: '⭐ 이미 +' + STAR_MAX + '이에요' }); const cost = starCost(it), e = ebOf(s);
+    if ((e.c | 0) < cost) return out({ note: '칩이 모자라요 (⭐ 별 강화 ' + cost.toLocaleString() + '칩)' }); e.c -= cost; it.e = st + 1;
+    if (it.e >= 8 && it.g >= 4) broadcast({ t: 'news', text: '⭐ ' + me.name + ' 님이 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] + ' 별 강화 +' + it.e + '!' });
+    return out({ note: '⭐ 별 강화 성공! +' + it.e + ' · 칩 -' + cost.toLocaleString(), c: e.c });
+  }
+  if (m.t === 'sc_buy') return out({ note: '📜 주문서는 이제 사냥 드랍 · 꿈조각 교환으로만 얻어요 (칩은 ⭐ 장비 별 강화에 써요)' });   // 2026-11-17: 칩으로 주문서 사기는 없어졌어요
   if (m.t === 'sc_buy') { const id = String(m.k || ''), p = +id.slice(1), n = Math.max(1, Math.min(10, m.n | 0)); if (!/^[wa](100|60|10)$/.test(id)) return; const e = ebOf(s), cost = SCR_PRICE[p] * n; if ((e.c | 0) < cost) return out({ note: '칩이 모자라요 (은비랜드에서 골드를 칩으로 바꿔요)' }); e.c -= cost; const SC = scrMig(h); SC[id] = (SC[id] | 0) + n; return out({ note: '📜 ' + (id[0] === 'w' ? '무기' : '방어구') + ' 주문서 ' + p + '% ×' + n + ' 샀어요', c: e.c }); }
   if (m.t === 'it_scr') {   // 📜 주문서 바르기: 성공·실패 모두 업그레이드 횟수 1 소모
     if (!it) return; const p = [100, 60, 10].includes(m.p | 0) ? m.p | 0 : 100, id = scrKind(it) + p, SC = scrMig(h); if ((SC[id] | 0) < 1) return out({ note: '그 주문서가 없어요' }); const left = scrLeft(it); if (left < 1) return out({ note: '업그레이드 가능 횟수를 다 썼어요' });
