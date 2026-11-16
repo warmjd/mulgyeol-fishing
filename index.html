@@ -5195,8 +5195,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1116d',UPD_LOG=[
- ['11/16 늦은 밤','🛠️',[['🔤 또렷한 글자','반려동물 이름표 · 떠오르는 글자(주문서 · 장비 획득) · 하늘낚시 이름표 등 게임 화면 속 글자가 더 이상 뭉개지지 않아요 · 반려동물 이름표는 내 이름표와 같은 모양'],['🚶 걷는 모습','발을 디딜 때마다 몸이 살짝 들썩이고 팔을 흔들어요 · 발소리에 맞춰 흙먼지 · 빨라지면 걸음도 빨라져요'],['🐾 반려동물 효과 강화','행운 레벨마다 +0.5% (예전 0.2%) · 판매가 +0.3% (예전 0.1%) · 새로: 손으로 낚을 때 입질이 빨라지고 (Lv99 약 15%) · Lv50부터 대물 확률 +'],['🔨 여러 개 분해','꿈의 문 가방에서 「여러 개 분해」 → 하나씩 고르거나 등급별로 한 번에 · 장착한 장비는 빠져요'],['🧪 힐링포션','한 번 마시면 8초 뒤에 다시 마실 수 있어요 (버튼에 시간이 보여요)'],['🔮 🏹 직업 창','별빛 예언자 · 꿈 사냥꾼 직업 창이 안 열리고 닫히던 것 고쳤어요 · 이제 기술(운세 보기 · 사냥 본능 등)을 누를 수 있어요'],['💰 골드 표시','21억 골드가 넘으면 유저 현황에 마이너스로 보이던 것 고쳤어요 (실제 골드는 그대로였어요)'],['👗 치장 상점','미리보기 그림을 가볍게 바꿔서 덜 버벅여요']]],
+const UPD_VER='1116e',UPD_LOG=[
+ ['11/16 늦은 밤','🛠️',[['🔤 또렷한 글자','반려동물 이름표 · 떠오르는 글자(주문서 · 장비 획득) · 하늘낚시 이름표 등 게임 화면 속 글자가 더 이상 뭉개지지 않아요 · 반려동물 이름표는 내 이름표와 같은 모양'],['🚶 걷는 모습','발을 디딜 때마다 몸이 살짝 들썩이고 팔을 흔들어요 · 발소리에 맞춰 흙먼지 · 빨라지면 걸음도 빨라져요'],['🐾 반려동물 효과 강화','행운 레벨마다 +0.5% (예전 0.2%) · 판매가 +0.3% (예전 0.1%) · 새로: 손으로 낚을 때 입질이 빨라지고 (Lv99 약 15%) · Lv50부터 대물 확률 +'],['🔨 여러 개 분해','꿈의 문 가방에서 「여러 개 분해」 → 하나씩 고르거나 등급별로 한 번에 · 장착한 장비는 빠져요'],['🧪 힐링포션','한 번 마시면 8초 뒤에 다시 마실 수 있어요 (버튼에 시간이 보여요)'],['🔮 🏹 직업 창','별빛 예언자 · 꿈 사냥꾼 직업 창이 안 열리고 닫히던 것 고쳤어요 · 이제 기술(운세 보기 · 사냥 본능 등)을 누를 수 있어요'],['💰 골드 표시','21억 골드가 넘으면 유저 현황에 마이너스로 보이던 것 고쳤어요 (실제 골드는 그대로였어요)'],['👗 치장 상점','미리보기 그림을 가볍게 바꿔서 덜 버벅여요'],['🌙 달 · 해','달의 어두운 쪽이 파란 원판 대신 밤하늘에 녹아들어요 (아주 옅은 지구빛) · 밝은 쪽엔 은은한 바다 무늬 · 부드러운 경계 · 해는 겹겹의 빛무리와 둥근 원반, 해 질 녘엔 붉고 크게']]],
  ['11/16 밤','☁️',[['☁️ 하늘낚시','마을 북쪽 끝에 서서 하늘로 줄을 던져요 · 별 등불이 반짝이면 누르고, 누르고 떼며 빛의 원 안에 손님을 담아요 · 직접 낚기만 돼요'],['📖 하늘 도감 59종','하늘 물고기 42 · 별자리 12 · 특별 5 · 새벽 · 낮 · 노을 · 밤 · 진짜 보름달과 그믐 · 비 · 안개 · 무지개 · 겨울마다 다른 손님 · 전설 · 신화는 아주 아주 드물어요'],['⭐ 별자리','계절마다 제철 별자리 셋 · 조각 다섯 개를 모으면 내 밤하늘에 이어져요 · 열두 개를 다 이으면…'],['🌠 별똥별','하늘낚시 중 별똥별이 지나가면 바로 눌러 소원을 빌어요'],['🎵 하늘의 소리','하늘을 보면 「별빛 자장가」 · 낮엔 「구름 산책」 · 바람 · 종 · 하프 소리'],['💍 온 세상의 반지','별먼지 · 달 조각 · 혜성의 꼬리 조각이 하늘낚시로 열렸어요']]],
  ['11/16 저녁','🌅',[['🌅 진짜 하늘','서울의 진짜 해돋이 · 해넘이에 맞춰 하늘빛이 바뀌어요 · 마을 북쪽 끝으로 걸어가면 지평선 · 먼 산 · 구름 · 밤엔 별과 은하수 · 별똥별 · 오늘 진짜 달 모양 (보름달엔 토끼도…)'],['🌊 물에 비친 하늘','물 위로 구름이 흘러가고 · 밤엔 달빛 · 아침저녁엔 햇빛이 반짝여요'],['💠 꿈의 정수','+20부터 강화 한 번에 정수 1개 · 사냥터 우두머리(어려움일수록 많이) · 바다 보스 · 레이드 · 칩 교환(한 주 10개) · 이미 +20인 분께 20개를 드렸어요'],['🌑 레이드 2.0','보스 다섯 (악몽의 왕 · 서리 거인 · 용암 고래 · 폭풍 문어 · 별삼킨 해파리) · 모두 같은 순간에 같은 패턴 · 함께 때리면 합동 공격 · 노란 원에 모여서 나눠 맞기 · 쓰러진 친구 일으켜 주기'],['👑 손맛 왕의 마을','손맛 1등이 마을 주인 · 가게 세금 0~5% · 하루 한 번 마을 공지 · 손맛 축제(30분 판매가 +10%) · 벤치 · 벌집을 놓고 치워요 · 마을 사람은 부탁하고 왕이 허락해요 (메뉴 → 왕의 마을)'],['💍 반지 공방','결혼반지는 공방 장인만 만들어요 · 상자로 주고받아요 · 엔딩 「온 세상의 반지」: 스물네 곳의 조각을 새겨요 (아직 아무도 못 간 곳도…) · 청혼하면 무릎 꿇고 반지 상자 · 꽃길 · 불꽃놀이'],['🧺 덧미끼','장인 미끼는 상점 미끼와 함께 끼울 수 있어요 · 새 장인 미끼 👯 쌍둥이 · 🖐️ 손맛'],['🔮 새 직업','별빛 예언자: 친구 운세(대길~대흉 · 2시간) · 흉운 보내기 · 운명의 별 / 🏹 꿈 사냥꾼: 사냥 칩 · 경험치 · 정수'],['🐾 펫','동물 친구 직업이면 펫이 1.5배 빨리 자라요 · 짝꿍 Lv40 · 99 행운 · Lv50 반짝 · 레벨 혜택 표'],['🔨 주간 경매 · 💪 성실 보상','골드로 입찰(밀리면 바로 환불) · 이번 주 직접 낚은 마릿수로 상자 5단계'],['🌹 새 치장','티아라 · 여왕의 왕관 · 무도회 드레스 · 공주님 드레스 · 별밤 드레스 · 왕자님 예복 · 비눗방울 잠자리채 · 새 낚싯대 10자루'],['🌦️ 주민 이야기','비 오면 우산 · 날씨와 달에 따라 한마디 · 그리고 몇 가지 비밀…'],['❓ ??? 도감','칸마다 「깊은 물」 · 🌙 밤 표시']]],
  ['11/16','🍂',[['🍂 가을이 왔어요','마을과 꽃밭 언덕 나무들이 노란 은행나무로 · 흔들면 은행잎이 우수수 · 바닥에도 은행잎 (현실 가을 동안)'],['🎃 가을 축제 치장','호박 풍선 · 거대 은행잎 우산 · 거대 호박 모자 (가을 한정) · 거대 리본'],['👣 새 발자국 8가지','은행잎(가을 한정) · 초록 숲 · 나비 · 꽃길 · 그림자 · 칼날 · 불씨 · 맹수'],['🐾 반려동물 이름표','친구 화면에도 내 반려동물 이름과 레벨이 보여요'],['🎣 찌 던지기','친구가 던지는 찌도 날아가서 첨벙 · 입질 중에도 보여요'],['💤 꿈조각 → 강화권','하루 제한이 없어졌어요'],['⚒️ 공방 장인 새 기술 「장비 사냥」','하루 한 번 · 30분 동안 사냥터 장비 · 주문서 드랍 2배 (예전 「장인의 손길」 자리)'],['👑 손맛 왕 이름표 색','손맛 왕은 내 정보에서 이름표 색을 고를 수 있어요 (7가지)']]],
@@ -7459,7 +7459,7 @@ function toastNow(msg){const el=$('toast');el.textContent=msg;el.classList.add('
 function hideHint(){const h=$('hint');if(h&&!h.hidden){h.hidden=true;S.hinted=true}}
 
 /* ---------- 렌더링 · 메인 루프 ---------- */
-const cv=$('cv'),cx=cv.getContext('2d');
+const cv=$('cv'),cx=cv.getContext('2d');window.__cx=cx;
 /* 또렷한 글자 (2026-11-16): 픽셀 캔버스는 해상도가 낮아서 작은 글자가 뭉개져요.
    그리는 동안 cx.fillText · strokeText를 모아 두었다가, 화면 해상도 캔버스(tcv)에 같은 자리 · 같은 크기로 다시 써요.
    worldTag는 내 이름표(.ntag)와 똑같은 동그란 이름표를 그려요. */
@@ -7823,9 +7823,19 @@ function skyAssets(){if(SKYA.ok)return SKYA;SKYA.ok=1;const r=RNG(2026);
   return SKYA}
 /* 달 그림 (모양은 오늘 달 그대로 · 1/48 단위로 기억) */
 const MOONC={};
-function moonCan(p,R){const k=Math.round(p*48)%48+'_'+R;if(MOONC[k])return MOONC[k];const c=document.createElement('canvas');c.width=c.height=R*2+2;const g=c.getContext('2d'),q=Math.round(p*48)/48,cs=Math.cos(q*6.283);
-  for(let y=0;y<R*2;y++)for(let x=0;x<R*2;x++){const nx=(x+.5-R)/R,ny=(y+.5-R)/R;if(nx*nx+ny*ny>1)continue;const s=Math.sqrt(1-ny*ny),lit=q<=.5?nx>cs*s:nx<-cs*s;
-    if(lit){const cr=((x*7+y*13)%11===0)||((x*3+y*5)%17===0&&nx<.2);g.fillStyle=cr?'#e6dcae':nx*nx+ny*ny>.8?'#f6eec4':'#fff8dc'}else g.fillStyle='rgba(120,130,190,.28)';g.fillRect(x+1,y+1,1,1)}
+function moonCan(p,R){const k=Math.round(p*96)%96+'_'+R;if(MOONC[k])return MOONC[k];const c=document.createElement('canvas');c.width=c.height=R*2+2;const g=c.getContext('2d'),q=Math.round(p*96)/96,cs=Math.cos(q*6.283),img=g.createImageData(c.width,c.height),D=img.data;
+  /* 2026-11-16 달 다시 그리기: 어두운 쪽은 파란 원판 대신 하늘에 녹아들고 (아주 옅은 지구빛만), 밝은 쪽은 바다 무늬 · 가장자리 어둡게 · 부드러운 경계 */
+  const mare=(nx,ny)=>{let v=0;[[-.3,-.28,.42,.9],[.18,-.38,.3,.7],[-.05,.15,.38,.8],[.36,.12,.26,.6],[-.42,.3,.22,.5]].forEach(([mx,my,mr,w])=>{const d=Math.hypot(nx-mx,(ny-my)*1.15)/mr;if(d<1)v+=(1-d)*(1-d)*w});return Math.min(1,v)};
+  const crat=(nx,ny)=>{let v=0;[[.22,.62,.1]].forEach(([mx,my,mr])=>{const d=Math.hypot(nx-mx,ny-my)/mr;if(d<1)v=.12*(1-d)});return v};   // 밝은 충돌구 하나만 은은하게
+  const SS=3;
+  for(let y=0;y<R*2;y++)for(let x=0;x<R*2;x++){let lit=0,cov=0,r=0,gC=0,b=0;
+    for(let sy=0;sy<SS;sy++)for(let sx=0;sx<SS;sx++){const nx=(x+(sx+.5)/SS-R)/R,ny=(y+(sy+.5)/SS-R)/R,rr=nx*nx+ny*ny;if(rr>1)continue;cov++;
+      const sw=Math.sqrt(1-ny*ny),t=q<=.5?(nx-cs*sw):(-cs*sw-nx),L=Math.max(0,Math.min(1,t/.09+.5));   // 경계를 부드럽게
+      const limb=.78+.22*Math.sqrt(1-rr),m=mare(nx,ny),cr=crat(nx,ny),base=limb*(1-m*.16)+cr;
+      lit+=L;r+=L*(250*base)+(1-L)*60;gC+=L*(244*base)+(1-L)*66;b+=L*(214*base+18*m)+(1-L)*96}
+    if(!cov)continue;const i=((y+1)*c.width+(x+1))*4,f=cov/(SS*SS),Lm=lit/cov;
+    D[i]=Math.min(255,r/cov);D[i+1]=Math.min(255,gC/cov);D[i+2]=Math.min(255,b/cov);D[i+3]=Math.round(255*f*(Lm+(1-Lm)*.1))}   // 어두운 쪽은 지구빛 10%만
+  g.putImageData(img,0,0);
   return MOONC[k]=c}
 /* 맵 북쪽 끝: 하늘 · 해 · 달 · 별 · 은하수 · 산 · 구름 (화면 좌표, 색조 뒤에 그려요) */
 const SKF={};
@@ -7849,12 +7859,19 @@ function drawSkyFront(){if(!SKF.on)return;const{hy,K,dark,grey,par,cX}=SKF,A=SKY
     A.stars.forEach(s=>{const x=((s[0]*VW*1.6-par*60)%(VW*1.6)+VW*1.6)%(VW*1.6)-VW*.3,y=hy-12-s[1]*(hy+40);if(y<0||x<0||x>VW)return;const tw=.55+.45*Math.sin(wt*2*s[4]+s[3]);cx.fillStyle='rgba(255,252,230,'+(a*tw*s[4])+')';cx.fillRect(x|0,y|0,s[2],s[2])});
     if(Math.random()<.004*dark)(A.shoot=A.shoot||[]).push({x:Math.random()*VW,y:Math.random()*hy*.6,t:0});
     (A.shoot||[]).forEach(s=>{s.t+=FXDT||.016;const k=s.t/.7;cx.strokeStyle='rgba(255,255,230,'+(1-k)*a+')';cx.lineWidth=1;cx.beginPath();cx.moveTo(s.x-s.t*160,s.y+s.t*70);cx.lineTo(s.x-s.t*160+26,s.y+s.t*70-11);cx.stroke()});A.shoot=(A.shoot||[]).filter(s=>s.t<.7)}
-  if(K.ma>-2&&K.illum>.02&&grey<.6){const mx=SKF.xs(K.maz),my=SKF.ys(K.ma),R=10,mc=moonCan(K.p,R),day=Math.max(0,Math.min(1,(K.sa+2)/12));
+  if(K.ma>-2&&K.illum>.02&&grey<.6){const mx=SKF.xs(K.maz),my=SKF.ys(K.ma),R=12,mc=moonCan(K.p,R),day=Math.max(0,Math.min(1,(K.sa+2)/12));
     if(day<1){const gg=cx.createRadialGradient(mx,my,0,mx,my,R*4);gg.addColorStop(0,'rgba(240,240,255,'+.35*(1-day)*K.illum+')');gg.addColorStop(1,'rgba(240,240,255,0)');cx.fillStyle=gg;cx.fillRect(mx-R*4,my-R*4,R*8,R*8)}
     cx.globalAlpha=1-day*.65;cx.drawImage(mc,Math.round(mx-R-1),Math.round(my-R-1));if(K.p>.46&&K.p<.54){cx.fillStyle='rgba(170,156,110,.6)';const X=Math.round(mx),Y=Math.round(my);[[-3,-4],[-2,-4],[-3,-3],[-2,-3],[-2,-2],[-1,-1],[0,-1],[1,-1],[-1,0],[0,0],[1,0],[2,0],[0,1],[1,1],[3,1],[3,2],[2,2],[4,0],[4,-1]].forEach(([a,b2])=>cx.fillRect(X+a,Y+b2,1,1))}cx.globalAlpha=1}
-  if(K.sa>-2&&grey<.5){const sx=SKF.xs(K.saz),sy=SKF.ys(K.sa),R=K.sa<6?11:9,col=K.sa<4?'#ff8a5a':K.sa<12?'#ffc070':'#fff3c0';const g2=cx.createRadialGradient(sx,sy,0,sx,sy,R*3.2);g2.addColorStop(0,'rgba(255,240,190,.75)');g2.addColorStop(1,'rgba(255,220,160,0)');cx.fillStyle=g2;cx.fillRect(sx-R*3.2,sy-R*3.2,R*6.4,R*6.4);
-    cx.fillStyle=col;cx.beginPath();cx.arc(Math.round(sx),Math.round(sy),R,0,6.28);cx.fill();cx.fillStyle='rgba(255,255,240,.7)';cx.beginPath();cx.arc(Math.round(sx)-3,Math.round(sy)-3,R*.45,0,6.28);cx.fill()}
+  if(K.sa>-2&&grey<.5){const sx=SKF.xs(K.saz),sy=SKF.ys(K.sa),R=K.sa<6?10:8;
+    sunDisk(sx,sy,R,K.sa)}
   cx.restore()}
+/* 해 (2026-11-16): 겹겹의 빛무리 · 가장자리가 살짝 어두운 원반 · 낮을수록 붉고 크게 */
+function sunDisk(sx,sy,R,alt,ctx){const cx=ctx||window.__cx,lo=Math.max(0,Math.min(1,(8-alt)/10)),X=Math.round(sx),Y=Math.round(sy);
+  const c0=lo>.6?[255,150,90]:lo>.25?[255,196,120]:[255,246,214],c1=lo>.6?[255,110,70]:lo>.25?[255,168,90]:[255,226,160];
+  const halo=(r,a)=>{const g=cx.createRadialGradient(X,Y,R*.6,X,Y,r);g.addColorStop(0,'rgba('+c1+','+a+')');g.addColorStop(1,'rgba('+c1+',0)');cx.fillStyle=g;cx.fillRect(X-r,Y-r,r*2,r*2)};
+  halo(R*7,.18+lo*.12);halo(R*3.2,.42);
+  halo(R*1.9*(1+.04*Math.sin(wt*.7)),.5);   // 아주 느리게 숨 쉬는 빛무리
+  const d=cx.createRadialGradient(X-R*.2,Y-R*.2,0,X,Y,R);d.addColorStop(0,'rgb(255,253,240)');d.addColorStop(.55,'rgb('+c0+')');d.addColorStop(1,'rgb('+c1+')');cx.fillStyle=d;cx.beginPath();cx.arc(X,Y,R,0,6.283);cx.fill()}
 /* 물 비침: 보이는 물 칸을 이어 붙여 잘라 내고 (줄마다 한 번), 그 안에 구름 · 하늘빛 · 달빛 · 햇빛 */
 function waterClip(x0,x1,y0,y1,ox,oy){cx.beginPath();let n=0;for(let y=y0;y<=y1;y++){const row=W.T[y];if(!row)continue;let s=-1;for(let x=x0;x<=x1+1;x++){const isw=x<=x1&&row[x]==='w';if(isw&&s<0)s=x;else if(!isw&&s>=0){cx.rect(s*TS-ox,y*TS-oy,(x-s)*TS,TS);n++;s=-1}}}return n}
 function skyWater(x0,x1,y0,y1){if(atSeaView&&atSeaView())return;const A=skyAssets(),K=skyNow(),w=weatherNow();cx.save();if(!waterClip(x0,x1,y0,y1,0,0)){cx.restore();return}cx.clip();
