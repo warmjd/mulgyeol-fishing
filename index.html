@@ -114,7 +114,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;-webkit-appeara
 button:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
 .hud{position:fixed;left:0;right:0;top:0;padding:calc(8px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-left,0px)) 0 max(12px,env(safe-area-inset-left,0px));display:flex;gap:8px;align-items:flex-start;pointer-events:none;z-index:5}
 .pill{background:rgba(255,250,242,.9);border:2px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px;box-shadow:0 2px 0 rgba(120,100,170,.15);display:flex;gap:6px;align-items:center;white-space:nowrap}
-.pill b{font-variant-numeric:tabular-nums}#clockPill{pointer-events:auto;cursor:pointer}#onl{margin-left:6px;color:#2f7a63;font-size:12.5px}
+.pill b{font-variant-numeric:tabular-nums}.hud>.pill:first-child{flex:none}#clockPill{pointer-events:auto;cursor:pointer;position:relative;min-width:0;overflow:visible}#clock{overflow:hidden;text-overflow:ellipsis;min-width:0;white-space:nowrap}#onl{position:absolute;right:-6px;top:-9px;z-index:2;margin:0;background:#e6f6ee;border:2px solid #fff;border-radius:999px;padding:0 5px;font-size:10.5px;line-height:15px;color:#2f7a63;box-shadow:0 1px 0 rgba(120,100,170,.2)}
 .coin{width:14px;height:14px;border-radius:50%;background:var(--sun);border:2px solid #e8b95a;display:inline-block;box-sizing:border-box}
 .sp{flex:1}
 .hbtn{pointer-events:auto;width:44px;height:44px;border-radius:14px;background:rgba(255,250,242,.92);border:2px solid var(--line);box-shadow:0 3px 0 rgba(120,100,170,.18);font-size:13px;display:grid;place-items:center;line-height:1.1;padding:0}
@@ -5243,7 +5243,7 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
 const UPD_VER='1117b',UPD_LOG=[
  ['11/17 꿈 사냥꾼','🏹',[['🌧️ 꿈 화살비 (새 기술)','사냥터에서 누르면 주변 꿈방울 모두에게 화살비 · 공격력 ×6 · 쿨타임 2분'],['🛡️ 단단한 몸 (새 패시브)','사냥터 체력 +8% · 방어 +2 (단계마다 · 3단계까지)'],['🏹 원래 기술','추적 · 정수 감각 · 사냥 본능 · 야성 · 전리품 사냥꾼은 그대로예요 (예전엔 직업 창이 안 열려서 안 보였어요)']]],
- ['11/17','🌊',[['👥 지금 접속한 친구','시계 옆 👥 숫자 · 누르면 누가 마을 어디에 있는지 · 낚시 중인지 보여요'],['🌊 물에 비친 달빛 · 햇빛','먼 달 · 해의 비침이 화면보다 느리게 미끄러지던 것을 고쳐서 보는 사람과 함께 자연스럽게 움직여요 · 은은한 빛 기둥 · 잔물결에 부서지는 빛 · 반짝 점 · 물에 하늘빛이 살짝']]],
+ ['11/17','🌊',[['👥 지금 접속한 친구','시계 옆 👥 숫자 (골드가 가려지던 것도 고쳤어요) · 누르면 누가 마을 어디에 있는지 · 낚시 중인지 보여요'],['🌊 물에 비친 달빛 · 햇빛','먼 달 · 해의 비침이 화면보다 느리게 미끄러지던 것을 고쳐서 보는 사람과 함께 자연스럽게 움직여요 · 은은한 빛 기둥 · 잔물결에 부서지는 빛 · 반짝 점 · 물에 하늘빛이 살짝']]],
  ['11/17 새벽 2','☁️',[['📖 도감에 하늘 도감','도감 맨 위 ☁️ 칸 · 낚시터 줄 맨 끝 「☁️ 하늘」을 누르면 하늘 도감으로 가요'],['🌠 하늘낚시 던지는 맛','낚싯대를 젖혔다가 휙! 별 등불이 반짝이는 꼬리를 끌며 하늘로 날아가 퐁 하고 빛 고리를 남겨요']]],
  ['11/17 새벽','🎣',[['🎣 낚싯대가 더 섬세하게','모든 낚싯대에 굵은 아랫대 · 코르크 손잡이 · 릴 · 줄 가이드 · 반짝이는 끝 (대나무는 마디까지)'],['✨ 새 낚싯대 7종','반딧불 · 오르골 · 달빛 은사 · 밤벚꽃 · 무지개 폭포 · 불사조 깃털 · 물결 정령 (치장 상점 → 💎 낚싯대·찌)'],['🫧 새 찌 6종','반딧불 · 연꽃 · 해파리 · 달방울 · 불사조 알 · 오로라 방울'],['👀 효과는 모두에게','낚싯대 · 찌 효과는 친구 화면에도 똑같이 보여요']]],
  ['11/16 자정 넘어','🏅',[['🔢 은비 주간 숫자','은비랜드에서 한 주에 한 번 1~5 중 하나를 골라요 (공짜) · 월요일 0시에 은비가 숫자를 뽑아 맞힌 사람 중 한 명에게 도토리 30개 · 아무도 못 맞히면 다음 주로 쌓여요 (최대 90)'],['🐰 은비랜드 주인','은비땅 님이 은비랜드 주인 · 손님이 잃은 칩의 20%가 주인 몫이에요 (손님이 따로 내는 건 없어요)'],['✨ 반짝 축제','반짝 1위가 하루 한 번 · 30분 동안 마을 모두 반짝 확률 1.5배 (메뉴 → 왕의 마을 → 마을의 1위들)'],['🎣 친구의 손맛이 보여요','친구가 입질을 받으면 찌가 쑥 잠기고 「!」 · 줄다리기 중엔 낚싯대가 휘고 물보라 · 낚아채면 휙! 올라와요'],['🔨 여러 개 분해','버튼이 안 눌리던 것 고쳤어요'],['⛵ 내 꽃배 부르기','낚싯대 +25부터 물에 들어서면 꽃배가 와서 물 위를 가로질러요 · 친구 화면에도 꽃배가 보여요 (먼바다 · 사냥터에선 안 돼요)'],['🙅 사냥 중 교환 신청','사냥하는 동안엔 교환 신청이 오지 않아요 · 같은 친구에게는 30초에 한 번만 신청할 수 있어요']]],
