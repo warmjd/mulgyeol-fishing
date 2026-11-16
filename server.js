@@ -14,7 +14,7 @@ const SB_URL = process.env.SUPABASE_URL;
 const SB_KEY = process.env.SUPABASE_SECRET_KEY;
 const MAX_PLAYERS = 16;          // 동시 접속 최대 (5명 기준이라 넉넉하게)
 const SNAP_MS = 100;             // 친구 위치를 보내는 간격 (초당 10번)
-const SAVE_MS = 5000;
+const SAVE_MS = 45000;   // 2026-11-16 데이터 절약: 5초 → 45초 (접속 끊길 때 · 서버 끌 때는 바로 저장)
 // 운영자: 이 닉네임으로 (그 계정 코드로) 로그인하면 운영자 도구를 쓸 수 있어요. Render 환경변수 ADMINS=이름1,이름2 로 바꿀 수 있어요
 const ADMINS = new Set((process.env.ADMINS || '조돌맹').split(',').map(x => x.trim().toLowerCase()).filter(Boolean));            // 같은 사람의 저장은 최소 5초 간격으로 DB에 씀
 
@@ -558,7 +558,7 @@ async function changeBag(key, delta, why) {
   const save = await loadSave(key); if (!save) throw new Error('저장이 없어요');
   const rev = applyInv(save, delta);
   const l = liveByKey(key); if (l) { l[1].save = save; send(l[0], { t: 'delta', d: delta, rev, why: why || null }); } // why가 없으면 조용히 반영
-  queueSave(key, save); await flushSave(key);
+  queueSave(key, save);   // 2026-11-16 데이터 절약: 바로 쓰지 않고 모아서 (45초 안에 · 끊기면 바로)
   return rev;
 }
 
@@ -569,10 +569,13 @@ function queueSave(key, save) {
   if (!p.timer) p.timer = setTimeout(() => flushSave(key), SAVE_MS);
   pending.set(key, p);
 }
+const savedSig = new Map();   // key -> 마지막으로 DB에 쓴 내용의 지문 (같으면 안 써요)
 async function flushSave(key) {
   const p = pending.get(key); if (!p) return;
   pending.delete(key); clearTimeout(p.timer);
-  try { await db.save(key, p.save); } catch (e) { console.error('저장 실패', key, e.message); }
+  let sig = null; try { sig = crypto.createHash('md5').update(JSON.stringify(p.save)).digest('base64'); } catch (e) { }
+  if (sig && savedSig.get(key) === sig) return;
+  try { await db.save(key, p.save); if (sig) savedSig.set(key, sig); } catch (e) { console.error('저장 실패', key, e.message); }
 }
 
 wss.on('connection', (ws) => {
@@ -2093,8 +2096,9 @@ async function vLoad() {
   catch (e) { console.error('마을 기록을 읽지 못했어요', e.message); V = vDefault(); }
   wkEnsure(); vSend(); console.log('마을 기록 · 시설 ' + vSt() + '단계 · 기금 ' + V.fund.g);
 }
-async function vFlush() { if (!V) return; vDirty = false; V.jp = Math.floor(ebJP); try { await db.save(VKEY, V); } catch (e) { console.error('마을 저장', e.message); } }
-setInterval(() => { if (vDirty) vFlush(); }, 10000);
+let vSig = null;
+async function vFlush() { if (!V) return; vDirty = false; V.jp = Math.floor(ebJP); let sig = null; try { sig = crypto.createHash('md5').update(JSON.stringify(V)).digest('base64'); } catch (e) { } if (sig && sig === vSig) return; try { await db.save(VKEY, V); vSig = sig; } catch (e) { console.error('마을 저장', e.message); } }
+setInterval(() => { if (vDirty) vFlush(); }, 60000);   // 2026-11-16 데이터 절약: 10초 → 1분
 const kstHM = ms => new Date(ms + 9 * 3600e3).toISOString().slice(11, 16);
 /* ⛵ 물결호 키우기 (자연 1.0): 마을 모두가 재료를 실어 단계를 올려요 · 마을 기록(__village)에 저장 · index.html ARK와 같아요 */
 const ARK_NEED = [null, null, { plank: 300, log: 200 }, { cloth: 30, plank: 200 }, { plank: 400, honey: 60, fruit: 80 }, { plank: 600, cloth: 40, wildhoney: 80, honey_rb: 5, flower: 100, fruit: 120 }];   // index.html ARK와 같아요 (2026-11-05 꽃 · 나무가 귀해져서 줄였어요)
