@@ -3729,6 +3729,7 @@ function rollFish(zone,c){
   if(zone===8){if(mkLeft()<=0){if(!mkWarned){mkWarned=1;toast('오늘 시장 물고기는 다 잡았어요 (하루 '+MK_DAY+'마리). 이제 보통 바닷물고기가 걸려요')}return rollFish(3,c)}
     const r=Math.random(),rr=r<.6?0:r<.9?1:2,pl=POOL['8-'+rr];return pl[(Math.random()*pl.length)|0]}
   if(F.legNext&&zone>=1&&zone<=6){F.legNext=false;const lg=(POOL[zone+'-4']||[]).filter(f=>condOk(f,c));const all=POOL[zone+'-4']||[];const pk=lg.length?lg:all;if(pk.length){toast('🌟 전설의 손!');return pk[(Math.random()*pk.length)|0]}}
+  if(!F.afk&&(F.bait==='b_compass'||F.bait2==='b_compass')&&!F.compassUsed){F.compassUsed=1;const sd=sdS(),un=[];for(let k=0;k<=4;k++)(POOL[zone+'-'+k]||[]).forEach(f=>{if(!f.myth&&condOk(f,c)&&!(sd[f.id]>0))un.push(f)});if(un.length){setTimeout(()=>toast('🧭 길잡이 미끼가 아직 손맛을 못 본 물고기를 데려왔어요!'),300);return un[(Math.random()*un.length)|0]}else setTimeout(()=>toast('🧭 이 낚시터에서 지금 나올 수 있는 물고기는 모두 손맛을 봤어요!'),300)}
   const mo=rollMods(zone);if(zone===6)mo.rare*=1+.08*lampLv();if(pathed(zone))mo.rare*=1.1;if(ENH_LV()>=22)mo.rare*=1.1;if(autoOn())mo.rare*=.5;if(boomOn())mo.rare*=2;if(zone===7)mo.rare*=seaRare();   // 🔮 대박 예보
   const ws=RARITY.map((r,i)=>r.base*(1+(ST.luck-1)*i*.5)*(i>=2&&easyMode()?.8:1)*(i>=2?mo.rare:1)); // 느긋하게: 희귀 이상 20% 덜
   ws[4]*=mo.leg; // 전설은 전설 미끼가 있어야 잘 걸려요 (전설 시간엔 미끼 없이도 아주 조금)
@@ -5479,7 +5480,7 @@ function stepNibble(dt){F.nibT-=dt;F.dip=Math.max(0,F.dip-dt*4);
 const isleEase=()=>onIsle()&&ENH_LV()>=17?Math.max(.7,1-.04*(ENH_LV()-16)):1;
 const fogBite=()=>onIsle()&&weatherNow()==='fog'?.65:1;   // 안개에 가려 물고기가 덜 경계해요
 function reelSetup(f,R,gp){
-  const raw=ST.bar*R.s,cap=BAR_CAP[f.rar],size=Math.min(cap,Math.max(BAR_FLOOR[f.rar],raw))*Math.max(.7,1-.05*gp),spare=Math.max(0,raw/cap-1);
+  const raw=ST.bar*R.s*((F.bait==='b_hand'||F.bait2==='b_hand')?1.5:1),cap=BAR_CAP[f.rar],size=Math.min(cap,Math.max(BAR_FLOOR[f.rar],raw))*Math.max(.7,1-.05*gp),spare=Math.max(0,raw/cap-1);
   const ty=fishType(f),boss=f.rar>=4||!!f.myth,myth=!!f.myth;
   return{bp:0,bv:0,fp:50,ft:50,ftT:0,prog:myth?22:R.p,size:size,d:Math.min(1,f.diff*R.d*(1+.08*gp)*(myth?1.12:1)*isleEase()),g:R.g*REEL_GK[f.rar]*(myth?MYTH_G:1),l:R.l*REEL_LK[f.rar]*(easyMode()?.6:1)*(1+.08*gp)/(1+spare*.4),tick:0,time:0,gap:gp,
     ty:ty,pw:f.rar>=2?1:.5,ten:0,tenOn:boss,ph:'rest',phT:1.5,tired:false,jmp:0,dash:0,out:0,warn:''}}
@@ -5525,6 +5526,7 @@ function reelLost(r){if(F.reelSh&&!r.snap&&Math.random()<.04){F.shOk=true;F.reel
 function finishCatch(){
   const f=F.fish,id=f.id;if(!F.afk)try{crownPop()}catch(e){}try{edCatch(f)}catch(e){}if(autoOn()&&!F.afk&&!F.reelHand)S.rcx=(S.rcx|0)+1;F.reelHand=0;if(F.shOk){F.shOk=false;F.reelSh=false;setTimeout(()=>Net.send({t:'shok',f:id}),1500)}{const _had=!!S.dex[id];setTimeout(()=>{diaryCatch(f,_had);wfCatch(id)},60);}if(P)rodSig(S.cos.look.rod,P.x,P.y-8,false);if(ONLINE&&Net.me&&!f.boss)setTimeout(()=>Net.send({t:'fdrop',rar:f.myth?4:f.rar,z:F.zone}),400);
   F.len=Math.max(1,Math.round(f.len*(.7+Math.random()*.6)));
+  if(F.bait==='b_hand'||F.bait2==='b_hand')F.len=Math.round(F.len*1.15);
   if(F.perfect){F.len=Math.round(F.len*1.1);S.combo=Math.min(5,(S.combo|0)+1)}else if(F.reeled)S.combo=0;
   const had=!!S.dex[id],wasT=tierOf(id),oldBest=S.dex[id]?S.dex[id].best|0:0;F.best=false;
   F.big=f.rar>=4&&rk('fish','cap')||Math.random()<.08*rk('fish','big');if(F.big){F.len=Math.round(f.len*(1.5+Math.random()*.5));itAdd('scale',(f.rar>=4?5:1)+(jobId()==='fish'?topB('fish'):0))}const wasDone=[];for(let p=0;p<PAGES;p++)wasDone[p]=pageDone(p);
@@ -5543,7 +5545,8 @@ function finishCatch(){
   // 직접 낚은 물고기는 언제나 카드로 보여 줘요 (이미 아는 물고기도). 버튼 한 번이면 닫고 바로 다시 던져요
   F.double=false;if(f.mk)mkS().n++;ptCatch(f);jobCatch(f);evCatchHook(f);shardDrop(f);
   vxp(([3,5,12,30,80][f.rar]+(f.isl?6:0))*(pathed(f.zone)?1.3:1)+(F.isNew?20+25*rk('sch','dexrw'):0)+(had&&F.len>oldBest?15*rk('sch','size'):0));if(F.isNew&&rk('sch','dexrw'))addXp(partnerId(),20*rk('sch','dexrw'));
-  if(!F.isNew&&f.rar<=(rk('fish','dbl')?2:1)&&Math.random()<(gearEff.bob2(gl('bob'))+.05*rk('fish','dbl'))*(S.enh.lv>=5?2:1)){S.inv[id]++;e.n++;sdAdd(id,1);S.stats.catches++;F.double=true;enhOnCatch(id,1);recalc()}
+  if((F.bait==='b_twin'||F.bait2==='b_twin')&&!F.afk&&!f.boss&&!f.myth){S.inv[id]++;e.n++;sdAdd(id,1);S.stats.catches++;F.double=true;enhOnCatch(id,1);recalc();toast('👯 쌍둥이 미끼! 한 마리 더')}
+  else if(!F.isNew&&f.rar<=(rk('fish','dbl')?2:1)&&Math.random()<(gearEff.bob2(gl('bob'))+.05*rk('fish','dbl'))*(S.enh.lv>=5?2:1)){S.inv[id]++;e.n++;sdAdd(id,1);S.stats.catches++;F.double=true;enhOnCatch(id,1);recalc()}
   F.shinyNow=false;F.mode='result';F.t=0;startHold();holdNotes(f);shinyLocal(f);giftLocal(f);
   saveState();
 }
@@ -6383,11 +6386,14 @@ const ITEMS={
  b_gear:{n:'장비 미끼',ic:'⚔️',d:'낚시하다 장비가 딸려 올 확률 3배 · 좋은 등급이 조금 더 잘 나와요',bait:{}},
  b_lux:{n:'보물 미끼',ic:'🌠',d:'레전더리 이상 낚싯대 · 찌가 나올 확률 5배 · 아주 아주 가끔 · 꿈을 사는 미끼',bait:{}},
  b_ult:{n:'초월 미끼',ic:'🌌',d:'태초 · 무한 · 창세 물고기 확률 3배 · 아주 아주 가끔 · 꿈을 사는 미끼',bait:{}},
- b_dough:{n:'반죽 미끼',ic:'🪱',d:'한 번 던질 때 희귀 이상 1.3배',npc:150,bait:{rare:1.3}},
- b_shine:{n:'반짝 미끼',ic:'✨',d:'한 번 던질 때 희귀 이상 1.8배',npc:1500,bait:{rare:1.8}},
+ b_compass:{n:'길잡이 미끼',ic:'🧭',d:'장인 미끼 · 이 낚시터에서 아직 손맛을 못 본 물고기(지금 나올 수 있는 것)가 꼭 걸려요',npc:60000,bait:{},cb:1},
+ b_twin:{n:'쌍둥이 미끼',ic:'👯',d:'장인 미끼 · 낚으면 같은 물고기가 한 마리 더 (손맛 도감에도 둘)',npc:20000,bait:{},cb:1},
+ b_hand:{n:'손맛 미끼',ic:'🖐️',d:'장인 미끼 · 직접 낚을 때 조절 바 1.5배 · 크기 +15%',npc:8000,bait:{},cb:1},
+ b_dough:{n:'반죽 미끼',ic:'🪱',d:'장인 미끼 · 한 번 던질 때 희귀 이상 1.3배',npc:150,bait:{rare:1.3},cb:1},
+ b_shine:{n:'반짝 미끼',ic:'✨',d:'장인 미끼 · 한 번 던질 때 희귀 이상 1.8배',npc:1500,bait:{rare:1.8},cb:1},
  shard:{n:'안개 조각',ic:'🔹',d:'안개 섬에서만 나와요 · 섬 장비와 등불 재료 · 주고받을 수 없어요',npc:0},
  b_legend_n:{n:'잡화점 전설 미끼',ic:'⭐',d:'장인이 만든 것보다 전설이 절반만 걸려요 (잡화점)',npc:150000,bait:{rare:1.2,leg:7}},
- b_legend:{n:'전설 미끼',ic:'🌟',d:'이 미끼를 써야만 전설이 걸려요',npc:150000,bait:{rare:1.5,leg:15}},
+ b_legend:{n:'전설 미끼',ic:'🌟',d:'장인 미끼 · 전설이 잘 걸려요 · 덧미끼로 끼우면 상점 미끼와 함께 힘을 내요',npc:150000,bait:{rare:1.5,leg:15},cb:1},
  soup:{n:'생선 수프',ic:'🍲',d:'따끈한 생선 수프. 포장마차나 상점에서 팔아요',npc:900},
  grill:{n:'소금구이',ic:'🍢',d:'짭조름한 소금구이. 상점에서 팔아요',npc:900},
  snack:{n:'펫 간식',ic:'🦴',d:'짝꿍에게 주면 ♥+10 · 경험치 +80',npc:600},
@@ -6432,7 +6438,7 @@ Object.assign(ITEMS,{
 });
 /* 💍 반지 상자 (반지 공방) */
 RING_REC.forEach(r=>{ITEMS['mp_'+r[0]]={n:r[1]+' 상자',ic:'💍',d:'공방 장인이 만든 결혼반지 · 반지 공방에서 열면 내 것이 돼요 (주고받을 수 있어요)'};MAKER['mp_'+r[0]]='cra'});
-ITEMS.mp_ring_world={n:'온 세상의 반지 상자',ic:'🌍',d:'이 세계 모든 곳의 조각을 새긴 단 하나의 반지'};MAKER.mp_ring_world='cra';
+['b_shine_p','b_legend_p'].forEach(k=>{if(ITEMS[k])ITEMS[k].cb=1});ITEMS.mp_ring_world={n:'온 세상의 반지 상자',ic:'🌍',d:'이 세계 모든 곳의 조각을 새긴 단 하나의 반지'};MAKER.mp_ring_world='cra';
 const ITEM_IDS=Object.keys(ITEMS);
 const itS=()=>{if(!S.items||typeof S.items!=='object')S.items={};const it=S.items;for(const k in MERGE)if(it[k]){it[MERGE[k]]=(it[MERGE[k]]|0)+(it[k]|0);delete it[k]}return it};
 /* 2026-11-05 재료 정리: 직업 재료 다섯 가지는 「✨ 솜씨 재료」 하나로 · 방수 판자 → 판자 · 꽃 염료 → 꽃잎 돛천 · 라벤더꿀 → 들꽃꿀 (server.js MERGE와 같아요) */
@@ -6451,7 +6457,7 @@ function useItem(id){
     if(a)for(let i=0;i<4;i++)parts.push({x:a.x-6+Math.random()*12,y:a.y-14,vx:(Math.random()-.5)*14,vy:-16,life:1.2,t:0,heart:true,g:0});toast(petName(pt)+'가 '+(big?'장난감을 물고 신났어요':'간식을 냠냠')+'! (오늘 '+S.pfd.n+'/'+PFD_MAX+')');Snd.sfx('buy');saveState(true);return}
 }
 /* 미끼: 던질 때 1개 써요 (자동 낚시는 미끼를 쓰지 않아요) */
-function castBait(){F.bait=null;F.baitBy=null;if(F.afk)return;const b=S.bait;if(b&&itN(b)>0){F.bait=b;F.baitId=b;
+function castBait(){F.bait=null;F.bait2=null;F.baitBy=null;F.compassUsed=0;if(F.afk)return;{const b2=S.bait2;if(b2&&itN(b2)>0&&b2!==S.bait){F.bait2=b2;itAdd(b2,-1);if(!itN(b2)){S.bait2=null;setTimeout(()=>toast('🧺 덧미끼 '+ITEMS[b2].n+'를 다 썼어요'),1500)}}else if(b2&&!itN(b2))S.bait2=null}const b=S.bait;if(b&&itN(b)>0){F.bait=b;F.baitId=b;
     if(S.enh.lv>=20&&/^b_legend/.test(b)&&S.lbFree){S.lbFree=0;toast('✨ +20 낚싯대: 전설 미끼를 한 번 더 썼어요 (안 줄어요)');return}
     itAdd(b,-1);if(!itN(b))setTimeout(()=>toast('🪱 '+ITEMS[b].n+'를 다 썼어요 · 왼쪽 위 미끼 버튼에서 다시 골라요'),1200);if(S.enh.lv>=20&&/^b_legend/.test(b))S.lbFree=1;const q=S.mk&&S.mk[b];if(Array.isArray(q)&&q.length)F.baitBy=q.shift()}}   // 친구가 만든 미끼면 그 이름을 기억해요
 const KH=()=>new Date(Date.now()+9*3600e3).getUTCHours();
@@ -6463,6 +6469,7 @@ const ZN=z=>(ZONES[z-1]||{name:'?'}).name;
 function rollMods(zone){
   const b=!F.afk&&F.bait&&ITEMS[F.bait]&&ITEMS[F.bait].bait||{},fc=fcToday(),h=KH();
   let rare=b.rare||1,leg=b.leg?b.leg*(rk('fish','cap')?2:1):0;
+  {const b2=!F.afk&&F.bait2&&ITEMS[F.bait2]&&ITEMS[F.bait2].bait||{};if(b2.rare)rare*=b2.rare;if(b2.leg)leg=leg?leg+b2.leg*.6:b2.leg*(rk('fish','cap')?2:1)}   // 🧺 덧미끼: 장인 미끼는 상점 미끼와 함께 써요
   if(fc.rare.z===zone&&fc.rare.h===h)rare*=2;
   if(leg&&fc.leg.z===zone&&fc.leg.h===h)leg*=3;
   else if(!leg&&fc.leg.z===zone&&fc.leg.h===h)leg=.6;   // 전설 시간: 미끼가 없어도 가끔
@@ -6479,6 +6486,9 @@ const REC=[
  {id:'snack',job:'cra',node:'bait1',out:{snack:r=>r+1},in:{flesh:2,weed:1}},
  {id:'charm',job:'cra',node:'bait1',minR:2,out:{charm:r=>r-1},in:{feather:1,pearl:1}},
  {id:'b_legend',job:'cra',node:'cap',out:{b_legend:1},in:{scale:5,pearl:2,note:2,thread:1}},
+ {id:'b_hand',job:'cra',node:'bait1',out:{b_hand:r=>r+1},in:{flesh:2,knack:1}},
+ {id:'b_twin',job:'cra',node:'bait1',minR:2,out:{b_twin:1},in:{flesh:4,knack:2,shell:2}},
+ {id:'b_compass',job:'cra',node:'bait1',minR:3,out:{b_compass:1},in:{knack:4,clue:1,shell:3}},
  {id:'note',job:'sch',node:'note',out:{note:()=>1+(typeof topB==='function'?topB('sch'):0)},inF:{same:true},d:'같은 물고기 여러 마리 → 솜씨 재료'},
  {id:'map',job:'sch',node:'cap',out:{map:1},in:{note:5,feather:1}}
 ];
@@ -6688,14 +6698,15 @@ function renderCraft(){
   body().innerHTML=h;
 }
 function updateItemHud(){const el=$('itpill');if(!el)return;const b=S.bait&&itN(S.bait)>0?S.bait:null,bf=Object.keys(buffS()).filter(buffOn);
-  const t=(b?ITEMS[b].ic+' '+ITEMS[b].n.replace(/ 미끼$/,'')+' ×'+itN(b):'🪱 미끼 끼우기')+(bf.length?' '+bf.map(k=>ITEMS[k].ic).join(''):'');el.hidden=false;el.classList.toggle('none',!b);if(el.textContent!==t)el.textContent=t}
+  const b2=S.bait2&&itN(S.bait2)>0?S.bait2:null,t=(b?ITEMS[b].ic+' '+ITEMS[b].n.replace(/ 미끼$/,'')+' ×'+itN(b):'🪱 미끼 끼우기')+(b2?' + '+ITEMS[b2].ic+'×'+itN(b2):'')+(bf.length?' '+bf.map(k=>ITEMS[k].ic).join(''):'');el.hidden=false;el.classList.toggle('none',!b);if(el.textContent!==t)el.textContent=t}
 /* 🪱 미끼 고르기 (2026-11-11): 화면 왼쪽 위 미끼 버튼 → 가진 미끼를 한눈에 · 바로 끼우기 · 상점 미끼 탭으로 */
 function openBaitPick(){Snd.sfx('ui');const ids=ITEM_IDS.filter(k=>ITEMS[k].bait&&itN(k)>0);
-  let h='<div class="muted" style="text-align:center;margin-bottom:8px">끼운 미끼는 던질 때마다 1개씩 써요 · 자동 낚시엔 안 써요</div>';
-  h+=ids.length?ids.map(k=>{const I=ITEMS[k],on=S.bait===k;return'<div class="row'+(on?' on':'')+'" style="'+(on?'background:#fff0f6;border-radius:12px':'')+'"><span style="font-size:24px;width:32px;text-align:center">'+I.ic+'</span><div class="nm"><div><b>'+esc(I.n)+'</b> <span class="muted" style="font-size:12px">'+itN(k)+'개</span></div><div class="muted" style="font-size:12px">'+esc(I.d)+'</div></div><div class="go"><button class="btn sm '+(on?'pink':'mint')+'" data-bpk="'+k+'">'+(on?'끼움 ✓':'끼우기')+'</button></div></div>'}).join('')
+  let h='<div class="muted" style="text-align:center;margin-bottom:8px">끼운 미끼는 던질 때마다 1개씩 써요 · 자동 낚시엔 안 써요</div><div class="wishc" style="font-size:12px;line-height:1.6;background:#fff8ec;border-color:#f0d8a8">🧺 <b>덧미끼</b> · 공방 장인이 만든 미끼는 상점 미끼와 <b>함께</b> 끼울 수 있어요 (힘이 겹쳐요). 🧭 길잡이 · 👯 쌍둥이 · 🖐️ 손맛 미끼는 장인만 만들어요.'+(S.bait2&&itN(S.bait2)?'<br>지금 덧미끼: '+ITEMS[S.bait2].ic+' '+ITEMS[S.bait2].n+' ×'+itN(S.bait2):'')+'</div>';
+  h+=ids.length?ids.map(k=>{const I=ITEMS[k],on=S.bait===k;return'<div class="row'+(on?' on':'')+'" style="'+(on?'background:#fff0f6;border-radius:12px':'')+'"><span style="font-size:24px;width:32px;text-align:center">'+I.ic+'</span><div class="nm"><div><b>'+esc(I.n)+'</b> <span class="muted" style="font-size:12px">'+itN(k)+'개</span></div><div class="muted" style="font-size:12px">'+esc(I.d)+'</div></div><div class="go" style="display:flex;flex-direction:column;gap:4px"><button class="btn sm '+(on?'pink':'mint')+'" data-bpk="'+k+'">'+(on?'끼움 ✓':'끼우기')+'</button>'+(I.cb?'<button class="btn xs '+(S.bait2===k?'pink':'ghost')+'" data-bpk2="'+k+'">'+(S.bait2===k?'덧미끼 ✓':'🧺 덧미끼')+'</button>':'')+'</div></div>'}).join('')
     :'<p class="note" style="text-align:center">가진 미끼가 없어요</p>';
   h+='<div class="fg-btns">'+(S.bait?'<button class="btn ghost" data-bpk="_off">미끼 빼기</button>':'')+'<button class="btn pink" data-bpk="_shop">🛒 미끼 사러 가기</button></div>';
   openSheet('🪱 미끼 고르기',h)}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-bpk2]');if(!t)return;const k=t.dataset.bpk2;Snd.sfx('tap');S.bait2=S.bait2===k?null:k;if(S.bait===k&&S.bait2)S.bait=null;toast(S.bait2?'🧺 덧미끼로 '+ITEMS[k].n+'를 끼웠어요 · 상점 미끼와 함께 써요':'덧미끼를 뺐어요');saveState();updateItemHud();openBaitPick()});
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-bpk]');if(!t)return;const k=t.dataset.bpk;Snd.sfx('tap');
   if(k==='_shop'){closeSheet();shopTab='bait';openShop();return}if(k==='_off'){S.bait=null;toast('미끼를 뺐어요')}else{S.bait=k;toast(ITEMS[k].ic+' '+ITEMS[k].n+'를 끼웠어요 · 던질 때마다 1개')}saveState();updateItemHud();openBaitPick()});
 setInterval(()=>{updateItemHud();if(S.buff&&Object.keys(S.buff).some(k=>S.buff[k]&&S.buff[k]<Date.now()&&S.buff[k]>Date.now()-1100))recalc()},1000);
