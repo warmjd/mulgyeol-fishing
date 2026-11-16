@@ -169,6 +169,8 @@ body.photo>*:not(#cv):not(#tags):not(#photoBar):not(#sheetwrap):not(#askwrap):no
 .cup-box{background:#fffbf0;border:2px solid #ffe8b0;border-radius:12px;padding:6px 8px;margin-bottom:8px}.cup-row{display:flex;align-items:center;gap:8px;padding:3px 0}.cup-row img{width:28px;height:28px;image-rendering:pixelated;object-fit:contain}.cup-row .nm{flex:1;min-width:0;font-size:13px}.cup-row .btn{flex:none;width:auto;white-space:nowrap}.cup-row .stars{color:#e0a83a;font-size:12px;letter-spacing:1px}.cup-row .stars span{color:#e4dcef}
 canvas.isl{width:100%;height:auto;image-rendering:pixelated;border-radius:12px;border:3px solid #a8dcf0;display:block;touch-action:manipulation}canvas.isl.ed{touch-action:none}canvas.hm{width:100%;height:auto;image-rendering:pixelated;border-radius:12px;border:3px solid #e8d8c0;display:block;touch-action:manipulation}.hm-pick{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.hmic{width:48px;height:48px;image-rendering:pixelated;display:block;margin:0 auto 2px}
 .cell .hidz{position:absolute;left:1px;right:1px;bottom:1px;font-size:8.5px;line-height:1.1;color:#7a6aa0;background:rgba(255,255,255,.8);border-radius:4px;text-align:center;white-space:nowrap;overflow:hidden}
+body.skyview #qpanel,body.skyview #dkpill,body.skyview #wfpill,body.skyview #mmap,body.skyview #mmTog,body.skyview #region,body.skyview #ticker,body.skyview #wallet,body.skyview #itpill,body.skyview .curb{opacity:0!important;pointer-events:none!important;transition:opacity .6s}
+#dkpill,#wfpill,#mmap,#region,#ticker,#wallet,#itpill{transition:opacity .6s}
 .fg-ess{text-align:center;margin:-2px 0 8px;font-size:12.5px;color:#6a4fc0;background:#f1ecff;border-radius:10px;padding:6px 8px}.fg-ess.soon{color:#8a7ab8;background:#f7f4ff}.fg-top .ess{background:#f1ecff}.fg-top .ess b{color:#6a4fc0}
 .fg-top{display:flex;gap:8px;margin-bottom:8px}.fg-top>div{flex:1;border-radius:14px;padding:6px 10px;display:flex;align-items:baseline;gap:6px}.fg-top small{font-size:12px;color:var(--ink-soft)}
 .fg-top .tk{background:linear-gradient(90deg,#ffe1ec,#fff3c4);border:2px solid #ffb3c8}.fg-top .tk b{font-size:24px;color:#e0608a}.fg-top .tk span{font-size:12px;color:#e0608a}.fg-top .gd{background:#fff8e6;border:2px solid #ffe0a0}.fg-top .gd b{font-size:18px;color:#d0800a}
@@ -7613,16 +7615,17 @@ function render(dt){
   if(HUNT.on){wt+=dt;FXDT=dt;huRender(dt);return}
   wt+=dt;FXDT=dt;
   // 카메라: 부드럽게 따라가되, 화면 좌표는 '반올림한 플레이어 위치 − 정수 지연'으로 잡아 이동 중 1px 떨림을 없앰
-  const tx=P.x-VW/2,ty=P.y-VH/2-4,ck=1-Math.exp(-dt*6);
+  const lift=Math.round(VH*.26*Math.max(0,Math.min(1,(11*TS-P.y)/(7*TS)))),tx=P.x-VW/2,ty=P.y-VH/2-4-lift,ck=1-Math.exp(-dt*6);   // 🌅 북쪽 끝에 가까워지면 카메라를 올려 하늘을 크게
   camX+=(tx-camX)*ck;camY+=(ty-camY)*ck;
   const mxX=MW*TS-VW,mxY=MH*TS-VH;
-  const TOPP=Math.round(VH*.34);camX=Math.max(0,Math.min(mxX,camX));camY=Math.max(-TOPP,Math.min(mxY,camY));
+  const TOPP=Math.round(VH*.62);camX=Math.max(0,Math.min(mxX,camX));camY=Math.max(-TOPP,Math.min(mxY,camY));
   if(MW*TS<VW)camX=mxX/2;
   const lx=tx-camX,ly=ty-camY;
   if(Math.abs(lx-camLX)>.8)camLX=Math.round(lx);if(Math.abs(ly-camLY)>.8)camLY=Math.round(ly);
   let cX=(camX<=0||camX>=mxX)?Math.round(camX):Math.max(0,Math.min(mxX,Math.round(P.x)-(VW>>1)-camLX));
-  let cY=(camY<=-TOPP||camY>=mxY)?Math.round(camY):Math.max(-TOPP,Math.min(mxY,Math.round(P.y)-(VH>>1)-4-camLY));
+  let cY=(camY<=-TOPP||camY>=mxY)?Math.round(camY):Math.max(-TOPP,Math.min(mxY,Math.round(P.y)-(VH>>1)-4-lift-camLY));
   cx.fillStyle='#d6ecd0';cx.fillRect(0,0,VW,VH);try{drawSkyBack(cX,cY)}catch(e){SKF.on=false}
+  {const sv=-cY>VH*.28;if(sv!==!!render.sv){render.sv=sv;document.body.classList.toggle('skyview',sv)}}   // 하늘 보기: 화면 위 알림 · 미니맵을 살짝 숨겨요
   if(SHK.t>0){SHK.t-=dt;cX+=Math.round((Math.random()-.5)*SHK.a*2);cY+=Math.round((Math.random()-.5)*SHK.a*2)}
   cx.save();cx.translate(-cX,-cY);
   const x0=Math.max(0,Math.floor(cX/TS)),x1=Math.min(MW-1,Math.floor((cX+VW)/TS)),y0=Math.max(0,Math.floor(cY/TS)),y1=Math.min(MH-1,Math.floor((cY+VH)/TS));
