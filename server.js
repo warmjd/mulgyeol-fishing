@@ -1104,7 +1104,7 @@ function onMsg(ws, me, m) {
       const cos = st === 2 ? giveCos(s, [N[3]]) : []; queueSave(me.key, s); await flushSave(me.key); await changeBag(me.key, { g: N[st] }, '💝 부탁을 들어준 답례'); send(ws, { t: 'npc_ok', cos });
       if (st === 2) broadcast({ t: 'news', text: '💝 ' + me.name + ' 님이 ' + ({ grand: '파도 할멈', sugar: '디저트 요정 슈가', sobok: '소복옹' }[m.id]) + '의 마지막 부탁까지 들어줬어요!' });
     }); break;
-    case 'fdrop': case 'it_scr': case 'it_dis': case 'sc_buy': withLock(me.key, async () => rpgMsg(ws, me, m)).catch(e => console.error('rpg', e.message)); break;
+    case 'fdrop': case 'it_scr': case 'it_dis': case 'it_dis_many': case 'sc_buy': withLock(me.key, async () => rpgMsg(ws, me, m)).catch(e => console.error('rpg', e.message)); break;
     case 'hunt_buy': case 'hunt_kill': case 'hunt_pot': case 'hunt_die': case 'hunt_eq': case 'hunt_ex': case 'hunt_star': withLock(me.key, async () => {   // ⚔️ 사냥터 (3차-4): 장비는 은비랜드 칩으로만 · 처치하면 칩 · 아주 가끔 상점에 없는 것
       const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); const e = ebOf(s);
       h.inv = Array.isArray(h.inv) ? h.inv : [];
@@ -1197,7 +1197,7 @@ function onMsg(ws, me, m) {
       /* ----- 갇힘 · 이동 도구 (2026-11-05) ----- */
       if (m.op === 'users') {   // 👥 유저 현황 (운영자만): 밸런스 볼 때
         return (async () => { const list = []; for (const [key, r] of rosterCache) { const sv = await loadSave(key).catch(() => null); if (!sv) continue; const e = sv.enh || {}, eb = sv.eb || {};
-          list.push({ n: r.name, on: !!liveByKey(key), hl: (sv.hu && sv.hu.lv) | 0, cp: cpOf(sv), e: e.lv | 0, em: e.max | 0, tk: e.tk | 0, g: sv.gold | 0, c: eb.c | 0, sh: shN(sv), sd: sdN(sv), ct: (sv.stats && sv.stats.catches) | 0, job: jobOf(sv) || '', ls: sv.lsd || '', nc: Object.keys((sv.hunt && sv.hunt.nclr) || {}).length, rw: sv.hunt && sv.hunt.rw === wfWeek() ? 1 : 0 }); }
+          list.push({ n: r.name, on: !!liveByKey(key), hl: (sv.hu && sv.hu.lv) | 0, cp: cpOf(sv), e: e.lv | 0, em: e.max | 0, tk: e.tk | 0, g: Math.floor(Number(sv.gold) || 0), c: eb.c | 0, sh: shN(sv), sd: sdN(sv), ct: (sv.stats && sv.stats.catches) | 0, job: jobOf(sv) || '', ls: sv.lsd || '', nc: Object.keys((sv.hunt && sv.hunt.nclr) || {}).length, rw: sv.hunt && sv.hunt.rw === wfWeek() ? 1 : 0 }); }
           list.forEach(u => u.idle = !u.hl && !u.ct && !u.e); list.sort((a, b) => (a.idle - b.idle) || b.hl - a.hl || b.cp - a.cp); send(ws, { t: 'adm_users', list }); })().catch(e => console.error('adm users', e.message));
       }
       if (m.op === 'who') {   // 접속자 위치 · 배낚시 여부
@@ -1879,7 +1879,7 @@ async function socMsg(ws, me, m) {
     const to = cleanText(m.to, 12); if (!to || to === me.name) return no('받을 친구 이름을 적어 주세요'); const known = [...rosterCache.values()].some(r => r.name === to); if (!known) return no('그 이름의 주민을 찾지 못했어요');
     if (now - (me.gfT || 0) < 5000) return no('조금 있다가 다시 보내요'); const g = Math.max(0, Math.min(1e9, Math.floor(+m.g || 0))), sc = String(m.sc || ''), scN = Math.max(0, Math.min(50, m.n | 0)), note = cleanText(m.note, 40);
     const h = s.hunt || {}; const SC = h.scr || {}; if (!g && !(sc && scN)) return no('보낼 것을 골라요');
-    if (g && (s.gold | 0) < g) return no('골드가 모자라요'); if (sc && scN && (!/^[wa](100|60|10)$/.test(sc) || (SC[sc] | 0) < scN)) return no('주문서가 모자라요');
+    if (g && (Number(s.gold) || 0) < g) return no('골드가 모자라요'); if (sc && scN && (!/^[wa](100|60|10)$/.test(sc) || (SC[sc] | 0) < scN)) return no('주문서가 모자라요');
     const box = V.gifts[to] = V.gifts[to] || []; if (box.length >= 30) return no(to + ' 님 우편함이 가득 찼어요'); me.gfT = now;
     if (sc && scN) { SC[sc] -= scN; queueSave(me.key, s); } if (g) await changeBag(me.key, { g: -g }, null);
     box.push({ id: now.toString(36) + Math.random().toString(36).slice(2, 5), from: me.name, g, sc: sc && scN ? sc : '', n: sc && scN ? scN : 0, note, at: now }); vMark();
@@ -1925,6 +1925,12 @@ async function rpgMsg(ws, me, m) {
     if (Math.random() < (.02 + r * .008) * luk * bG) { const it = mkItem(tier, rollG(bG > 1 ? [40, 28, 17, 9, 4, 1.5, .3, .04, .005] : [55, 26, 12, 5, 1.6, .35, .05, .006, .0007])); invPut(h, it); got.push({ k: 'item', item: it }); if (it.g >= 4) broadcast({ t: 'big', g: it.g, text: (it.g >= 6 ? '🌌🌌 ' : '🎣🎁 ') + me.name + ' 님 낚싯줄에 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] + '이(가) 걸려 올라왔어요!' }); }
     if (Math.random() < .002 * luk) { const own = (s.cos && s.cos.own) || [], pool = TRAP_SKINS.concat(TRAP_FLAGS).filter(id => id !== 'tp_bamboo' && id !== 'tf_none' && !own.includes(id)); if (pool.length) { const id = pool[(Math.random() * pool.length) | 0]; giveCos(s, [id]); got.push({ k: 'cos', id }); send(ws, { t: 'cos_got', ids: [id] }); broadcast({ t: 'news', text: '🎣✨ ' + me.name + ' 님이 낚시하다 통발 치장을 건졌어요!' }); } }
     if (!got.length) return; return out({ fd: got });
+  }
+  if (m.t === 'it_dis_many') {   // 🔨 여러 개 분해 (2026-11-16): 장착한 것은 건너뛰어요
+    const ids = [...new Set((Array.isArray(m.ids) ? m.ids : []).map(x => x | 0))].filter(i => i >= 0 && i < h.inv.length && h.inv[i] && !RPG_SLOTS.some(k => h['eq' + k] === i)).sort((a, b) => b - a).slice(0, 60);
+    if (!ids.length) return; let n = 0, scN = 0; const SC = scrMig(h);
+    for (const i of ids) { const it = h.inv[i]; n += Math.round([1, 2, 4, 8, 16, 40, 120, 500, 2000][it.g] * (1 + (it.e | 0) * .2)); if (Math.random() < (it.g + 1) / 14) { const id = rollScr(); SC[id] = (SC[id] | 0) + 1; scN++; } invDel(h, i); }
+    h.dr = (h.dr | 0) + n; return out({ note: '🔨 ' + ids.length + '개를 분해했어요 · 꿈조각 +' + n + (scN ? ' · 📜 주문서 +' + scN : '') });
   }
   const i = m.i | 0, it = h.inv[i];
   if (m.t === 'it_dis') {   // 분해 → 꿈조각
