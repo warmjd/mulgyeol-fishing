@@ -218,6 +218,7 @@ LOOK_IDS.ft.push('ft_ginkgo', 'ft_forest', 'ft_bfly', 'ft_flower', 'ft_dark', 'f
 LOOK_IDS.ti.push('t_sd100', 't_sd200', 't_sd300', 't_sd450', 't_sd600');
 LOOK_IDS.ti.push('t_pioneer', 't_islfish', 't_islbest', 't_pole', 't_pila', 't_gym', 't_ortho', 't_rock');
 LOOK_IDS.hat.push('neonband', 'sweatband', 'bandage', 'climbhelm'); LOOK_IDS.o.push('o_polefit', 'o_pilafit', 'o_gymtank', 'o_doccoat'); LOOK_IDS.bk.push('yogamat', 'chalkbag');
+LOOK_IDS.ti.push('t_auc', 't_hard1', 't_hard2');   // 2026-11-16 경매 · 성실 칭호
 LOOK_IDS.o.push('o_moondress', 'o_sakura', 'o_darkarmor', 'o_hunter'); LOOK_IDS.hat.push('h_moonpin', 'h_sakura', 'h_darkhelm', 'h_hunterhood'); LOOK_IDS.bk.push('k_moonwing', 'k_bigribbon', 'k_darkcape', 'k_axe', 'k_quiver'); LOOK_IDS.fa.push('f_glitter', 'f_blush'); LOOK_IDS.ti.push('t_raid1'); LOOK_IDS.ti.push('t_moonfairy', 't_sakura', 't_darkknight', 't_hunter'); LOOK_IDS.hat.push('h_veil', 'h_fcrown'); LOOK_IDS.ti.push('t_wed', 't_wfchamp');
 LOOK_IDS.ti.push('t_enh25', 't_enh30', ...['fish', 'sch', 'cra', 'tam', 'mer', 'pro', 'hun'].flatMap(j => [4, 5, 6].map(r => 't_j' + j + r)));
 for (const j of ['fish', 'sch', 'cra', 'tam', 'mer']) { LOOK_IDS.rod.push('jr4_' + j, 'jr6_' + j); LOOK_IDS.bob.push('jb5_' + j); }   // 강화 칭호는 서버 기록으로 확인
@@ -1085,6 +1086,11 @@ function onMsg(ws, me, m) {
     case 'raid_hit': raidHit(ws, me, m); break;
     case 'raid_down': case 'raid_up': case 'raid_rev': raidDown(ws, me, m); break;
     case 'ring_news': ringNews(ws, me, m); break;
+    case 'wh_get': if (me.save) send(ws, { t: 'wh', wh: whOf(me.save), steps: WH_STEPS }); break;
+    case 'wh_claim': whClaim(ws, me).catch(() => { }); break;
+    case 'auc_get': aucSettle(); send(ws, aucPub()); break;
+    case 'auc_bid': aucBid(ws, me, m).catch(e => console.error('auc', e.message)); break;
+    case 'ess_chip': essChip(ws, me).catch(() => { }); break;
     case 'kt_get': case 'tax': case 'kt_req': case 'kt_rate': case 'kt_note': case 'kt_fest': case 'kt_prop': case 'kt_ok': ktMsg(ws, me, m); break;
     case 'raid_get': case 'raid_q': case 'raid_qx': raidLobby(ws, me, m); break;
     case 'rrec_get': case 'rrec_new': case 'rrec_join': case 'rrec_leave': rrecMsg(ws, me, m); break;
@@ -2393,7 +2399,7 @@ function starCatch(ws, s, oldSd) { const r = jobRank(s, 'fish', 'star'); if (!r)
   if (!got || e.lv >= ENH.MAX) return; e.star = (e.star | 0) + got; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv);
   send(ws, { t: 'enh', enh: e, note: ['🎣 강화의 손맛! 강화 별 +' + got + ' (오늘 ' + e.sfd.n + '/10)'] }); }
 /* 오늘의 주인공 집계 (메모리만): 오늘 직접 낚은 마릿수 */
-function dayStar(me, s, oldSd) { dayAdd(me.key, me.name, dayPts(me, s, oldSd)); const nsd = s.sdex || {}; let dn = 0; for (const k in nsd) dn += Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (!dn) return; const d = kstDay(); if (!me.tday || me.tday.d !== d) me.tday = { d, n: 0 }; me.tday.n += dn; rosterSoon(); }
+function dayStar(me, s, oldSd) { dayAdd(me.key, me.name, dayPts(me, s, oldSd)); const nsd = s.sdex || {}; let dn = 0; for (const k in nsd) dn += Math.max(0, (nsd[k] | 0) - (oldSd[k] | 0)); if (!dn) return; whAdd(s, dn); const d = kstDay(); if (!me.tday || me.tday.d !== d) me.tday = { d, n: 0 }; me.tday.n += dn; rosterSoon(); }
 /* 신화: 조건이 겹칠 때만 나오는 낚시터의 주인. 잡으면 마을 뉴스 · 칭호 · 마을 최초 기록 */
 /* 🌠 전설 너머 치장 줍기 (2026-11-11): 직접 낚을 때 · 사냥할 때 아주 아주 가끔 레전더리 이상 낚싯대 · 찌가 나와요 (안 가진 것만 · 마을 전체 알림) */
 const LUX_DROP = [   // [id, 등급, 이름, 값]
@@ -2938,6 +2944,41 @@ function ktMsg(ws, me, m) {
 }
 setInterval(() => { if (!V) return; const K = ktOf(); if (K.pend < 1 || !sdKing) return; const g = Math.floor(K.pend), day = kstDay(); K.pend = 0; if (K.gotD !== day) { K.gotD = day; K.got = 0; } K.got = (K.got | 0) + g; K.tot = (+K.tot || 0) + g; vMark();
   changeBag(sdKing.key, { g }, '👑 마을 세금 +' + g.toLocaleString() + '골드').catch(() => { }); }, 5 * 60e3);
+
+/* ---------- 💪 성실 보상 · 🔨 주간 경매 · 💠 칩으로 꿈의 정수 (2026-11-16) ----------
+   성실 보상: 이번 주 직접 낚은 마릿수(손맛)로 단계마다 상자 · 자동 낚시는 안 쳐요
+   경매: 골드로 입찰 · 밀리면 바로 돌려받아요 · 일요일 밤(월요일 0시)에 1등에게 · 쓴 골드는 사라져요 (골드 줄이기) */
+const WH_STEPS = [[100, { tk: 5, g: 1e7 }], [300, { tk: 10, es: 3, g: 3e7 }], [700, { tk: 20, es: 6, g: 8e7 }], [1500, { tk: 40, es: 12, g: 2e8, ti: 't_hard1' }], [3000, { tk: 60, es: 20, g: 4e8, ti: 't_hard2' }]];
+const whOf = s => { const w = wfWeek(); if (!s.wh || s.wh.w !== w) s.wh = { w, n: 0, got: [] }; if (!Array.isArray(s.wh.got)) s.wh.got = []; return s.wh; };
+function whAdd(s, n) { whOf(s).n += n; }
+async function whClaim(ws, me) { return withLock(me.key, async () => { const s = me.save; if (!s) return; const W = whOf(s); const out = []; let gs = 0;
+  for (let i = 0; i < WH_STEPS.length; i++) { const [need, r] = WH_STEPS[i]; if (W.n < need || W.got.includes(i)) continue; W.got.push(i);
+    if (r.tk) { const e = enhOf(s); e.tk = Math.min(ENH.TK_MAX, e.tk + r.tk); } if (r.es) essAdd(s, r.es); gs += r.g || 0; if (r.ti) { const g2 = giveCos(s, [r.ti]); if (g2.length) send(ws, { t: 'cos_got', ids: g2 }); }
+    out.push(need + '마리: 강화권 ' + r.tk + (r.es ? ' · 💠 ' + r.es : '') + ' · 골드 ' + (r.g / 1e4).toLocaleString() + '만' + (r.ti ? ' · 칭호' : '')); }
+  if (gs) { const rev = applyInv(s, { g: gs }); send(ws, { t: 'delta', d: { g: gs }, rev, why: null }); }
+  queueSave(me.key, s); send(ws, { t: 'wh', wh: W, steps: WH_STEPS, enh: s.enh, note: out.length ? '💪 성실 보상! ' + out.join(' / ') : '' }); }); }
+const AUC_PRIZE = [['💠 꿈의 정수 40개', s => essAdd(s, 40)], ['🌰 강화 별 주머니 ×3 (별 +120)', s => { const e = enhOf(s); e.star = (e.star | 0) + 120; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv); }], ['🎟️ 강화권 300장', s => { const e = enhOf(s); e.tk = Math.min(ENH.TK_MAX, e.tk + 300); }]];
+const AUC_MIN = 1e8;
+const aucOf = () => { const w = wfWeek(); V.auc = V.auc && typeof V.auc === 'object' ? V.auc : { w, top: null, hist: [] }; if (!Array.isArray(V.auc.hist)) V.auc.hist = []; return V.auc; };
+const aucPub = () => { const A = aucOf(), w = wfWeek(); return { t: 'auc', w, prize: AUC_PRIZE[w % AUC_PRIZE.length][0], top: A.w === w && A.top ? { name: A.top.name, bid: A.top.bid } : null, min: Math.max(AUC_MIN, A.w === w && A.top ? Math.ceil(A.top.bid * 1.05 / 1e6) * 1e6 : 0), hist: A.hist.slice(0, 5) }; };
+function aucSettle() { if (!V) return; const A = aucOf(), w = wfWeek(); if (A.w === w) return; const top = A.top, pw = A.w; V.auc = { w, top: null, hist: A.hist }; vMark();
+  if (top) { const P2 = AUC_PRIZE[pw % AUC_PRIZE.length]; V.auc.hist.unshift({ w: pw, name: top.name, bid: top.bid, prize: P2[0] }); V.auc.hist.length = Math.min(V.auc.hist.length, 20);
+    withLock(top.key, async () => { const s2 = await loadSave(top.key); if (!s2) return; P2[1](s2); giveCos(s2, ['t_auc']); queueSave(top.key, s2); const l = liveByKey(top.key); if (l) { l[1].save = s2; send(l[0], { t: 'enh', enh: s2.enh }); send(l[0], { t: 'cos_got', ids: ['t_auc'] }); } addMail(top.key, '🔨 주간 경매 낙찰! ' + P2[0] + ' · 칭호 「경매의 큰손」'); }).catch(() => { });
+    broadcast({ t: 'news', text: '🔨 이번 주 경매 낙찰! ' + top.name + ' 님 · ' + (top.bid / 1e8).toFixed(1) + '억 골드 · ' + P2[0] }); } }
+setInterval(aucSettle, 60e3);
+async function aucBid(ws, me, m) { if (!V || !me.save) return; aucSettle(); const A = aucOf(), P0 = aucPub(), g = Math.round(+m.g || 0);
+  if (!(g >= P0.min) || g > 1e12) return send(ws, { t: 'news', text: '입찰은 ' + (P0.min / 1e8).toFixed(2) + '억 골드부터예요' });
+  if (A.top && A.top.key === me.key) return send(ws, { t: 'news', text: '이미 1등이에요!' });
+  return withLock('__auc', async () => { const cur = aucOf(); if (cur.top && g < Math.ceil(cur.top.bid * 1.05 / 1e6) * 1e6) return send(ws, { t: 'news', text: '누가 먼저 더 높게 불렀어요' });
+    const s = me.save; if ((Number(s.gold) || 0) < g) return send(ws, { t: 'news', text: '골드가 모자라요' });
+    await withLock(me.key, () => changeBag(me.key, { g: -g }, '🔨 경매 입찰 ' + (g / 1e8).toFixed(2) + '억'));
+    const prev = cur.top; cur.top = { key: me.key, name: me.name, bid: g, at: Date.now() }; vMark();
+    if (prev) { withLock(prev.key, () => changeBag(prev.key, { g: prev.bid }, '🔨 경매에서 밀렸어요 · ' + (prev.bid / 1e8).toFixed(2) + '억 돌려받았어요')).catch(() => { }); const l = liveByKey(prev.key); if (l) send(l[0], { t: 'news', text: '🔨 ' + me.name + ' 님이 더 높게 불렀어요! (' + (g / 1e8).toFixed(2) + '억)' }); }
+    broadcast(aucPub()); broadcast({ t: 'news', text: '🔨 경매 · ' + me.name + ' 님 ' + (g / 1e8).toFixed(2) + '억 골드!' }); }); }
+const ESS_CHIP = 1e7, ESS_CHIP_WK = 10;   // 💠 칩 1천만 → 꿈의 정수 1개 · 한 주 10개까지
+function essChip(ws, me) { return withLock(me.key, async () => { const s = me.save; if (!s) return; const e = ebOf(s), w = wfWeek(), q = objOf(s, 'esc'); if (q.w !== w) { q.w = w; q.n = 0; }
+  if ((q.n | 0) >= ESS_CHIP_WK) return send(ws, { t: 'news', text: '이번 주 칩 교환은 다 했어요 (' + ESS_CHIP_WK + '개)' }); if ((e.c | 0) < ESS_CHIP) return send(ws, { t: 'news', text: '칩이 모자라요 (1천만 칩)' });
+  e.c -= ESS_CHIP; q.n++; essAdd(s, 1); queueSave(me.key, s); send(ws, { t: 'enh', enh: s.enh, note: ['💠 칩 1천만 → 꿈의 정수 +1 (이번 주 ' + q.n + '/' + ESS_CHIP_WK + ')'] }); send(ws, ebPub(s, me)); }); }
 /* 🌊 월척 왕 (거대 개체 종 수) · ✨ 반짝 왕 (반짝 종 수) (2026-11-09): 손맛 왕처럼 1등만, 같으면 지금 왕이 지켜요 */
 const xKing = { gt: null, sh: null, hl: null }, XK_NAME = { gt: ['🌊 월척 왕', '종 월척'], sh: ['✨ 반짝 왕', '종 반짝'], hl: ['⚔️ 용사 왕', '전투력'] };
 function xKingCheck(f, init) {
