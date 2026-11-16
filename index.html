@@ -7903,7 +7903,7 @@ function skyEnd(msg){if(F.mode!=='sky')return;F.mode='idle';SKYF.m='off';SKYF.me
 function skyLy(){return Math.max(30,(SKF.hy||100)*SKYF.lk)}
 function skyPress(){if(SKYF.met&&SKYF.met.t>0&&!SKYF.met.ok){skyWish();return}
   if(SKYF.m==='wait'){toast('아직이에요… 별 등불이 반짝일 때 눌러요');Snd.sfx('tap');SKYF.t+=1;return}
-  if(SKYF.m==='bite'){const e=SKYF.e;SKYF.m='reel';SKYF.rx=VW/2;SKYF.rv=0;SKYF.fx=VW/2+(Math.random()-.5)*40;SKYF.fv=0;SKYF.ft=0;SKYF.prog=28;SKYF.wind=0;SKYF.wt=2+Math.random()*2;SKYF.hold=true;SKYF.rt=0;Snd.sfx('skyhook');return}
+  if(SKYF.m==='bite'){const e=SKYF.e;SKYF.m='reel';{const tw=Math.min(Math.round(VW*.6),128),c=Math.max(tw/2+10,Math.min(VW-tw/2-10,SKYF.lx));SKYF.tx0=c-tw/2;SKYF.tx1=c+tw/2;SKYF.ts=tw/165}SKYF.rx=(SKYF.tx0+SKYF.tx1)/2;SKYF.rv=0;SKYF.fx=SKYF.rx+(Math.random()-.5)*30;SKYF.fv=0;SKYF.ft=0;SKYF.prog=28;SKYF.wind=0;SKYF.wt=2+Math.random()*2;SKYF.hold=true;SKYF.rt=0;Snd.sfx('skyhook');return}
   if(SKYF.m==='reel')SKYF.hold=true}
 function skyRelease(){SKYF.hold=false}
 function skyWish(){const M=SKYF.met;M.ok=1;const comet=Math.random()<.05,e=SKY_BY[comet?'comet':'meteor'];Snd.sfx('skywish');skyGot(e,true);if(comet)itAdd('sp_comet',1)}
@@ -7915,11 +7915,11 @@ function skyTick(dt){if(F.mode!=='sky')return;const k=kbVec(),mm=Math.hypot(k[0]
   else if(night&&SKYF.m==='wait'&&Math.random()<dt/80){SKYF.met={t:1.8,x:VW*(.3+Math.random()*.6),y:(SKF.hy||100)*(.15+Math.random()*.3)};Snd.sfx('meteor');toast('🌠 별똥별! 지금 눌러서 소원을 빌어요')}
   if(SKYF.m==='wait'){SKYF.t-=dt;if(SKYF.t<=0){SKYF.e=skyRoll();SKYF.m='bite';SKYF.t=SKY_BITE[SKYF.e.rar];Snd.sfx('skybite');try{navigator.vibrate&&navigator.vibrate(25)}catch(er){}}return}
   if(SKYF.m==='bite'){SKYF.t-=dt;if(SKYF.t<=0){SKYF.m='wait';SKYF.t=3+Math.random()*5;Snd.sfx('skymiss');toast('반짝임을 놓쳤어요… 다시 기다려요')}return}
-  if(SKYF.m==='reel'){const e=SKYF.e,r=e.rar,W_=SKY_RING[r],x0=14,x1=VW-14;
-    SKYF.rv+=(SKYF.hold?360:-300)*dt;SKYF.rv*=Math.exp(-dt*2.2);SKYF.wt-=dt;if(SKYF.wt<=0){SKYF.wt=1.6+Math.random()*2.6;SKYF.wind=(Math.random()-.5)*(40+r*14)}SKYF.rv+=SKYF.wind*dt;
+  if(SKYF.m==='reel'){const e=SKYF.e,r=e.rar,ts=SKYF.ts||1,W_=SKY_RING[r]*ts,x0=SKYF.tx0,x1=SKYF.tx1;
+    SKYF.rv+=(SKYF.hold?360:-300)*ts*dt;SKYF.rv*=Math.exp(-dt*2.2);SKYF.wt-=dt;if(SKYF.wt<=0){SKYF.wt=1.6+Math.random()*2.6;SKYF.wind=(Math.random()-.5)*(40+r*14)*ts}SKYF.rv+=SKYF.wind*dt;
     SKYF.rx+=SKYF.rv*dt;if(SKYF.rx<x0+W_/2){SKYF.rx=x0+W_/2;SKYF.rv=Math.abs(SKYF.rv)*.3}if(SKYF.rx>x1-W_/2){SKYF.rx=x1-W_/2;SKYF.rv=-Math.abs(SKYF.rv)*.3}
-    SKYF.ft-=dt;if(SKYF.ft<=0){SKYF.ft=.45+Math.random()*1.1;SKYF.fv=(Math.random()<.5?-1:1)*SKY_SPD[r]*(.35+Math.random()*.65)}
-    SKYF.fx+=SKYF.fv*dt;if(SKYF.fx<x0+6){SKYF.fx=x0+6;SKYF.fv=Math.abs(SKYF.fv)}if(SKYF.fx>x1-6){SKYF.fx=x1-6;SKYF.fv=-Math.abs(SKYF.fv)}
+    SKYF.ft-=dt;if(SKYF.ft<=0){SKYF.ft=.45+Math.random()*1.1;SKYF.fv=(Math.random()<.5?-1:1)*SKY_SPD[r]*ts*(.35+Math.random()*.65)}
+    SKYF.fx+=SKYF.fv*dt;if(SKYF.fx<x0+4){SKYF.fx=x0+4;SKYF.fv=Math.abs(SKYF.fv)}if(SKYF.fx>x1-4){SKYF.fx=x1-4;SKYF.fv=-Math.abs(SKYF.fv)}
     const inR=Math.abs(SKYF.fx-SKYF.rx)<W_/2;SKYF.inR=inR;SKYF.prog+=(inR?24*(1-.05*r):-16*(1+.1*r))*dt;
     SKYF.rt-=dt;if(inR&&SKYF.rt<=0){SKYF.rt=.22;Snd.sfx('skyreel',SKYF.prog/100)}
     if(SKYF.prog>=100){skyGot(e,false);SKYF.m='wait';SKYF.t=3.5+Math.random()*6*(ST.wait||1);SKYF.lx=Math.max(24,Math.min(VW-24,VW/2+(Math.random()-.5)*90));SKYF.lk=.38+Math.random()*.28}
@@ -7949,14 +7949,17 @@ function skyDraw(cX,cY){if(!SKF.on)return;const hy=SKF.hy;
   const sag=SKYF.m==='reel'?2:8;cx.strokeStyle='rgba(255,255,255,.75)';cx.lineWidth=1;cx.beginPath();cx.moveTo(px_+6,py_);cx.quadraticCurveTo((px_+lx)/2,(py_+ly)/2+sag,SKYF.m==='reel'?SKYF.fx:lx,ly);cx.stroke();
   if(SKYF.m!=='reel'){/* 별 등불 */const pul=bite?1+.5*Math.abs(Math.sin(wt*14)):1+.15*Math.sin(wt*3),R=5*pul;cx.save();cx.globalCompositeOperation='lighter';const g=cx.createRadialGradient(lx,ly,0,lx,ly,R*4);g.addColorStop(0,bite?'rgba(255,240,150,.9)':'rgba(255,240,200,.55)');g.addColorStop(1,'rgba(255,240,200,0)');cx.fillStyle=g;cx.fillRect(lx-R*4,ly-R*4,R*8,R*8);cx.restore();
     cx.fillStyle=bite?'#fff6a0':'#fff2d0';cx.fillRect(lx-1,ly-3,3,7);cx.fillRect(lx-3,ly-1,7,3);cx.fillStyle='#ffffff';cx.fillRect(lx,ly,1,1);if(bite){cx.fillStyle='#fff';cx.font='bold 12px sans-serif';cx.textAlign='center';cx.fillText('!',lx,ly-10)}return}
-  /* 별 잡기 */
-  const e=SKYF.e,W_=SKY_RING[e.rar],x0=14,x1=VW-14,col=SKY_RC[e.rar];
-  cx.fillStyle='rgba(20,24,60,.35)';cx.fillRect(x0,ly-9,x1-x0,18);cx.strokeStyle='rgba(255,255,255,.35)';cx.strokeRect(x0+.5,ly-8.5,x1-x0-1,17);
-  cx.save();cx.globalCompositeOperation='lighter';const rg=cx.createRadialGradient(SKYF.rx,ly,0,SKYF.rx,ly,W_/2);rg.addColorStop(0,'rgba(255,250,210,'+(SKYF.inR?.5:.25)+')');rg.addColorStop(1,'rgba(255,250,210,.05)');cx.fillStyle=rg;cx.fillRect(SKYF.rx-W_/2,ly-9,W_,18);cx.restore();
-  cx.strokeStyle=SKYF.inR?'#fff6a0':'rgba(255,255,255,.7)';cx.lineWidth=1.5;cx.strokeRect(SKYF.rx-W_/2,ly-9,W_,18);
-  {const im=skyIcon(e),s2=Math.min(1.6,30/Math.max(im.width,im.height)),w2=im.width*s2,h2=im.height*s2,bob=Math.sin(wt*6)*1.5;cx.save();cx.translate(SKYF.fx,ly+bob);if(SKYF.fv<0)cx.scale(-1,1);cx.drawImage(im,-w2/2,-h2/2,w2,h2);cx.restore()}
-  cx.fillStyle='rgba(255,255,255,.2)';cx.fillRect(x0,ly+12,x1-x0,3);cx.fillStyle=col;cx.fillRect(x0,ly+12,(x1-x0)*Math.max(0,Math.min(1,SKYF.prog/100)),3);
-  cx.fillStyle='#fff';cx.font='bold 9px sans-serif';cx.textAlign='left';cx.fillText((e.k==='f'&&(skyD()[e.id]|0)>0?e.name:'???')+' · '+SKY_RN[e.rar],x0,ly-13)}
+  /* 별 잡기 (작고 아기자기하게) */
+  const e=SKYF.e,ts=SKYF.ts||1,W_=SKY_RING[e.rar]*ts,x0=SKYF.tx0,x1=SKYF.tx1,col=SKY_RC[e.rar],H=8,ty=Math.round(ly-H/2);
+  const rr=(x,y,w,h,r)=>{cx.beginPath();cx.moveTo(x+r,y);cx.lineTo(x+w-r,y);cx.arcTo(x+w,y,x+w,y+r,r);cx.lineTo(x+w,y+h-r);cx.arcTo(x+w,y+h,x+w-r,y+h,r);cx.lineTo(x+r,y+h);cx.arcTo(x,y+h,x,y+h-r,r);cx.lineTo(x,y+r);cx.arcTo(x,y,x+r,y,r);cx.closePath()};
+  rr(x0,ty,x1-x0,H,H/2);cx.fillStyle='rgba(40,36,90,.55)';cx.fill();cx.strokeStyle='rgba(255,236,250,.75)';cx.lineWidth=1;cx.stroke();
+  for(let x=x0+6;x<x1-4;x+=9){cx.fillStyle='rgba(255,255,255,'+(.15+.15*Math.sin(wt*3+x))+')';cx.fillRect(Math.round(x),ty+H/2,1,1)}
+  {const rx=SKYF.rx-W_/2;rr(rx,ty-1,W_,H+2,(H+2)/2);cx.fillStyle=SKYF.inR?'rgba(255,240,170,.7)':'rgba(255,200,230,.45)';cx.fill();cx.strokeStyle=SKYF.inR?'#fff6b0':'#ffd6ec';cx.stroke();
+    if(SKYF.inR&&Math.random()<.3)parts.push({x:SKYF.rx+(Math.random()-.5)*W_,y:ty-2,vx:0,vy:-14,life:.6,t:0,c:['#fff6b0','#ffd0e8','#ffffff'][(Math.random()*3)|0],g:0,s:1})}
+  {const im=skyIcon(e),s2=Math.min(1,14/Math.max(im.width,im.height)),w2=im.width*s2,h2=im.height*s2,bob=Math.sin(wt*7)*1;cx.save();cx.translate(Math.round(SKYF.fx),Math.round(ty-h2/2+H/2+bob));if(SKYF.fv<0)cx.scale(-1,1);cx.drawImage(im,-w2/2,-h2/2,w2,h2);cx.restore()}
+  /* 별 다섯 개로 차오르는 진행도 */
+  {const n=5,gap=9,sx=(x0+x1)/2-(n-1)*gap/2,sy=ty+H+6,p=Math.max(0,Math.min(1,SKYF.prog/100))*n;for(let i=0;i<n;i++){const f=Math.max(0,Math.min(1,p-i)),x=Math.round(sx+i*gap);cx.fillStyle='rgba(255,255,255,.25)';cx.fillRect(x-1,sy,3,1);cx.fillRect(x,sy-1,1,3);if(f>0){cx.globalAlpha=f;cx.fillStyle=f>=1?'#fff2a0':col;cx.fillRect(x-1,sy,3,1);cx.fillRect(x,sy-1,1,3);if(f>=1){cx.fillStyle='#ffffff';cx.fillRect(x,sy,1,1)}cx.globalAlpha=1}}}
+  {const t=(e.k==='f'&&(skyD()[e.id]|0)>0?e.name:'???')+' · '+SKY_RN[e.rar];cx.font='bold 7px sans-serif';const tw2=cx.measureText(t).width+8,lx2=Math.round((x0+x1)/2-tw2/2),ly2=ty-12;rr(lx2,ly2,tw2,9,4.5);cx.fillStyle='rgba(255,255,255,.85)';cx.fill();cx.fillStyle=e.rar>=2?col:'#6a5a8a';cx.textAlign='center';cx.fillText(t,(x0+x1)/2,ly2+7)}}
 /* 하늘 도감 */
 let SKYTAB='f';
 const skyDexOpen=()=>!$('sheetwrap').hidden&&$('sheettitle').textContent==='☁️ 하늘 도감';
