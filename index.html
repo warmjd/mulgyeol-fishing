@@ -4254,7 +4254,7 @@ const huNeed=L=>Math.round(30*Math.pow(L,1.7));
 const HG_NAME=['일반','고급','희귀','영웅','전설','신화'],HG_COL=['#b8c0c8','#7bd36b','#6aa6ee','#b886ee','#f2b238','#ff6ec8'],HWT={ham:['뿅망치','🔨'],net:['잠자리채','🥅'],gun:['물총','🔫'],wand:['별 마법봉','🪄'],bow:['구름 활','🏹'],bomb:['솜사탕 폭탄','🍭']},HSLOT={w:['무기','공격'],a:['갑옷','방어'],h:['모자','체력'],r:['반지','치명']};
 const huItem=k=>{const h=S.hunt,inv=h.inv||[],i=h['eq'+k];return i!=null&&inv[i]&&inv[i].t===k?inv[i]:null};
 const huWT=()=>{const it=huItem('w');return it&&it.wt||'ham'};
-const huSB=()=>{const t=performance.now();if(!huSB.c||t-huSB.t>500){huSB.c=rpgSet().c;huSB.t=t}return huSB.c},huAtk=()=>Math.round((2+huS().lv+(S.hunt.sw?3:0)+rpgSum().atk)*(huSB()>=2?1.1:1)),huDef=()=>Math.floor((huS().lv*.4+rpgSum().def)*(huSB()>=4?1.15:1)),huCrit=()=>.1+rpgSum().cri*.02+(huSB()>=6?.1:0),huMaxHp=()=>Math.round((30+huS().lv*6+rpgSum().hp*4)*(huSB()>=4?1.15:1)),huSpd=()=>58*(1+huS().lv*.008)*(1+Math.min(60,rpgSum().spd*1.5)/100);
+const huSB=()=>{const t=performance.now();if(!huSB.c||t-huSB.t>500){huSB.c=rpgSet().c;huSB.t=t}return huSB.c},huAtk=()=>Math.round((2+huS().lv+(S.hunt.sw?3:0)+rpgSum().atk)*(huSB()>=2?1.1:1)),huDef=()=>Math.floor((huS().lv*.4+rpgSum().def+2*(typeof rk==='function'?rk('hun','tough'):0))*(huSB()>=4?1.15:1)),huCrit=()=>.1+rpgSum().cri*.02+(huSB()>=6?.1:0),huMaxHp=()=>Math.round((30+huS().lv*6+rpgSum().hp*4)*(huSB()>=4?1.15:1)*(1+.08*(typeof rk==='function'?rk('hun','tough'):0))),huSpd=()=>58*(1+huS().lv*.008)*(1+Math.min(60,rpgSum().spd*1.5)/100);
 const fieldDone=fi=>hPool(fi).filter(f=>!f.myth).every(f=>sdHas(f.id));
 const HUNT={on:false,fi:0,mons:[],x:0,y:0,hp:10,cd:0,face:1,sw:0,hurt:0,spawnT:0,regenT:0,W:48,H:36,props:[],T:[],pr:[],loot:[],combo:0,comboT:0,roll:0,rollCd:0,rvx:0,rvy:0,stop:0,kc:0,boss:null};
 function huMult(f){if(f.myth&&!sdHas(f.id))return 0;let m=S.dex[f.id]?1:.25;if(shHas(f.id))m*=2;if(fieldDone(HUNT.fi))m*=1.2;return m}
@@ -5241,7 +5241,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1117a',UPD_LOG=[
+const UPD_VER='1117b',UPD_LOG=[
+ ['11/17 꿈 사냥꾼','🏹',[['🌧️ 꿈 화살비 (새 기술)','사냥터에서 누르면 주변 꿈방울 모두에게 화살비 · 공격력 ×6 · 쿨타임 2분'],['🛡️ 단단한 몸 (새 패시브)','사냥터 체력 +8% · 방어 +2 (단계마다 · 3단계까지)'],['🏹 원래 기술','추적 · 정수 감각 · 사냥 본능 · 야성 · 전리품 사냥꾼은 그대로예요 (예전엔 직업 창이 안 열려서 안 보였어요)']]],
  ['11/17','🌊',[['👥 지금 접속한 친구','시계 옆 👥 숫자 · 누르면 누가 마을 어디에 있는지 · 낚시 중인지 보여요'],['🌊 물에 비친 달빛 · 햇빛','먼 달 · 해의 비침이 화면보다 느리게 미끄러지던 것을 고쳐서 보는 사람과 함께 자연스럽게 움직여요 · 은은한 빛 기둥 · 잔물결에 부서지는 빛 · 반짝 점 · 물에 하늘빛이 살짝']]],
  ['11/17 새벽 2','☁️',[['📖 도감에 하늘 도감','도감 맨 위 ☁️ 칸 · 낚시터 줄 맨 끝 「☁️ 하늘」을 누르면 하늘 도감으로 가요'],['🌠 하늘낚시 던지는 맛','낚싯대를 젖혔다가 휙! 별 등불이 반짝이는 꼬리를 끌며 하늘로 날아가 퐁 하고 빛 고리를 남겨요']]],
  ['11/17 새벽','🎣',[['🎣 낚싯대가 더 섬세하게','모든 낚싯대에 굵은 아랫대 · 코르크 손잡이 · 릴 · 줄 가이드 · 반짝이는 끝 (대나무는 마디까지)'],['✨ 새 낚싯대 7종','반딧불 · 오르골 · 달빛 은사 · 밤벚꽃 · 무지개 폭포 · 불사조 깃털 · 물결 정령 (치장 상점 → 💎 낚싯대·찌)'],['🫧 새 찌 6종','반딧불 · 연꽃 · 해파리 · 달방울 · 불사조 알 · 오로라 방울'],['👀 효과는 모두에게','낚싯대 · 찌 효과는 친구 화면에도 똑같이 보여요']]],
@@ -6362,8 +6363,8 @@ const JOBS={
      [{id:'fort',n:'운세 보기',max:1,k:'a',d:()=>'친구 한 명(또는 나)의 운세를 봐 줘요 · 대길 · 길 · 중길 · 흉 · 대흉 · 2시간 (쿨타임 1시간)'},{id:'hex',n:'흉운 보내기',max:2,k:'u',d:r=>'하루 '+r+'번 · 고른 친구에게 흉이나 대흉을 보내요 (장난은 적당히!)'}],
      [{id:'cap',n:'운명의 별',max:1,cost:3,k:'a',d:()=>'하루 한 번 · 지금 마을에 있는 모두에게 좋은 운세 (길 이상) · 2시간'}]]},
  hun:{name:'꿈 사냥꾼',ic:'🏹',col:'#c0602a',who:'꿈의 사냥터를 누비는 사람',make:'💠 꿈의 정수 · 사냥 전리품',need:'힐링포션 · 주문서',
-  t:[[{id:'trk',n:'추적',max:3,k:'p',d:r=>'사냥터 칩 +'+r*10+'% · 경험치 +'+r*10+'%'},{id:'ess',n:'정수 감각',max:3,k:'p',d:r=>'우두머리 · 정예의 💠 꿈의 정수 '+r*20+'% 더'}],
-     [{id:'rage',n:'사냥 본능',max:1,k:'a',d:()=>'누르면 20분 동안 사냥터 칩 · 경험치 2배 (쿨타임 3시간)'},{id:'rage2',n:'야성',max:2,k:'u',d:r=>'사냥 본능 +'+r*5+'분'}],
+  t:[[{id:'trk',n:'추적',max:3,k:'p',d:r=>'사냥터 칩 +'+r*10+'% · 경험치 +'+r*10+'%'},{id:'ess',n:'정수 감각',max:3,k:'p',d:r=>'우두머리 · 정예의 💠 꿈의 정수 '+r*20+'% 더'},{id:'tough',n:'단단한 몸',max:3,k:'p',d:r=>'사냥터 체력 +'+r*8+'% · 방어 +'+r*2}],
+     [{id:'rage',n:'사냥 본능',max:1,k:'a',d:()=>'누르면 20분 동안 사냥터 칩 · 경험치 2배 (쿨타임 3시간)'},{id:'rage2',n:'야성',max:2,k:'u',d:r=>'사냥 본능 +'+r*5+'분'},{id:'vol',n:'꿈 화살비',max:1,k:'a',d:()=>'사냥터에서 누르면 주변 꿈방울 모두에게 화살비 (공격력 ×6) · 쿨타임 2분'}],
      [{id:'cap',n:'전리품 사냥꾼',max:1,cost:3,k:'p',d:()=>'사냥터 장비 드랍 +25% · 레이드 상자에 💠 꿈의 정수 +3'}]]}
 };
 /* ========== 직업 3.0: 누르는 기술 (server.js SKILLS와 같아요) ========== */
@@ -6377,7 +6378,8 @@ const SK={focus:{job:'fish',node:'focus',ic:'🎯',n:'집중 낚시',dur:()=>10,
  fort:{job:'pro',node:'fort',ic:'🔮',n:'운세 보기',cd:()=>60,pick:1},
  hex:{job:'pro',node:'hex',ic:'🌧️',n:'흉운 보내기',daily:true,pick:1},
  fate:{job:'pro',node:'cap',ic:'🌟',n:'운명의 별',daily:true},
- rage:{job:'hun',node:'rage',ic:'🏹',n:'사냥 본능',dur:()=>20+5*rk('hun','rage2'),cd:()=>180}};
+ rage:{job:'hun',node:'rage',ic:'🏹',n:'사냥 본능',dur:()=>20+5*rk('hun','rage2'),cd:()=>180},
+ vol:{job:'hun',node:'vol',ic:'🌧️',n:'꿈 화살비',cd:()=>2}};   // 2026-11-16 꿈 사냥꾼 전투 기술
 
 /* 🔮 오늘의 운세 (별빛 예언자 · 2026-11-16): 대길 · 길 · 중길 · 흉 · 대흉 · 2시간 (server.js FORT와 같아요) */
 const FORT={dg:['대길','🌟','#e0a020',{luck:.3,sell:.1,wait:-.15}],g:['길','☀️','#e07a2c',{luck:.15,sell:.05}],mg:['중길','🌤️','#5d9be8',{luck:.05}],h:['흉','🌧️','#7a7aa0',{luck:-.1,wait:.1}],dh:['대흉','⛈️','#5a4a7a',{luck:-.2,wait:.2,sell:-.05}]};
@@ -6397,16 +6399,22 @@ const skMine=()=>Object.keys(SK).filter(k=>SK[k].job===jobId()&&rk(SK[k].job,SK[
 const boomOn=()=>!!(VIL&&VIL.boom&&Date.now()<VIL.boom.until);
 const mmss=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return s>=3600?Math.floor(s/3600)+'시간 '+Math.floor(s%3600/60)+'분':Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 function skState(k){const x=skS()[k]||{},now=Date.now(),D=SK[k];if(x.u&&now<x.u)return{on:true,t:mmss(x.u-now)};if(D.daily){return x.d===kstDay()?{wait:true,t:'내일'}:{ready:true}}if(x.n&&now<x.n)return{wait:true,t:mmss(x.n-now)};return{ready:true}}
-function castSkill(k){const D=SK[k];if(!D)return;const st=skState(k);if(st.on){toast(D.ic+' '+D.n+' 사용 중 · '+st.t+' 남음');return}if(st.wait){toast(D.ic+' '+D.n+' · '+st.t+(D.daily?' 다시 쓸 수 있어요':' 뒤에 다시'));return}
+function castSkill(k){const D=SK[k];if(!D)return;if(k==='vol'&&!HUNT.on){toast('🌧️ 꿈 화살비는 사냥터에서 써요');return}const st=skState(k);if(st.on){toast(D.ic+' '+D.n+' 사용 중 · '+st.t+' 남음');return}if(st.wait){toast(D.ic+' '+D.n+' · '+st.t+(D.daily?' 다시 쓸 수 있어요':' 뒤에 다시'));return}
   Snd.sfx('ui');if(D.pick&&ONLINE&&Net.me){setTimeout(()=>fortPick(k),30);return}   /* 2026-11-16: 같은 클릭에 바깥 누름으로 창이 닫히던 것 (예언자 「쓰기」가 아무것도 안 뜨던 버그) */if(ONLINE&&Net.me){Net.send({t:'skill',k});return}
   const now=Date.now();skOk({k,until:now+(D.dur?D.dur()*60e3:0),next:D.daily?0:now+D.cd()*60e3*(jRank(D.job)>=3?.75:1)})}
+/* 🌧️ 꿈 화살비: 주변(약 9칸) 꿈방울 모두에게 공격력 ×6 · 하늘에서 화살이 쏟아져요 */
+function huVolley(){if(!HUNT.on)return;Snd.hfx&&Snd.hfx('swing');SHK={t:.4,a:2};let n=0;
+  HUNT.mons.forEach(m=>{if(m.die||Math.hypot(m.x-HUNT.x,m.y-HUNT.y)>150)return;const k=n++;setTimeout(()=>{if(!m.die&&HUNT.on)huHitMon(m,6,true)},120+k*270)});
+  for(let i=0;i<40;i++){const x=HUNT.x+(Math.random()-.5)*280,y=HUNT.y+(Math.random()-.5)*200;parts.push({x,y:y-60,vx:-20,vy:180,life:.35+Math.random()*.2,t:0,c:i%3?'#ffe9a8':'#ffffff',g:0,s:1})}
+  if(!n)toast('🌧️ 근처에 꿈방울이 없어요')}
 function skOk(m){const D=SK[m.k];if(!D)return;skS()[m.k]={u:m.until,n:m.next,d:D.daily?kstDay():''};
   if(m.enh)S.enh=Object.assign(enhDefault(),m.enh);
   if(m.k==='legend')F.legNext=true;
   if(m.k==='boom'&&!ONLINE){VIL=VIL||{};VIL.boom={by:'나',until:m.until}}
   if(m.k==='auto')AUTO.t=0;
+  if(m.k==='vol')huVolley();
   if(m.k==='cat'&&!ONLINE)S.dropx=m.until;
-  const msg={fort:'운세를 봐 줬어요',hex:'흉운을 보냈어요… 후후',fate:'마을 모두에게 좋은 운세!',rage:'사냥 본능! 칩 · 경험치 2배',focus:'10분 동안 매번 완벽한 손맛! 크기 +20%',legend:'다음 입질은 전설이에요!',boom:'마을 모두 희귀 이상 2배!',shx:'반짝 확률 3배!',cat:'강화권 +1 (지금 '+((S.enh&&S.enh.tk)|0)+'장)',auto:'짝꿍이 대신 낚아 와요!',gold:'내가 파는 물고기 2배!'}[m.k];
+  const msg={fort:'운세를 봐 줬어요',hex:'흉운을 보냈어요… 후후',fate:'마을 모두에게 좋은 운세!',rage:'사냥 본능! 칩 · 경험치 2배',vol:'하늘에서 화살이 쏟아져요!',focus:'10분 동안 매번 완벽한 손맛! 크기 +20%',legend:'다음 입질은 전설이에요!',boom:'마을 모두 희귀 이상 2배!',shx:'반짝 확률 3배!',cat:'강화권 +1 (지금 '+((S.enh&&S.enh.tk)|0)+'장)',auto:'짝꿍이 대신 낚아 와요!',gold:'내가 파는 물고기 2배!'}[m.k];
   showBanner(D.ic+' '+D.n+'! '+msg);Snd.sfx('page');if(P)sparkFx(P.x,P.y-24,22,['#ffffff','#ffe28a','#c8b8ff']);saveState();skHud()}
 function skErr(m){toast(m.text);if(m.k&&SK[m.k]){const x=skS()[m.k]||(skS()[m.k]={});if(m.next)x.n=m.next;if(m.used)x.d=kstDay();skHud()}}
 /* 화면 버튼: 내 직업 기술 (말 버튼 위) */

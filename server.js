@@ -2421,7 +2421,8 @@ const SKILLS = {
   auto: { job: 'tam', node: 'auto', dur: s => 10 + 5 * jobRank(s, 'tam', 'sit'), cd: () => 180 },
   gold: { job: 'mer', node: 'gold', dur: s => 10 + 5 * jobRank(s, 'mer', 'cons'), cd: () => 240 },
   fort: { job: 'pro', node: 'fort', cd: () => 60 }, hex: { job: 'pro', node: 'hex', daily: true }, fate: { job: 'pro', node: 'cap', daily: true },
-  rage: { job: 'hun', node: 'rage', dur: s => 20 + 5 * jobRank(s, 'hun', 'rage2'), cd: () => 180 } };
+  rage: { job: 'hun', node: 'rage', dur: s => 20 + 5 * jobRank(s, 'hun', 'rage2'), cd: () => 180 },
+  vol: { job: 'hun', node: 'vol', cd: () => 2 } };   // 2026-11-16 🌧️ 꿈 화살비 (사냥터 전투 기술 · 효과는 화면에서)
 /* 🔮 오늘의 운세 (index.html FORT와 같아요): 대길 · 길 · 중길 · 흉 · 대흉 · 2시간 */
 const FORT_K = ['dg', 'g', 'mg', 'h', 'dh'], FORT_NM = { dg: '대길', g: '길', mg: '중길', h: '흉', dh: '대흉' }, FORT_MS = 2 * 3600e3;
 function fortRoll(w) { let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < w.length; i++) { r -= w[i]; if (r <= 0) return FORT_K[i]; } return 'mg'; }
