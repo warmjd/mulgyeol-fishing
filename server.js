@@ -644,7 +644,7 @@ wss.on('connection', (ws) => {
       me.x = Math.round(x); me.y = Math.round(y);
       me.d = ['up', 'down', 'left', 'right'].includes(m.d) ? m.d : 'down';
       me.m = m.m ? 1 : 0; me.here = true; me.dirty = true;
-      me.b = Number.isInteger(m.b) && m.b >= 0 && m.b < 100000 ? m.b : 0; // 낚시 중인 찌 위치 (친구 화면에 낚싯대 · 찌 스킨)
+      me.b = Number.isInteger(m.b) && m.b >= 0 && m.b < 100000 ? m.b : 0; me.f = (m.f | 0) >= 0 && (m.f | 0) <= 4 ? m.f | 0 : 0;   // 낚시 단계 (친구 화면에 입질 · 줄다리기 · 낚아채기) // 낚시 중인 찌 위치 (친구 화면에 낚싯대 · 찌 스킨)
     } else if (m.t === 'save' && m.data && typeof m.data === 'object') {
       withLock(me.key, () => {
         const now = Date.now(), err = checkSave(me.save, m.data, now - (lastSaveAt.get(me.key) || 0));
@@ -1172,7 +1172,9 @@ function onMsg(ws, me, m) {
     }); break;
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
     /* ----- 은비랜드 ----- */
-    case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'eb_hilo': case 'eb_wheel': case 'eb_egg': case 'eb_vip': ebMsg(ws, me, m); break;
+    case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'ebn_pick': case 'ebn_get': ebnMsg(ws, me, m); break;
+    case 'shf_go': shfMsg(ws, me); break;
+    case 'eb_hilo': case 'eb_wheel': case 'eb_egg': case 'eb_vip': ebMsg(ws, me, m); break;
     /* ----- 오늘의 일 세 가지 다 하면 강화권 1장 (하루 한 번) ----- */
     case 'jtask_all': case 'vday_claim': withLock(me.key, async () => {   // 🏘️ 오늘의 마을 일 (2026-11-05): 세 가지 중 두 가지 → 강화권 3 · 도토리 3 · 선물 하나 · 하루 한 몫, 3일치까지 쌓여요
       const s = me.save; if (!s) return; const v = vdayOf(s);
@@ -1197,6 +1199,7 @@ function onMsg(ws, me, m) {
     case 'adm': {
       if (!me.admin) return;
       const ok = text => send(ws, { t: 'adm_ok', text });
+      if (m.op === 'brag') { const d = kstDay(), r = V && V.dk && V.dk.d === d && V.dk.p[me.key]; const n = r ? r.n | 0 : 0; if (!n) return ok('오늘 직접 낚은 물고기가 아직 없어요'); if (me.bragD === d && (me.bragN | 0) >= 3) return ok('오늘 자랑은 세 번까지예요'); me.bragN = me.bragD === d ? (me.bragN | 0) + 1 : 1; me.bragD = d; broadcast({ t: 'big', g: 3, text: '🎣📣 운영자 ' + me.name + ' 님도 오늘 ' + n.toLocaleString() + '마리를 낚았어요!' }); return ok('자랑했어요 (오늘 ' + n + '마리)'); }   // 2026-11-16: 진짜 오늘 마릿수만 (지어낸 숫자는 안 돼요)
       if (m.op === 'notice') { const text = cleanText(m.text, 80); if (text) { broadcast({ t: 'news', text: '📢 운영자: ' + text }); ok('공지를 보냈어요'); } return; }
       /* ----- 갇힘 · 이동 도구 (2026-11-05) ----- */
       if (m.op === 'users') {   // 👥 유저 현황 (운영자만): 밸런스 볼 때
@@ -1818,7 +1821,7 @@ function ebMsg(ws, me, m) {
       const nx = 1 + Math.floor(Math.random() * 13), ok = hi ? nx > cur : nx < cur; if (ok) win = Math.floor(bet * Math.floor(.94 / (cnt / 13) * 20) / 20);
       me.hiCard = nx; extra.hilo = { from: cur, to: nx, ok };
     } else { e.c += bet; e.wag -= bet; return; }
-    e.c += win; if (win > (e.best | 0)) e.best = win;
+    e.c += win; if (win > (e.best | 0)) e.best = win; ebOwnerShare(me, bet - win);
     e.loss = (e.loss | 0) + bet - win; const step = Math.floor(Math.max(0, e.loss) / EB_CONS);
     if (step > (e.cons | 0)) { const back = (step - (e.cons | 0)) * EB_CONS / 10; e.cons = step; e.c += back; extra.note = '🐰 은비의 위로 칩 +' + fmtN(back) + ' · 오늘은 운이 조금 없네요'; }
     ebRecord(me.name, m.t.slice(3), bet, win, !!extra.jack);
@@ -2198,7 +2201,8 @@ function vPub() {
   if (!V) return { t: 'vil' };
   const st = vSt(), don = Object.entries(V.don).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, g]) => ({ name, g }));
   let hutop = 0; for (const r of rosterCache.values()) hutop = Math.max(hutop, r.hlv | 0);
-  return { t: 'vil', hutop, ark: arkPub(), ships: shipPub(), fund: { g: V.fund.g, st, need: VF[st] ? VF[st].g : 0 }, don, wk: V.wk, rsv: V.rsv.map(r => ({ kind: r.kind, host: r.hostName, at: r.at })), fest: isFest(), festH: FEST_H, tog: { n: tog.n, on: tog.on, p: togLuck() }, boom: V.boom && V.boom.until > Date.now() ? V.boom : null, shop: medShop(), medCap: medCap(), kt: ktPub() };
+  const st0 = shinyTop(), ht0 = hunterTop();
+  return { t: 'vil', hutop, shtop: st0 ? st0.name : '', hutopN: ht0 ? ht0.name : '', shf: shfOn() ? { until: V.shf.until, by: V.shf.by, d: V.shf.d } : (V.shf && V.shf.d === kstDay() ? { d: V.shf.d } : null), ebo: EB_OWNER, ark: arkPub(), ships: shipPub(), fund: { g: V.fund.g, st, need: VF[st] ? VF[st].g : 0 }, don, wk: V.wk, rsv: V.rsv.map(r => ({ kind: r.kind, host: r.hostName, at: r.at })), fest: isFest(), festH: FEST_H, tog: { n: tog.n, on: tog.on, p: togLuck() }, boom: V.boom && V.boom.until > Date.now() ? V.boom : null, shop: medShop(), medCap: medCap(), kt: ktPub() };
 }
 function vSend() { broadcast(vPub()); }
 function vSoon() { if (vT) return; vT = setTimeout(() => { vT = 0; vSend(); }, 500); }
@@ -2354,7 +2358,7 @@ const SHX_PRICE = 1e6, BAIT_SHOP = { b_legend_s: 4e5, b_myth: 5e5, b_shx: 1e6, b
 const baitUsed = (o, nw, k) => Math.max(0, (((o && o.items) || {})[k] | 0) - (((nw && nw.items) || {})[k] | 0));   // 💎 반짝 3배 미끼 (2026-11-11): 상점 1개 100만 · 던질 때 1개 · 그 판에 낚은 물고기 반짝 확률 3배
 /* ✨ 반짝 (2026-11-12): 입질 순간 서버가 반짝을 정하고, 반짝이면 무조건 어려운 줄다리기 · 끝까지 감아야 반짝으로 남아요 */
 const SH_X = +process.env.SH_X || 1;   // 시험용 배율 (평소 1)
-const shinyP = (me, s, id, bx) => SH_X * ((isMyth(id) || isUlt(id)) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1) * (fireOn() ? 1.5 : 1) * (bx ? 3 : 1);
+const shinyP = (me, s, id, bx) => SH_X * ((isMyth(id) || isUlt(id)) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1) * (fireOn() ? 1.5 : 1) * (shfOn() ? 1.5 : 1) * (bx ? 3 : 1);
 function shinyAsk(ws, me, m) { const s = me.save, id = m.f | 0; if (!s || !validFish(id) || isGet(id)) return; const now = Date.now(); if (now - (me.shqT || 0) < 1200) return send(ws, { t: 'shq', f: id, sh: false }); me.shqT = now;
   const bx = m.bx && (((s.items || {}).b_shx) | 0) > 0, sh = Math.random() < shinyP(me, s, id, bx); me.shP = { f: id, t: now, sh }; send(ws, { t: 'shq', f: id, sh }); }
 function shinyOk(ws, me, m) { const p = me.shP, id = m.f | 0; me.shP = null; if (!p || !p.sh || p.f !== id || Date.now() - p.t > 120000) return; const s = me.save; if (!s) return; shinyGive(ws, me, s, [id]); queueSave(me.key, s); }
@@ -2931,6 +2935,29 @@ function sdKingCheck(init) {
 }
 const kingPub = () => sdKing ? { name: sdKing.name, n: sdKing.n, since: sdKing.since } : null;
 
+/* ---------- 🐰 은비랜드 주인 몫 (2026-11-16): 손님이 잃은 칩의 20%가 은비랜드 주인(은비땅)에게 · 손님이 따로 내는 건 없어요 · 5분마다 모아서 ---------- */
+const EB_OWNER = (process.env.EB_OWNER || '은비땅').trim(), EBO_RATE = .2, EBO_PEND = { n: 0 };
+const keyByName = nm => { for (const [key, r] of rosterCache) if (r.name === nm) return key; return null; };
+function ebOwnerShare(me, net) { if (net <= 0 || me.name === EB_OWNER) return; EBO_PEND.n += Math.floor(net * EBO_RATE); }
+setInterval(() => { const n = EBO_PEND.n | 0; if (n < 1) return; const key = keyByName(EB_OWNER); if (!key) return; EBO_PEND.n = 0;
+  withLock(key, async () => { const sv = await loadSave(key); if (!sv) return; const E = ebOf(sv); E.c = (E.c | 0) + n; queueSave(key, sv); const l = liveByKey(key); if (l) { l[1].save = sv; send(l[0], Object.assign(ebPub(sv, l[1]), { note: '🐰 은비랜드 주인 몫 · 칩 +' + fmtN(n) })); } }).catch(() => { EBO_PEND.n += n; }); }, 5 * 60e3);
+/* ---------- 🔢 은비 주간 숫자 (2026-11-16): 한 주에 한 번 1~5 중 하나 고르기 (공짜) · 월요일 0시에 은비가 숫자를 뽑아 맞힌 사람 중 한 명에게 도토리 30개 · 아무도 못 맞히면 다음 주로 쌓여요 (최대 90) ---------- */
+const EBN_BASE = 30, EBN_MAX = 90;
+function ebnOf() { V.ebn = V.ebn && typeof V.ebn === 'object' ? V.ebn : { w: wfWeek(), picks: {}, pot: EBN_BASE, last: null }; return V.ebn; }
+function ebnRoll() { if (!V) return; const N = ebnOf(), w = wfWeek(); if (N.w === w) return; const num = 1 + Math.floor(Math.random() * 5), hit = Object.entries(N.picks).filter(([, p]) => p.n === num);
+  if (hit.length) { const [key, p] = hit[(Math.random() * hit.length) | 0]; const pot = N.pot | 0; withLock(key, () => medAdd(key, pot, '🔢 은비 주간 숫자 ' + num + ' 당첨', true)).catch(() => { }); addMail(key, '🔢 은비 주간 숫자 ' + num + ' 당첨! 도토리 ' + pot + '개'); broadcast({ t: 'news', text: '🔢 이번 주 은비 숫자는 「' + num + '」! ' + p.name + ' 님이 도토리 ' + pot + '개를 받았어요' + (hit.length > 1 ? ' (맞힌 ' + hit.length + '명 중 추첨)' : '') }); N.last = { num, name: p.name, pot, n: hit.length }; N.pot = EBN_BASE; }
+  else { N.last = { num, name: '', pot: N.pot, n: 0 }; N.pot = Math.min(EBN_MAX, (N.pot | 0) + EBN_BASE); if (Object.keys(N.picks).length) broadcast({ t: 'news', text: '🔢 이번 주 은비 숫자는 「' + num + '」 · 아무도 못 맞혔어요! 다음 주 도토리 ' + N.pot + '개' }); }
+  N.w = w; N.picks = {}; vMark(); }
+setInterval(ebnRoll, 60000);
+const ebnPub = me => { const N = ebnOf(), mine = N.picks[me.key]; return { t: 'ebn', w: N.w, pot: N.pot, mine: mine ? mine.n : 0, n: Object.keys(N.picks).length, last: N.last }; };
+function ebnMsg(ws, me, m) { if (!V) return; ebnRoll(); const N = ebnOf();
+  if (m.t === 'ebn_pick') { const n = m.n | 0; if (n < 1 || n > 5) return; if (N.picks[me.key]) return send(ws, { t: 'news', text: '🔢 이번 주 숫자는 이미 골랐어요 (' + N.picks[me.key].n + ')' }); N.picks[me.key] = { n, name: me.name }; vMark(); send(ws, { t: 'news', text: '🔢 「' + n + '」을(를) 골랐어요 · 월요일 0시에 은비가 숫자를 뽑아요' }); }
+  send(ws, ebnPub(me)); }
+/* ---------- ✨ 반짝 축제 (2026-11-16): 반짝 1위가 하루 한 번 · 30분 동안 마을 모두 반짝 확률 1.5배 ---------- */
+const shfOn = () => !!(V && V.shf && V.shf.until > Date.now());
+function shinyTop() { let best = null; for (const [key, r] of rosterCache) if ((r.sh | 0) > 0 && (!best || (r.sh | 0) > best.sh)) best = { key, name: r.name, sh: r.sh | 0 }; return best; }
+function shfMsg(ws, me) { if (!V || !me.save) return; const top = shinyTop(); if (!top || top.key !== me.key) return send(ws, { t: 'news', text: '✨ 반짝 1위만 열 수 있어요' }); const d = kstDay(); if (V.shf && V.shf.d === d) return send(ws, { t: 'news', text: '✨ 반짝 축제는 하루에 한 번이에요' });
+  V.shf = { d, until: Date.now() + 30 * 60e3, by: me.name }; vMark(); broadcast({ t: 'news', text: '✨🎉 반짝 1위 ' + me.name + ' 님이 「반짝 축제」를 열었어요! 30분 동안 모두 반짝 확률 1.5배' }); broadcast({ t: 'shf', until: V.shf.until, by: me.name }); }
 /* ---------- ⚔️ 용사 1위 통행세 (2026-11-16): 꿈의 문을 지나 사냥하는 사람이 번 칩의 3%가 용사 1위에게 (1위 본인은 안 내요) · 5분마다 모아서 ---------- */
 const HUNT_CAP_LV = 40, HUNT_CAP_N = 1000, HUNT_CAP_B = 12, HT_RATE = .03;
 const HT_PEND = new Map();   // key -> 모인 칩
@@ -3145,7 +3172,7 @@ db.ranks().then(rows => { for (const r of (rows || []).filter(r => !String(r.key
 // 친구 위치 묶어서 보내기
 setInterval(() => {
   const list = [];
-  for (const p of players.values()) if (p.here && p.dirty) { list.push([p.id, p.x, p.y, p.d, p.m, p.b]); p.dirty = false; }
+  for (const p of players.values()) if (p.here && p.dirty) { list.push([p.id, p.x, p.y, p.d, p.m, p.b, p.f | 0]); p.dirty = false; }
   if (list.length) broadcast({ t: 's', p: list });
 }, SNAP_MS);
 
