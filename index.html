@@ -256,6 +256,8 @@ input[type=range]{width:100%;accent-color:var(--lav);height:32px}
 @keyframes blink{to{opacity:.25}}
 #tags{position:fixed;inset:0;pointer-events:none;z-index:4;overflow:hidden}
 .ntag{position:absolute;left:0;top:0;background:rgba(255,250,242,.88);border:1.5px solid var(--line);border-radius:999px;padding:0 6px;font-size:10px;line-height:15px;white-space:nowrap;color:var(--ink);will-change:transform}
+#bSlow{position:fixed;right:calc(max(20px,env(safe-area-inset-right,0px)) + 116px);bottom:calc(92px + env(safe-area-inset-bottom,0px));min-width:70px;height:40px;border-radius:999px;background:#eef7ee;color:#2f6a4a;border:3px solid #fff;box-shadow:0 3px 0 #b8d8c0;font-size:13px;z-index:5;padding:0 10px}#bSlow.on{background:#7cc79a;color:#fff;box-shadow:0 3px 0 #4f9a6e}
+#slowHud{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(40,70,55,.62);color:#effaf2;border-radius:999px;padding:5px 14px;font-size:12.5px;z-index:5;pointer-events:none;white-space:nowrap}
 #bAfk{position:fixed;right:calc(max(20px,env(safe-area-inset-right,0px)) + 116px);bottom:calc(40px + env(safe-area-inset-bottom,0px));min-width:70px;height:44px;border-radius:999px;background:var(--mint);color:#1f4a3f;border:3px solid #fff;box-shadow:0 3px 0 #62b09c;font-size:13px;z-index:5;padding:0 10px}
 .ptag{position:absolute;left:0;top:0;font-size:9px;line-height:13px;color:#fff;background:rgba(74,61,107,.66);border-radius:999px;padding:0 5px;white-space:nowrap;will-change:transform}
 .ntag .en{color:#e07a2c;font-weight:700;margin-left:3px}.ntag .en.e21{color:#6a5cff}.ntag .en.e30{background:linear-gradient(90deg,#ff6a9a,#ffb03a,#3ac0ff,#9a6aff);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -636,7 +638,7 @@ details.more summary::-webkit-details-marker{display:none}
 <div id="stick"><div id="knob"></div></div>
 <button id="act" class="off">—</button>
 <button id="bTalk" aria-label="말하기와 감정표현" aria-expanded="false"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 4C7 4 3 7.1 3 11c0 2.2 1.3 4.2 3.4 5.5L5.6 20l4.1-2.3c.7.2 1.5.3 2.3.3 5 0 9-3.1 9-7s-4-7-9-7z" fill="#fff"/><circle cx="8.5" cy="11" r="1.2" fill="#a38ee0"/><circle cx="12" cy="11" r="1.2" fill="#a38ee0"/><circle cx="15.5" cy="11" r="1.2" fill="#a38ee0"/></svg></button>
-<button id="bAfk" hidden>자동 낚시</button>
+<button id="bAfk" hidden>자동 낚시</button><button id="bSlow" hidden>🍃 손맛</button><div id="slowHud" hidden></div>
 <button id="bEco" aria-label="절전 모드">절전</button>
 <div id="talk" hidden>
   <div class="emos" id="emos"></div>
@@ -5195,7 +5197,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1116e',UPD_LOG=[
+const UPD_VER='1116f',UPD_LOG=[
+ ['11/16 한밤','🍃',[['🍃 손맛 모드','물가에서 「🍃 손맛」을 켜요 · 손맛 도감에 아직 없는 물고기만 걸려요 · 아주 천천히 와요 (흔한 물고기 5분쯤 ~ 드문 물고기 30분 ~ 2시간) · 자동 낚시는 안 돼요'],['🌿 쉬어 가는 낚시','찌를 띄워 두고 바람과 물결을 바라봐요 · 물고기가 오면 소리 · 진동으로 깨워 줘요 (절전 화면도) · 놓쳐도 물고기가 곁에 남아 다시 와요'],['🎁 기다린 만큼','기다린 시간과 물고기 등급만큼 골드(5분 흔한 물고기 약 100만 ~ 2시간 전설 약 8,400만) · 강화권 · 20분마다 💠 꿈의 정수']]],
  ['11/16 늦은 밤','🛠️',[['🔤 또렷한 글자','반려동물 이름표 · 떠오르는 글자(주문서 · 장비 획득) · 하늘낚시 이름표 등 게임 화면 속 글자가 더 이상 뭉개지지 않아요 · 반려동물 이름표는 내 이름표와 같은 모양'],['🚶 걷는 모습','발을 디딜 때마다 몸이 살짝 들썩이고 팔을 흔들어요 · 발소리에 맞춰 흙먼지 · 빨라지면 걸음도 빨라져요'],['🐾 반려동물 효과 강화','행운 레벨마다 +0.5% (예전 0.2%) · 판매가 +0.3% (예전 0.1%) · 새로: 손으로 낚을 때 입질이 빨라지고 (Lv99 약 15%) · Lv50부터 대물 확률 +'],['🔨 여러 개 분해','꿈의 문 가방에서 「여러 개 분해」 → 하나씩 고르거나 등급별로 한 번에 · 장착한 장비는 빠져요'],['🧪 힐링포션','한 번 마시면 8초 뒤에 다시 마실 수 있어요 (버튼에 시간이 보여요)'],['🔮 🏹 직업 창','별빛 예언자 · 꿈 사냥꾼 직업 창이 안 열리고 닫히던 것 고쳤어요 · 이제 기술(운세 보기 · 사냥 본능 등)을 누를 수 있어요'],['💰 골드 표시','21억 골드가 넘으면 유저 현황에 마이너스로 보이던 것 고쳤어요 (실제 골드는 그대로였어요)'],['👗 치장 상점','미리보기 그림을 가볍게 바꿔서 덜 버벅여요'],['🌙 달 · 해','달의 어두운 쪽이 파란 원판 대신 밤하늘에 녹아들어요 (아주 옅은 지구빛) · 밝은 쪽엔 은은한 바다 무늬 · 부드러운 경계 · 해는 겹겹의 빛무리와 둥근 원반, 해 질 녘엔 붉고 크게']]],
  ['11/16 밤','☁️',[['☁️ 하늘낚시','마을 북쪽 끝에 서서 하늘로 줄을 던져요 · 별 등불이 반짝이면 누르고, 누르고 떼며 빛의 원 안에 손님을 담아요 · 직접 낚기만 돼요'],['📖 하늘 도감 59종','하늘 물고기 42 · 별자리 12 · 특별 5 · 새벽 · 낮 · 노을 · 밤 · 진짜 보름달과 그믐 · 비 · 안개 · 무지개 · 겨울마다 다른 손님 · 전설 · 신화는 아주 아주 드물어요'],['⭐ 별자리','계절마다 제철 별자리 셋 · 조각 다섯 개를 모으면 내 밤하늘에 이어져요 · 열두 개를 다 이으면…'],['🌠 별똥별','하늘낚시 중 별똥별이 지나가면 바로 눌러 소원을 빌어요'],['🎵 하늘의 소리','하늘을 보면 「별빛 자장가」 · 낮엔 「구름 산책」 · 바람 · 종 · 하프 소리'],['💍 온 세상의 반지','별먼지 · 달 조각 · 혜성의 꼬리 조각이 하늘낚시로 열렸어요']]],
  ['11/16 저녁','🌅',[['🌅 진짜 하늘','서울의 진짜 해돋이 · 해넘이에 맞춰 하늘빛이 바뀌어요 · 마을 북쪽 끝으로 걸어가면 지평선 · 먼 산 · 구름 · 밤엔 별과 은하수 · 별똥별 · 오늘 진짜 달 모양 (보름달엔 토끼도…)'],['🌊 물에 비친 하늘','물 위로 구름이 흘러가고 · 밤엔 달빛 · 아침저녁엔 햇빛이 반짝여요'],['💠 꿈의 정수','+20부터 강화 한 번에 정수 1개 · 사냥터 우두머리(어려움일수록 많이) · 바다 보스 · 레이드 · 칩 교환(한 주 10개) · 이미 +20인 분께 20개를 드렸어요'],['🌑 레이드 2.0','보스 다섯 (악몽의 왕 · 서리 거인 · 용암 고래 · 폭풍 문어 · 별삼킨 해파리) · 모두 같은 순간에 같은 패턴 · 함께 때리면 합동 공격 · 노란 원에 모여서 나눠 맞기 · 쓰러진 친구 일으켜 주기'],['👑 손맛 왕의 마을','손맛 1등이 마을 주인 · 가게 세금 0~5% · 하루 한 번 마을 공지 · 손맛 축제(30분 판매가 +10%) · 벤치 · 벌집을 놓고 치워요 · 마을 사람은 부탁하고 왕이 허락해요 (메뉴 → 왕의 마을)'],['💍 반지 공방','결혼반지는 공방 장인만 만들어요 · 상자로 주고받아요 · 엔딩 「온 세상의 반지」: 스물네 곳의 조각을 새겨요 (아직 아무도 못 간 곳도…) · 청혼하면 무릎 꿇고 반지 상자 · 꽃길 · 불꽃놀이'],['🧺 덧미끼','장인 미끼는 상점 미끼와 함께 끼울 수 있어요 · 새 장인 미끼 👯 쌍둥이 · 🖐️ 손맛'],['🔮 새 직업','별빛 예언자: 친구 운세(대길~대흉 · 2시간) · 흉운 보내기 · 운명의 별 / 🏹 꿈 사냥꾼: 사냥 칩 · 경험치 · 정수'],['🐾 펫','동물 친구 직업이면 펫이 1.5배 빨리 자라요 · 짝꿍 Lv40 · 99 행운 · Lv50 반짝 · 레벨 혜택 표'],['🔨 주간 경매 · 💪 성실 보상','골드로 입찰(밀리면 바로 환불) · 이번 주 직접 낚은 마릿수로 상자 5단계'],['🌹 새 치장','티아라 · 여왕의 왕관 · 무도회 드레스 · 공주님 드레스 · 별밤 드레스 · 왕자님 예복 · 비눗방울 잠자리채 · 새 낚싯대 10자루'],['🌦️ 주민 이야기','비 오면 우산 · 날씨와 달에 따라 한마디 · 그리고 몇 가지 비밀…'],['❓ ??? 도감','칸마다 「깊은 물」 · 🌙 밤 표시']]],
@@ -5384,8 +5387,25 @@ $('bossbtn').addEventListener('pointerdown',e=>{e.preventDefault();bossTap()});
 $('trapbtn').onclick=()=>{if(uiOpen)return;claimTrap();Snd.resume()};
 $('pthome').onclick=()=>{if(!inSea())return;if(PTY.practice){practiceEnd();return}Net.send({t:'pt_home'});Snd.sfx('tap')};
 $('bAfk').onclick=()=>{if(F.afk)stopAfk('자동 낚시를 멈췄어요');else startAfk()};
+$('bSlow').onclick=()=>{if(F.mode!=='idle'){toast('찌를 거둔 다음에 바꿀 수 있어요');return}S.slow=!S.slow;saveState();Snd.sfx(S.slow?'page':'tap');
+  if(S.slow){const n=slowLeftHere();openSheet('🍃 손맛 모드','<div style="font-size:14px;line-height:1.8">물가에 앉아 바람과 물결을 바라보며 쉬어 가는 낚시예요.<br>· 손맛 도감에 <b>아직 없는 물고기만</b> 걸려요'+(n>=0?' (여기서 지금 만날 수 있는 새 물고기 <b>'+n+'종</b>)':'')+'<br>· 아주 천천히 와요: 흔한 물고기는 5분쯤, 드문 물고기는 30분 ~ 2시간<br>· 물고기가 오면 소리 · 진동으로 알려 줘요 (절전 화면도 깨워요)<br>· 놓쳐도 물고기는 곁에 남아 다시 와요<br>· 자동 낚시는 할 수 없어요<br>· 기다린 시간만큼 <b>골드 · 강화권</b>, 오래 기다리면 <b>💠 꿈의 정수</b>까지</div><div class="muted" style="font-size:12px;margin-top:8px">찌를 던진 뒤 절전 버튼을 눌러 두어도 괜찮아요. 화면이 켜져 있어야 시간이 흘러요.</div>')}
+  else toast('손맛 모드를 껐어요')};
 function releaseAct(){if(F.mode==='sky'){skyRelease();return}if(chgEnd())return;if(F.mode==='reel')inp.hold=false}
+/* ===== 🍃 손맛 모드 (2026-11-16): 자연을 바라보며 쉬는 낚시 =====
+   켜 두면 손맛 도감에 아직 없는 물고기만 걸려요. 대신 아주 천천히 (흔한 물고기 5분쯤 ~ 전설은 2시간 가까이).
+   자동 낚시는 못 해요. 오래 기다린 만큼 서버가 큰 보상을 줘요 (server.js slow_got) · 놓쳐도 물고기가 곁에 남아 다시 와요 */
+const SLOW_MIN=[5,9,18,35,70];   // 등급별 기다림(분) 기준 · 실제는 0.8~1.7배 · 5분~2시간
+const slowOn=()=>!!S.slow;
+function slowPool(zone,c){if(zone===7||zone===8)return[];const out=[];for(let k=0;k<=4;k++)(POOL[zone+'-'+k]||[]).forEach(f=>{if(!f.boss&&!sdHas(f.id)&&condOk(f,c))out.push(f)});return out}
+function slowPick(pool){const w=pool.map(f=>[6,5,4,2.5,1.2][f.myth?4:f.rar]),t=w.reduce((a,b)=>a+b,0);let r=Math.random()*t;for(let i=0;i<pool.length;i++){r-=w[i];if(r<=0)return pool[i]}return pool[0]}
+function slowLeftHere(){const a=typeof nearAction==='function'?nearAction():null;if(!a||a.type!=='fish')return-1;const z=W.Z[a.cast.y][a.cast.x];return slowPool(z,condNow({x:a.cast.x,y:a.cast.y})).length}
 function startCast(c){
+  F.slowFish=null;F.slowT0=0;
+  if(slowOn()&&!F.afk){const z=W.Z[c.y][c.x],pool=slowPool(z,condNow(c));
+    if(!pool.length){toast(z===7||z===8?'🍃 여기선 손맛 모드를 쓸 수 없어요':'🍃 지금 이 낚시터에서 만날 새 물고기가 없어요 · 다른 시간 · 날씨 · 낚시터에서 기다려 봐요');Snd.sfx('no');return}
+    const f=slowPick(pool),m=Math.max(5,Math.min(120,SLOW_MIN[f.myth?4:f.rar]*(.8+Math.random()*.9)*Math.max(.75,ST.wait||1)));
+    F.slowFish=f;F.slowWait=m*60;F.slowT0=Date.now();if(ONLINE&&Net.me)Net.send({t:'slow_cast',z});
+    toast('🍃 손맛 모드 · 찌를 띄워 두고 천천히 기다려요. 물고기가 오면 소리와 진동으로 알려 줘요')}
   castBait();F.whoosh=0;RCAST.armed=true;
   P.dir=c.dir;F.target={x:c.x,y:c.y,k:c.k};F.zone=W.Z[c.y][c.x];F.shq=false;castWhere(c);hsCastHook(c);giftHint(F.zone);recWarn(F.zone);F.mode='cast';F.t=0;F.fish=null;
   S.stats.casts++;Snd.sfx('cast');hideHint();
@@ -5595,7 +5615,9 @@ function biteFx(f){const r=f.myth?4:f.rar,b=bobberPos();
   if(r>=3){SHK={t:r>=4?.6:.35,a:r>=4?3:1.6}}if(r>=4){DARK={t:1.6};Snd.sfx('page')}
   if(f.myth){DARK={t:2.4};SHK={t:1,a:4};sparkFx(b[0],b[1],30,['#fff6b0','#c8b8ff','#ffffff'])}
   if(navigator.vibrate)try{navigator.vibrate(VIB[Math.min(4,r)])}catch(e){}}
-function startNibble(){const U=ultRoll();F.fish=U||surpFish(rollFish(F.zone,condNow(F.target)),F.zone);F.shq=false;F.shOk=false;if(!U&&(F.hsK==='myth'||F.hsK==='legend')&&!F.fish.boss){for(let i=0;i<2;i++){const g=rollFish(F.zone,condNow(F.target));if(g&&!g.boss&&(g.myth?5:g.rar)>(F.fish.myth?5:F.fish.rar))F.fish=g}}const f=F.fish,n=NIB[f.myth?4:f.rar];F.nib=n[0]+Math.floor(Math.random()*(n[1]-n[0]+1));
+function slowAlert(){try{if(ECO.on)ecoOff()}catch(e){}try{navigator.vibrate&&navigator.vibrate([220,120,220,120,320])}catch(e){}Snd.sfx('bite')}
+function slowAgain(msg){F.mode='wait';F.t=0;F.wait=20+Math.random()*25;toast('🍃 '+msg)}
+function startNibble(){if(F.slowFish)slowAlert();const U=F.slowFish?null:ultRoll();F.fish=F.slowFish||U||surpFish(rollFish(F.zone,condNow(F.target)),F.zone);F.shq=false;F.shOk=false;if(!U&&!F.slowFish&&(F.hsK==='myth'||F.hsK==='legend')&&!F.fish.boss){for(let i=0;i<2;i++){const g=rollFish(F.zone,condNow(F.target));if(g&&!g.boss&&(g.myth?5:g.rar)>(F.fish.myth?5:F.fish.rar))F.fish=g}}const f=F.fish,n=NIB[f.myth?4:f.rar];F.nib=n[0]+Math.floor(Math.random()*(n[1]-n[0]+1));
   F.mode=F.nib?'nibble':'bite';F.t=0;F.nibT=.5+Math.random()*.6;F.dip=0;if(!F.nib){Snd.sfx('bite');biteFx(f)}
   if(!F.afk&&ONLINE&&Net.me&&!F.fish.boss&&!F.fish.get){F.shq=null;Net.send({t:'shq',f:F.fish.id,bx:F.bait==='b_shx'?1:0})}}
 function stepNibble(dt){F.nibT-=dt;F.dip=Math.max(0,F.dip-dt*4);
@@ -5644,12 +5666,12 @@ function stepReel(dt){
   else if(r.prog<=0){reelLost(r)}
   else updateReelUI(inBar);
 }
-function reelLost(r){if(F.reelSh&&!r.snap&&Math.random()<.04){F.shOk=true;F.reelSh=false;F.mode='pull';F.t=0;F.from=bobberPos();showReel(false);Snd.setIntense(false);toast('✨ 어라? 반짝이가 지쳐서 스스로 올라왔어요!');return}F.reelSh=false;F.mode='idle';showReel(false);startFlop();Snd.setIntense(false);Snd.sfx('escape');inp.hold=false;S.combo=0;
+function reelLost(r){if(F.reelSh&&!r.snap&&Math.random()<.04){F.shOk=true;F.reelSh=false;F.mode='pull';F.t=0;F.from=bobberPos();showReel(false);Snd.setIntense(false);toast('✨ 어라? 반짝이가 지쳐서 스스로 올라왔어요!');return}F.reelSh=false;F.mode='idle';showReel(false);startFlop();Snd.setIntense(false);Snd.sfx('escape');inp.hold=false;S.combo=0;if(F.slowFish){slowAgain('놓쳤지만 물고기가 아직 근처에 있어요… 조금만 더 기다려요');return}
   if(F.fish.rar>=2)F.mpity={rar:F.fish.rar,n:2};   // 놓친 만큼 다음 입질에서 다시 만날 확률 ↑
   toast(r.snap?'줄이 끊어졌어요! 물고기가 당길 때는 손을 살짝 풀어요':r.gap?'앗, 놓쳤어요… 「'+zoneNm(F.zone)+'」 권장 강화 +'+REC_ENH[F.zone]+' (지금 +'+S.enh.lv+')':'앗, 놓쳤어요… '+(F.fish.rar>=2?'다음엔 또 만날 거예요':'다시 던져 봐요'))}
 
 function finishCatch(){
-  const f=F.fish,id=f.id;if(!F.afk)try{crownPop()}catch(e){}try{edCatch(f)}catch(e){}if(autoOn()&&!F.afk&&!F.reelHand)S.rcx=(S.rcx|0)+1;F.reelHand=0;if(F.shOk){F.shOk=false;F.reelSh=false;setTimeout(()=>Net.send({t:'shok',f:id}),1500)}{const _had=!!S.dex[id];setTimeout(()=>{diaryCatch(f,_had);wfCatch(id)},60);}if(P)rodSig(S.cos.look.rod,P.x,P.y-8,false);if(ONLINE&&Net.me&&!f.boss)setTimeout(()=>Net.send({t:'fdrop',rar:f.myth?4:f.rar,z:F.zone}),400);
+  const f=F.fish,id=f.id,_sl=F.slowFish&&F.slowFish.id===id?1:0;if(_sl){const ms=Date.now()-(F.slowT0||Date.now());F.slowFish=null;if(ONLINE&&Net.me)setTimeout(()=>Net.send({t:'slow_got',id,ms}),700);else toast('🍃 '+Math.round(ms/60000)+'분을 기다려 만난 물고기예요')}if(!F.afk)try{crownPop()}catch(e){}try{edCatch(f)}catch(e){}if(autoOn()&&!F.afk&&!F.reelHand)S.rcx=(S.rcx|0)+1;F.reelHand=0;if(F.shOk){F.shOk=false;F.reelSh=false;setTimeout(()=>Net.send({t:'shok',f:id}),1500)}{const _had=!!S.dex[id];setTimeout(()=>{diaryCatch(f,_had);wfCatch(id)},60);}if(P)rodSig(S.cos.look.rod,P.x,P.y-8,false);if(ONLINE&&Net.me&&!f.boss)setTimeout(()=>Net.send({t:'fdrop',slow:_sl,rar:f.myth?4:f.rar,z:F.zone}),400);
   F.len=Math.max(1,Math.round(f.len*(.7+Math.random()*.6)));
   if(F.bait==='b_hand'||F.bait2==='b_hand')F.len=Math.round(F.len*1.15);
   if(F.perfect){F.len=Math.round(F.len*1.1);S.combo=Math.min(5,(S.combo|0)+1)}else if(F.reeled)S.combo=0;
@@ -5712,6 +5734,7 @@ function giftLocal(f){
 const AFK_SEC=180,AFK_CAP=1e9,afkSec=()=>ENH_LV()>=20?90:120;   // 2026-11-11: 자동 낚시 하루 제한 없음
 function afkLeft(){if(S.afk.day!==kstDay()){S.afk.day=kstDay();S.afk.n=0}return afkCap()-S.afk.n}
 function startAfk(){
+  if(slowOn()){toast('🍃 손맛 모드에선 자동 낚시를 할 수 없어요 · 손맛 모드를 끄면 돼요');return}
   const a=nearAction();if(!a||a.type!=='fish')return;if(W.Z[a.cast.y][a.cast.x]===7){toast('배낚시에선 자동 낚시를 할 수 없어요. 같이 낚아요!');return}
   if(afkLeft()<=0){toast('오늘 자동 낚시는 다 썼어요 (하루 '+afkCap()+'마리). 직접 낚시는 계속할 수 있어요');return}
   startCast(a.cast);if(F.bait){itAdd(F.bait,1);F.bait=null}F.afk=true;toast('🎣 자동 낚시 시작! '+(afkSec()>=120?'2분':'1분 30초')+'마다 흔한 물고기가 걸려요 · 큰 물고기 · 반짝 · 손맛 보너스는 직접 낚아야 해요');
@@ -5758,12 +5781,12 @@ function closeResult(){if(F.mode!=='result'||F.t<.5)return;F.mode='idle';$('resu
 function updateFishing(dt){
   F.t+=dt;
   switch(F.mode){
-    case'cast':if(F.t>=.5){F.mode='wait';F.t=0;F.wait=(easyMode()?1.5+Math.random()*3:2+Math.random()*4)*ST.wait*(autoOn()?1.6:1)*(F.zone===8?.6:F.zone===7?seaWait():1)*fogBite()*coldWait()*((F.hsK==='school'||F.hsK==='legend')?.35:1);F.ripT=0;const b=bobberPos();ripple(b[0],b[1]);splashFx(b[0],b[1]);bobLand(S.cos.look.bob,b[0],b[1]);rodSig(S.cos.look.rod,b[0],b[1],true)}break;
+    case'cast':if(F.t>=.5){F.mode='wait';F.t=0;F.wait=F.slowFish?F.slowWait:(easyMode()?1.5+Math.random()*3:2+Math.random()*4)*ST.wait*(autoOn()?1.6:1)*(F.zone===8?.6:F.zone===7?seaWait():1)*fogBite()*coldWait()*((F.hsK==='school'||F.hsK==='legend')?.35:1);F.ripT=0;const b=bobberPos();ripple(b[0],b[1]);splashFx(b[0],b[1]);bobLand(S.cos.look.bob,b[0],b[1]);rodSig(S.cos.look.rod,b[0],b[1],true)}break;
     case'wait':F.wait-=dt;F.ripT-=dt;if(F.ripT<=0){F.ripT=1.5;const b=bobberPos();ripple(b[0],b[1])}
       if(F.afk){if(F.wait<=0)afkBite();break}
       if(F.wait<=0)startNibble();break;
     case'nibble':stepNibble(dt);break;
-    case'bite':if(F.t>(easyMode()?2.8:2.2)-F.fish.diff*.3+(ST.biteX||0)){if(ENH_LV()>=3){toast('✨ 낚싯대가 알아서 챔질했어요!');hook();break}F.mode='idle';Snd.sfx('miss');toast('물고기가 눈치채고 떠났어요');Snd.setIntense(false)}break;
+    case'bite':if(F.t>(easyMode()?2.8:2.2)-F.fish.diff*.3+(ST.biteX||0)+(F.slowFish?4:0)){if(ENH_LV()>=3){toast('✨ 낚싯대가 알아서 챔질했어요!');hook();break}if(F.slowFish){slowAgain('물고기가 찌를 건드리고 갔어요… 아직 근처에 있어요');break}F.mode='idle';Snd.sfx('miss');toast('물고기가 눈치채고 떠났어요');Snd.setIntense(false)}break;
     case'reel':stepReel(dt);break;
     case'pull':if(F.t>=.38)finishCatch();break;
   }
@@ -8284,6 +8307,9 @@ function updateActBtn(a){
   if(uiOpen){txt='—';cls='off'}
   const showAfk=!uiOpen&&((F.mode==='idle'&&a&&a.type==='fish')||F.afk);const ba=$('bAfk');if(ba.hidden===showAfk)ba.hidden=!showAfk;
   const at=F.afk?'자동 멈춤':'자동 낚시';if(ba.textContent!==at)ba.textContent=at;
+  {const bs=$('bSlow'),sh=$('slowHud'),near=!uiOpen&&F.mode==='idle'&&a&&a.type==='fish'&&!F.afk;if(bs.hidden===!!near)bs.hidden=!near;bs.classList.toggle('on',slowOn());if(slowOn()&&!ba.hidden)ba.hidden=true;
+    let st='';if(slowOn()&&!uiOpen){if(F.slowFish&&(F.mode==='wait'||F.mode==='cast')){const m=Math.floor((Date.now()-F.slowT0)/60000);st='🍃 고요히 기다리는 중 · '+(m<1?'방금':m+'분째')}else if(F.mode==='idle'&&near){const n=slowLeftHere();st='🍃 손맛 모드 · '+(n>0?'여기 새 물고기 '+n+'종':'여기선 새 물고기가 없어요')}}
+    if(sh.textContent!==st)sh.textContent=st;sh.hidden=!st}
   CUR_ACT=F.mode==='idle'&&!uiOpen?a:null;
   const kd=F.mode==='idle'&&a&&!uiOpen?ACT_KIND(a.type):'';if(kd&&cls==='')cls='k-'+kd;
   const html=kd&&KIND_IC[kd]?'<i class="aic">'+KIND_IC[kd]+'</i><span>'+txt+'</span>':txt;

@@ -1352,6 +1352,19 @@ function onMsg(ws, me, m) {
       }).catch(e => console.error('boat_build', e.message));
       break;
     }
+    /* ----- 🍃 손맛 모드 (2026-11-16): 도감에 없는 물고기만 · 아주 천천히 · 기다린 시간만큼 큰 보상 (시간은 서버가 재요) ----- */
+    case 'slow_cast': me.slowAt = Date.now(); break;
+    case 'slow_got': withLock(me.key, () => {
+      const s = me.save, t0 = me.slowAt | 0; me.slowAt = 0; if (!s || !t0) return;
+      const min = Math.min(150, (Date.now() - t0) / 60000); if (min < 4) return;   // 손맛 모드는 가장 짧아도 5분이에요
+      const id = m.id | 0, rar = Math.max(0, Math.min(4, fishRar(id) | 0)), RM = [1, 1.3, 1.7, 2.4, 3.5][rar];
+      const g = Math.round((200000 + fishPrice(id) * 20) * min * RM / 1000) * 1000, tk = Math.floor((2 + min / 5) * RM), es = Math.floor(min / 20) + (rar >= 3 ? 1 : 0);   // 5분 흔한 물고기 ≈ 100만 · 2시간 전설 ≈ 8,400만 · 정수 7
+      const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + tk); if (es) e.es = (e.es | 0) + es;
+      s.gold = (Number(s.gold) || 0) + g; s.rev = (s.rev | 0) + 1; queueSave(me.key, s);
+      out.unshift('🍃 ' + Math.round(min) + '분을 기다려 만난 물고기 · 골드 +' + g.toLocaleString() + ' · 강화권 +' + tk + (es ? ' · 💠 꿈의 정수 +' + es : ''));
+      sendEnh(ws, me, { dgold: g, rev: s.rev, note: out });
+      if (min >= 60) broadcast({ t: 'news', text: '🍃 ' + me.name + ' 님이 ' + Math.round(min) + '분 동안 고요히 기다려 새 물고기를 만났어요' }, ws);
+    }); break;
     /* ----- 낚시터 정복: 한 낚시터를 다 채우면 강화권 · 골드 · 전용 옷 세트 ----- */
     case 'zone_rw': withLock(me.key, () => {
       const s = me.save, z = m.z | 0; if (!s || z < 1 || z > 6) return;
@@ -1919,6 +1932,7 @@ async function rpgMsg(ws, me, m) {
   const s = me.save; if (!s) return; const h = s.hunt && typeof s.hunt === 'object' ? s.hunt : (s.hunt = { w: 0, a: 0, b: 0, sw: 0 }); h.inv = Array.isArray(h.inv) ? h.inv : []; const mat = h.mat && typeof h.mat === 'object' ? h.mat : (h.mat = {}); const now = Date.now();
   const out = x => { queueSave(me.key, s); send(ws, Object.assign({ t: 'rpg', hunt: h }, x)); };
   if (m.t === 'fdrop') {   // 🎣 낚시하다 딸려 올라오는 것들
+    if (!m.slow) me.slowAt = 0;   // 🍃 손맛 모드로 기다리던 중 다른 물고기를 낚았으면 기다린 시간은 무효
     if (now - (me.fdT || 0) < 2500) return; me.fdT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), z = m.z | 0, tier = ZT[z] | 0, hsB = hsBoost(me, 'loot') ? 2 : 1, luk = (1 + Math.min(100, rpgSum(h, (s.hu && s.hu.lv) | 0 || 1).luk) / 100) * hsB, got = [];
     const bq = me.bq || (me.bq = {}), bS = bq.b_scr > 0 ? (bq.b_scr--, 3) : 1, bG = bq.b_gear > 0 ? (bq.b_gear--, 3) : 1;
     const SC = scrMig(h); if (Math.random() < (.07 + r * .015) * luk * bS) { const id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push({ k: 'scr', id }); }
