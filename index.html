@@ -2736,6 +2736,7 @@ function rodTip(g,k,x,y,c){const p=(a,b,w,h)=>{g.fillRect(Math.round(x+a),Math.r
     case'skull':p(-1,-2,3,2);p(-1,0);p(1,0);g.fillStyle='#202020';p(-1,-1);p(1,-1);break;
     case'flower':p(-1,0);p(1,0);p(0,-1);p(0,1);g.fillStyle='#fff4b0';p(0,0);break;
     case'leaf':p(-1,-1,2,2);p(1,0);p(0,1);break;
+    case'moon':p(-1,-2,2,1);p(-2,-1,1,3);p(-1,1,2,1);g.fillStyle='rgba(255,255,255,.9)';p(-1,-1);break;
     case'planet':p(-1,-1,3,3);g.fillStyle='#ffffff';p(-3,0,7,1);break
     case'note':p(1,-4,1,4);p(-1,-1,2,2);p(2,-4);break;case'paw':p(-1,0,3,2);p(-2,-2);p(0,-3);p(2,-2);break;case'drop':p(0,-2);p(-1,-1,3,2);p(0,1);g.fillStyle='#ffffff';p(-1,-1);break;case'snow':p(0,-2,1,5);p(-2,0,5,1);p(-1,-1);p(1,1);p(1,-1);p(-1,1);break}}
 function rodFx(g,id,x0,y0,x1,y1,P,dt,carry){const d=ROD3[id]||ISLE_ROD[id];if(!d)return;const f=d.fx,tr=d.tier|0;
@@ -4965,6 +4966,24 @@ const TIER_SET=['레어','에픽','유니크','레전더리','미스틱','태초
  ['bx_galaxy2','은하수 고래 찌',250000000,5,["..kkkk.",".kskksk","kkkkkkk","kspkkkk",".kkkk.w","....ww."],{k:'#2a2a6a',s:'#ffffff',p:'#ff90d0',w:'#8ad0ff'},{glow:'#8070ff',orbit:['#ffffff','#ffd0f0','#80d0ff','#ffffff','#ffe060'],ring:'rb',spark:['#ffffff','#c8b0ff'],sig:'galaxy'}],
  ['bx_egg','창세의 알 찌',1000000000,7,[".www.","wwgww","wgwgw","wwwww","wrwbw",".www."],{w:'#fffaf0',g:'#ffe08a',r:'#ff9ac0',b:'#9ad8ff'},{glow:'#ffffff',rays:'#ffffff',ring:'rb',orbit:['#ff9ac0','#ffe08a','#9ad8ff','#c0ff9a'],spark:['#ffffff','#fff0ff'],sig:'gen'}]
 ].forEach(r=>{const id=r[0];BOB3[id]={rows:r[4],pal:r[5],fx:r[6],tier:r[3]};const c={id,k:'bob',name:r[1],price:r[2],tier:r[3],nw:'2026-11-11',set:TIER_SET[r[3]]+' 찌'};COS.push(c);COS_BY[id]=c});
+/* 🎣 2026-11-16 새 낚싯대 · 찌 (효과는 친구 화면에도 보여요) */
+[
+ ['r_firefly','반딧불 낚싯대',3000000,1,['#3a4a2a','#5a7a3a','#a8c860','#eaff9a'],{tip:'orb',tc:'#eaff80',glow:'#d8ff80',along:['#eaff80','#fff8b0','#c8ff70']}],
+ ['r_music','오르골 낚싯대',2500000,1,['#8a5a3a','#d8a070','#ffe0b0','#ffffff'],{tip:'note',tc:'#ff8ab0',along:['#ff8ab0','#8ab0ff','#ffe070']}],
+ ['r_moon','달빛 은사 낚싯대',9000000,2,['#2a2a5a','#5a5aa8','#b8b8f0','#f4f0c0'],{tip:'moon',tc:'#fff6c0',glow:'#e8e4b0',along:['#fff6c0','#ffffff']}],
+ ['r_sakura3','밤벚꽃 낚싯대',7000000,2,['#3a2030','#8a4a6a','#ffb0c8','#ffe8f0'],{tip:'flower',tc:'#ffc0d4',glow:'#ffb0d0',along:['#ffc4d6','#ffe0ea','#ffffff'],trail:1}],
+ ['r_rainfall','무지개 폭포 낚싯대',22000000,3,['#ff8a8a','#ffd27a','#9ae89a','#8ac8ff','#c49aff'],{glow:'#a0e0ff',tip:'drop',tc:'#dff4ff',along:['#ff9a9a','#ffd27a','#fff38a','#9ae89a','#8ac8ff','#c49aff'],rb:1,trail:1}],
+ ['r_phoenix','불사조 깃털 낚싯대',60000000,3,['#802010','#ff5020','#ffb030','#fff0a0'],{glow:'#ff7030',tip:'flame',tc:'#ffd060',along:['#ff6030','#ffb030','#fff0a0'],trail:1}],
+ ['r_spirit','물결 정령 낚싯대',200000000,4,['#0a3060','#2a80c0','#80e0ff','#ffffff'],{glow:'#60d0ff',tip:'drop',tc:'#e0faff',along:['#a0f0ff','#ffffff','#60c0ff'],trail:1,bolt:1}]
+].forEach(r=>{const id=r[0];ROD3[id]={tier:r[3],fx:r[5]};const c={id,k:'rod',name:r[1],price:r[2],tier:r[3],col:r[4],nw:'2026-11-16',set:TIER_SET[r[3]]+' 낚싯대'};COS.push(c);COS_BY[id]=c});
+[
+ ['b_firefly','반딧불 찌',900000,0,[".y.",".yy","yhy",".y.",".g."],{y:'#d8f060',h:'#ffffc0',g:'#5a7a3a'},{glow:'#e8ff80',rise:['#eaff80','#fff8b0']}],
+ ['b_lotus','연꽃 찌',2500000,1,["..p..",".php.","pphpp","ggggg",".ggg."],{p:'#ffa8c8',h:'#fff0f4',g:'#5cb070'},{ring:'#ffc0d8',spark:['#ffe0ec','#ffffff']}],
+ ['b_jelly','해파리 찌',4500000,2,[".bbb.","bhbhb","bbbbb","b.b.b","b.b.b",".b.b."],{b:'#a0c8ff',h:'#e8f4ff'},{glow:'#a0d0ff',rise:['#c8e8ff','#ffffff'],orbit:['#ffffff','#c8e8ff','#a0c8ff']}],
+ ['b_moonbell','달방울 찌',9000000,2,["..y..",".yyy.","yyhyy","yyyyy",".kyk.","..y.."],{y:'#f4e8a0',h:'#ffffff',k:'#c8b060'},{glow:'#fff4c0',rays:'#fff6c8',spark:['#ffffff','#fff4c0']}],
+ ['b_phoenix','불사조 알 찌',30000000,3,["..r..",".ror.","royor","royor",".ror.","..r.."],{r:'#e83a1a',o:'#ff8a20',y:'#ffe060'},{glow:'#ff7030',rise:['#ff6030','#ffb030','#fff0a0'],ring:'#ffb040'}],
+ ['b_aurora','오로라 방울 찌',80000000,4,[".abc.","abcda","bcdab","cdabc",".dab."],{a:'#60e0c0',b:'#80b0ff',c:'#d090ff',d:'#ff90c0'},{glow:'#a0e0ff',ring:'rb',rays:'#c8f0ff',orbit:['#80f0d0','#a0c0ff','#ffa0e0','#ffffff']}]
+].forEach(r=>{const id=r[0];BOB3[id]={rows:r[4],pal:r[5],fx:r[6],tier:r[3]};const c={id,k:'bob',name:r[1],price:r[2],tier:r[3],nw:'2026-11-16',set:TIER_SET[r[3]]+' 찌'};COS.push(c);COS_BY[id]=c});
 Object.assign(ROD_PERK,{rx_tide:[0,0,6,12,0,'tide'],rx_firework:[0,6,8,0,0,'fw'],rx_volcano:[0,0,8,15,0,'volc'],rx_typhoon:[8,8,8,0,0,'tor'],rx_glacier:[12,0,8,0,0,'glac'],
   rx_moon:[6,6,15,6,0,'moonrise'],rx_kraken:[0,0,10,18,0,'krak'],rx_blackhole:[8,8,18,10,0,'bh'],rx_rbdragon:[5,10,18,8,5,'rbd'],rx_genesis:[10,10,25,15,10,'gen']});
 const SIG_DESC={drop:'물방울이 톡톡 튀어요',petal:'꽃잎이 흩날려요',rainbow:'무지개 불꽃이 터져요',coin:'금화가 짤랑 쏟아져요',bubble:'방울방울 거품이 올라와요',galaxy:'작은 은하가 소용돌이쳐요',ghost:'꼬마 유령들이 둥실 떠올라요',neon:'네온 고리가 퍼져요',
@@ -4981,12 +5000,15 @@ function fxPreview(id){const c=COS_BY[id],k=sigOf(c);if(!c||!k||!P)return;const 
 function rodPerk(){const p=ROD_PERK[(S.cos&&S.cos.look&&S.cos.look.rod)||''];if(!p)return;ST.bar*=1+p[0]/100;ST.wait*=1-p[1]/100;ST.luck*=1+p[2]/100;ST.reel*=1+p[3]/100;ST.sell*=1+p[4]/100}
 /* 낚싯대 모양: 손잡이 · 가이드 링 · 굵기 */
 function rodShape(g,x0,y0,x1,y1,id){const d=ROD3[id]||ISLE_ROD[id],tr=d?d.tier|0:-1,c=((COS_BY[id]&&COS_BY[id].col)||['#b98a62']),dx=x1-x0,dy=y1-y0,L=Math.max(1,Math.hypot(dx,dy)),nx=-dy/L,ny=dx/L;
-  if(id==='bamboo'||id==='s_rod1'){g.fillStyle='rgba(90,60,30,.7)';for(let t=.15;t<.95;t+=.18)g.fillRect(Math.round(x0+dx*t),Math.round(y0+dy*t),1,1);return}
-  if(tr<0&&!ROD_PERK[id])return;
-  const n=Math.round(L*.55);for(let i=0;i<=n;i++){const t=i/L;g.fillStyle=c[Math.min(c.length-1,(t*c.length)|0)];g.fillRect(Math.round(x0+dx*t+nx),Math.round(y0+dy*t+ny),1,1)}   // 굵은 아랫대
-  g.fillStyle=tr>=3?'#3a2a20':'#5a4030';for(let i=0;i<4;i++){const t=i/L;g.fillRect(Math.round(x0+dx*t),Math.round(y0+dy*t),1,1);g.fillRect(Math.round(x0+dx*t+nx),Math.round(y0+dy*t+ny),1,1)}   // 손잡이
-  if(tr>=2){g.fillStyle=tr>=3?'#ffd34d':'#e0e0e8';g.fillRect(Math.round(x0+dx*(4/L)),Math.round(y0+dy*(4/L)),2,1)}   // 쇠고리
-  g.fillStyle='rgba(255,255,255,.85)';[.4,.62,.82].forEach(t=>g.fillRect(Math.round(x0+dx*t-nx),Math.round(y0+dy*t-ny),1,1))}   // 가이드 링
+  /* 2026-11-16 낚싯대 디테일: 모든 낚싯대에 굵은 아랫대 · 코르크 손잡이 · 릴 · 줄 가이드 · 반짝이는 끝 */
+  const P_=(t,o,col)=>{g.fillStyle=col;g.fillRect(Math.round(x0+dx*t+nx*o),Math.round(y0+dy*t+ny*o),1,1)},sh=k=>{const v=hex(c[0]);return'rgb('+(v[0]*k|0)+','+(v[1]*k|0)+','+(v[2]*k|0)+')'};
+  const nb=Math.round(L*.5);for(let i=0;i<=nb;i++){const t=i/L;P_(t,1,i<nb*.6?sh(.72):c[Math.min(c.length-1,(t*c.length)|0)])}   // 굵은 아랫대 (그늘진 쪽)
+  if(id==='bamboo'||id==='s_rod1'){g.fillStyle='rgba(90,60,30,.75)';for(let t=.15;t<.95;t+=.16){P_(t,0,'rgba(90,60,30,.75)');P_(t,1,'rgba(70,45,20,.8)')}}   // 대나무 마디
+  const gc=tr>=3?['#3a2a20','#5a4030']:['#c89a68','#a87848'];for(let i=0;i<5;i++){const t=i/L;P_(t,0,gc[i&1]);P_(t,1,gc[(i+1)&1])}   // 손잡이 (코르크 줄무늬)
+  const rt=5/L;g.fillStyle=tr>=3?'#ffd34d':'#c8ccd8';g.fillRect(Math.round(x0+dx*rt+nx*2),Math.round(y0+dy*rt+ny*2),2,2);g.fillStyle=tr>=3?'#a07010':'#6a7080';g.fillRect(Math.round(x0+dx*rt+nx*2),Math.round(y0+dy*rt+ny*2)+1,1,1);   // 릴
+  [.38,.6,.8,.93].forEach(t=>P_(t,-1,'rgba(255,255,255,.8)'));   // 줄 가이드 링
+  P_(.995,0,'rgba(255,255,255,.95)');   // 끝 반짝
+  if(tr>=2){g.fillStyle=tr>=3?'#ffd34d':'#e0e0e8';g.fillRect(Math.round(x0+dx*(7/L)),Math.round(y0+dy*(7/L)),2,1)}}   // 쇠고리
 /* 고유 연출: 찌가 떨어질 때 · 물고기를 낚았을 때 */
 const RFX=[];
 function rodSig(id,x,y,big,kk){const p=ROD_PERK[id];if(!p&&!kk)return;const k=kk||p[5],sc=big?1:.6,P2=(o)=>parts.push(Object.assign({x,y,vx:0,vy:0,life:1,t:0,c:'#fff',g:0,s:1},o)),burst=(n,cs,sp,o)=>{for(let i=0;i<n*sc;i++){const a=Math.random()*6.28,s=sp*(.4+Math.random()*.6);P2(Object.assign({vx:Math.cos(a)*s,vy:Math.sin(a)*s-sp*.3,c:cs[i%cs.length],life:.8+Math.random()*.5},o||{}))}};
@@ -5215,7 +5237,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1116h',UPD_LOG=[
+const UPD_VER='1116i',UPD_LOG=[
+ ['11/17 새벽','🎣',[['🎣 낚싯대가 더 섬세하게','모든 낚싯대에 굵은 아랫대 · 코르크 손잡이 · 릴 · 줄 가이드 · 반짝이는 끝 (대나무는 마디까지)'],['✨ 새 낚싯대 7종','반딧불 · 오르골 · 달빛 은사 · 밤벚꽃 · 무지개 폭포 · 불사조 깃털 · 물결 정령 (치장 상점 → 💎 낚싯대·찌)'],['🫧 새 찌 6종','반딧불 · 연꽃 · 해파리 · 달방울 · 불사조 알 · 오로라 방울'],['👀 효과는 모두에게','낚싯대 · 찌 효과는 친구 화면에도 똑같이 보여요']]],
  ['11/16 자정 넘어','🏅',[['🔢 은비 주간 숫자','은비랜드에서 한 주에 한 번 1~5 중 하나를 골라요 (공짜) · 월요일 0시에 은비가 숫자를 뽑아 맞힌 사람 중 한 명에게 도토리 30개 · 아무도 못 맞히면 다음 주로 쌓여요 (최대 90)'],['🐰 은비랜드 주인','은비땅 님이 은비랜드 주인 · 손님이 잃은 칩의 20%가 주인 몫이에요 (손님이 따로 내는 건 없어요)'],['✨ 반짝 축제','반짝 1위가 하루 한 번 · 30분 동안 마을 모두 반짝 확률 1.5배 (메뉴 → 왕의 마을 → 마을의 1위들)'],['🎣 친구의 손맛이 보여요','친구가 입질을 받으면 찌가 쑥 잠기고 「!」 · 줄다리기 중엔 낚싯대가 휘고 물보라 · 낚아채면 휙! 올라와요'],['🔨 여러 개 분해','버튼이 안 눌리던 것 고쳤어요'],['⛵ 내 꽃배 부르기','낚싯대 +25부터 물에 들어서면 꽃배가 와서 물 위를 가로질러요 · 친구 화면에도 꽃배가 보여요 (먼바다 · 사냥터에선 안 돼요)'],['🙅 사냥 중 교환 신청','사냥하는 동안엔 교환 신청이 오지 않아요 · 같은 친구에게는 30초에 한 번만 신청할 수 있어요']]],
  ['11/16 자정','🕳️',[['🕳️ 꿈의 심연 1 · 2 · 3','악몽 숲보다 깊은 새 사냥터 셋 · 용사 Lv40부터 · 「꿈의 끝 · 악몽 숲」을 악몽 난이도로 정화하면 열려요 · 더 센 장비 · 우두머리 💠 꿈의 정수 더 많이'],['📖 심연의 규칙','도감에 없는 물고기는 체력 · 공격 100배 (사실상 못 잡아요) · 그 사냥터 물고기가 도감에 하나라도 없으면 우두머리도 100배 · 피해 다녀도 소용없어요'],['🌑 레이드 혼자서도','친구가 없어도 1명부터 출발 · 체력은 모인 사람에 맞춰요 · 보스 다섯 중 하나가 나와요'],['⏳ 하루 사냥 보상','용사 Lv40부터만: 하루 보상 처치 1,000 · 우두머리 12번 (그 뒤엔 싸울 순 있어도 보상이 없어요) · 처음 오는 사람 · 따라잡는 사람은 제한 없어요'],['⚔️ 용사 1위 통행세','꿈의 문을 지나 사냥하면 번 칩의 3%가 용사 1위에게 가요 (1위 본인은 안 내요)']]],
  ['11/16 한밤','🍃',[['🍃 손맛 모드','물가에서 「🍃 손맛」을 켜요 · 손맛 도감에 아직 없는 물고기만 걸려요 · 아주 천천히 와요 (흔한 물고기 5분쯤 ~ 드문 물고기 30분 ~ 2시간) · 자동 낚시는 안 돼요'],['🌿 쉬어 가는 낚시','찌를 띄워 두고 바람과 물결을 바라봐요 · 물고기가 오면 소리 · 진동으로 깨워 줘요 (절전 화면도) · 놓쳐도 물고기가 곁에 남아 다시 와요'],['🎁 기다린 만큼','기다린 시간과 물고기 등급만큼 골드(5분 흔한 물고기 약 100만 ~ 2시간 전설 약 8,400만) · 강화권 · 20분마다 💠 꿈의 정수']]],
