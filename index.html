@@ -2515,7 +2515,7 @@ const COS=[
  {id:'overall',k:'outfit',name:'멜빵바지',price:1500},{id:'raincoat',k:'outfit',name:'노란 우비',price:2500},{id:'hoodie',k:'outfit',name:'후드 티',price:3000},
  {id:'star',k:'outfit',name:'별무늬 티',price:6000},{id:'suit',k:'outfit',name:'멋쟁이 정장',price:20000},
  {id:'o_tux',k:'outfit',name:'💒 예식 턱시도',price:100000000},{id:'o_wdress',k:'outfit',name:'💒 순백 웨딩드레스',price:100000000,fx:'petal'},{id:'h_veil',k:'hat',name:'💒 면사포',price:200000},{id:'h_fcrown',k:'hat',name:'💐 꽃 화관',price:150000},
- {id:'ring_silver',k:'ring',name:'은빛 결혼반지',price:200000},{id:'ring_pearl',k:'ring',name:'진주 결혼반지',price:800000},{id:'ring_dia',k:'ring',name:'다이아 결혼반지',price:3000000},{id:'ring_star',k:'ring',name:'별빛 결혼반지',price:10000000},{id:'ring_rainbow',k:'ring',name:'무지개 결혼반지',price:30000000},
+ {id:'ring_world',k:'ring',name:'🌍 온 세상의 반지',price:1e15},{id:'ring_silver',k:'ring',name:'은빛 결혼반지',price:200000},{id:'ring_pearl',k:'ring',name:'진주 결혼반지',price:800000},{id:'ring_dia',k:'ring',name:'다이아 결혼반지',price:3000000},{id:'ring_star',k:'ring',name:'별빛 결혼반지',price:10000000},{id:'ring_rainbow',k:'ring',name:'무지개 결혼반지',price:30000000},
  {id:'vest',k:'outfit',name:'낚시 조끼',reward:7},{id:'sailor',k:'outfit',name:'세일러복',reward:11},{id:'wave',k:'outfit',name:'파도 무늬 티',reward:15},
  {id:'lotus',k:'hat',name:'연꽃 왕관',zone:1},{id:'pondrobe',k:'outfit',name:'연못 요정 드레스',zone:1,fx:'petal'},
  {id:'leaf',k:'hat',name:'물방울 잎사귀',zone:2},{id:'streamsuit',k:'outfit',name:'시냇물 멜빵',zone:2,fx:'drop'},
@@ -4553,14 +4553,76 @@ let HOF_TAB='sd';const HOF_TABS=[['sd','👑 손맛','손맛 도감 종류 · �
 let HOF_OPEN_T=0;function openHof(){const st=$('sheettitle');if(!$('sheetwrap').hidden&&st&&/명예의 전당/.test(st.textContent))Snd.sfx('tap');else Snd.sfx('ui');const t=HOF_TABS.find(x=>x[0]===HOF_TAB)||HOF_TABS[0];openSheet('🏆 명예의 전당','<div class="muted" style="font-size:12.5px;margin-bottom:8px">물결마을에서 가장 빛나는 사람들이에요. 매일 바뀌어요! <a href="#" onclick="openDayK();return false">오늘의 낚시왕 보기 →</a></div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+HOF_TABS.map(x=>'<button class="btn '+(x[0]===t[0]?'pink':'ghost')+'" style="padding:5px 9px;font-size:12.5px" data-hoft="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+(t[0]==='wf'?wfHtml():rankFull(t[0],t[1]+' · '+t[2])))}
 
 /* ----- 결혼 ----- */
-const WED_OUT=['o_tux','o_wdress'],RINGS=['ring_silver','ring_pearl','ring_dia','ring_star','ring_rainbow'];
+const WED_OUT=['o_tux','o_wdress'],RINGS=['ring_silver','ring_pearl','ring_dia','ring_star','ring_rainbow','ring_world'];
+
+/* ---------- 💍 반지 공방 (2026-11-16): 결혼반지는 공방 장인만 만들어요 · 상자로 주고받아요 · 엔딩 「온 세상의 반지」 ----------
+   온 세상의 반지 = 이 세계 스물네 곳의 조각을 반지에 새겨야 해요. 아직 아무도 못 간 곳(구름 너머 산 · 별바다 · 깊은 바다)의 조각도 있어요 */
+const RING_REC=[
+ ['ring_silver','은빛 결혼반지','#dfe6f0',{knack:10,shell:20,honey:10},2e5,'첫 마음 · 맑은 은빛'],
+ ['ring_pearl','진주 결혼반지','#fff4f8',{knack:25,shell:40,honey:20,fl_lily:2},8e5,'바닷가에서 건진 진주 한 알'],
+ ['ring_dia','다이아 결혼반지','#bfefff',{knack:50,flake:20,wildhoney:15,fl_rose:5,shard:30},3e6,'소복섬 눈송이를 눌러 담은 빛'],
+ ['ring_star','별빛 결혼반지','#ffe27a',{knack:100,flake:40,honey_rb:5,cherry:30,fl_lily:10,charm:5},1e7,'밤하늘을 한 조각 떼어 낸 반지'],
+ ['ring_rainbow','무지개 결혼반지','#ff9ad0',{knack:200,fl_rb:5,honey_rb:15,plank:200,cloth:40,wildhoney:40,pie:20},3e7,'비 갠 날의 약속']];
+const WR_PC=[
+ ['v','🏘️','물결마을의 나무',{log:200,plank:150}],['hb','🍯','세 가지 꿀',{honey:60,honey_rb:5,wildhoney:20}],['fr','🍎','과수원 네 열매',{apple:40,peach:40,orange:40,cherry:20}],
+ ['fl','🌷','화단 일곱 꽃',{fl_tulip:10,fl_sun:10,fl_cosmos:10,fl_lav:10,fl_rose:5,fl_hydr:5,fl_lily:5}],['rb','🌈','무지개 조각',{fl_rb:5,honey_rb:10}],['isl','🏝️','안개 섬의 숨결',{shell:80,weed:80,shard:50}],
+ ['snow','⛄','소복섬의 겨울',{snow:300,flake:50}],['sea','⛵','먼바다 항로',{sail:20,map:10}],['kit','🍲','마을 부엌의 온기',{soup:20,grill:20,pie:20}],['pet','🐾','동물 친구의 꼬리',{snack:30,toy:20}],
+ ['cra','🧿','장인의 손',{charm_p:3,b_legend_p:3,b_shine_p:3}],['sch','📖','도감 박사의 기록',{clue:20}],
+ ['eden','🌳','물결 정원의 약속',null,()=>(edS().n|0)>=30,'정원지기와 함께 걸은 날 30일'],['sd','🎣','손맛 삼백',null,()=>sdTotal()>=300,'손맛 도감 300종'],
+ ['hu','⚔️','꿈 사냥꾼의 용기',null,()=>huS().lv>=30,'용사 Lv30'],['sh','✨','반짝이 쉰 마리',null,()=>shTotal()>=50,'반짝 도감 50종'],
+ ['mt1','⛰️','구름 너머 산 · 산 수정',0],['mt2','🏔️','만년설 위의 꽃',0],['mt3','🦅','독수리의 깃털',0],['sp1','🌌','별바다의 별먼지',0],['sp2','🌙','달의 조각',0],['sp3','☄️','혜성의 꼬리',0],['deep','🐚','가장 깊은 바다의 진주',0],
+ ['last','🕊️','마지막 조각',0]];
+const WR_NEED={knack:500},WR_G=1e8;
+const wrS=()=>{if(!S.wr||typeof S.wr!=='object')S.wr={d:[]};if(!Array.isArray(S.wr.d))S.wr.d=[];return S.wr};
+const ringCan={};
+function ringIcon(id,sz){const k=id+'_'+(sz||28);if(ringCan[k])return ringCan[k];const R=RING_REC.find(r=>r[0]===id),c=document.createElement('canvas'),n=18;c.width=c.height=n;const g=c.getContext('2d');
+  const band=id==='ring_silver'||id==='ring_pearl'||id==='ring_dia'?['#c4ccdc','#f4f7fc','#8e98ae']:['#eab838','#fff2a8','#b47c18'],gem=id==='ring_world'?'#ffffff':R?R[2]:'#fff';
+  const P_=(x,y,col)=>{g.fillStyle=col;g.fillRect(x,y,1,1)};
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){const dx=(x+.5-9)/6.5,dy=(y+.5-11.5)/4.6,d=dx*dx+dy*dy,ix=(x+.5-9)/4.4,iy=(y+.5-11.5)/2.6,di=ix*ix+iy*iy;if(d<=1&&di>1)P_(x,y,dy<-.35?band[1]:dy>.4?band[2]:band[0])}
+  /* 보석 (마름모 · 면 나눔) */
+  const gx=9,gy=4;for(let y=-3;y<=3;y++)for(let x=-3;x<=3;x++){if(Math.abs(x)+Math.abs(y)>3)continue;let col=gem;if(id==='ring_world'||id==='ring_rainbow'){col=['#ff7a9a','#ffb050','#ffe060','#7ae08a','#7ac8ff','#b08aff'][(x+y+6)%6]}else if(y<0&&x<=0)col=mixc(hex(gem),[255,255,255],.55).join?'rgb('+mixc(hex(gem),[255,255,255],.55)+')':gem;else if(y>0)col='rgb('+mixc(hex(gem),[60,60,90],.25)+')';P_(gx+x-1,gy+y,col)}
+  P_(gx-2,gy-1,'#ffffff');P_(gx-1,gy-2,'#ffffff');
+  if(id==='ring_world'||id==='ring_star'){P_(2,2,'#fff6c0');P_(15,1,'#fff6c0');P_(16,6,'#ffffff')}
+  /* 테두리 */const im=g.getImageData(0,0,n,n),dd=im.data,out=[];for(let y=0;y<n;y++)for(let x=0;x<n;x++){const i=(y*n+x)*4;if(dd[i+3])continue;const nb=[[1,0],[-1,0],[0,1],[0,-1]].some(([a2,b2])=>{const X=x+a2,Y=y+b2;return X>=0&&Y>=0&&X<n&&Y<n&&dd[(Y*n+X)*4+3]>0});if(nb)out.push([x,y])}out.forEach(([x,y])=>P_(x,y,'rgba(88,72,112,.85)'));
+  return ringCan[k]=c.toDataURL()}
+const ringOpenNow=()=>!$('sheetwrap').hidden&&/반지 공방/.test($('sheettitle').textContent);
+const needTxt=o=>Object.entries(o).map(([k,n])=>{const h=itN(k);return'<span class="'+(h>=n?'ok':'')+'">'+(ITEMS[k]?ITEMS[k].ic+' '+ITEMS[k].n:k)+' '+fmtShort(Math.min(h,n))+'/'+fmtShort(n)+'</span>'}).join('');
+const haveAll=o=>Object.entries(o).every(([k,n])=>itN(k)>=n);
+function openRings(){openSheet('💍 반지 공방','');renderRings()}
+function renderRings(){const cra=jobId()==='cra',W_=wrS(),done=W_.d.length,open=WR_PC.filter(p=>p[3]!==0).length;
+  let h='<div class="wishc" style="background:linear-gradient(135deg,#fff4fa,#f4f0ff);border-color:#f0c8e0;font-size:12.5px;line-height:1.7">💍 결혼반지는 <b>공방 장인</b>만 만들 수 있어요. 만든 반지는 <b>상자</b>로 나와서 친구에게 주거나 교환할 수 있어요.'+(cra?'':' <br><small class="muted">재료를 모아 공방 장인 친구에게 부탁해 보세요!</small>')+'</div>';
+  const box=RING_REC.map(r=>r[0]).concat(['ring_world']).filter(id=>itN('mp_'+id)>0);
+  if(box.length)h+='<div class="sec">내 반지 상자</div>'+box.map(id=>'<div class="rgrow"><img src="'+ringIcon(id)+'"><div><b>'+esc(COS_BY[id].name)+'</b> × '+itN('mp_'+id)+'</div><button class="btn xs pink" data-ring="open:'+id+'"'+(owns(id)?' disabled':'')+'>'+(owns(id)?'이미 있어요':'🎁 열기')+'</button></div>').join('');
+  h+='<div class="sec">결혼반지 만들기</div>'+RING_REC.map(r=>{const[id,nm,,need,g,desc]=r,ok=cra&&haveAll(need)&&S.gold>=g;return'<div class="rgcard"><div class="rghd"><img src="'+ringIcon(id)+'"><div><b>'+nm+'</b>'+(owns(id)?' <small class="own">가지고 있어요</small>':'')+'<small>'+desc+'</small></div></div><div class="rgneed">'+needTxt(need)+'<span class="'+(S.gold>=g?'ok':'')+'">🪙 '+fmtShort(g)+'</span></div>'+(cra?'<button class="btn sm '+(ok?'pink':'ghost')+'" data-ring="make:'+id+'"'+(ok?'':' disabled')+'>🔨 만들기</button>':'')+'</div>'}).join('');
+  h+='<div class="sec">🌍 온 세상의 반지 <span class="cnt">'+done+' / '+WR_PC.length+'</span></div><div class="muted" style="font-size:12px;line-height:1.6;margin-bottom:6px">공방 장인의 마지막 작품. 이 세계 스물네 곳의 조각을 하나씩 반지에 새겨요. 아직 아무도 가 보지 못한 곳의 조각도 있대요… (지금 새길 수 있는 곳 '+open+'곳)</div><div class="wrbar"><i style="width:'+(done/WR_PC.length*100)+'%"></i></div><div class="wrgrid">'+
+    WR_PC.map(p=>{const[id,ic,nm,need,cond,ct]=p,dn=W_.d.includes(id),lock=need===0,okC=cond?cond():need?haveAll(need):false;
+      return'<div class="wrp'+(dn?' dn':lock?' lk':'')+'"><i>'+(lock&&!dn?'❔':ic)+'</i><b>'+(lock&&!dn?'???':nm)+'</b><small>'+(dn?'새겼어요 ✓':lock?(id==='last'?'마지막 조각은 아직 비밀이에요':'아직 갈 수 없는 곳'):cond?ct:needTxt(need))+'</small>'+(!dn&&!lock&&cra?'<button class="btn xs '+(okC?'mint':'ghost')+'" data-ring="pc:'+id+'"'+(okC?'':' disabled')+'>새기기</button>':'')+'</div>'}).join('')+'</div>';
+  {const all=done>=WR_PC.length,ok=cra&&all&&haveAll(WR_NEED)&&S.gold>=WR_G;h+='<div class="rgcard world"><div class="rghd"><img src="'+ringIcon('ring_world')+'"><div><b>🌍 온 세상의 반지</b><small>스물네 조각 + '+needTxt(WR_NEED).replace(/<[^>]+>/g,' ')+' · 🪙 '+fmtShort(WR_G)+'</small></div></div>'+(cra?'<button class="btn '+(ok?'pink':'ghost')+'" style="width:100%" data-ring="world"'+(ok?'':' disabled')+'>'+(all?'🌍 마지막 담금질':'조각 '+(WR_PC.length-done)+'개가 남았어요')+'</button>':'')+'<div class="muted" style="font-size:11.5px;margin-top:6px">이 반지로 청혼하면 온 마을 하늘에 오로라가 떠요. 반지는 단 하나, 만든 장인의 이름이 영원히 새겨져요.</div></div>'}
+  $('sheetbody').innerHTML=h+'<style>.rgrow{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px dashed #eee}.rgrow img,.rghd img{width:34px;height:34px;image-rendering:pixelated}.rgrow>div{flex:1;min-width:0;font-size:13px}.rgrow .btn{flex:none;width:auto}.rgcard{border:1px solid #f0dcea;border-radius:14px;padding:8px 10px;margin:6px 0;background:#fffafd}.rgcard.world{background:linear-gradient(135deg,#fff8e8,#f4f0ff,#eafaff);border-color:#e8d8a0}.rghd{display:flex;gap:8px;align-items:center}.rghd b{font-size:14px}.rghd small{display:block;font-size:11.5px;color:var(--ink-soft)}.rghd small.own{display:inline;color:#2f9a63}.rgneed{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}.rgneed span,.wrp small span{font-size:11px;background:#f4f1f8;border-radius:8px;padding:2px 6px;color:#a06070}.rgneed span.ok,.wrp small span.ok{color:#2f8a5a;background:#eaf8ef}.wrbar{height:8px;background:#f0ecf6;border-radius:6px;overflow:hidden;margin-bottom:8px}.wrbar i{display:block;height:100%;background:linear-gradient(90deg,#ff9ad0,#ffd060,#7ac8ff)}.wrgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.wrp{border:1px solid #eee;border-radius:12px;padding:6px 8px;background:#fff;display:flex;flex-direction:column;gap:3px}.wrp i{font-style:normal;font-size:20px}.wrp b{font-size:12.5px}.wrp small{font-size:11px;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:3px}.wrp.dn{background:#f2fbf4;border-color:#bfe6c8}.wrp.lk{background:#f5f4f8;opacity:.75}.wrp .btn{align-self:flex-start}</style>'}
+function ringClick(t){const v=t.dataset.ring;if(!v)return false;const[a,b]=v.split(':');Snd.sfx('tap');if(a==='see'){openRings();return true}
+  if(a==='open'){if(itN('mp_'+b)<1||owns(b))return true;itAdd('mp_'+b,-1);S.cos.own.push(b);saveState(true);Snd.sfx('page');if(P)sparkFx(P.x,P.y-14,40,['#fff6c0','#ffd6e8','#ffffff']);showBanner('💍 「'+COS_BY[b].name+'」을(를) 끼었어요!');renderRings();return true}
+  if(jobId()!=='cra'){toast('공방 장인만 만들 수 있어요');return true}
+  if(a==='make'){const r=RING_REC.find(x=>x[0]===b);if(!r||!haveAll(r[3])||S.gold<r[4])return true;askConfirm('🔨 '+r[1],'재료와 '+fmt(r[4])+'골드로 반지 상자 하나를 만들어요.','만들기',()=>{if(!haveAll(r[3])||S.gold<r[4])return;for(const k in r[3])itAdd(k,-r[3][k]);S.gold-=r[4];itAdd('mp_'+b,1);saveState(true);Snd.sfx('buy');if(P)sparkFx(P.x,P.y-14,30,['#ffd34d','#ffffff']);showBanner('💍 '+r[1]+' 완성!');if(ONLINE&&Net.me)Net.send({t:'ring_news',k:'ring',id:b});renderRings()});return true}
+  if(a==='pc'){const p=WR_PC.find(x=>x[0]===b),W_=wrS();if(!p||W_.d.includes(b)||p[3]===0)return true;const ok=p[4]?p[4]():haveAll(p[3]);if(!ok)return true;askConfirm(p[1]+' '+p[2],'이 조각을 온 세상의 반지에 새길까요?'+(p[3]?' (재료가 사라져요)':''),'새기기',()=>{if(W_.d.includes(b))return;if(p[3]){if(!haveAll(p[3]))return;for(const k in p[3])itAdd(k,-p[3][k])}W_.d.push(b);saveState(true);Snd.sfx('page');if(P)sparkFx(P.x,P.y-14,24,['#ffd6e8','#bfe6ff','#ffffff']);toast(p[1]+' 「'+p[2]+'」 조각을 새겼어요 · '+W_.d.length+'/'+WR_PC.length);if(ONLINE&&Net.me)Net.send({t:'ring_news',k:'pc',id:b,n:W_.d.length});renderRings()});return true}
+  if(a==='world'){const W_=wrS();if(W_.d.length<WR_PC.length||!haveAll(WR_NEED)||S.gold<WR_G)return true;for(const k in WR_NEED)itAdd(k,-WR_NEED[k]);S.gold-=WR_G;itAdd('mp_ring_world',1);saveState(true);showBanner('🌍 온 세상의 반지가 완성됐어요…!',5000);if(ONLINE&&Net.me)Net.send({t:'ring_news',k:'world',id:'ring_world'});renderRings();return true}
+  return true}
+
+/* 💍 프러포즈 연출 (2026-11-16): 무릎 꿇기 · 반지 상자 · 꽃길 · 승낙하면 온 마을 불꽃놀이 · 온 세상의 반지는 하늘에 오로라 */
+let AURORA=0;
+function propFx(m){const me=Net.me&&Net.me.name,find=n=>n===me?P:[...others.values()].find(o=>o.name===n);const A=find(m.a),B=find(m.b);
+  if(A&&B&&Math.abs(A.x-P.x)<VW*1.2&&Math.abs(A.y-P.y)<VH*1.2){const n=14;for(let i=0;i<=n;i++){const k=i/n,x=A.x+(B.x-A.x)*k,y=A.y+(B.y-A.y)*k;setTimeout(()=>{for(let j=0;j<5;j++)parts.push({x:x+(Math.random()-.5)*10,y:y-4+(Math.random()-.5)*6,vx:(Math.random()-.5)*6,vy:-4,life:6,t:0,c:['#ffb0d0','#ffffff','#ffd6e8','#ff8ab8'][j%4],g:2,s:2})},i*90)}
+    setTimeout(()=>heartsAt(A.x,A.y-30,10),400);if(m.a!==me&&m.b!==me)showBanner('💍 '+m.a+' 님이 '+m.b+' 님에게 무릎을 꿇었어요… 두근두근',3600)}
+  else if(m.a!==me&&m.b!==me)toast('💌 '+m.a+' 님이 '+m.b+' 님에게 청혼했대요!');
+  if(m.a===me){showBanner('💍 한쪽 무릎을 꿇고 반지 상자를 열었어요… 대답을 기다려요',4200);try{wedSong()}catch(e){}}}
+function wedFireworks(w){const n=w&&w.world?40:22;for(let i=0;i<n;i++)setTimeout(()=>{if(!P)return;const x=P.x+(Math.random()-.5)*VW*.9,y=P.y-VH*.25-Math.random()*VH*.2,c=[['#ff8ab8','#fff'],['#ffd34d','#fff6c0'],['#8ad0ff','#fff'],['#b08aff','#ffd6e8']][i%4];Snd.sfx&&i%3===0&&Snd.sfx('coin');for(let k=0;k<26;k++){const a=k/26*6.28,sp=40+Math.random()*30;parts.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1.4,t:0,c:c[k%2],g:30,s:2})}},i*380);
+  if(w&&w.world){AURORA=Date.now()+15*60e3;showBanner('🌍✨ 온 세상의 반지로 맺어진 부부! 마을 하늘에 오로라가 떴어요',5000)}}
 const myRing=()=>{let r='';RINGS.forEach(id=>{if(owns(id))r=id});return r};
 function openFairy(){Snd.sfx('page');const m=wedMe(),o=(S.cos.look||{}).o,ring=myRing();let h='<div class="wishc" style="background:#fff0f6;border-color:#ffc0d8;font-size:12.5px;line-height:1.7">🧚 <b>요정 리본</b> · "어머, 손님! 저는 물결마을의 혼인 신고를 맡은 요정이에요. 사랑하는 사람과 증인 한 명을 데리고 오면 꽃 아치 아래에서 영원을 약속하게 해 줄게요~"</div>';
   if(m){h+='<div class="sec">💍 우리 부부</div><div class="rank"><span class="r">💞</span><span class="n"><b>'+esc(Net.me?Net.me.name:'나')+'</b> ♥ <b>'+esc(m.p)+'</b><br><small class="muted">'+new Date(m.d).toLocaleDateString('ko-KR')+' 결혼 · 증인 '+esc(m.w||'')+'</small></span></div>'+
     '<button class="btn pink" style="width:100%;margin-top:8px" data-wedgo="1">💍 반지의 힘으로 '+esc(m.p)+' 곁으로 (5분마다)</button><button class="btn ghost" style="width:100%;margin-top:6px" data-wedend="1">이별하기</button>'}
   else{const ok1=WED_OUT.includes(o),ok2=!!ring;h+='<div class="sec">결혼 준비물</div>'+
     '<div class="rank"><span class="r">'+(ok1?'✅':'⬜')+'</span><span class="n">예복 입기 · <b>턱시도</b> 또는 <b>웨딩드레스</b> <small class="muted">(부티크)</small></span></div>'+
-    '<div class="rank"><span class="r">'+(ok2?'✅':'⬜')+'</span><span class="n">결혼반지 갖기 <small class="muted">(부티크 · 반지)</small></span></div>'+
+    '<div class="rank"><span class="r">'+(ok2?'✅':'⬜')+'</span><span class="n">결혼반지 갖기 <small class="muted">(공방 장인이 만들어요)</small> <button class="btn xs ghost" data-ring="see">💍 반지 공방</button></span></div>'+
     '<div class="rank"><span class="r">👥</span><span class="n">신랑 · 신부 · <b>증인 1명</b>이 모두 요정 근처에 있어야 해요</span></div>'+
     '<div class="sec">혼인 신고서</div><input id="wedP" class="inp" placeholder="결혼할 상대 이름" maxlength="12" style="width:100%;margin-bottom:6px"><input id="wedW" class="inp" placeholder="증인 이름" maxlength="12" style="width:100%"><button class="btn pink" style="width:100%;margin-top:8px" data-wedreq="1">💌 혼인 신고 요청</button>'+
     '<div class="muted" style="font-size:12px;margin-top:8px">신고가 끝나면 바로 <b>10분 결혼식</b>이 시작돼요. 레드카펫이 깔리고 반짝이는 발판을 따라 입장 → 주례 → 반지 교환 → 축가 → 피로연 → 행진! 그동안 하객이 앞 냇가에서 낚시하면… 🌸</div>'}
@@ -4586,10 +4648,11 @@ function wedTick(dt){if(!P||HUNT.on)return;const L=WED.live;if(!L)return;const s
 function wedSong(){if(!Snd.chime)return;const mel=[72,72,74,72,77,76,72,72,74,72,79,77,72,72,84,81,77,76,74,82,82,81,77,79,77];mel.forEach((n,i)=>setTimeout(()=>Snd.chime(n,.35),i*340))}
 function onWedMsg(m){
   if(m.t==='cel'){if(!P||Math.abs(m.x-P.x)>VW*1.5||Math.abs(m.y-P.y)>VH*1.5)return true;celFx(m.k,m.x,m.y);const o=m.id&&others.get(m.id);if(o&&Math.random()<.3)showSay(o,pick(['축하해요!','펑!','와아~','🎉']));return true}
-  if(m.t==='wed_live'){WED.live=m.w;WED.lastSt=-1;WED.joined=0;WED.pad={};WED.doneSent=0;showBanner('💒 '+m.w.a+' ♥ '+m.w.b+' 결혼식이 시작됐어요! 물결 예식장(북쪽 들판)으로~');Snd.sfx('page');return true}
+  if(m.t==='prop_fx'){propFx(m);return true}
+  if(m.t==='wed_live'){wedFireworks(m.w);WED.live=m.w;WED.lastSt=-1;WED.joined=0;WED.pad={};WED.doneSent=0;showBanner('💒 '+m.w.a+' ♥ '+m.w.b+' 결혼식이 시작됐어요! 물결 예식장(북쪽 들판)으로~');Snd.sfx('page');return true}
   if(m.t==='wed_list'){WED.list=m.list||[];if(m.live)WED.live=m.live;const st=$('sheettitle');if(st&&!$('sheetwrap').hidden&&/결혼 기록/.test(st.textContent))openWedBook(WED.bookI|0);return true}
   if(m.t==='mar'){if(m.mar&&!S.mar)diaryAdd('💒',m.mar.p+' 님과 결혼했어요! 증인 '+(m.mar.w||''));S.mar=m.mar||null;saveState(true);if(m.note)toast(m.note);const st=$('sheettitle');if(st&&!$('sheetwrap').hidden&&/예식장/.test(st.textContent))openFairy();return true}
-  if(m.t==='mar_ask'){Snd.sfx('page');openSheet(m.w?'🤵 증인 부탁':'💌 청혼이 왔어요','<div class="wishc" style="background:#fff0f6;border-color:#ffc0d8;text-align:center;line-height:1.8;font-size:14px">'+(m.w?'<b>'+esc(m.a)+'</b> 님과 <b>'+esc(m.b)+'</b> 님이<br>결혼식 증인이 되어 달래요!':'<b>'+esc(m.a)+'</b> 님이 청혼했어요 💍<br>증인: '+esc(m.wn))+'</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn ghost" style="flex:1" data-wedans="'+(m.w?'mar_w':'mar_ans')+'|0">다음에요</button><button class="btn pink" style="flex:1" data-wedans="'+(m.w?'mar_w':'mar_ans')+'|1">'+(m.w?'증인 할게요!':'네, 좋아요!')+'</button></div>');return true}
+  if(m.t==='mar_ask'){Snd.sfx('page');if(!m.w){try{wedSong()}catch(e){}heartsAt(P.x,P.y-30,8)}openSheet(m.w?'🤵 증인 부탁':'💌 청혼이 왔어요','<div class="wishc" style="background:#fff0f6;border-color:#ffc0d8;text-align:center;line-height:1.8;font-size:14px">'+(m.w?'<b>'+esc(m.a)+'</b> 님과 <b>'+esc(m.b)+'</b> 님이<br>결혼식 증인이 되어 달래요!':'<div class="propbox"><div class="pbx"><div class="lid"></div><img src="'+ringIcon(m.ring||'ring_silver')+'"></div></div><b>'+esc(m.a)+'</b> 님이 한쪽 무릎을 꿇고 반지 상자를 열었어요…<br><span style="font-size:15.5px;color:#d0457a"><b>「이 물결마을에서, 평생 나와 함께 낚시해 줄래요?」</b></span><br><small class="muted">'+(COS_BY[m.ring]?COS_BY[m.ring].name:'결혼반지')+' · 증인 '+esc(m.wn)+'</small>')+'</div><style>.propbox{display:flex;justify-content:center;margin:4px 0 8px}.pbx{position:relative;width:64px;height:56px;background:#c0406a;border-radius:10px 10px 8px 8px;box-shadow:0 4px 0 #8a2a4a;animation:pbIn .8s ease-out}.pbx img{position:absolute;left:12px;top:6px;width:40px;height:40px;image-rendering:pixelated;animation:pbRing 1.6s ease-in-out infinite;filter:drop-shadow(0 0 6px #fff6c0)}.pbx .lid{position:absolute;left:0;right:0;top:-18px;height:20px;background:#d85080;border-radius:10px 10px 2px 2px;transform-origin:bottom;animation:pbLid .9s .3s both}@keyframes pbIn{from{transform:scale(.3);opacity:0}}@keyframes pbLid{from{transform:rotateX(0)}to{transform:rotateX(70deg) translateY(-6px)}}@keyframes pbRing{50%{transform:translateY(-4px)}}</style><div style="display:flex;gap:8px;margin-top:10px"><button class="btn ghost" style="flex:1" data-wedans="'+(m.w?'mar_w':'mar_ans')+'|0">다음에요</button><button class="btn pink" style="flex:1" data-wedans="'+(m.w?'mar_w':'mar_ans')+'|1">'+(m.w?'증인 할게요!':'네, 좋아요!')+'</button></div>');return true}
   if(m.t==='mar_go'){if(wedLand(m.x,m.y)){Snd.sfx('page');sparkFx(P.x,P.y-10,30,['#ffd6e8','#ffffff','#ffd34d']);toast('💍 '+m.p+' 곁으로 왔어요!')}else toast('그 근처엔 설 곳이 없어요');return true}
   return false}
 function wedNear(){if(!P)return null;const n=(p,r)=>Math.abs(P.x-(p[0]*TS+8))<(r||18)&&Math.abs(P.y-(p[1]*TS+14))<(r||18);
@@ -6367,6 +6430,9 @@ Object.assign(ITEMS,{
  sap_oak:{n:'참나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:1000000},sap_pine:{n:'소나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:1000000},sap_apple:{n:'사과나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:2500000},
  sap_peach:{n:'복숭아나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:4000000},sap_orange:{n:'귤나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:4000000},sap_cherry:{n:'체리나무 묘목',ic:'🌱',d:'내 정원에 심어요',npc:7500000}
 });
+/* 💍 반지 상자 (반지 공방) */
+RING_REC.forEach(r=>{ITEMS['mp_'+r[0]]={n:r[1]+' 상자',ic:'💍',d:'공방 장인이 만든 결혼반지 · 반지 공방에서 열면 내 것이 돼요 (주고받을 수 있어요)'};MAKER['mp_'+r[0]]='cra'});
+ITEMS.mp_ring_world={n:'온 세상의 반지 상자',ic:'🌍',d:'이 세계 모든 곳의 조각을 새긴 단 하나의 반지'};MAKER.mp_ring_world='cra';
 const ITEM_IDS=Object.keys(ITEMS);
 const itS=()=>{if(!S.items||typeof S.items!=='object')S.items={};const it=S.items;for(const k in MERGE)if(it[k]){it[MERGE[k]]=(it[MERGE[k]]|0)+(it[k]|0);delete it[k]}return it};
 /* 2026-11-05 재료 정리: 직업 재료 다섯 가지는 「✨ 솜씨 재료」 하나로 · 방수 판자 → 판자 · 꽃 염료 → 꽃잎 돛천 · 라벤더꿀 → 들꽃꿀 (server.js MERGE와 같아요) */
@@ -6591,7 +6657,7 @@ let craftTab='items',craftPick=null;
 function openCraft(tab){craftTab=tab||craftTab;craftPick=null;Snd.sfx('ui');openSheet('공방 · 아이템','');renderCraft()}
 function renderCraft(){
   const tabs=[['items','내 아이템'],['make','만들기'],['nat','🌿 자연'],['npc','잡화점']];if(rk('mer','cap'))tabs.push(['imp','수입품']);if(ONLINE)tabs.push(['cons','위탁']);
-  let h='<div class="tabs" style="flex-wrap:wrap">'+tabs.map(t=>'<button class="tab'+(craftTab===t[0]?' on':'')+'" data-ct="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+  let h='<div class="tabs" style="flex-wrap:wrap">'+tabs.map(t=>'<button class="tab'+(craftTab===t[0]?' on':'')+'" data-ct="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>'+(craftTab==='make'||jobId()==='cra'?'<button class="btn sm pink" style="width:100%;margin:2px 0 8px" data-ring="see">💍 반지 공방 · 결혼반지와 「온 세상의 반지」</button>':'');
   if(craftPick){const r=REC.find(x=>x.id===craftPick),ids=Object.keys(S.inv).map(Number).filter(i=>(S.inv[i]|0)>0&&i<MAIN_N&&(r.inF.same?(S.inv[i]|0)>=noteNeed():r.inF.rar.indexOf(FISH[i].rar)>=0));
     h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><button class="btn ghost sm" data-cpk="back">◀ 돌아가기</button><div class="muted" style="font-size:13px">'+(r.inF.same?noteNeed()+'마리 이상 있는 물고기':'손질할 물고기')+'</div></div>';
     h+=ids.length?'<div class="dexgrid">'+ids.map(id=>'<button class="cell has" data-cfish="'+id+'"><img src="'+fishURL(id)+'" alt="'+esc(FISH[id].name)+'"><span class="cnt">×'+S.inv[id]+'</span></button>').join('')+'</div>':'<div class="muted" style="text-align:center;padding:16px">맞는 물고기가 없어요</div>';
@@ -7575,6 +7641,7 @@ function drawSkyBack(cX,cY){const hy=Math.round(-cY);SKF.on=hy>0;if(!SKF.on)retu
   const mix=c=>grey?mixc(c,[150,150,170].map(v=>v*(1-dark*.7)),grey):c,T=mix(top),Hc=mix(hor),par=cX/Math.max(1,MW*TS-VW);
   Object.assign(SKF,{hy,K,w,dark,grey,Hc,par,cX,xs:az=>VW*(1-(az-60)/240)-(par-.5)*VW*.5,ys:alt=>hy-8-Math.min(80,alt)/80*Math.max(60,hy-20)});
   const g=cx.createLinearGradient(0,0,0,hy);g.addColorStop(0,'rgb('+T+')');g.addColorStop(1,'rgb('+Hc+')');cx.fillStyle=g;cx.fillRect(0,0,VW,hy+2);
+  if(AURORA>Date.now()){cx.save();cx.globalCompositeOperation='lighter';for(let i=0;i<5;i++){const x0=VW*(i/4)-40+Math.sin(wt*.3+i)*30;const gg=cx.createLinearGradient(0,hy*.05,0,hy*.8);gg.addColorStop(0,'rgba(120,255,200,0)');gg.addColorStop(.5,'rgba('+(i%2?'120,255,190':'200,140,255')+','+(.22+.08*Math.sin(wt+i))+')');gg.addColorStop(1,'rgba(120,255,200,0)');cx.fillStyle=gg;cx.beginPath();cx.moveTo(x0,hy*.05);for(let y=0;y<=10;y++){const Y=hy*.05+y*hy*.075;cx.lineTo(x0+Math.sin(wt*.8+y*.6+i)*18+y*6,Y)}for(let y=10;y>=0;y--){const Y=hy*.05+y*hy*.075;cx.lineTo(x0+60+Math.sin(wt*.8+y*.6+i+1)*18+y*6,Y)}cx.fill()}cx.restore()}
   if(K.sa>-10){const sx=SKF.xs(K.saz),gl=Math.max(0,1-Math.abs(K.sa-1)/12)*(1-grey);if(gl>0){const gg=cx.createRadialGradient(sx,hy,0,sx,hy,VW*.7);gg.addColorStop(0,'rgba(255,170,110,'+.55*gl+')');gg.addColorStop(.4,'rgba(255,140,150,'+.25*gl+')');gg.addColorStop(1,'rgba(255,140,150,0)');cx.fillStyle=gg;cx.fillRect(0,0,VW,hy)}}
   if(w==='rainbow'){cx.save();cx.globalAlpha=.42;['#ff7a7a','#ffb36a','#ffe27a','#8ee08a','#7ac8ff','#a88aff'].forEach((c,i)=>{cx.strokeStyle=c;cx.lineWidth=3;cx.beginPath();cx.arc(VW*.5,hy+40,VW*.62-i*3,Math.PI*1.05,Math.PI*1.95);cx.stroke()});cx.restore()}
   const MC=[[150,160,200],[110,140,150],[86,124,110]],win=typeof kstSeason==='function'&&kstSeason(Date.now())==='winter';[0,1,2].forEach(L=>{const hs=A.mt[L],off=Math.round(cX*[.08,.16,.28][L]),c=mixc(mixc(MC[L],Hc,[.62,.42,.25][L]),[16,18,40],dark*[.45,.55,.65][L]);cx.fillStyle='rgb('+c+')';
@@ -8948,6 +9015,7 @@ $('sheetbody').addEventListener('click',e=>{
   {const cd=e.target.closest('[data-btry]');if(cd&&!e.target.closest('button')){btqTry=btqTry===cd.dataset.btry?null:cd.dataset.btry;Snd.sfx('tap');renderBoutique();return}}
   const t=e.target.closest('button');if(!t)return;
   if(craftClick(t))return;
+  if(ringClick(t))return;
   if(evClick(t)||ebClick(t))return;
   if(t.dataset.adm&&admClick(t))return;
   if(boatClick(t))return;

@@ -416,7 +416,8 @@ function npcReqs() {
 const hasReqItem = (s, item, n) => item.startsWith('f:') ? has(s, +item.slice(2), n) : (itemsOf(s)[mk(item)] | 0) >= n;
 /* 직업 4.0 (2026-11-05): 조사 쪽지 · 장인 명품 상자 — index.html ITEMS와 같아요 */
 const MP_IDS = ["mp_b_dragon", "mp_b_angel", "mp_b_sun", "mp_b_galaxy", "mp_b_crown", "mp_b_rainbowp", "mp_b_hourglass", "mp_b_starheart", "mp_r_aurora", "mp_r_dragon", "mp_r_gold2", "mp_r_cosmos"];
-ITEM_IDS.push('clue', ...MP_IDS); ITEM_IDS.push('snow', 'flake');
+ITEM_IDS.push('clue', ...MP_IDS); ITEM_IDS.push('mp_ring_silver', 'mp_ring_pearl', 'mp_ring_dia', 'mp_ring_star', 'mp_ring_rainbow', 'mp_ring_world');   // 💍 반지 공방 (2026-11-16)
+Object.assign(MAKER, { mp_ring_silver: 'cra', mp_ring_pearl: 'cra', mp_ring_dia: 'cra', mp_ring_star: 'cra', mp_ring_rainbow: 'cra', mp_ring_world: 'cra' }); Object.assign(ITEM_NAME, { mp_ring_silver: '은빛 결혼반지 상자', mp_ring_pearl: '진주 결혼반지 상자', mp_ring_dia: '다이아 결혼반지 상자', mp_ring_star: '별빛 결혼반지 상자', mp_ring_rainbow: '무지개 결혼반지 상자', mp_ring_world: '온 세상의 반지 상자' }); ITEM_IDS.push('snow', 'flake');
 ITEM_IDS.push('log', 'plank', 'wplank', 'dye', 'cloth', 'honey', 'honey_lav', 'honey_rb', 'wildhoney', 'pie', 'apple', 'peach', 'orange', 'cherry', 'fl_tulip', 'fl_sun', 'fl_cosmos', 'fl_lav', 'fl_rose', 'fl_hydr', 'fl_lily', 'fl_rb', 'sap_oak', 'sap_pine', 'sap_apple', 'sap_peach', 'sap_orange', 'sap_cherry');   // 자연 1.0 (index.html ITEMS와 같아요)
 LOOK_IDS.bob.push('b_bfly'); LOOK_IDS.ti.push('t_bug1', 't_bug2', 't_ark'); LOOK_IDS.ti.push('t_ruby30', 't_litter30', 't_hunt1', 't_hunt2', 't_fs1', 't_fs2', 't_fs3', 't_fs4', 't_fs5', 't_npc1', 't_npc2', 't_npc3');
 Object.assign(ITEM_NPC, { snow: 100, flake: 30000, clue: 20000, fl_tulip: 140000, fl_cosmos: 180000, fl_sun: 270000, fl_lav: 450000, fl_rose: 900000, fl_hydr: 1350000, fl_lily: 2200000, fl_rb: 6000000,   /* 2026-11-09: 꽃이 돈이 되게 */ apple: 3000, peach: 4000, orange: 3500, cherry: 8000, honey: 800, wildhoney: 6000, log: 300, plank: 400, wplank: 2500, sap_oak: 1000000, sap_pine: 1000000, sap_apple: 2500000, sap_peach: 4000000, sap_orange: 4000000, sap_cherry: 7500000 }, {"mp_b_dragon": 12500000, "mp_b_angel": 14000000, "mp_b_sun": 15000000, "mp_b_galaxy": 17500000, "mp_b_crown": 20000000, "mp_b_rainbowp": 22500000, "mp_b_hourglass": 50000000, "mp_b_starheart": 75000000, "mp_r_aurora": 12500000, "mp_r_dragon": 15000000, "mp_r_gold2": 25000000, "mp_r_cosmos": 60000000});
@@ -1075,6 +1076,7 @@ function onMsg(ws, me, m) {
     case 'gd_q': { if (V && V.gwq && V.gwq[me.key]) { send(ws, { t: 'gd_watered', by: V.gwq[me.key] }); delete V.gwq[me.key]; vMark(); } break; }
     case 'raid_hit': raidHit(ws, me, m); break;
     case 'raid_down': case 'raid_up': case 'raid_rev': raidDown(ws, me, m); break;
+    case 'ring_news': ringNews(ws, me, m); break;
     case 'kt_get': case 'tax': case 'kt_req': case 'kt_rate': case 'kt_note': case 'kt_fest': case 'kt_prop': case 'kt_ok': ktMsg(ws, me, m); break;
     case 'raid_get': case 'raid_q': case 'raid_qx': raidLobby(ws, me, m); break;
     case 'rrec_get': case 'rrec_new': case 'rrec_join': case 'rrec_leave': rrecMsg(ws, me, m); break;
@@ -1923,7 +1925,7 @@ async function rpgMsg(ws, me, m) {
   }
 }
 /* ---------- 💒 물결 예식장: 혼인 신고 · 10분 결혼식 · 영원한 방명록 · 반지로 곁에 가기 ---------- */
-const WED_OUT = ['o_tux', 'o_wdress'], RING_IDS = ['ring_silver', 'ring_pearl', 'ring_dia', 'ring_star', 'ring_rainbow'], FAIRY_XY = [65 * 16 + 8, 4 * 16 + 12], WED_LEN = 600000;
+const WED_OUT = ['o_tux', 'o_wdress'], RING_IDS = ['ring_silver', 'ring_pearl', 'ring_dia', 'ring_star', 'ring_rainbow', 'ring_world'], FAIRY_XY = [65 * 16 + 8, 4 * 16 + 12], WED_LEN = 600000;
 let MARP = null, WLIVE = null;
 
 /* ---------- ✨ 물빛 포인트 (2026-11-10): 낚시터 물 위에 가끔 빛나는 자리 · 모두에게 똑같이 보여요 ----------
@@ -2069,6 +2071,13 @@ const liveByName = n => { for (const [ws, p] of players) if (p.name === n) retur
 const nearFairy = p => Math.hypot(p.x - FAIRY_XY[0], p.y - FAIRY_XY[1]) < 110;
 const ownRing = s => { const own = (s && s.cos && s.cos.own) || []; return RING_IDS.filter(r => own.includes(r)).pop() || ''; };
 const wedPub = () => ({ list: ((V && V.wed) || []).slice(0, 60), live: WLIVE && Date.now() - WLIVE.at < WED_LEN ? WLIVE : null });
+const RING_NM = { ring_silver: '은빛 결혼반지', ring_pearl: '진주 결혼반지', ring_dia: '다이아 결혼반지', ring_star: '별빛 결혼반지', ring_rainbow: '무지개 결혼반지', ring_world: '🌍 온 세상의 반지' };
+function ringNews(ws, me, m) {   // 💍 반지 공방 소식 (공방 장인만 · 1분에 한 번)
+  const s = me.save; if (!s || !V || jobOf(s) !== 'cra') return; const now = Date.now(); if (now - (me.rnT || 0) < 60000 && m.k !== 'world') return; me.rnT = now;
+  if (m.k === 'ring' && RING_NM[m.id]) return broadcast({ t: 'news', text: '💍 공방 장인 ' + me.name + ' 님이 「' + RING_NM[m.id] + '」을(를) 만들었어요!' });
+  if (m.k === 'pc') { const n = Math.max(0, Math.min(24, m.n | 0)); if (n % 4 === 0 || n >= 16) broadcast({ t: 'news', text: '🌍 ' + me.name + ' 님의 「온 세상의 반지」에 조각이 ' + n + '/24개 새겨졌어요' }); return; }
+  if (m.k === 'world') { const W2 = Array.isArray(s.wr && s.wr.d) ? s.wr.d.length : 0; if (W2 < 24) return; V.wring = V.wring || []; if (!V.wring.some(x => x.by === me.name)) { V.wring.push({ by: me.name, at: now }); vMark(); } return broadcast({ t: 'big', g: 7, text: '🌍✨ 공방 장인 ' + me.name + ' 님이 이 세계 스물네 곳의 조각을 모아 「온 세상의 반지」를 완성했어요!!' }); }
+}
 function marMsg(ws, me, m) {
   const s = me.save; if (!s || !V) return; const no = msg => send(ws, { t: 'news', text: msg }); const now = Date.now(); V.wed = Array.isArray(V.wed) ? V.wed : [];
   if (m.t === 'wed_list') return send(ws, Object.assign({ t: 'wed_list' }, wedPub()));
@@ -2081,7 +2090,7 @@ function marMsg(ws, me, m) {
     if (!ownRing(s) || !ownRing(ps)) return no('두 사람 모두 결혼반지가 있어야 해요 (부티크)');
     if (![me, P[1], Wn[1]].every(nearFairy)) return no('신랑 · 신부 · 증인 모두 요정 리본 곁에 모여야 해요');
     MARP = { a: me.key, an: me.name, b: P[1].key, bn: P[1].name, w: Wn[1].key, wn: Wn[1].name, okB: false, at: now };
-    send(P[0], { t: 'mar_ask', a: me.name, b: P[1].name, wn: Wn[1].name }); return no('💌 ' + P[1].name + ' 님에게 청혼했어요! 두근두근…');
+    send(P[0], { t: 'mar_ask', a: me.name, b: P[1].name, wn: Wn[1].name, ring: ownRing(s) }); broadcast({ t: 'prop_fx', a: me.name, b: P[1].name, ring: ownRing(s) }); return no('💌 ' + P[1].name + ' 님에게 청혼했어요! 두근두근…');
   }
   if (m.t === 'mar_ans' || m.t === 'mar_w') {
     const q = MARP; if (!q || now - q.at > 180000) return; const isB = m.t === 'mar_ans' && q.b === me.key, isW = m.t === 'mar_w' && q.w === me.key && q.okB; if (!isB && !isW) return;
@@ -2093,7 +2102,7 @@ function marMsg(ws, me, m) {
     A[1].save.mar = { p: q.bn, d: now, w: q.wn, ring: ra }; B[1].save.mar = { p: q.an, d: now, w: q.wn, ring: rb };
     queueSave(q.a, A[1].save); queueSave(q.b, B[1].save); send(A[0], { t: 'mar', mar: A[1].save.mar }); send(B[0], { t: 'mar', mar: B[1].save.mar });
     const rec = { id: 'w' + now.toString(36), a: q.an, b: q.bn, w: q.wn, at: now + 3000, g: [q.wn], m: [] }; V.wed.unshift(rec); if (V.wed.length > 300) V.wed.length = 300; vMark();
-    WLIVE = { id: rec.id, a: rec.a, b: rec.b, w: rec.w, at: rec.at }; broadcast({ t: 'wed_live', w: WLIVE }); broadcast({ t: 'news', text: '💒 ' + q.an + ' ♥ ' + q.bn + ' 님이 결혼했어요! 증인 ' + q.wn + ' · 지금 북쪽 물결 예식장에서 결혼식이 열려요 🎉' });
+    WLIVE = { id: rec.id, a: rec.a, b: rec.b, w: rec.w, at: rec.at, world: ra === 'ring_world' || rb === 'ring_world' ? 1 : 0 }; broadcast({ t: 'wed_live', w: WLIVE }); broadcast({ t: 'news', text: '💒 ' + q.an + ' ♥ ' + q.bn + ' 님이 결혼했어요! 증인 ' + q.wn + ' · 지금 북쪽 물결 예식장에서 결혼식이 열려요 🎉' });
     return;
   }
   if (m.t === 'mar_go') {
