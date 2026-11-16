@@ -310,7 +310,8 @@ const ENH = {
   cost: L => (L >= 17 ? Math.round(Math.min(30, 7 * Math.pow(1.5, L - 17)) * ENH.cost0(L) / 1000) * 1000 : ENH.cost0(L)),   // 2026-11-09: +17부터 안전 강화 골드를 크게 (7배 → 최대 30배)
   cost0: L => L < 10 ? Math.round(50 * Math.pow(1.28, L) / 10) * 10 : L < 20 ? Math.round(3000 * Math.pow(1.32, L - 10) / 100) * 100 : Math.round(3000 * Math.pow(1.32, L - 10) * Math.pow(1.4, L - 19) / 1000) * 1000,   // +10부터는 골드를 꽤 써요
   DAILY: 3, FISH_CAP: 40, FISH_PER: 25, IDLE_MIN: 40, IDLE_CAP: 15,   /* 2026-11-13: 켜 두기는 하루 15장 (손으로 낚으면 손맛 보상이 훨씬 커요) */ PIECE_CAP: 20, PIECE_PER: 5, TK_MAX: 9999,
-  PTS: [1, 2, 5, 15, 40]
+  PTS: [1, 2, 5, 15, 40],
+  ESS_FROM: 20   /* 2026-11-16 💠 꿈의 정수: +20부터는 강화 한 번에 정수 1개 (사냥터 우두머리 · 바다 보스 · 레이드에서 얻어요) */
 };
 ENH.K = ENH.P.map(p => Math.max(2, Math.round(1.8 / p)));   // 안전: 이만큼 연속 실패하면 다음은 확정
 const fishRar = id => isIsy(id) ? ISY_ZR[id - ISY_FIRST][1] : isGet(id) ? GET_ZR[id - GET_FIRST][1] : isV2(id) || isIsx(id) ? rar2(id) : isBoss(id) ? 4 : isPty2(id) ? PTY2_RAR[id - PTY2_FIRST] : id < 100 ? rarOf(id % 20) : id < FISH_N ? rarOf((id - 100) % 20) : id === BOSS_ID || isMyth(id) ? 4 : id >= MK_FIRST ? MK_RAR[id - MK_FIRST] | 0 : id >= PTY_FIRST ? PTY_RAR[id - PTY_FIRST] | 0 : id >= ISLE_FIRST ? rarOf(id - ISLE_FIRST) : (SEASON_FISH[id - FISH_N] || [0])[0];
@@ -323,7 +324,8 @@ const CATCH_GAP = 5, CATCH_TK = 3;
 const catchDisc = lv => { const g = champ ? (champ.lv | 0) - (lv | 0) : 0; return g >= 3 ? .6 : g >= 2 ? .4 : 0; };
 const BAG_STARS = 40;   // 🌰 강화 별 주머니: 별 +40 (넘치면 다음 단계로 이어져요)   // 따라잡기: 광장 동상 주인보다 5단계 이상 낮으면 출석 강화권 +2
 const kstDay = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
-function enhOf(save) { if (!save) return null; save.enh = Object.assign(enhDefault(), save.enh && typeof save.enh === 'object' ? save.enh : {}); return save.enh; }
+function enhOf(save) { if (!save) return null; save.enh = Object.assign(enhDefault(), save.enh && typeof save.enh === 'object' ? save.enh : {}); const E = save.enh; if (!E.esg && E.lv >= ENH.ESS_FROM) { E.esg = 1; E.es = (E.es | 0) + 20; } return save.enh; }   // 이미 +20인 분께는 꿈의 정수 20개를 먼저 드려요
+const essAdd = (save, n) => { const E = enhOf(save); E.es = Math.min(99999, (E.es | 0) + n); return E.es; };
 function enhDaily(e, out) {
   const d = kstDay(); if (e.day === d) return;
   const y = new Date(Date.now() + 9 * 3600e3 - 864e5).toISOString().slice(0, 10);
@@ -353,8 +355,9 @@ function enhSession(e, out) { const now = Date.now(), d = kstDay(); if (!e.ses |
 function enhRoll(e, mode, gold, disc) {
   const L = e.lv; if (L >= ENH.MAX) return { err: '이미 최고 단계예요' };
   if (e.tk < 1) return { err: '강화권이 없어요' };
+  if (L >= ENH.ESS_FROM && (e.es | 0) < 1) return { err: '💠 꿈의 정수가 모자라요 (사냥터 우두머리 · 레이드에서 얻어요)' };
   const cost = mode === 'safe' ? Math.round(ENH.cost(L) * (1 - (disc || 0))) : 0; if ((Number(gold) || 0) < cost) return { err: '골드가 모자라요' };
-  e.tk--; e.star = e.star | 0; e.fl = e.fl | 0;
+  e.tk--; e.star = e.star | 0; e.fl = e.fl | 0; if (L >= ENH.ESS_FROM) e.es--;
   const ticket = (e.sure | 0) > 0; if (ticket) e.sure--;   // 도토리 확정권
   const cat = (e.cat | 0) > 0 ? .15 + .1 * (e.catk | 0) : 0; if (cat) e.cat--;   // 공방 장인 강화 촉매
   const sure = ticket || (mode === 'safe' && e.fl >= ENH.K[L]), ok = sure || Math.random() < ENH.P[L] + cat;
@@ -1071,6 +1074,7 @@ function onMsg(ws, me, m) {
       const live = liveByKey(x.key); if (live) send(live[0], { t: 'gd_watered', by: [me.name] }); else { V.gwq = V.gwq || {}; (V.gwq[x.key] = V.gwq[x.key] || []).push(me.name); V.gwq[x.key] = V.gwq[x.key].slice(-8); } vMark(); break; }   // 💧 친구 정원 물 주기 (하루 한 번)
     case 'gd_q': { if (V && V.gwq && V.gwq[me.key]) { send(ws, { t: 'gd_watered', by: V.gwq[me.key] }); delete V.gwq[me.key]; vMark(); } break; }
     case 'raid_hit': raidHit(ws, me, m); break;
+    case 'raid_down': case 'raid_up': case 'raid_rev': raidDown(ws, me, m); break;
     case 'raid_get': case 'raid_q': case 'raid_qx': raidLobby(ws, me, m); break;
     case 'rrec_get': case 'rrec_new': case 'rrec_join': case 'rrec_leave': rrecMsg(ws, me, m); break;
     case 'hs_get': send(ws, { t: 'hs', list: hsPub() }); break;
@@ -1130,6 +1134,7 @@ function onMsg(ws, me, m) {
       if (r >= 4 && !own.includes('t_hunt2') && Math.random() < .05) got.push(...giveCos(s, ['t_hunt2']));
       if (got.some(x => x.startsWith('t_'))) send(ws, { t: 'cos_got', ids: got.filter(x => x.startsWith('t_')) });
       luxRoll(ws, me, s, bo ? 20 : el ? 3 : 1, 'hunt');
+      let ess = bo ? [1, 2, 3][df] : el && Math.random() < .03 ? 1 : 0; if (ess) { essAdd(s, ess); got.push('es:' + ess); }   // 💠 꿈의 정수
       h.dr = (h.dr | 0) + Math.round([1, 1, 2, 3, 5][r] * (bo ? 10 : el ? 2 : 1) * (1 + Math.min(200, RS.dr * 2) / 100));
       if (bo) {   // 👑 사냥터 우두머리: 사냥터 · 난이도마다 주 1번 「큰 보상」 · 가까이서 함께 싸운 친구도 받아요
         const wb = n => { const w = wfWeek(), H = n.hunt; H.wb = H.wb && H.wb.w === w ? H.wb : { w, k: {} }; const kk = hfi + ':' + df; if (H.wb.k[kk]) return 0; H.wb.k[kk] = 1;
@@ -1141,7 +1146,7 @@ function onMsg(ws, me, m) {
       }
       let item = null; if (Math.random() < (bo ? 1 : el ? .3 : .05 + r * .02) * (1 + Math.min(100, RS.luk) / 100) * pb * (bo ? 1 : dfI) * DX) { const gw = tier >= 10 ? (bo ? [5, 25, 35, 25, 8, 1.5, .2, .02, 0] : [45, 28, 15, 8, 2, .2, .02, 0, 0]) : bo ? [10, 30, 35, 18, 6.7, .3, 0, .01, 0] : [60, 25, 10, 4, .95, .05, 0, 0, 0];
         item = mkItem(tier, rollG(gw)); invPut(h, item); if (item.g >= 5) broadcast({ t: 'big', g: item.g, text: (item.g >= 6 ? '🌌🌌 ' : '🎁 ') + me.name + ' 님이 사냥터에서 【' + RPG_GN[item.g] + '】 ' + RPG_SN[item.t] + '을(를) 주웠어요!' }); }
-      queueSave(me.key, s); send(ws, { t: 'hunt', hunt: h, c: e.c, gain: c, drop: got, item, pt });
+      queueSave(me.key, s); send(ws, { t: 'hunt', hunt: h, c: e.c, gain: c, drop: got, item, pt, es: enhOf(s).es | 0 });
     }); break;
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
     /* ----- 은비랜드 ----- */
@@ -1968,9 +1973,12 @@ function btMsg(ws, me, m) {
    보스 체력은 모인 사람들의 공격력에 맞춰져요 · 10분 안에 쓰러뜨리면 모두 같은 보상 · 이번 주 처음이면 「큰 상자」, 이미 깼으면 「도움 상자」 */
 const RAID_FI = 10, RAID_MIN = +process.env.RAID_MIN || 3, RAID_MAX = 5, RAID_K = +process.env.RAID_K || 840, RAID_T = 10 * 60e3;
 const RL = { mem: new Set(), go: 0 }, RAIDS = new Map(); let raidSeq = 1;
+/* 2026-11-16 레이드 2.0: 보스 다섯 · 서버가 정한 패턴을 모두 같은 순간에 봐요 · 합동 공격 · 쓰러진 친구 일으키기 · 꿈의 정수 */
+const RAID_BOSS = [['nm', ['rain', 'line', 'ring', 'stack']], ['ice', ['rain', 'ring', 'stack', 'rain']], ['lava', ['rain', 'line', 'stack', 'line']], ['storm', ['line', 'ring', 'stack', 'ring']], ['star', ['rain', 'ring', 'line', 'stack']]];
+function raidPat(R, now) { const P = RAID_BOSS[R.bk][1], half = R.hp < R.mhp * .5; R.pn = (R.pn | 0) + 1; R.pat = { k: P[(R.pn - 1) % P.length], at: now + (half ? 1500 : 1900), sd: crypto.randomBytes(4).readUInt32LE(0), n: R.pn, tg: (() => { const up = R.mem.filter(k => !(R.down && R.down[k]) && liveByKey(k)); const L = up.length ? up : R.mem; return R.nm[L[(Math.random() * L.length) | 0]]; })() }; R.nextPat = now + (half ? 6500 : 8500); R.dirty = 1; }
 const raidAtk = s => { const lv = Math.max(1, (s.hu && s.hu.lv) | 0), h = s.hunt && typeof s.hunt === 'object' ? s.hunt : {}; return 2 + lv + (h.sw ? 3 : 0) + rpgSum(h, lv).atk; };
 const raidOf = key => { for (const R of RAIDS.values()) if (R.mem.includes(key) && !R.over) return R; return null; };
-const raidPubI = R => ({ id: R.id, w: wfWeek(), hp: Math.max(0, Math.round(R.hp)), mhp: R.mhp, dead: R.dead, fail: R.fail || 0, ends: R.end, names: R.mem.map(k => R.nm[k]), top: R.mem.map(k => [R.nm[k], Math.round(R.dmg[k] || 0)]).sort((a, b) => b[1] - a[1]) });
+const raidPubI = R => ({ id: R.id, w: wfWeek(), bk: R.bk | 0, pat: R.pat || null, sn: Date.now(), cb: R.cbAt && Date.now() - R.cbAt < 2000 ? R.cb | 0 : 0, down: R.mem.filter(k => R.down && R.down[k]).map(k => R.nm[k]), hp: Math.max(0, Math.round(R.hp)), mhp: R.mhp, dead: R.dead, fail: R.fail || 0, ends: R.end, names: R.mem.map(k => R.nm[k]), top: R.mem.map(k => [R.nm[k], Math.round(R.dmg[k] || 0)]).sort((a, b) => b[1] - a[1]) });
 const rlPub = () => ({ t: 'raid_lobby', n: RL.mem.size, min: RAID_MIN, max: RAID_MAX, names: [...RL.mem].map(k => (liveByKey(k) || [0, {}])[1].name || k), go: RL.go || 0 });
 function rlSend() { const m = rlPub(); for (const [w, p] of players) send(w, Object.assign({ mine: RL.mem.has(p.key) ? 1 : 0, inRaid: raidOf(p.key) ? 1 : 0 }, m)); }
 function raidSendI(R) { const o = Object.assign({ t: 'raid' }, raidPubI(R)); R.mem.forEach(k => { const l = liveByKey(k); if (l) send(l[0], o); }); }
@@ -1988,23 +1996,34 @@ setInterval(() => {
   if (RL.go && now >= RL.go && RL.mem.size >= RAID_MIN) {   // 🚀 출발
     const mem = [...RL.mem].slice(0, RAID_MAX); RL.mem.clear(); RL.go = 0; const nm = {}; let hp = 0;
     for (const k of mem) { const l = liveByKey(k); nm[k] = l ? l[1].name : k; hp += raidAtk(l && l[1].save || {}) * RAID_K; }
-    const R = { id: raidSeq++, mem, nm, hp, mhp: hp, dmg: {}, t0: now, end: now + RAID_T, dead: 0 }; RAIDS.set(R.id, R);
+    const R = { id: raidSeq++, mem, nm, hp, mhp: hp, dmg: {}, t0: now, end: now + RAID_T, dead: 0, bk: (Math.random() * RAID_BOSS.length) | 0, lh: {}, down: {}, nextPat: now + 12000 }; RAIDS.set(R.id, R);
     for (const k of mem) { const l = liveByKey(k); if (l) send(l[0], { t: 'raid_go', id: R.id, names: mem.map(q => nm[q]) }); } raidSendI(R); rlSend();
     broadcast({ t: 'news', text: '🌑 ' + mem.map(q => nm[q]).join(' · ') + ' 님이 악몽의 왕좌로 출발했어요!' });
   }
   for (const R of RAIDS.values()) { if (R.over) { if (now - R.over > 60e3) RAIDS.delete(R.id); continue; }
+    if (!R.dead && now >= (R.nextPat || 0)) raidPat(R, now);
+    for (const k in R.down) if (now - R.down[k] > 21000) { delete R.down[k]; R.dirty = 1; }
     if (R.dirty) { R.dirty = 0; raidSendI(R); }
     if (!R.dead && now > R.end) { R.fail = 1; R.over = now; raidSendI(R); R.mem.forEach(k => { const l = liveByKey(k); if (l) send(l[0], { t: 'raid_res', ok: 0, note: '⏰ 시간이 다 됐어요… 악몽의 왕이 꿈속으로 숨었어요. 다시 모여서 도전해요!' }); }); } }
 }, 1000);
+function raidDown(ws, me, m) {
+  const R = raidOf(me.key); if (!R || R.dead) return; const now = Date.now();
+  if (m.t === 'raid_down') { R.down[me.key] = now; R.dirty = 1; return; }
+  if (m.t === 'raid_up') { if (R.down[me.key]) { delete R.down[me.key]; R.dirty = 1; } return; }
+  const tk = R.mem.find(k => R.nm[k] === m.n); if (!tk || tk === me.key || !R.down[tk] || R.down[me.key]) return;
+  const A = me.hp_, tl = liveByKey(tk), B = tl && tl[1].hp_; if (!A || !B || now - A.at > 3000 || Math.hypot(A.x - B.x, A.y - B.y) > 70) return;
+  delete R.down[tk]; R.dirty = 1; if (tl) send(tl[0], { t: 'raid_rev', by: me.name }); send(ws, { t: 'news', text: '🤝 ' + R.nm[tk] + ' 님을 일으켜 줬어요!' });
+}
 function raidHit(ws, me, m) {
   if (!me.save) return; const R = raidOf(me.key); if (!R || R.dead) return; const now = Date.now(), H = me.hp_; if (!H || H.f !== RAID_FI || now - H.at > 4000) return;
-  const atk = raidAtk(me.save), el = Math.min(5, Math.max(.5, (now - (me.rhT || now - 1000)) / 1000)); me.rhT = now; const d = Math.max(0, Math.min(atk * 7 * el, Number(m.d) || 0)); if (!d) return;
+  const atk = raidAtk(me.save), el = Math.min(5, Math.max(.5, (now - (me.rhT || now - 1000)) / 1000)); me.rhT = now; let d = Math.max(0, Math.min(atk * 7 * el, Number(m.d) || 0)); if (!d) return; if (R.down && R.down[me.key]) return;
+  R.lh[me.key] = now; const co = R.mem.filter(k => k !== me.key && now - (R.lh[k] || 0) < 1600).length; if (co) { d *= 1 + .15 * co; R.cb = co + 1; R.cbAt = now; }   // 🤝 합동 공격: 함께 때리면 한 사람당 +15%
   R.hp -= d; R.dmg[me.key] = (R.dmg[me.key] || 0) + d; R.dirty = 1;
   if (R.hp <= 0) { R.hp = 0; R.dead = now; R.over = now; raidSendI(R); raidEnd(R); }
 }
 function raidEnd(R) {
   const wk = wfWeek(), boost = vSt() >= 8 ? 1.5 : 1;
-  broadcast({ t: 'news', text: '🌅 ' + R.mem.map(k => R.nm[k]).join(' · ') + ' 님이 함께 악몽의 왕을 쓰러뜨렸어요!!' });
+  broadcast({ t: 'news', text: '🌅 ' + R.mem.map(k => R.nm[k]).join(' · ') + ' 님이 함께 ' + ['악몽의 왕', '서리 거인', '용암 고래', '폭풍 문어', '별삼킨 해파리'][R.bk | 0] + '을(를) 쓰러뜨렸어요!!' });
   Promise.all(R.mem.map(k => loadSave(k).then(s => !!(s && s.hunt && s.hunt.rw === wk)))).then(done => {
     const needHelp = done.some(x => !x);
     R.mem.forEach((k, i) => withLock(k, async () => {
@@ -2012,14 +2031,14 @@ function raidEnd(R) {
       const e = ebOf(s), lv = Math.max(1, (s.hu && s.hu.lv) | 0), SC = scrMig(h), L = liveByKey(k), nm = R.nm[k]; let note, it = null, cos = [];
       if (h.rw !== wk) {   // 🎁 큰 상자 (이번 주 처음)
         h.rw = wk; e.c = (e.c | 0) + Math.round(3e6 * boost); it = mkItem(Math.min(10, Math.max(1, Math.floor(lv / 4))), rollG([0, 5, 20, 35, 28, 9, 3, .3, .04])); invPut(h, it);
-        SC.w10 = (SC.w10 | 0) + 1; SC.a10 = (SC.a10 | 0) + 1; cos = giveCos(s, ['t_raid1']);
+        SC.w10 = (SC.w10 | 0) + 1; SC.a10 = (SC.a10 | 0) + 1; cos = giveCos(s, ['t_raid1']); essAdd(s, 6);
         if (it.g >= 4) broadcast({ t: 'big', g: it.g, text: (it.g >= 6 ? '🌌🌌 ' : '🌅 ') + nm + ' 님이 레이드 상자에서 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] + '을(를) 받았어요!' });
-        note = '🎁 레이드 큰 상자 · 칩 ' + Math.round(3e6 * boost).toLocaleString() + ' · 【' + RPG_GN[it.g] + '】 장비 · 10% 주문서 무기 1 · 방어구 1';
+        note = '🎁 레이드 큰 상자 · 칩 ' + Math.round(3e6 * boost).toLocaleString() + ' · 【' + RPG_GN[it.g] + '】 장비 · 10% 주문서 무기 1 · 방어구 1 · 💠 꿈의 정수 6';
       } else if (needHelp) {   // 🤝 도움 상자 (이미 깬 사람이 친구를 도와줬을 때)
-        e.c = (e.c | 0) + Math.round(1.5e6 * boost); { const sid = Math.random() < .5 ? 'w10' : 'a10'; SC[sid] = (SC[sid] | 0) + 1; } await giveTk(k, 5, null);
-        note = '🤝 도움 상자 · 친구를 도와줘서 고마워요! 칩 ' + Math.round(1.5e6 * boost).toLocaleString() + ' · 10% 주문서 1장 · 낚시 강화권 5장';
-      } else { e.c = (e.c | 0) + 5e5; note = '🌅 레이드 완료 · 이번 주 큰 상자는 이미 받았어요 · 칩 500,000'; }
-      queueSave(k, s); if (L) { send(L[0], { t: 'hunt', hunt: h, c: e.c, note }); send(L[0], { t: 'raid_res', ok: 1, note, item: it }); if (cos.length) send(L[0], { t: 'cos_got', ids: cos }); }
+        e.c = (e.c | 0) + Math.round(1.5e6 * boost); { const sid = Math.random() < .5 ? 'w10' : 'a10'; SC[sid] = (SC[sid] | 0) + 1; } await giveTk(k, 5, null); essAdd(s, 3);
+        note = '🤝 도움 상자 · 친구를 도와줘서 고마워요! 칩 ' + Math.round(1.5e6 * boost).toLocaleString() + ' · 10% 주문서 1장 · 낚시 강화권 5장 · 💠 꿈의 정수 3';
+      } else { e.c = (e.c | 0) + 5e5; essAdd(s, 2); note = '🌅 레이드 완료 · 이번 주 큰 상자는 이미 받았어요 · 칩 500,000 · 💠 꿈의 정수 2'; }
+      queueSave(k, s); if (L) { send(L[0], { t: 'hunt', hunt: h, c: e.c, note, es: enhOf(s).es | 0 }); send(L[0], { t: 'raid_res', ok: 1, note, item: it }); if (cos.length) send(L[0], { t: 'cos_got', ids: cos }); }
       else addMail(k, note);
     }).catch(er => console.error('raid', er.message)));
   });
@@ -2794,8 +2813,8 @@ async function ptBossWin() {
   broadcast({ t: 'news', text: '🎉 ' + mem.map(k => party.names[k]).join(', ') + ' 님이 다 같이 ' + BOSS_NAMES[b.k] + '(을)를 낚았어요!' });
   for (const k of mem) await withLock(k, async () => {
     await changeBag(k, { [id]: 1 }, '🎉 다 같이 ' + BOSS_NAMES[b.k] + '(을)를 낚았어요!');
-    const s = await loadSave(k); if (!s) return; const sd = sdexOf(s); sd[id] = (sd[id] | 0) + 1; queueSave(k, s);   // 다 같이 당긴 것도 손맛
-    const l = liveByKey(k); if (l) send(l[0], { t: 'sdex', sdex: sd });
+    const s = await loadSave(k); if (!s) return; const sd = sdexOf(s); sd[id] = (sd[id] | 0) + 1; const es = essAdd(s, 2); queueSave(k, s);   // 다 같이 당긴 것도 손맛 · 💠 꿈의 정수 +2
+    const l = liveByKey(k); if (l) { send(l[0], { t: 'sdex', sdex: sd }); send(l[0], { t: 'enh', enh: s.enh }); send(l[0], { t: 'news', text: '💠 꿈의 정수 +2' }); }
   }).catch(e => console.error('boss', e.message));
 }
 function ptRemove(key) {
