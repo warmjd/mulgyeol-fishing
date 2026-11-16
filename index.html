@@ -1566,6 +1566,71 @@ function gateTile(open,kind){const b=Buf(16,16),wd=[250,240,222],sh=[216,196,170
   if(!open){fillR(b,3,7,10,2,wd);fillR(b,3,12,10,2,wd);fillR(b,7,5,2,10,wd);fillR(b,3,8,10,1,sh);fillR(b,3,13,10,1,sh);px(b,7,10,ac);px(b,8,10,ac)}
   else{fillR(b,3,2,10,1,ac);fillR(b,4,3,8,1,ac);px(b,5,5,[255,230,150]);px(b,10,5,[255,230,150])}
   outlineBuf(b,OUT);return b}
+/* ===== 🌳 물결 정원 그림 (2026-11-13): 손으로 찍은 큰 나무 · 열매 나무 · 절벽 · 폭포 · 샘 돌 ===== */
+const EDA={};
+/* 잎 덩어리: 그림자 → 바탕 → 밝은 면 → 하이라이트 · 가장자리 잎끝 */
+function edLeafBall(b,cx,cy,r,P,rnd,ry){ry=ry||r*.86;
+  ell(b,cx+1.5,cy+2,r,ry,P[0]);ell(b,cx,cy,r,ry,P[1]);
+  ell(b,cx-r*.28,cy-ry*.3,r*.66,ry*.58,P[2]);ell(b,cx-r*.42,cy-ry*.45,r*.3,ry*.26,P[3]);
+  const n=Math.round(r*2.2);for(let i=0;i<n;i++){const a=rnd()*6.283,d=r*(.98+rnd()*.12),x=Math.round(cx+Math.cos(a)*d),y=Math.round(cy+Math.sin(a)*ry*(d/r));px(b,x,y,Math.sin(a)<-.2&&Math.cos(a)<.3?P[2]:P[1])}
+  for(let i=0;i<Math.round(r*1.4);i++){const a=rnd()*6.283,d=rnd()*r*.8,x=Math.round(cx+Math.cos(a)*d),y=Math.round(cy+Math.sin(a)*d*.85);if(Math.sin(a)>0)px(b,x,y,P[0]);else{px(b,x,y,P[3])}}}
+function edTrunk(b,cx,top,bot,w0,w1,T,rnd,roots){for(let y=top;y<=bot;y++){const t=(y-top)/Math.max(1,bot-top),w=Math.round(w0+(w1-w0)*Math.pow(t,2.2)),x0=Math.round(cx-w/2);
+    for(let x=x0;x<x0+w;x++){const u=(x-x0)/Math.max(1,w-1);px(b,x,y,u<.22?T[2]:u>.68?T[0]:T[1])}}
+  for(let i=0;i<Math.round((bot-top)/3);i++){const x=Math.round(cx-w0/2+1+rnd()*(w0-2)),y=Math.round(top+rnd()*(bot-top-3));px(b,x,y,T[0]);px(b,x,y+1,T[0])}
+  if(roots){for(const s of[-1,1]){for(let k=0;k<4;k++){px(b,Math.round(cx+s*(w1/2+k)),bot-1+(k>1?1:0),k<2?T[1]:T[0])}px(b,Math.round(cx+s*(w1/2+4)),bot,T[0])}}}
+const ED_LEAF=[[96,156,116],[128,190,134],[166,216,158],[210,240,196]];
+const ED_TR=[[132,92,74],[166,120,90],[198,156,120]];
+/* 하늘에 닿는 고목 (56×76) */
+EDA.big=seed=>{const b=Buf(56,76),r=RNG(seed);edTrunk(b,28,40,73,10,15,ED_TR,r,true);
+  /* 큰 가지 */ for(const s of[-1,1])for(let k=0;k<9;k++){px(b,28+s*(4+k),46-Math.round(k*.9),ED_TR[0]);px(b,28+s*(4+k),47-Math.round(k*.9),ED_TR[1])}
+  const C=[[0,-6,14],[-15,-1,11],[15,-1,11],[-8,-15,12],[9,-15,12],[0,-25,11],[-19,9,9],[19,9,9],[-8,8,12],[8,8,12],[0,3,13]].map(q=>[q[0]+(r()-.5)*3,q[1]+(r()-.5)*2,q[2]]);
+  C.sort((a,c)=>a[1]-c[1]).forEach(q=>edLeafBall(b,28+q[0],32+q[1],q[2],ED_LEAF,r));
+  for(let y=44;y<48;y++)for(let x=21;x<35;x++)if(getA(b,x,y)&&r()<.5)px(b,x,y,ED_LEAF[0]);
+  outlineBuf(b,OUT);return b};
+/* 백향목: 층층이 넓은 가지 (56×76) */
+EDA.cedar=seed=>{const b=Buf(56,76),r=RNG(seed),P=[[78,138,112],[104,170,134],[140,200,160],[188,230,196]];edTrunk(b,28,14,73,6,13,ED_TR,r,true);
+  [[56,14,6],[46,30,5],[50,46,6],[34,16,4.5],[22,4,4]].forEach(([w,y,h],i)=>{const cy=y+8;for(let k=0;k<5;k++){const ox=(k-2)*w/5.2+(r()-.5)*2;edLeafBall(b,28+ox,cy+Math.abs(k-2)*1.2,w/6.5,P,r,h)}});
+  outlineBuf(b,OUT);return b};
+/* 열매 나무 (32×42): 석류 · 무화과 · 올리브 · 귤 · 복숭아 */
+const ED_FRUIT={pom:{L:[[92,150,108],[122,182,124],[160,212,150],[204,236,190]],f:[[208,64,80],[236,102,108],[255,190,190]],n:9,s:2,crown:1},
+ fig:{L:[[80,136,96],[104,164,112],[140,196,138],[186,226,170]],f:[[120,72,140],[156,104,176],[214,180,226]],n:7,s:2,big:1},
+ olive:{L:[[124,152,128],[150,178,152],[182,204,180],[218,232,214]],f:[[88,96,64],[112,124,80],[170,180,140]],n:12,s:1},
+ orange:{L:[[90,154,104],[118,186,122],[156,214,150],[204,238,190]],f:[[232,128,40],[255,168,64],[255,226,170]],n:9,s:2},
+ peach:{L:[[108,164,112],[136,194,136],[176,220,164],[214,242,200]],f:[[236,128,140],[255,170,170],[255,226,220]],n:8,s:2,bloom:1}};
+EDA.fruit=(k,seed)=>{const F=ED_FRUIT[k],b=Buf(32,42),r=RNG(seed);edTrunk(b,16,24,40,4,7,ED_TR,r,true);
+  const C=[[0,-3,9],[-8,1,7],[8,1,7],[-4,-10,7],[5,-10,7],[0,4,8]];C.sort((a,c)=>a[1]-c[1]).forEach(q=>edLeafBall(b,16+q[0]+(r()-.5)*2,18+q[1],q[2]*(F.big?1.08:1),F.L,r));
+  if(F.bloom)for(let i=0;i<10;i++){const x=Math.round(6+r()*20),y=Math.round(8+r()*16);if(getA(b,x,y)){px(b,x,y,[255,214,226]);px(b,x+1,y,[255,240,244])}}
+  const spots=[];for(let i=0;i<60&&spots.length<F.n;i++){const x=Math.round(6+r()*20),y=Math.round(10+r()*15);if(!getA(b,x,y)||!getA(b,x+F.s,y+F.s)||spots.some(s=>Math.abs(s[0]-x)<4&&Math.abs(s[1]-y)<4))continue;spots.push([x,y])}
+  spots.forEach(([x,y])=>{if(F.s===2){fillR(b,x,y,2,2,F.f[1]);px(b,x+1,y+1,F.f[0]);px(b,x,y,F.f[2]);px(b,x+2,y+1,F.f[0]);px(b,x,y+2,F.f[0]);px(b,x+1,y+2,F.f[0]);if(F.crown)px(b,x+1,y-1,F.f[0])}else{px(b,x,y,F.f[1]);px(b,x,y+1,F.f[0])}});
+  outlineBuf(b,OUT);return b};
+/* 절벽 (16×16): lip 위 잔디 끝 · face 돌 · base 아래 */
+const ED_ST=[[150,132,136],[182,166,162],[208,196,186],[124,108,118],[226,218,206]];
+/* 바위 덩어리: 밝은 윗변 · 어두운 아랫변 · 틈 */
+function edRocks(b,y0,y1,r){let y=y0;while(y<y1){const h=Math.min(y1-y,3+((r()*3)|0));let x=-((r()*5)|0);while(x<16){const w=5+((r()*5)|0);
+    for(let j=0;j<h;j++)for(let i=0;i<w;i++){const X=x+i,Y=y+j;if(X<0||X>15)continue;const e=i===0||i===w-1;px(b,X,Y,j===0?ED_ST[2]:j===h-1?ED_ST[0]:e?ED_ST[0]:ED_ST[1])}
+    if(x+w-1>=0&&x+w-1<16)for(let j=0;j<h;j++)px(b,x+w-1,y+j,ED_ST[3]);if(r()<.4){const X=x+1+((r()*Math.max(1,w-3))|0);if(X>=0&&X<16)px(b,X,y+1,ED_ST[4])}x+=w}
+    for(let i=0;i<16;i++)px(b,i,y+h-1,ED_ST[3]);y+=h}}
+EDA.cliff=(kind,v)=>{const b=Buf(16,16),r=RNG(900+v*7+(kind==='base'?3:0));
+  if(kind==='face'){edRocks(b,3,16,r);
+    for(let x=0;x<16;x++){const h=2+((r()*3)|0);for(let y=0;y<h;y++)px(b,x,y,y===h-1?[136,190,140]:[176,220,166]);px(b,x,h,[120,150,130]);if(r()<.22){px(b,x,h,[136,190,140]);px(b,x,h+1,[150,200,150])}}
+    if(r()<.6){const x=2+((r()*11)|0);for(let y=4;y<9;y++)px(b,x+((y%2)?1:0),y,y%2?[140,196,140]:[170,216,160])}}
+  else{edRocks(b,0,9,r);for(let y=9;y<16;y++)for(let x=0;x<16;x++)px(b,x,y,mixc([196,230,182],[140,160,150],Math.max(0,(12-y)/3)*.55));
+    for(let x=0;x<16;x++){px(b,x,9,[110,120,124]);if(r()<.55){px(b,x,8,[150,200,150]);if(r()<.5)px(b,x,7,[176,220,166])}}}
+  return b};
+/* 폭포 (16×16 · 4프레임) · 물보라 (32×14 · 2프레임) */
+EDA.fall=(f,top)=>{const b=Buf(16,16);fillR(b,0,0,16,16,[188,228,246]);for(let y=0;y<16;y++){px(b,0,y,[140,196,230]);px(b,15,y,[140,196,230]);px(b,1,y,[166,214,240]);px(b,14,y,[166,214,240])}
+  for(let k=0;k<6;k++){const x=2+k*2+(k%2),off=(f*4+k*5)%16;for(let j=0;j<5;j++)px(b,x,(off+j)%16,j<3?[250,254,255]:[220,242,252])}
+  for(let k=0;k<4;k++){const x=3+k*3,off=(f*4+k*7+8)%16;px(b,x,off,[150,206,236]);px(b,x,(off+1)%16,[150,206,236])}
+  if(top){for(let x=0;x<16;x++){px(b,x,0,[230,248,255]);px(b,x,1,x%3?[250,254,255]:[200,236,250])}}return b};
+EDA.splash=f=>{const b=Buf(32,14),r=RNG(77+f);for(let i=0;i<9;i++){const x=4+i*3+(r()-.5)*3,y=7+(r()-.5)*3,rr=2.5+r()*2.2;ell(b,x,y,rr,rr*.8,[236,248,255])}
+  for(let i=0;i<10;i++){px(b,Math.round(3+r()*26),Math.round(1+r()*5+(f?1:0)),[255,255,255])}for(let i=0;i<8;i++){px(b,Math.round(5+r()*22),Math.round(8+r()*4),[196,232,250])}return b};
+/* 샘 돌 테두리 (14×10) */
+EDA.stone=v=>{const b=Buf(14,10),r=RNG(300+v),c=[[196,188,206],[220,214,228],[240,236,246],[170,160,184]];ell(b,7,5.5,6.2-(v%2),4,c[0]);ell(b,6.4,5,5.4-(v%2),3.2,c[1]);ell(b,5,3.8,2.6,1.5,c[2]);
+  if(v%3===0){px(b,9,2,[150,200,150]);px(b,10,2,[176,220,166]);px(b,10,3,[150,200,150])}fillR(b,2,9,10,1,c[3]);outlineBuf(b,OUT);return b};
+EDA.stair=v=>{const b=Buf(16,16);for(let s=0;s<4;s++){const y=s*4;fillR(b,0,y,16,4,ED_ST[1]);fillR(b,0,y,16,1,ED_ST[4]);fillR(b,0,y+3,16,1,ED_ST[0]);px(b,(v*5+s*7)%15,y+1,ED_ST[2])}
+  for(let y=0;y<16;y++){px(b,0,y,ED_ST[3]);px(b,15,y,ED_ST[3])}return b};
+EDA.tree=t=>{const k=t.kind.slice(3);return k==='big'?EDA.big(t.seed):k==='cedar'?EDA.cedar(t.seed):EDA.fruit(k,t.seed)};
+
 function treeSprite(kind,seed){const b=Buf(26,34),r=RNG(seed);
   const pal={green:[[132,200,150],[160,220,166],[108,176,134]],sakura:[[250,196,214],[255,222,232],[232,168,194]],teal:[[126,200,196],[164,224,218],[100,174,176]],autumn:[[246,206,150],[255,228,176],[226,176,126]]}[kind];
   fillR(b,11,22,4,11,[176,132,108]);fillR(b,11,22,1,11,[198,156,128]);fillR(b,10,31,6,2,[176,132,108]);
@@ -3259,7 +3324,8 @@ const HIVE_AT=[[46,24],[46,25],[24,20],[24,19],[10,20],[68,22],[70,22]];
    배 갑판은 꽃밭 언덕 동쪽 바다 위 「꽃배 선단」에 떠 있고, 부두에 묶인 배를 누르면 올라타요 */
 /* 2026-11-13: 정원 마당 8곳 → 「내 정원」 한 곳 (누구나 자기 정원이 보여요 · 자리 다툼 없음 · 심은 꽃 · 나무 · 꾸밈 그대로)
    나머지 자리는 🌳 물결 정원 */
-const EDEN={x0:101,x1:191,y0:1,y1:30,cx:146,cy:15,rx:36,ry:11,trees:[[138,11],[154,11]]};   // 🌳 물결 정원 · trees: 금빛 열매 나무 · 생명의 나무
+const EDEN={x0:101,x1:191,y0:1,y1:30,cx:146,cy:15,rx:36,ry:11,px:25,py:8.4,hx0:122,hx1:171,hy0:6,hy1:21,trees:[[138,11],[154,11]]};   // 🌳 물결 정원 · trees: 금빛 열매 나무 · 생명의 나무
+const inHill=(x,y)=>x>=EDEN.hx0&&x<=EDEN.hx1&&y>=EDEN.hy0&&y<=EDEN.hy1;
 const inEden=(tx,ty)=>tx>=EDEN.x0&&tx<=EDEN.x1&&ty>=EDEN.y0&&ty<=EDEN.y1;
 const SHIP_N=1,SHIP_W=24,SHIP_H=13,SHIP_PX=7,SHIP_PLOT_ROWS=[2,4,9,11];
 const shipO=i=>[74+(i%4)*30,i<4?1:17];
@@ -3403,13 +3469,21 @@ function genWorld(){
   {const E=EDEN;for(let y=E.y0;y<=E.y1;y++)for(let x=E.x0;x<=E.x1;x++){T[y][x]='g';Z[y][x]=0;SOL[y][x]=false}
    const water=(x,y)=>{if(x>E.x0+1&&x<E.x1-1&&y>E.y0+1&&y<E.y1-1){T[y][x]='w';Z[y][x]=0}};
    const river=(x1,y1,amp,ph)=>{const n=Math.ceil(Math.hypot(x1-E.cx,y1-E.cy)*3);for(let i=0;i<=n;i++){const t=i/n,x=E.cx+(x1-E.cx)*t,y=E.cy+(y1-E.cy)*t+Math.sin(t*Math.PI*2+ph)*amp*t;water(Math.round(x),Math.round(y));water(Math.round(x)+1,Math.round(y))}};
-   river(E.x0+3,E.y0+3,3,0);river(E.x0+3,E.y1-3,3,1.5);river(E.x1-3,E.y0+3,3,2.4);river(E.x1-3,E.y1-3,3,.7);
+   river(E.x0+3,E.y0+3,3,0);river(E.x1-3,E.y0+3,3,2.4);
+   const seg=(xa,ya,xb,yb,amp,ph)=>{const n=Math.ceil(Math.hypot(xb-xa,yb-ya)*3);for(let i=0;i<=n;i++){const t=i/n,x=xa+(xb-xa)*t,y=ya+(yb-ya)*t+Math.sin(t*Math.PI+ph)*amp;water(Math.round(x),Math.round(y));water(Math.round(x)+1,Math.round(y))}};
+   /* 남쪽 두 강은 언덕 절벽을 폭포로 내려가요 */
+   seg(E.cx,E.cy,E.cx-14,E.hy1,1.5,0);seg(E.cx-14,E.hy1,E.cx-14,E.hy1+3,0,0);seg(E.cx-14,E.hy1+3,E.x0+3,E.y1-3,2,1);
+   seg(E.cx,E.cy,E.cx+15,E.hy1,1.5,.5);seg(E.cx+15,E.hy1,E.cx+15,E.hy1+3,0,0);seg(E.cx+15,E.hy1+3,E.x1-3,E.y1-3,2,2);
    for(let y=E.cy-4;y<=E.cy+4;y++)for(let x=E.cx-7;x<=E.cx+7;x++)if(((x+.5-E.cx-.5)/6.5)**2+((y+.5-E.cy-.5)/3.6)**2<1){T[y][x]='w';Z[y][x]=0}
    const pave=(x,y)=>{if(T[y][x]==='w'){T[y][x]='k'}else if(T[y][x]==='g')T[y][x]='p'};
    for(let i=0;i<900;i++){const a=i/900*Math.PI*2,x=Math.round(E.cx+Math.cos(a)*E.rx),y=Math.round(E.cy+Math.sin(a)*E.ry);pave(x,y);pave(x+1,y)}
    for(let x=E.x0;x<=E.cx-E.rx;x++){pave(x,E.cy);pave(x,E.cy+1)}
    for(let x=E.cx-E.rx;x<=E.cx-8;x++){pave(x,E.cy);pave(x,E.cy+1)}for(let x=E.cx+8;x<=E.cx+E.rx;x++){pave(x,E.cy);pave(x,E.cy+1)}
-   for(let y=E.y0;y<=E.y1;y++)for(let x=E.x0;x<E.cx-6;x++)if(y>E.cy+2&&T[y][x]==='g'){let nw=false;for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++)if(T[y+j]&&T[y+j][x+i]==='w')nw=true;if(nw)T[y][x]='s'}}
+   for(let y=E.y0;y<=E.y1;y++)for(let x=E.x0;x<E.cx-6;x++)if(y>E.cy+2&&T[y][x]==='g'){let nw=false;for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++)if(T[y+j]&&T[y+j][x+i]==='w')nw=true;if(nw)T[y][x]='s'}
+   /* ⛰️ 언덕: 샘이 있는 높은 곳 · 남쪽은 바위 절벽 (2칸) · 강은 폭포로 · 길은 돌계단 */
+   for(let y=E.cy+3;y<=E.cy+11;y++)for(const x of[E.cx,E.cx+1])pave(x,y);
+   E.falls=[];for(let x=E.hx0;x<=E.hx1;x++){const yb=E.hy1;
+     for(const[dy,ch]of[[1,'K'],[2,'B']]){const y=yb+dy,t0=T[y][x];if(t0==='w'){T[y][x]='V';Z[y][x]=0;SOL[y][x]=true;if(dy===2)E.falls.push([x,y])}else if(t0==='p'||t0==='k'){T[y][x]='U';SOL[y][x]=false}else{T[y][x]=ch;SOL[y][x]=true}}}}
   /* 물가 마스크 (육지와 맞닿은 면) */
   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){
     if(T[y][x]==='w'){SOL[y][x]=true;let m=0;
@@ -3464,8 +3538,13 @@ function genWorld(){
    {const near=(x,y,ch,d)=>{for(let j=-d;j<=d;j++)for(let i=-d;i<=d;i++){const q=T[y+j]&&T[y+j][x+i];if(q&&ch.indexOf(q)>=0)return true}return false};
     for(let y=E.y0+2;y<=E.y1-2;y++)for(let x=E.x0+2;x<=E.x1-2;x++){if(T[y][x]!=='g'||SOL[y][x]||near(x,y,'pwks',1))continue;
       if(E.trees.some(([a,b])=>Math.abs(a-x)<5&&Math.abs(b-y)<4))continue;if(Math.abs(x-E.cx)<10&&Math.abs(y-E.cy)<5)continue;
-      const ne=x>E.cx&&y<E.cy,se=x>E.cx&&y>E.cy,nw=x<E.cx&&y<E.cy,p=ne?.22:se?.06:nw?.1:.13;
+      const ne=x>E.cx&&y<E.cy,se=x>E.cx&&y>E.cy,nw=x<E.cx&&y<E.cy,p=ne?.07:se?.025:nw?.05:.05;
       if(r()<p)tr(x,y,ne?(r()<.6?'green':'autumn'):se?(r()<.5?'teal':'green'):nw?(r()<.6?'sakura':'green'):(r()<.5?'green':'autumn'))}
+    const onHill=(x,y)=>x>E.hx0+1&&x<E.hx1-1&&y>E.hy0+1&&y<E.hy1-1,clear=(x,y,d)=>{for(let j=-d;j<=0;j++)for(let i=-d;i<=d;i++){const q=T[y+j]&&T[y+j][x+i];if(!q||q!=='g'||SOL[y+j][x+i])return false}return!near(x,y+1,'pwksKBUV',1)};
+    const big=[[106,6],[112,24],[121,13],[126,27],[168,25],[178,5],[186,16],[183,27],[104,15],[189,8],[116,4],[175,15]];big.forEach(([x,y],i)=>{for(let k=0;k<6;k++){const X=x+(k%3)-1,Y=y+((k/3)|0);if(clear(X,Y,1)){trees.push({x:X,y:Y,kind:i%3===2?'ed_cedar':'ed_big',seed:X*97+Y});SOL[Y][X]=true;break}}});
+    const FK=['ed_pom','ed_fig','ed_olive','ed_orange','ed_peach'];let fi=0;for(let k=0;k<400&&fi<26;k++){const x=E.hx0+2+((r()*(E.hx1-E.hx0-4))|0),y=E.hy0+2+((r()*(E.hy1-E.hy0-4))|0);
+      if(!onHill(x,y)||E.trees.some(([a,b])=>Math.abs(a-x)<4&&Math.abs(b-y)<3)||!clear(x,y,1))continue;trees.push({x,y,kind:FK[fi%5],seed:x*31+y*7});SOL[y][x]=true;fi++}
+    for(let k=0;k<300&&fi<44;k++){const x=E.x0+3+((r()*(E.x1-E.x0-6))|0),y=E.y0+3+((r()*(E.y1-E.y0-6))|0);if(onHill(x,y)||!clear(x,y,1))continue;trees.push({x,y,kind:FK[fi%5],seed:x*31+y*7});SOL[y][x]=true;fi++}
     for(let y=E.y0+1;y<E.y1;y++)for(let x=E.x0+1;x<E.x1;x++){if(T[y][x]==='g'&&!SOL[y][x]&&near(x,y,'w',1)&&r()<.55)deco.push({k:'reed',x,y,v:(r()*4)|0});
       if(T[y][x]==='w'&&MASK[y][x]===0&&r()<.16)deco.push({k:'lily',x,y,v:(r()*5)|0})}}
    for(let y=E.y0+1;y<E.y1;y++)for(let x=E.x0+1;x<E.x1;x++){if(T[y][x]!=='g'||SOL[y][x])continue;const nw=x<E.cx&&y<E.cy;if(r()<(nw?.62:.3))deco.push({k:'flower',x,y,v:(r()*6)|0,c:r()<.5?0:1})}
@@ -3657,7 +3736,7 @@ function cosIcon(id){
 function toCan(buf){const c=document.createElement('canvas');c.width=buf.w;c.height=buf.h;const x=c.getContext('2d'),id=x.createImageData(buf.w,buf.h);id.data.set(buf.d);x.putImageData(id,0,0);return c}
 function buildSprites(){SP.crystal=toCan(crystalSprite());
   SP.grass=[0,1,2].map(v=>toCan(grassTile(v)));SP.path=[0,1].map(v=>toCan(pathTile(v)));SP.cream=[0,1].map(v=>toCan(creamTile(v)));SP.snowt=[0,1].map(v=>toCan(snowTile(v)));SP.sand=[0,1].map(v=>toCan(sandTile(v)));
-  SP.plank=toCan(plankTile());SP.water={};for(let z=1;z<=21;z++)SP.water[z]=[0,1,2,3].map(f=>toCan(waterTile(f,z)));SP.water[12]=SP.water[3];
+  SP.plank=toCan(plankTile());SP.hgrass=[0,1,2].map(v=>{const b=grassTile(v);for(let i=0;i<b.d.length;i+=4){b.d[i]=Math.min(255,b.d[i]+14);b.d[i+1]=Math.min(255,b.d[i+1]+10);b.d[i+2]=Math.min(255,b.d[i+2]+8)}return toCan(b)});SP.ed={face:[0,1,2].map(v=>toCan(EDA.cliff('face',v))),base:[0,1,2].map(v=>toCan(EDA.cliff('base',v))),fall:[0,1,2,3].map(f=>toCan(EDA.fall(f))),fallT:[0,1,2,3].map(f=>toCan(EDA.fall(f,1))),splash:[0,1].map(f=>toCan(EDA.splash(f))),stone:[0,1,2].map(v=>toCan(EDA.stone(v))),stair:[0,1].map(v=>toCan(EDA.stair(v)))};SP.water={};for(let z=1;z<=21;z++)SP.water[z]=[0,1,2,3].map(f=>toCan(waterTile(f,z)));SP.water[12]=SP.water[3];
   SP.fenceH=toCan(fenceTile('h'));SP.fenceV=toCan(fenceTile('v'));SP.gateC=toCan(gateTile(false));SP.gateO=toCan(gateTile(true));
   SP.treeBy={};SP.house={};
   W.buildings.forEach(b=>SP.house[b.id]=toCan(buildHouse(b.opts)));
@@ -3672,7 +3751,7 @@ function buildSprites(){SP.crystal=toCan(crystalSprite());
   SP.reed=[0,1,2,3].map(v=>toCan(reedSprite(60+v)));SP.lily=[0,1,2,3,4].map(v=>toCan(lilySprite(80+v)));
   SP.bf=[[255,176,200],[255,226,140],[170,210,255],[210,180,255]].map(c=>[0,1].map(f=>toCan(butterflySprite(c,f))));
 }
-function treeSpr(t){const k=t.kind+t.seed;return SP.treeBy[k]||(SP.treeBy[k]=toCan(treeSprite(t.kind,t.seed)))}
+function treeSpr(t){const k=t.kind+t.seed;return SP.treeBy[k]||(SP.treeBy[k]=toCan(t.kind.indexOf('ed_')===0?EDA.tree(t):treeSprite(t.kind,t.seed)))}
 const iconCache={};
 function fishCan(id){return iconCache[id]||(iconCache[id]=toCan(buildFish(FISH[id].spec,id*7+3)))}
 const urlCache={};
@@ -7079,12 +7158,19 @@ if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(!(docu
 
 function drawTile(x,y){
   const t=W.T[y][x],px_=x*TS,py_=y*TS,h=(x*7+y*13)%3;
-  if(t==='g')cx.drawImage(SP.grass[h],px_,py_);
+  if(t==='g'){const hl=inHill(x,y);cx.drawImage(hl?SP.hgrass[h]:SP.grass[h],px_,py_);
+    if(hl){if(x===EDEN.hx0){cx.fillStyle='#9cc896';cx.fillRect(px_,py_,2,TS)}if(x===EDEN.hx1){cx.fillStyle='#9cc896';cx.fillRect(px_+TS-2,py_,2,TS)}if(y===EDEN.hy0){cx.fillStyle='#eefae4';cx.fillRect(px_,py_,TS,1);cx.fillStyle='#b8dcaa';cx.fillRect(px_,py_+1,TS,1)}}
+    else if(y>=EDEN.hy0&&y<=EDEN.hy1+2&&(x===EDEN.hx0-1||x===EDEN.hx1+1)){cx.fillStyle='rgba(60,80,70,.12)';cx.fillRect(x===EDEN.hx0-1?px_+TS-4:px_,py_,4,TS)}
+    else if(y===EDEN.hy0-1&&x>=EDEN.hx0&&x<=EDEN.hx1){cx.fillStyle='rgba(60,80,70,.08)';cx.fillRect(px_,py_+TS-2,TS,2)}}
   else if(t==='p')cx.drawImage(SP.path[h%2],px_,py_);
   else if(t==='s')cx.drawImage(SP.sand[h%2],px_,py_);
   else if(t==='c')cx.drawImage(SP.cream[h%2],px_,py_);
   else if(t==='n')cx.drawImage(SP.snowt[h%2],px_,py_);
   else if(t==='k'){cx.drawImage(SP.plank,px_,py_)}
+  else if(t==='K')cx.drawImage(SP.ed.face[(x*7+y)%3],px_,py_);
+  else if(t==='B')cx.drawImage(SP.ed.base[(x*5)%3],px_,py_);
+  else if(t==='U')cx.drawImage(SP.ed.stair[x%2],px_,py_);
+  else if(t==='V'){const f=((wt*9)|0)%4;cx.drawImage(W.T[y-1]&&W.T[y-1][x]==='V'?SP.ed.fall[f]:SP.ed.fallT[f],px_,py_)}
   else if(t==='f'){cx.drawImage(SP.grass[h],px_,py_);cx.drawImage(soilCan(),px_,py_)}
   else if(t==='F'){cx.drawImage(SP.plank,px_,py_);cx.drawImage(soilCan(),px_,py_)}
   else if(t==='w'){
@@ -7293,7 +7379,7 @@ function render(dt){
     if(d.k==='flower')drawables.push({y:d.y*TS+1,fn:()=>{const im=SP.flower[d.c][d.v],o=windAt(d.x,d.y);if(!o){cx.drawImage(im,d.x*TS,d.y*TS);return}cx.drawImage(im,0,9,16,7,d.x*TS,d.y*TS+9,16,7);cx.drawImage(im,0,4,16,5,d.x*TS+Math.round(o*.5),d.y*TS+4,16,5);cx.drawImage(im,0,0,16,4,d.x*TS+o,d.y*TS,16,4)}});
     else drawables.push({y:d.y*TS+12,fn:()=>cx.drawImage(SP.reed[d.v],d.x*TS+Math.round(Math.sin(wt*1.5+d.x)*.8)+windAt(d.x,d.y),d.y*TS)})});
   if(shaking){shaking.time+=dt;if(shaking.time>.6)shaking=null}
-  W.trees.forEach(t=>{if(t.x>=x0-2&&t.x<=x1+2&&t.y>=y0-2&&t.y<=y1+3){if(treeCut(t)){drawables.push({y:t.y*TS+15,fn:()=>{cx.fillStyle='#7a5636';cx.fillRect(t.x*TS+4,t.y*TS+9,8,5);cx.fillStyle='#c89a6a';cx.beginPath();cx.ellipse(t.x*TS+8,t.y*TS+9,4,1.6,0,0,6.28);cx.fill()}});return}const s=treeSpr(t),wob=shaking&&shaking.t===t?Math.round(Math.sin(shaking.time*40)*1.5):0;drawables.push({y:t.y*TS+15,fn:()=>cx.drawImage(s,t.x*TS+8-13+wob,t.y*TS+16-33)})}});
+  W.trees.forEach(t=>{if(t.x>=x0-2&&t.x<=x1+2&&t.y>=y0-2&&t.y<=y1+3){if(treeCut(t)){drawables.push({y:t.y*TS+15,fn:()=>{cx.fillStyle='#7a5636';cx.fillRect(t.x*TS+4,t.y*TS+9,8,5);cx.fillStyle='#c89a6a';cx.beginPath();cx.ellipse(t.x*TS+8,t.y*TS+9,4,1.6,0,0,6.28);cx.fill()}});return}const s=treeSpr(t),wob=shaking&&shaking.t===t?Math.round(Math.sin(shaking.time*40)*1.5):0;drawables.push({y:t.y*TS+15,fn:()=>cx.drawImage(s,t.x*TS+8-(s.width>>1)+wob,t.y*TS+17-s.height)})}});
   drawFishBoat(drawables);
   W.buildings.forEach(b=>drawables.push({y:(b.y+1)*TS,fn:()=>{const hx=b.x*TS+(b.w*TS-48)/2,hy=(b.y+1)*TS-50;cx.drawImage(SP.house[b.id],hx,hy);houseLife(b,hx,hy)}}));
   W.props.forEach(p=>{if(p.kind==='evb'){drawables.push({y:p.y*TS+15,fn:()=>evbDraw(p.x*TS,p.y*TS)});return}if(p.kind==='kst'){drawables.push({y:p.y*TS+15,fn:()=>kstDraw(p.x*TS,p.y*TS)});return}if(p.kind==='cst'){drawables.push({y:p.y*TS+15,fn:()=>cstDraw(p.x*TS,p.y*TS,p.ck)});return}const s=p.kind==='litter'?SP.litter[litterDirty()?1:0]:SP[p.kind];if(!s)return;drawables.push({y:p.y*TS+15,fn:()=>{cx.drawImage(s,p.x*TS+(TS-s.width)/2,p.y*TS+16-s.height);if(p.kind==='litter'&&litterDirty())litterFlies(p.x*TS+8,p.y*TS+6)}})});
@@ -7535,7 +7621,7 @@ const MMAP={base:null,t:0,lbl:0};
 const nameHue=n=>{let h=0;for(const c of String(n||''))h=(h*131+c.codePointAt(0))>>>0;return h%360};
 const nameCol=n=>'hsl('+nameHue(n)+',78%,58%)';
 function mmBase(){if(MMAP.base)return MMAP.base;const c=document.createElement('canvas');c.width=MW;c.height=MH;const x=c.getContext('2d'),im=x.createImageData(MW,MH),d=im.data;
-  const C={c:[255,214,228],n:[240,246,255],g:[168,214,150],p:[232,214,168],s:[240,224,176],k:[196,160,112],f:[160,120,80],F:[196,160,112],w:[124,190,232]};
+  const C={K:[176,160,156],B:[176,160,156],U:[214,200,186],V:[200,232,250],c:[255,214,228],n:[240,246,255],g:[168,214,150],p:[232,214,168],s:[240,224,176],k:[196,160,112],f:[160,120,80],F:[196,160,112],w:[124,190,232]};
   for(let y=0;y<MH;y++)for(let X=0;X<MW;X++){const t=W.T[y][X];let col=C[t]||[200,210,190];if(t==='w'&&W.Z[y][X]>=6&&W.Z[y][X]!==8)col=[150,190,220];if(t!=='w'&&W.SOL[y][X])col=[150,180,130];const i=(y*MW+X)*4;d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=255}
   x.putImageData(im,0,0);x.fillStyle='rgb(206,170,214)';W.buildings.forEach(b=>x.fillRect(b.x,b.y-1,b.w,b.h+1));MMAP.base=c;return c}
 function mmOn(){return!S.mmOff}
@@ -9502,10 +9588,13 @@ const ED_BUSH=(()=>{const L=[],r=RNG(4417);for(let i=0;i<150;i++){const x=EDEN.x
 const ED_DUCK=[0,1,2,3].map(i=>({a:i*1.6,sw:i===3}));
 function edenDraw(list,x0,x1,y0,y1){const E=EDEN;if(x1<E.x0-3||x0>E.x1+3||y0>E.y1+3||y1<E.y0-6)return;
   /* 보기에 아름답고 먹기에 좋은 나무: 정원 나무마다 열매 */
-  W.trees.forEach(t=>{if(t.x<x0-2||t.x>x1+2||t.y<y0-2||t.y>y1+3||!inEden(t.x,t.y)||t.y===E.y0||t.y===E.y1||t.x===E.x0||t.x===E.x1)return;const h=(t.x*73+t.y*151)%7;if(h>4)return;const col=['#ff5a6a','#ffa040','#ffd040','#ff7ab0','#c060ff'][h];
+  W.trees.forEach(t=>{if(t.kind.indexOf('ed_')===0||t.x<x0-2||t.x>x1+2||t.y<y0-2||t.y>y1+3||!inEden(t.x,t.y)||t.y===E.y0||t.y===E.y1||t.x===E.x0||t.x===E.x1)return;const h=(t.x*73+t.y*151)%7;if(h>4)return;const col=['#ff5a6a','#ffa040','#ffd040','#ff7ab0','#c060ff'][h];
     list.push({y:t.y*TS+15.5,fn:()=>{const X=t.x*TS+8,Y=t.y*TS+16;[[-7,-24],[4,-27],[8,-18],[-3,-15],[-9,-17],[2,-21]].forEach((q,i)=>{if((i+h)%3===2)return;cx.fillStyle=col;cx.fillRect(X+q[0],Y+q[1],3,3);cx.fillStyle='rgba(255,255,255,.7)';cx.fillRect(X+q[0],Y+q[1],1,1)})}})});
   ED_BUSH.forEach(b=>{if(b.x<x0-1||b.x>x1+1||b.y<y0-1||b.y>y1+1)return;const T0=W.T[b.y][b.x];if(T0!=='g'||W.SOL[b.y][b.x])return;list.push({y:b.y*TS+10,fn:()=>{const X=b.x*TS+3,Y=b.y*TS+4;cx.fillStyle='#5aa050';cx.fillRect(X,Y+3,10,6);cx.fillRect(X+1,Y+1,8,2);cx.fillStyle='#78c060';cx.fillRect(X+1,Y+3,8,3);
     for(let k=0;k<6;k++){const fx=X+1+((b.s>>k)%9),fy=Y+((b.s>>(k+3))%6);cx.fillStyle=b.c;cx.fillRect(fx,fy,2,2)}}})});
+  (E.falls||[]).forEach(([x,y])=>{if(x<x0-2||x>x1+2||y<y0-2||y>y1+3)return;list.push({y:(y+1)*TS+2,fn:()=>{cx.drawImage(SP.ed.splash[((wt*5)|0)%2],x*TS-8,(y+1)*TS-7)}})});
+  if(!E.stones){E.stones=[];for(let i=0;i<22;i++){const a=i/22*6.283,x=(E.cx+.5+Math.cos(a)*7.2)*TS,y=(E.cy+.5+Math.sin(a)*4.1)*TS;const tx=(x/TS)|0,ty=(y/TS)|0;if(W.T[ty]&&W.T[ty][tx]!=='w'&&W.T[ty][tx]!=='p'&&W.T[ty][tx]!=='U')E.stones.push([x,y,i%3])}}
+  E.stones.forEach(([x,y,v])=>{if(x/TS<x0-1||x/TS>x1+1||y/TS<y0-1||y/TS>y1+1)return;list.push({y:y+4,fn:()=>cx.drawImage(SP.ed.stone[v],x-7,y-6)})});
   /* 샘: 물방울 · 오리와 백조 */
   list.push({y:(E.cy-1)*TS,fn:()=>{const X=(E.cx+.5)*TS,Y=(E.cy+.5)*TS;for(let k=0;k<3;k++){const r=((wt*10+k*7)%20);cx.strokeStyle='rgba(255,255,255,'+(.5-r/40)+')';cx.lineWidth=1;cx.beginPath();cx.ellipse(X,Y,r,r*.45,0,0,6.28);cx.stroke()}
     cx.fillStyle='rgba(255,255,255,.8)';const j=Math.sin(wt*4);cx.fillRect(X-1,Y-4-Math.abs(j)*3,2,3);cx.fillRect(X-3,Y-2,1,1);cx.fillRect(X+2,Y-2,1,1)}});
