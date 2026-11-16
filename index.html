@@ -114,7 +114,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;-webkit-appeara
 button:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
 .hud{position:fixed;left:0;right:0;top:0;padding:calc(8px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-left,0px)) 0 max(12px,env(safe-area-inset-left,0px));display:flex;gap:8px;align-items:flex-start;pointer-events:none;z-index:5}
 .pill{background:rgba(255,250,242,.9);border:2px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px;box-shadow:0 2px 0 rgba(120,100,170,.15);display:flex;gap:6px;align-items:center;white-space:nowrap}
-.pill b{font-variant-numeric:tabular-nums}
+.pill b{font-variant-numeric:tabular-nums}#clockPill{pointer-events:auto;cursor:pointer}#onl{margin-left:6px;color:#2f7a63;font-size:12.5px}
 .coin{width:14px;height:14px;border-radius:50%;background:var(--sun);border:2px solid #e8b95a;display:inline-block;box-sizing:border-box}
 .sp{flex:1}
 .hbtn{pointer-events:auto;width:44px;height:44px;border-radius:14px;background:rgba(255,250,242,.92);border:2px solid var(--line);box-shadow:0 3px 0 rgba(120,100,170,.18);font-size:13px;display:grid;place-items:center;line-height:1.1;padding:0}
@@ -612,7 +612,7 @@ details.more summary::-webkit-details-marker{display:none}
 <div id="banner"></div>
 <div class="hud">
   <div class="pill"><span class="coin"></span><b id="gold">0</b><span class="pcs" id="pcs" title="반짝 조각" hidden>✦0</span></div>
-  <div class="pill"><span id="clock">06:00</span></div>
+  <div class="pill" id="clockPill"><span id="clock">06:00</span><b id="onl" hidden></b></div>
   <div class="pill vibe" id="vibe" hidden></div>
   <div class="sp"></div>
   <button class="hbtn" id="bBag" aria-label="가방">가방</button>
@@ -4200,8 +4200,12 @@ const SNOWF=[];function dwFx(dt){{const bz=onWinter()&&!warmNow()&&F.mode!=='idl
     if(!warmNow()&&F.mode!=='idle'){cx.fillStyle='rgba(236,244,255,.93)';cx.fillRect(0,0,VW,VH);for(let i=0;i<140;i++){const x=(i*37+wt*240*(1+i%4))%VW,y=(i*53+wt*90)%VH;cx.fillStyle='rgba(255,255,255,.95)';cx.fillRect(x|0,y|0,3,2)}if(Math.random()<.02)Snd.sfx('wave')}
     if(!warmNow()){const g=cx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.3,VW/2,VH/2,Math.max(VW,VH)*.7);g.addColorStop(0,'rgba(200,230,255,0)');g.addColorStop(1,'rgba(200,230,255,.55)');cx.fillStyle=g;cx.fillRect(0,0,VW,VH)}}
   else if(onDessert()&&Math.random()<dt*6){parts.push({x:camX+Math.random()*VW,y:camY+Math.random()*VH,vx:0,vy:-6,life:1,t:0,c:['#ffd0e8','#fff6b0','#c8f0ff'][(Math.random()*3)|0],g:0,s:2})}}
-function regionName(){
-  const tx=P.x/TS,ty=P.y/TS;
+/* 👥 지금 접속한 친구 (2026-11-16): 시계 옆 작은 숫자 · 누르면 누가 어디 있는지 */
+const onlineNames=()=>{const me=Net.me&&Net.me.name,L=new Map();others.forEach(o=>{if(o.name&&o.name!==me&&!L.has(o.name))L.set(o.name,o)});return[...L.values()]};
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('#clockPill');if(!t||!ONLINE||!Net.me)return;Snd.sfx('tap');const L=onlineNames();
+  openSheet('👥 지금 마을에 있어요','<div class="row"><div class="nm"><div>🟢 '+esc(Net.me.name)+' (나)</div><div class="muted" style="font-size:12px">'+esc(regionName())+'</div></div></div>'+(L.length?L.map(o=>'<div class="row"><div class="nm"><div>🟢 '+esc(o.name)+'</div><div class="muted" style="font-size:12px">'+(o.seen?esc(regionName(o.x,o.y))+(o.b>0?' · 🎣 낚시 중':''):'근처에 없어요')+'</div></div></div>').join(''):'<div class="muted" style="text-align:center;padding:12px">지금은 나 혼자예요</div>'))});
+function regionName(px,py){
+  const tx=(px!=null?px:P.x)/TS,ty=(py!=null?py:P.y)/TS;
   if(ty>=100)return'먼바다 배낚시';
   if(ty>=63&&tx>=31&&tx<70)return'물안개 숲 섬';
   if(tx>=70&&tx<98&&ty>=38&&ty<64)return'🍊 제주 이벤트 섬';
@@ -5237,7 +5241,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1116j',UPD_LOG=[
+const UPD_VER='1117a',UPD_LOG=[
+ ['11/17','🌊',[['👥 지금 접속한 친구','시계 옆 👥 숫자 · 누르면 누가 마을 어디에 있는지 · 낚시 중인지 보여요'],['🌊 물에 비친 달빛 · 햇빛','먼 달 · 해의 비침이 화면보다 느리게 미끄러지던 것을 고쳐서 보는 사람과 함께 자연스럽게 움직여요 · 은은한 빛 기둥 · 잔물결에 부서지는 빛 · 반짝 점 · 물에 하늘빛이 살짝']]],
  ['11/17 새벽 2','☁️',[['📖 도감에 하늘 도감','도감 맨 위 ☁️ 칸 · 낚시터 줄 맨 끝 「☁️ 하늘」을 누르면 하늘 도감으로 가요'],['🌠 하늘낚시 던지는 맛','낚싯대를 젖혔다가 휙! 별 등불이 반짝이는 꼬리를 끌며 하늘로 날아가 퐁 하고 빛 고리를 남겨요']]],
  ['11/17 새벽','🎣',[['🎣 낚싯대가 더 섬세하게','모든 낚싯대에 굵은 아랫대 · 코르크 손잡이 · 릴 · 줄 가이드 · 반짝이는 끝 (대나무는 마디까지)'],['✨ 새 낚싯대 7종','반딧불 · 오르골 · 달빛 은사 · 밤벚꽃 · 무지개 폭포 · 불사조 깃털 · 물결 정령 (치장 상점 → 💎 낚싯대·찌)'],['🫧 새 찌 6종','반딧불 · 연꽃 · 해파리 · 달방울 · 불사조 알 · 오로라 방울'],['👀 효과는 모두에게','낚싯대 · 찌 효과는 친구 화면에도 똑같이 보여요']]],
  ['11/16 자정 넘어','🏅',[['🔢 은비 주간 숫자','은비랜드에서 한 주에 한 번 1~5 중 하나를 골라요 (공짜) · 월요일 0시에 은비가 숫자를 뽑아 맞힌 사람 중 한 명에게 도토리 30개 · 아무도 못 맞히면 다음 주로 쌓여요 (최대 90)'],['🐰 은비랜드 주인','은비땅 님이 은비랜드 주인 · 손님이 잃은 칩의 20%가 주인 몫이에요 (손님이 따로 내는 건 없어요)'],['✨ 반짝 축제','반짝 1위가 하루 한 번 · 30분 동안 마을 모두 반짝 확률 1.5배 (메뉴 → 왕의 마을 → 마을의 1위들)'],['🎣 친구의 손맛이 보여요','친구가 입질을 받으면 찌가 쑥 잠기고 「!」 · 줄다리기 중엔 낚싯대가 휘고 물보라 · 낚아채면 휙! 올라와요'],['🔨 여러 개 분해','버튼이 안 눌리던 것 고쳤어요'],['⛵ 내 꽃배 부르기','낚싯대 +25부터 물에 들어서면 꽃배가 와서 물 위를 가로질러요 · 친구 화면에도 꽃배가 보여요 (먼바다 · 사냥터에선 안 돼요)'],['🙅 사냥 중 교환 신청','사냥하는 동안엔 교환 신청이 오지 않아요 · 같은 친구에게는 30초에 한 번만 신청할 수 있어요']]],
@@ -7944,16 +7949,20 @@ function sunDisk(sx,sy,R,alt,ctx){const cx=ctx||window.__cx,lo=Math.max(0,Math.m
 function waterClip(x0,x1,y0,y1,ox,oy){cx.beginPath();let n=0;for(let y=y0;y<=y1;y++){const row=W.T[y];if(!row)continue;let s=-1;for(let x=x0;x<=x1+1;x++){const isw=x<=x1&&row[x]==='w';if(isw&&s<0)s=x;else if(!isw&&s>=0){cx.rect(s*TS-ox,y*TS-oy,(x-s)*TS,TS);n++;s=-1}}}return n}
 function skyWater(x0,x1,y0,y1){if(atSeaView&&atSeaView())return;const A=skyAssets(),K=skyNow(),w=weatherNow();cx.save();if(!waterClip(x0,x1,y0,y1,0,0)){cx.restore();return}cx.clip();
   const [,hor]=skyCol(K.sa),gl=Math.max(0,1-Math.abs(K.sa-1)/10);if(gl>0&&w!=='rain'){cx.fillStyle='rgba(255,160,140,'+.16*gl+')';cx.fillRect(x0*TS,y0*TS,(x1-x0+1)*TS,(y1-y0+1)*TS)}
+  {const hc=Array.isArray(hor)?'rgb('+hor.map(v=>v|0).join(',')+')':'#a0c0e0';cx.globalAlpha=.07;cx.fillStyle=hc;cx.fillRect(x0*TS,y0*TS,(x1-x0+1)*TS,(y1-y0+1)*TS);cx.globalAlpha=1}   // 하늘빛이 물에 살짝
   if(!SKYA.wcp)SKYA.wcp=cx.createPattern(A.wc,'repeat');const night=K.sa<-6;cx.globalAlpha=w==='rain'?.2:night?.07:.17;cx.fillStyle=SKYA.wcp;const ox=(wt*6)%256,oy=(wt*2)%256;cx.translate(ox,oy);cx.fillRect(x0*TS-ox-2,y0*TS-oy-2,(x1-x0+1)*TS+4,(y1-y0+1)*TS+4);cx.restore()}
 function skyGlint(cX,cY,x0,x1,y0,y1){if(atSeaView&&atSeaView())return;const K=skyNow(),w=weatherNow();if(w==='rain'||w==='fog')return;
   const moon=K.sa<-4&&K.ma>0&&K.illum>.08,sun=K.sa>-1&&K.sa<14;if(!moon&&!sun)return;
-  const par=cX/Math.max(1,MW*TS-VW),gx=VW*(1-((moon?K.maz:K.saz)-60)/240)-(par-.5)*VW*.5;if(gx<-30||gx>VW+30)return;
+  /* 2026-11-16 물빛 다듬기: 먼 해 · 달의 비침은 보는 사람과 같이 움직여요 (예전엔 화면보다 느리게 미끄러져서 어색했어요) · 위치가 바뀔 땐 천천히 따라가요 */
+  const tgx=VW*(1-((moon?K.maz:K.saz)-60)/240);SKYA.gx=SKYA.gx==null?tgx:SKYA.gx+(tgx-SKYA.gx)*Math.min(1,(FXDT||.016)*.8);const gx=SKYA.gx;if(gx<-40||gx>VW+40)return;
   cx.save();if(!waterClip(x0,x1,y0,y1,cX,cY)){cx.restore();return}cx.clip();cx.globalCompositeOperation='lighter';
-  const col=moon?'rgba(255,248,210,':'rgba(255,190,120,',str=moon?.25+.55*K.illum:.7*(1-K.sa/14);
-  for(let y=0;y<VH;y+=3){const sp=6+Math.sin(y*.13+wt*2)*4+(y/VH)*14,j=Math.sin(y*.7+wt*5)*.5+.5;if(j<.35)continue;const wd=Math.max(2,sp*(.6+j*.8));cx.fillStyle=col+(str*j*.55)+')';cx.fillRect(Math.round(gx-wd/2+Math.sin(y*.31+wt*3)*3),y,Math.round(wd),1)}
-  /* 물에 비친 달: 첫 물가에 흔들리는 달 하나 */
-  if(moon){const R=10,mc=moonCan(K.p,R);let fy=-1;for(let sy=Math.round(VH*.3);sy<VH;sy+=4){const tx=Math.floor((gx+cX)/TS),ty=Math.floor((sy+cY)/TS);if(W.T[ty]&&W.T[ty][tx]==='w'&&W.T[ty+1]&&W.T[ty+1][tx]==='w'){fy=sy+10;break}}
-    if(fy>0){cx.globalAlpha=.22+.22*K.illum;for(let r=0;r<mc.height;r+=1){const o=Math.round(Math.sin(wt*3+r*.9)*2);cx.drawImage(mc,0,mc.height-1-r,mc.width,1,Math.round(gx-R-1+o),fy+(r*.6|0),mc.width,1)}cx.globalAlpha=1}}
+  const rgb=moon?'255,248,214':'255,196,130',str=moon?.22+.5*K.illum:.65*(1-K.sa/14);
+  {const g=cx.createLinearGradient(gx-26,0,gx+26,0);g.addColorStop(0,'rgba('+rgb+',0)');g.addColorStop(.5,'rgba('+rgb+','+(str*.16).toFixed(3)+')');g.addColorStop(1,'rgba('+rgb+',0)');cx.fillStyle=g;cx.fillRect(gx-26,0,52,VH)}   // 은은한 빛 기둥
+  for(let y=0;y<VH;y+=2){const d=y/VH,sp=5+Math.sin(y*.11+wt*1.6)*3+d*16,j=.5+.5*Math.sin(y*.53+wt*2.4+Math.sin(y*.07+wt*.7)*2);if(j<.42)continue;
+    const wd=Math.max(1,sp*(.5+j*.7)),xo=Math.sin(y*.23+wt*1.9)*2.5+Math.sin(y*.05+wt*.6)*3;cx.fillStyle='rgba('+rgb+','+(str*(j-.3)*.6*(.6+d*.6)).toFixed(3)+')';cx.fillRect(Math.round(gx-wd/2+xo),y,Math.round(wd),1)}   // 잔물결에 부서지는 빛
+  for(let i=0;i<5;i++){const t=(wt*.9+i*1.37)%2,a=Math.sin(t/2*Math.PI);if(a<.2)continue;const yy=((i*97+Math.floor(wt*.45+i)*53)%Math.max(1,VH))|0,xx=gx+Math.sin(i*2.1+yy)*10;cx.fillStyle='rgba(255,255,255,'+(a*str*.9).toFixed(3)+')';cx.fillRect(Math.round(xx),yy,1,1);if(a>.7){cx.fillRect(Math.round(xx)-1,yy,3,1)}}   // 반짝 점
+  /* 물에 비친 달: 화면에 고정된 자리 (물이 있는 곳에만 보여요) · 일렁이며 늘어진 모양 */
+  if(moon){const R=12,mc=moonCan(K.p,R),fy=Math.round(VH*.6);cx.globalAlpha=.18+.2*K.illum;for(let r=0;r<mc.height;r++){const o=Math.round(Math.sin(wt*2.2+r*.8)*1.6+Math.sin(wt*.9+r*.3));cx.drawImage(mc,0,mc.height-1-r,mc.width,1,Math.round(gx-R-1+o),fy+Math.round(r*.7),mc.width,1)}cx.globalAlpha=1}
   cx.restore()}
 /* ---------- ☁️ 하늘낚시 (2026-11-16): 마을 북쪽 끝 지평선에서 하늘에 줄을 던져요 ----------
    하늘 도감 59종 (물고기 42 · 별자리 12 · 특별 5) · 시간대 · 진짜 달 · 날씨 · 계절 별자리 · 직접 낚기만 (자동 없음)
@@ -8249,6 +8258,7 @@ function updateHud(){
   const ph=(S.t%DAY_LEN)/DAY_LEN,h=kstHM(),c=String(Math.floor(h)).padStart(2,'0')+':'+(Math.floor(h%1*6)*10===0?'00':String(Math.floor(h%1*6)*10));
   const tl=onIsle()?Math.ceil((1200000-Date.now()%1200000)/60000):0,k=(onIsle()?'':TIME_NAME[timeSlot()]+' ')+(skyIc())+c+' '+WX_NAME[weatherNow()]+(onIsle()?' · '+TIDE_NAME[tideNow()]+' '+tl+'분':'');
   if(k!==lastClock){lastClock=k;$('clock').textContent=k}
+  {const o=$('onl');if(ONLINE&&Net.me){const n=onlineNames().length,t='👥'+(n+1);if(o.textContent!==t)o.textContent=t;o.hidden=false}else o.hidden=true}
 }
 let regT=0;
 function showRegion(n){const el=$('region');el.textContent=n;el.classList.add('on');clearTimeout(regT);regT=setTimeout(()=>el.classList.remove('on'),2200)}
