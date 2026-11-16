@@ -1116,7 +1116,7 @@ function onMsg(ws, me, m) {
         queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: X[1] + '(으)로 바꿨어요!' });
       }
       if (m.t === 'hunt_star') {   // ⭐ 사냥터 별점: 처음 깨면 칩 · 처음 별 3개면 칩 + 10% 주문서
-        const fi = Math.max(0, Math.min(9, m.fi | 0)), st = Math.max(1, Math.min(3, m.s | 0)); h.star = h.star && typeof h.star === 'object' ? h.star : {};
+        const fi = Math.max(0, Math.min(13, m.fi | 0)), st = Math.max(1, Math.min(3, m.s | 0)); h.star = h.star && typeof h.star === 'object' ? h.star : {};
         if ((m.df | 0) === 2) {   // 🌑 악몽 난이도 첫 정화: 칩 + 사냥터 10곳 모두면 칭호
           h.nclr = h.nclr && typeof h.nclr === 'object' ? h.nclr : {}; if (h.nclr[fi]) return; const now = Date.now(); if (now - (me.hsT || 0) < 60000) return; me.hsT = now; h.nclr[fi] = 1;
           const c = 1e6 * (fi + 1), ids = ['t_nm1']; if (Object.keys(h.nclr).length >= 10) ids.push('t_nmwalk'); e.c = (e.c | 0) + c; const got = giveCos(s, ids); if (got.length) send(ws, { t: 'cos_got', ids: got });
@@ -1139,20 +1139,24 @@ function onMsg(ws, me, m) {
         if ((e.c | 0) < c) return send(ws, { t: 'news', text: '칩이 모자라요 (은비랜드에서 골드를 칩으로 바꿔요)' });
         e.c -= c; h[k] = nx; queueSave(me.key, s); return send(ws, { t: 'hunt', hunt: h, c: e.c, note: '장비를 샀어요!' });
       }
-      const now = Date.now(); if (now - (me.hkT || 0) < 250) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(10, m.tr | 0)), red = !!m.red, df = Math.max(0, Math.min(2, m.df == null ? 1 : m.df | 0)), dfC = [.6, 1, 2.2][df], dfI = [.6, 1, 1][df], hfi = Math.max(0, Math.min(9, m.fi | 0));
+      const now = Date.now(); if (now - (me.hkT || 0) < 250) return; me.hkT = now; const r = Math.max(0, Math.min(4, m.rar | 0)), tier = Math.max(0, Math.min(16, m.tr | 0)), red = !!m.red, df = Math.max(0, Math.min(2, m.df == null ? 1 : m.df | 0)), dfC = [.6, 1, 2.2][df], dfI = [.6, 1, 1][df], hfi = Math.max(0, Math.min(13, m.fi | 0));   // 2026-11-16: 🕳️ 꿈의 심연 (fi 11~13 · tier 12~16)
       const el = !!m.el; let bo = !!m.boss; if (bo) { if (now - (me.hbT || 0) < 40000) bo = false; else me.hbT = now; }   // 우두머리 처치는 40초에 한 번까지 (조작 방지)
+      /* ⏳ 하루 사냥 보상 (2026-11-16): 처음 온 사람 · 따라잡는 사람은 제한 없어요. 용사 Lv40부터만 하루 보상 처치 1,000 · 우두머리 12번 (그 뒤엔 싸울 순 있어도 보상이 없어요) */
+      { const hl = (s.hu && s.hu.lv) | 0, d = kstDay(); if (!h.dk || h.dk.d !== d) h.dk = { d, n: 0, b: 0 };
+        if (hl >= HUNT_CAP_LV) { if (bo ? h.dk.b >= HUNT_CAP_B : h.dk.n >= HUNT_CAP_N) { if (!me.capT || now - me.capT > 600000) { me.capT = now; send(ws, { t: 'news', text: '⏳ 오늘 사냥 보상은 다 받았어요 (용사 Lv' + HUNT_CAP_LV + '부터 하루 처치 ' + HUNT_CAP_N + ' · 우두머리 ' + HUNT_CAP_B + '번) · 내일 다시 와요' }); } return; } if (bo) h.dk.b++; else h.dk.n++; } }
       const RS = rpgSum(h, (s.hu && s.hu.lv) | 0 || 1);
       /* 🤝 함께 사냥: 같은 사냥터 · 가까이(약 16칸) 있는 친구 수 → 칩 · 드랍 보너스 (서버가 직접 세요) */
       let pt = 0; const H0 = me.hp_; if (H0 && now - H0.at < 3000) for (const [, q] of players) { const Q = q.hp_; if (q !== me && Q && Q.f === H0.f && now - Q.at < 3000 && Math.hypot(Q.x - H0.x, Q.y - H0.y) < 260) pt++; } pt = Math.min(3, pt); const pb = 1 + pt * .2;
       const DX = ((+s.dropx || 0) > Date.now() ? 2 : 1) * (jobOf(s) === 'hun' && jobRank(s, 'hun', 'cap') ? 1.25 : 1), HX = ((+s.huntx || 0) > Date.now() ? 2 : 1) * (jobOf(s) === 'hun' ? 1 + .1 * jobRank(s, 'hun', 'trk') : 1);   // ⚒️ 공방 장인 「장비 사냥」: 장비 · 주문서 드랍 2배
-      let c = Math.round(dfC * pb * [100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100) * HX); e.c = (e.c | 0) + c; const got = []; if (Math.random() < (bo ? .5 : el ? .08 : .015) * pb * DX) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push('scr:' + id); } 
+      let c = Math.round(dfC * pb * [100, 250, 600, 1500, 5000][r] * (1 + tier * .5) * (red ? 3 : 1) * (el ? 3 : 1) * (bo ? 25 : 1) * (1 + Math.min(200, RS.chip * 2) / 100) * HX);
+      { const tx = hunterTax(me, c); c -= tx; } e.c = (e.c | 0) + c;   // ⚔️ 용사 1위 통행세 const got = []; if (Math.random() < (bo ? .5 : el ? .08 : .015) * pb * DX) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; got.push('scr:' + id); } 
       if (!h.sw && r >= 2 && Math.random() < (bo ? .05 : .003 * (r + 1))) { h.sw = 1; got.push('sw'); broadcast({ t: 'news', text: '⚔️✨ ' + me.name + ' 님이 사냥터에서 「전설의 낚싯바늘 검」을 주웠어요!! (상점에 없어요)' }); }
       const own = (s.cos && s.cos.own) || [];
       if (!own.includes('t_hunt1') && Math.random() < .004) got.push(...giveCos(s, ['t_hunt1']));
       if (r >= 4 && !own.includes('t_hunt2') && Math.random() < .05) got.push(...giveCos(s, ['t_hunt2']));
       if (got.some(x => x.startsWith('t_'))) send(ws, { t: 'cos_got', ids: got.filter(x => x.startsWith('t_')) });
       luxRoll(ws, me, s, bo ? 20 : el ? 3 : 1, 'hunt');
-      const er = jobOf(s) === 'hun' ? jobRank(s, 'hun', 'ess') : 0; let ess = bo ? [1, 2, 3][df] + (Math.random() < .2 * er ? 1 : 0) : el && Math.random() < .03 * (1 + .2 * er) ? 1 : 0; if (ess) { essAdd(s, ess); got.push('es:' + ess); }   // 💠 꿈의 정수
+      const er = jobOf(s) === 'hun' ? jobRank(s, 'hun', 'ess') : 0; let ess = bo ? [1, 2, 3][df] + (tier >= 12 ? tier - 10 : 0) + (Math.random() < .2 * er ? 1 : 0) : el && Math.random() < .03 * (1 + .2 * er) ? 1 : 0; if (ess) { essAdd(s, ess); got.push('es:' + ess); }   // 💠 꿈의 정수
       h.dr = (h.dr | 0) + Math.round([1, 1, 2, 3, 5][r] * (bo ? 10 : el ? 2 : 1) * (1 + Math.min(200, RS.dr * 2) / 100));
       if (bo) {   // 👑 사냥터 우두머리: 사냥터 · 난이도마다 주 1번 「큰 보상」 · 가까이서 함께 싸운 친구도 받아요
         const wb = n => { const w = wfWeek(), H = n.hunt; H.wb = H.wb && H.wb.w === w ? H.wb : { w, k: {} }; const kk = hfi + ':' + df; if (H.wb.k[kk]) return 0; H.wb.k[kk] = 1;
@@ -1162,7 +1166,7 @@ function onMsg(ws, me, m) {
           withLock(q.key, async () => { const qs = q.save; if (!qs || !qs.hunt) return; const b2 = wb(qs); if (!b2) return; queueSave(q.key, qs); send(qw, { t: 'hunt', hunt: qs.hunt, c: ebOf(qs).c, note: '🤝 ' + me.name + ' 님과 함께 쓰러뜨린 우두머리 · 이번 주 첫 보상 칩 ' + b2.toLocaleString() + ' + 주문서 1장' }); }).catch(() => { }); }
         if (df === 2 && Math.random() < .08) { const nm = ['h_nmhorn', 'o_nmrobe', 'k_nmwing'].filter(id => !own.includes(id)); if (nm.length) { const g2 = giveCos(s, [nm[(Math.random() * nm.length) | 0]]); if (g2.length) { send(ws, { t: 'cos_got', ids: g2 }); broadcast({ t: 'news', text: '🌑 ' + me.name + ' 님이 악몽 우두머리에게서 악몽 치장을 얻었어요!' }); } } }
       }
-      let item = null; if (Math.random() < (bo ? 1 : el ? .3 : .05 + r * .02) * (1 + Math.min(100, RS.luk) / 100) * pb * (bo ? 1 : dfI) * DX) { const gw = tier >= 10 ? (bo ? [5, 25, 35, 25, 8, 1.5, .2, .02, 0] : [45, 28, 15, 8, 2, .2, .02, 0, 0]) : bo ? [10, 30, 35, 18, 6.7, .3, 0, .01, 0] : [60, 25, 10, 4, .95, .05, 0, 0, 0];
+      let item = null; if (Math.random() < (bo ? 1 : el ? .3 : .05 + r * .02) * (1 + Math.min(100, RS.luk) / 100) * pb * (bo ? 1 : dfI) * DX) { const gw = tier >= 12 ? (bo ? [0, 8, 26, 32, 22, 9, 2.5, .4, .05] : [30, 30, 20, 13, 5.5, 1.3, .2, .02, 0]) : tier >= 10 ? (bo ? [5, 25, 35, 25, 8, 1.5, .2, .02, 0] : [45, 28, 15, 8, 2, .2, .02, 0, 0]) : bo ? [10, 30, 35, 18, 6.7, .3, 0, .01, 0] : [60, 25, 10, 4, .95, .05, 0, 0, 0];
         item = mkItem(tier, rollG(gw)); invPut(h, item); if (item.g >= 5) broadcast({ t: 'big', g: item.g, text: (item.g >= 6 ? '🌌🌌 ' : '🎁 ') + me.name + ' 님이 사냥터에서 【' + RPG_GN[item.g] + '】 ' + RPG_SN[item.t] + '을(를) 주웠어요!' }); }
       queueSave(me.key, s); send(ws, { t: 'hunt', hunt: h, c: e.c, gain: c, drop: got, item, pt, es: enhOf(s).es | 0 });
     }); break;
@@ -2009,7 +2013,7 @@ function btMsg(ws, me, m) {
 }
 /* ---------- 🌑 레이드 (2026-11-12): 최소 3명 · 최대 5명이 한 팀으로 · 대기실에 3명이 모이면 20초 뒤 출발 (5명이면 바로) ----------
    보스 체력은 모인 사람들의 공격력에 맞춰져요 · 10분 안에 쓰러뜨리면 모두 같은 보상 · 이번 주 처음이면 「큰 상자」, 이미 깼으면 「도움 상자」 */
-const RAID_FI = 10, RAID_MIN = +process.env.RAID_MIN || 3, RAID_MAX = 5, RAID_K = +process.env.RAID_K || 840, RAID_T = 10 * 60e3;
+const RAID_FI = 10, RAID_MIN = +process.env.RAID_MIN || 1,   /* 2026-11-16: 친구가 없어도 혼자 · 둘이서도 (체력은 팀 공격력에 맞춰요) */ RAID_MAX = 5, RAID_K = +process.env.RAID_K || 840, RAID_T = 10 * 60e3;
 const RL = { mem: new Set(), go: 0 }, RAIDS = new Map(); let raidSeq = 1;
 /* 2026-11-16 레이드 2.0: 보스 다섯 · 서버가 정한 패턴을 모두 같은 순간에 봐요 · 합동 공격 · 쓰러진 친구 일으키기 · 꿈의 정수 */
 const RAID_BOSS = [['nm', ['rain', 'line', 'ring', 'stack']], ['ice', ['rain', 'ring', 'stack', 'rain']], ['lava', ['rain', 'line', 'stack', 'line']], ['storm', ['line', 'ring', 'stack', 'ring']], ['star', ['rain', 'ring', 'line', 'stack']]];
@@ -2927,6 +2931,12 @@ function sdKingCheck(init) {
 }
 const kingPub = () => sdKing ? { name: sdKing.name, n: sdKing.n, since: sdKing.since } : null;
 
+/* ---------- ⚔️ 용사 1위 통행세 (2026-11-16): 꿈의 문을 지나 사냥하는 사람이 번 칩의 3%가 용사 1위에게 (1위 본인은 안 내요) · 5분마다 모아서 ---------- */
+const HUNT_CAP_LV = 40, HUNT_CAP_N = 1000, HUNT_CAP_B = 12, HT_RATE = .03;
+const HT_PEND = new Map();   // key -> 모인 칩
+function hunterTop() { let best = null; for (const [key, r] of rosterCache) if (!best || (r.hlv | 0) > best.hlv) best = { key, name: r.name, hlv: r.hlv | 0 }; return best && best.hlv > 0 ? best : null; }
+function hunterTax(me, c) { const top = hunterTop(); if (!top || top.key === me.key || c < 30) return 0; const tx = Math.floor(c * HT_RATE); if (tx < 1) return 0; HT_PEND.set(top.key, (HT_PEND.get(top.key) || 0) + tx); return tx; }
+setInterval(() => { for (const [key, n] of HT_PEND) { HT_PEND.delete(key); withLock(key, async () => { const sv = await loadSave(key); if (!sv) return; const E = ebOf(sv); E.c = (E.c | 0) + n; queueSave(key, sv); const l = liveByKey(key); if (l) { l[1].save = sv; send(l[0], { t: 'hunt', hunt: sv.hunt || {}, c: E.c, note: '⚔️ 용사 1위 통행세 · 칩 +' + n.toLocaleString() }); } }).catch(() => { }); } }, 5 * 60e3);
 /* ---------- 👑 손맛 왕의 마을 (2026-11-16): 세금 · 마을 공지 · 손맛 축제 · 벤치 · 벌집 놓기/치우기 · 마을 사람 부탁 허락 ----------
    세금은 산 사람이 서버에서 직접 내요 (가게 골드 구매의 0~5%) · 왕 몫은 하루 10억까지, 5분마다 모아서 보내요 */
 const KT_PAY_DAY = 3e8, KT_KING_DAY = 1e9, KT_ONE = 5e7, KT_PROP_MAX = 16, KT_REQ_MAX = 20;
