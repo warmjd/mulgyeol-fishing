@@ -8049,8 +8049,8 @@ const skyURL=e=>skyIcon(e).toDataURL();
 /* 상태 */
 const SKYF={m:'off'};
 function skyCanCast(){return!!(P&&!HUNT.on&&F.mode==='idle'&&!F.afk&&P.y<3.4*TS&&P.y<99*TS&&!(typeof inSea==='function'&&inSea())&&SKF.on&&SKF.hy>VH*.22)}
-function skyStart(){if(!skyCanCast())return;F.mode='sky';SKYF.m='wait';SKYF.t=3.5+Math.random()*6*(ST.wait||1);SKYF.lx=Math.max(24,Math.min(VW-24,(VW/2)+(Math.random()-.5)*90));SKYF.lk=.38+Math.random()*.28;SKYF.met=null;SKYF.e=null;SKYF.hold=false;
-  Snd.sfx('skycast');if(!S.skyHint){S.skyHint=1;showBanner('☁️ 하늘낚시! 별 등불이 반짝이면 눌러요 · 걸리면 누르고 떼서 빛의 원 안에 손님을 담아요',4200)}}
+function skyStart(){if(!skyCanCast())return;F.mode='sky';SKYF.m='wait';SKYF.t=1.2+3.5+Math.random()*6*(ST.wait||1);SKYF.cast=0;SKYF.trail=[];SKYF.burst=0;SKYF.lx=Math.max(24,Math.min(VW-24,(VW/2)+(Math.random()-.5)*90));SKYF.lk=.38+Math.random()*.28;SKYF.met=null;SKYF.e=null;SKYF.hold=false;
+  SKYF.wh=0;if(!S.skyHint){S.skyHint=1;showBanner('☁️ 하늘낚시! 별 등불이 반짝이면 눌러요 · 걸리면 누르고 떼서 빛의 원 안에 손님을 담아요',4200)}}
 function skyEnd(msg){if(F.mode!=='sky')return;F.mode='idle';SKYF.m='off';SKYF.met=null;if(msg)toast(msg)}
 function skyLy(){return Math.max(30,(SKF.hy||100)*SKYF.lk)}
 function skyPress(){if(SKYF.met&&SKYF.met.t>0&&!SKYF.met.ok){skyWish();return}
@@ -8097,6 +8097,19 @@ function skyDraw(cX,cY){if(!SKF.on)return;const hy=SKF.hy;
   /* 별똥별 (소원) */
   if(SKYF.met){const M=SKYF.met,k=1-M.t/1.8,x=M.x-k*120,y=M.y+k*50;cx.save();cx.globalCompositeOperation='lighter';const g=cx.createLinearGradient(x,y,x+60,y-25);g.addColorStop(0,'rgba(255,250,210,.95)');g.addColorStop(1,'rgba(255,250,210,0)');cx.strokeStyle=g;cx.lineWidth=2;cx.beginPath();cx.moveTo(x,y);cx.lineTo(x+60,y-25);cx.stroke();cx.fillStyle='#fff';cx.fillRect(x-1,y-1,3,3);cx.restore();
     if(!M.ok){cx.fillStyle='#fff6c0';cx.font='bold 10px sans-serif';cx.textAlign='center';cx.fillText('🌠 지금 눌러요!',x+20,y-12)}}
+  /* 2026-11-16 던지는 맛: 낚싯대를 뒤로 젖혔다가 휙! 별 등불이 반짝이는 꼬리를 끌며 하늘로 포물선 → 퐁! 빛 고리 */
+  if(SKYF.m==='wait'&&SKYF.cast!=null&&SKYF.cast<1.2){const dt=FXDT||.016;SKYF.cast+=dt;const c=SKYF.cast;
+    if(c<.28){const q=c/.28;cx.strokeStyle='rgba(255,255,255,.5)';cx.beginPath();cx.moveTo(px_+6,py_);cx.lineTo(px_+6-q*6,py_-q*10);cx.stroke();return}   // 뒤로 젖히기
+    const k=Math.min(1,(c-.28)/.8),e=1-Math.pow(1-k,2.2),sx=px_+6,sy=py_,x=sx+(lx-sx)*e,y=sy+(ly-sy)*e-Math.sin(e*Math.PI)*Math.min(70,(sy-ly)*.5+20);
+    if(!SKYF.wh){SKYF.wh=1;Snd.sfx('cast')}
+    SKYF.trail.push({x,y,a:1});SKYF.trail.forEach(t=>t.a-=dt*2.2);SKYF.trail=SKYF.trail.filter(t=>t.a>0);
+    cx.save();cx.globalCompositeOperation='lighter';SKYF.trail.forEach((t,i)=>{cx.fillStyle='rgba(255,240,200,'+(t.a*.7).toFixed(2)+')';cx.fillRect(Math.round(t.x+(i%3-1)),Math.round(t.y+(i%2)),i%4?1:2,1)});
+    const g=cx.createRadialGradient(x,y,0,x,y,10);g.addColorStop(0,'rgba(255,245,200,.8)');g.addColorStop(1,'rgba(255,245,200,0)');cx.fillStyle=g;cx.fillRect(x-10,y-10,20,20);cx.restore();
+    cx.strokeStyle='rgba(255,255,255,.6)';cx.lineWidth=1;cx.beginPath();cx.moveTo(sx,sy);cx.quadraticCurveTo((sx+x)/2,(sy+y)/2+6,x,y);cx.stroke();
+    cx.fillStyle='#fff6d0';cx.fillRect(Math.round(x)-1,Math.round(y)-1,3,3);
+    if(k>=1&&!SKYF.burst){SKYF.burst=performance.now();Snd.sfx('skycast')}
+    if(k<1)return}
+  if(SKYF.burst){const b=(performance.now()-SKYF.burst)/700;if(b<1){cx.save();cx.globalCompositeOperation='lighter';cx.strokeStyle='rgba(255,245,210,'+(1-b).toFixed(2)+')';cx.lineWidth=1;cx.beginPath();cx.arc(lx,ly,4+b*22,0,6.28);cx.stroke();for(let i=0;i<8;i++){const a=i/8*6.28,r=6+b*18;cx.fillStyle='rgba(255,250,220,'+(1-b).toFixed(2)+')';cx.fillRect(Math.round(lx+Math.cos(a)*r),Math.round(ly+Math.sin(a)*r),1,1)}cx.restore()}}
   /* 줄 */
   const sag=SKYF.m==='reel'?2:8;cx.strokeStyle='rgba(255,255,255,.75)';cx.lineWidth=1;cx.beginPath();cx.moveTo(px_+6,py_);cx.quadraticCurveTo((px_+lx)/2,(py_+ly)/2+sag,SKYF.m==='reel'?SKYF.fx:lx,ly);cx.stroke();
   if(SKYF.m!=='reel'){/* 별 등불 */const pul=bite?1+.5*Math.abs(Math.sin(wt*14)):1+.15*Math.sin(wt*3),R=5*pul;cx.save();cx.globalCompositeOperation='lighter';const g=cx.createRadialGradient(lx,ly,0,lx,ly,R*4);g.addColorStop(0,bite?'rgba(255,240,150,.9)':'rgba(255,240,200,.55)');g.addColorStop(1,'rgba(255,240,200,0)');cx.fillStyle=g;cx.fillRect(lx-R*4,ly-R*4,R*8,R*8);cx.restore();
