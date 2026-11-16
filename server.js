@@ -214,6 +214,7 @@ LOOK_IDS.hat.push('h_cherrypin', 'h_heartpin', 'h_lacebow', 'h_cake', 'h_macpin'
 LOOK_IDS.hat.push('h_nmhorn'); LOOK_IDS.o.push('o_nmrobe'); LOOK_IDS.bk.push('k_nmwing'); LOOK_IDS.ti.push('t_nm1', 't_nmwalk');
 /* 🌸🐱🌙⚔️ 일상 라인 · 💎 명품 한정 (2026-11-12 저녁) — index.html D6 블록과 같은 id */
 LOOK_IDS.hat.push('h_flowercrown', 'h_catknit_cream', 'h_catknit_gray', 'h_catknit_black', 'h_nightcap_blue', 'h_nightcap_pink', 'h_nightcap_yellow', 'h_feather'); LOOK_IDS.o.push('o_gingham_pink', 'o_gingham_mint', 'o_gingham_sky', 'o_apron_pink', 'o_apron_mint', 'o_apron_brown', 'o_bearpj_brown', 'o_bearpj_pink', 'o_bearpj_white', 'o_leather_brown', 'o_leather_black', 'o_aurora'); LOOK_IDS.bk.push('k_basket', 'k_cattail_cream', 'k_cattail_gray', 'k_cattail_black', 'k_pillow', 'k_quiver2'); LOOK_IDS.ti.push('t_owner');
+LOOK_IDS.ft.push('ft_ginkgo', 'ft_forest', 'ft_bfly', 'ft_flower', 'ft_dark', 'ft_blade', 'ft_ember', 'ft_beast'); LOOK_IDS.bk.push('k_pumpkinball', 'k_bigginkgo'); LOOK_IDS.hat.push('h_bigpumpkin', 'h_bigbow');   // 🍂 가을 (2026-11-16)
 LOOK_IDS.ti.push('t_sd100', 't_sd200', 't_sd300', 't_sd450', 't_sd600');
 LOOK_IDS.ti.push('t_pioneer', 't_islfish', 't_islbest', 't_pole', 't_pila', 't_gym', 't_ortho', 't_rock');
 LOOK_IDS.hat.push('neonband', 'sweatband', 'bandage', 'climbhelm'); LOOK_IDS.o.push('o_polefit', 'o_pilafit', 'o_gymtank', 'o_doccoat'); LOOK_IDS.bk.push('yogamat', 'chalkbag');
