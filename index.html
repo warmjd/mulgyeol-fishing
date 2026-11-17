@@ -9973,6 +9973,18 @@ const CP_ACC={cp_ribbon:['리본',50000],cp_bell:['방울 목걸이',100000],cp_
 const CP_NEED=L=>Math.round(10+.12*L*L);const CP_CUM=[0,0];for(let L=1;L<99;L++)CP_CUM[L+1]=CP_CUM[L]+CP_NEED(L);
 const cpLvOf=xp=>{let L=1;while(L<99&&xp>=CP_CUM[L+1])L++;return L};
 const cpS=()=>S.cp&&typeof S.cp==='object'&&S.cp.k?S.cp:null;
+/* 🐾 반려동물 기분 (2026-11-18): 켜 두기만 해선 안 자라요 · 기분이 있을 때만 경험치 · 쓰다듬기 · 간식으로 기분이 차요
+   기분 100 → 켜 둔 4분마다 -1 (가득 차면 약 6시간 40분) · 기분 80 이상이면 경험치 1.5배
+   레벨 선물: CP_RW (server.js와 같아요 · 서버가 줘요) */
+const CPM={MAX:100,DEC:4,PAT:25,PAT_CD:20*60e3,TREAT:2};
+const CP_RW=[[10,'🎫 강화 상자(소) · 1천만'],[20,'🎫 강화 상자(소) · 3천만'],[30,'🎫 강화 상자(중) · 5천만'],[40,'🎫 강화 상자(중) · 1억'],[50,'🎁 강화 상자(대) · 2억'],[60,'🎫 강화 상자(중) · 3억'],[70,'🎁 강화 상자(대) · 5억'],[80,'🎁 강화 상자(대) · 7억'],[90,'🎁 강화 상자(대) · 10억'],[99,'👑 강화 상자(특) · 30억']];
+const cpMood=c=>{if(typeof c.md!=='number')c.md=CPM.MAX;return c.md};
+function cpRwCheck(){const c=cpS();if(!c||!ONLINE||!Net.me)return;const L=cpLvOf(c.xp|0),got=Array.isArray(S.cprw)?S.cprw:[];if(!CP_RW.some(r=>L>=r[0]&&got.indexOf(r[0])<0))return;if(Date.now()-(cpRwCheck.t||0)<20000)return;cpRwCheck.t=Date.now();Net.flushSave(true);setTimeout(()=>Net.send({t:'cp_rw'}),1500)}
+function cpPlay(kind){const c=cpS();if(!c)return;cpMood(c);const now=Date.now();
+  if(kind==='pat'){const w=(c.patT||0)+CPM.PAT_CD-now;if(w>0){toast('🐾 '+c.name+'(이)가 아직 행복해요 · '+Math.ceil(w/60000)+'분 뒤에 또 쓰다듬어요');return}c.patT=now;c.md=Math.min(CPM.MAX,c.md+CPM.PAT)}
+  else{const d=kstDay();if(!c.tr||c.tr.d!==d)c.tr={d,n:0};if(c.tr.n>=CPM.TREAT){toast('🍖 간식은 하루 '+CPM.TREAT+'번까지예요');return}c.tr.n++;c.md=CPM.MAX}
+  c.bz=0;Snd.sfx('coin');if(CPA.me)for(let i=0;i<8;i++)parts.push({x:CPA.me.x,y:CPA.me.y-10,vx:(Math.random()-.5)*30,vy:-20,life:1,t:0,heart:true,g:10});
+  toast(kind==='pat'?'🐾 '+c.name+'(이)가 꼬리를 흔들어요 · 기분 '+Math.round(c.md):'🍖 냠냠! '+c.name+' 기분 가득');saveState();if(!$('sheetwrap').hidden&&/반려동물/.test($('sheettitle').textContent))body().innerHTML=cpSheet()}
 const cpLv=()=>{const c=cpS();return c?cpLvOf(c.xp|0):0};
 const cpJob=()=>jobId()==='tam'?1.5:1;   // 🐾 동물 친구 직업: 반려동물 효과 1.5배 · 경험치 1.5배
 /* 2026-11-16 반려동물 효과 강화: 키운 보람이 있게 (예전: 행운 0.2% · 판매가 0.1%) */
@@ -10002,7 +10014,7 @@ function cpDraw(a,k,c,L,acc,nm){const sp=cpSprites(k,c),img=a.walk?(a.face<0?sp.
 function cpDrawables(list,dt){const c=cpS();if(c&&P&&!(P.aboard!=null)){const a=CPA.me||(CPA.me={});const v=DIRV[P.dir]||[0,1];cpFollow(a,P.x-v[0]*14-6,P.y-v[1]*8+2,dt,P.moving);const L=cpLv();const nm=(cpLookStr().split('|')[1]||'');list.push({y:a.y,fn:()=>cpDraw(a,c.k,c.c|0,L,c.acc,nm)})}
   others.forEach(o=>{if(!o.seen||!o.look||!o.look.cp)return;const q=o.look.cp.split('|'),k=q[0].slice(0,3),cc=+q[0].slice(3)|0,L=+q[2]|0,acc=q[3]||'';const a=o.cpa||(o.cpa={});cpFollow(a,o.x-10,o.y+2,dt,true);list.push({y:a.y,fn:()=>cpDraw(a,k,cc,L,acc,q[1]||'')})})}
 /* 켜 둔 시간: 1분마다 경험치 1 (절전 중에도) */
-setInterval(()=>{const c=cpS();if(!c||!P||!$('title').hidden)return;const b=cpLvOf(c.xp|0);c.xp=(c.xp|0)+1+(jobId()==='tam'&&Math.random()<.5?1:0);const L=cpLvOf(c.xp);if(L>b){recalc();cpSyncLook();showBanner('🐾 '+c.name+' Lv'+L+'!'+(L%10===0?' 몸이 한 뼘 자랐어요':''));Snd.sfx('page');if(CPA.me)for(let i=0;i<10;i++)parts.push({x:CPA.me.x,y:CPA.me.y-10,vx:(Math.random()-.5)*30,vy:-20,life:1,t:0,heart:true,g:10})}if(c.xp%5===0)saveState()},60000);
+setInterval(()=>{const c=cpS();if(!c||!P||!$('title').hidden)return;cpRwCheck();const md=cpMood(c);if(md<=0){if(!c.bz){c.bz=1;showBanner('🐾 '+c.name+'(이)가 심심해해요 · 쓰다듬어 주면 다시 자라요 (메뉴 → 반려동물)',3600)}return}c.md=Math.max(0,md-1/CPM.DEC);const b=cpLvOf(c.xp|0);c.xp=(c.xp|0)+1+(md>=80&&Math.random()<.5?1:0)+(jobId()==='tam'&&Math.random()<.5?1:0);const L=cpLvOf(c.xp);if(L>b){cpRwCheck.t=0;setTimeout(cpRwCheck,500);recalc();cpSyncLook();showBanner('🐾 '+c.name+' Lv'+L+'!'+(L%10===0?' 몸이 한 뼘 자랐어요':''));Snd.sfx('page');if(CPA.me)for(let i=0;i<10;i++)parts.push({x:CPA.me.x,y:CPA.me.y-10,vx:(Math.random()-.5)*30,vy:-20,life:1,t:0,heart:true,g:10})}if(c.xp%5===0)saveState()},60000);
 function cpSheet(){const c=cpS();
   if(!c){const old=petLv(partnerId()),st=Math.min(40,Math.floor(old/2));return'<div class="cpbox"><div style="font-size:16px">🏠 물결 분양센터</div><div class="muted" style="font-size:12.5px;margin:6px 0 10px">평생 함께할 반려동물을 데려와요. 늘 곁을 따라다니고, 켜 둔 시간만큼 자라요 (1 ~ 99레벨).<br>예전 짝꿍 레벨(Lv'+old+')의 절반 <b>Lv'+Math.max(1,st)+'</b>에서 시작해요.</div>'+
     ['cat','dog'].map(k=>'<div class="sec">'+(k==='cat'?'고양이':'강아지')+'</div><div class="cpgrid">'+CP_COAT[k].map((co,i)=>'<button class="cpc'+(CPF.k===k&&CPF.c===i?' on':'')+'" data-cpp="'+k+':'+i+'"><img src="'+cpSprites(k,i).sit.toDataURL()+'" alt=""><small>'+co[0]+'</small></button>').join('')+'</div>').join('')+
@@ -10010,14 +10022,19 @@ function cpSheet(){const c=cpS();
   const L=cpLv(),cur=(c.xp|0)-CP_CUM[L],need=L<99?CP_NEED(L):1,sp=cpSprites(c.k,c.c|0);
   let h='<div class="cpbox"><div style="display:flex;gap:12px;align-items:center"><img src="'+sp.sit.toDataURL()+'" style="height:'+Math.round(36+L*.3)+'px;image-rendering:pixelated" alt=""><div style="flex:1"><div style="font-size:18px">'+esc(c.name)+' <b>Lv'+L+'</b></div><div class="muted" style="font-size:12px">'+CP_COAT[c.k][c.c|0][0]+' '+(c.k==='cat'?'고양이':'강아지')+' · 함께한 지 '+Math.max(1,Math.ceil((Date.now()-(c.born||Date.now()))/864e5))+'일</div>'+
     '<div class="trbar" style="margin-top:6px"><i style="width:'+(L>=99?100:Math.min(100,cur/need*100))+'%"></i><span>'+(L>=99?'최고 레벨!':cur+' / '+need+'분')+'</span></div></div></div>'+
-    '<div class="muted" style="font-size:12.5px;margin:8px 0">켜 둔 시간 1분 = 경험치 1 · 다음 레벨까지 약 '+(L>=99?0:fmtMin(need-cur))+'</div>'+
+    (()=>{const md=cpMood(c),w=Math.max(0,(c.patT||0)+CPM.PAT_CD-Date.now()),tn=c.tr&&c.tr.d===kstDay()?c.tr.n|0:0;return'<div class="sec" style="margin-top:8px">기분 <span class="cnt">'+(md>=80?'😆 신나요 · 경험치 1.5배':md>0?'🙂 좋아요':'😢 심심해요 · 안 자라요')+'</span></div><div class="trbar"><i style="width:'+md+'%;background:'+(md>=80?'#ff8ab0':md>0?'#ffc0d0':'#c8c0d0')+'"></i><span>'+Math.round(md)+' / 100</span></div>'+
+      '<div style="display:flex;gap:6px;margin:8px 0"><button class="btn pink" style="flex:1" data-cpplay="pat"'+(w>0?' disabled':'')+'>🐾 쓰다듬기'+(w>0?' ('+Math.ceil(w/60000)+'분)':' +25')+'</button><button class="btn mint" style="flex:1" data-cpplay="treat"'+(tn>=CPM.TREAT?' disabled':'')+'>🍖 간식 ('+(CPM.TREAT-tn)+'/'+CPM.TREAT+')</button></div>'})()+
+    '<div class="muted" style="font-size:12.5px;margin:8px 0">기분이 있을 때 켜 둔 1분 = 경험치 1 (기분 80 이상이면 1.5배) · 기분은 4분마다 1씩 줄어요 · 다음 레벨까지 약 '+(L>=99?0:fmtMin(need-cur))+'</div>'+
+    '<details class="more"><summary>🎁 레벨 선물</summary><div style="font-size:12.5px;line-height:1.9">'+CP_RW.map(r=>(L>=r[0]&&(S.cprw||[]).indexOf(r[0])>=0?'✅':L>=r[0]?'📦':'⬜')+' <b>Lv'+r[0]+'</b> '+r[1]).join('<br>')+'</div></details>'+
+    '<details class="more"><summary>🐾 반려동물 · 짝꿍 · 동물 친구가 뭐가 달라요?</summary><div style="font-size:12.5px;line-height:1.8">· <b>반려동물</b>: 분양센터에서 데려온 나만의 고양이 · 강아지 · 늘 따라다니고 행운 · 판매가 · 입질 · 자동 낚시 · 대물(Lv50부터)<br>· <b>짝꿍</b>: 마을 동물(루비 · 쫑이 · 누릉이 · 깜콩이 · 츄리)과 쌓는 사이 · 선물 물어오기 · 특기<br>· <b>동물 친구</b>: 직업이에요 · 반려동물 효과와 크는 속도가 1.5배</div></details>'+
     '<div class="sec">함께여서 좋은 점</div><div style="font-size:13px;line-height:1.7">행운 +'+(cpLuck()*100).toFixed(1)+'% · 판매가 +'+(cpSell()*100).toFixed(1)+'% · 손맛 입질 '+(cpWait()*100).toFixed(1)+'% 빨리 · 자동 낚시 +'+cpAfk()+'마리'+(cpBig()?' · 대물 +'+(cpBig()*100).toFixed(1)+'%':'')+(L>=50?' · 몸에서 반짝임':'')+(L>=80?' · 은은한 빛':'')+'</div>'+
     '<details class="more"><summary>레벨 혜택 표</summary><div style="font-size:12.5px;line-height:1.8">· 레벨마다 행운 +0.5% · 판매가 +0.3% · 손맛 입질 0.15% 빨리 (최대 20%)'+(jobId()==='tam'?' <b>(동물 친구 직업 ×1.5)</b>':'')+'<br>· 10레벨마다 자동 낚시 +1마리 · Lv50부터 대물 확률도 올라요<br>· '+[[10,'자동 낚시 +1 · 행운 +5%'],[30,'자동 낚시 +3 · 행운 +15% · 판매가 +9%'],[50,'대물 +2.5% · 몸에서 반짝임'],[80,'대물 +10% · 은은한 빛'],[99,'행운 +49.5% · 판매가 +29.7% · 손맛 입질 14.9% 빨리 · 대물 +14.8% · 자동 낚시 +9']].map(r=>(L>=r[0]?'✅ ':'⬜ ')+'Lv'+r[0]+' '+r[1]).join('<br>· ')+'</div></details>'+
     '<div class="sec">장식 <span class="cnt">다른 친구에게도 보여요</span></div><div class="cpgrid">'+Object.keys(CP_ACC).map(id=>{const own=(c.own||[]).indexOf(id)>=0,on=c.acc===id;return'<button class="cpc'+(on?' on':'')+'" data-cpacc="'+id+'"><b>'+CP_ACC[id][0]+'</b><small>'+(on?'하는 중':own?'하기':fmtShort(CP_ACC[id][1])+' 골드')+'</small></button>'}).join('')+'</div>'+(c.acc?'<button class="btn ghost sm" data-cpacc="">장식 빼기</button>':'')+'</div>';
   return h}
 let CPF={k:'cat',c:0};
 function openCp(){Snd.sfx('ui');openSheet('반려동물',cpSheet())}
-document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-cpp],[data-cpa],[data-cpacc]');if(!t)return;e.stopPropagation();Snd.sfx('tap');
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-cpp],[data-cpa],[data-cpacc],[data-cpplay]');if(!t)return;e.stopPropagation();Snd.sfx('tap');
+  if(t.dataset.cpplay){cpPlay(t.dataset.cpplay);return}
   if(t.dataset.cpp){const [k,c]=t.dataset.cpp.split(':');CPF={k,c:+c};const nm=$('cpName')?$('cpName').value:'';body().innerHTML=cpSheet();if($('cpName'))$('cpName').value=nm;return}
   if(t.dataset.cpa==='adopt'){const nm=($('cpName').value||'').replace(/[|<>]/g,'').trim().slice(0,8);if(!nm){toast('이름을 지어 주세요');return}const st=Math.max(1,Math.min(40,Math.floor(petLv(partnerId())/2)));
     S.cp={k:CPF.k,c:CPF.c,name:nm,xp:CP_CUM[st],born:Date.now(),acc:'',own:[]};recalc();cpSyncLook();saveState(true);showBanner('🐾 '+nm+'(이)가 가족이 됐어요! Lv'+st);Snd.sfx('gate');if(P)sparkFx(P.x,P.y-10,24,['#ffd6e6','#ffffff','#ffe08a']);body().innerHTML=cpSheet();return}
@@ -11411,6 +11428,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='kicked'){this.kicked=true;netBanner()}
     else if(m.t==='join')addOther(m);
     else if(m.t==='ice'||m.t==='ice_add'||m.t==='ice_off')iceMsg(m);
+    else if(m.t==='cprw'){S.cprw=Array.isArray(m.l)?m.l:[];if(!$('sheetwrap').hidden&&/반려동물/.test($('sheettitle').textContent))body().innerHTML=cpSheet()}
     else if(m.t==='flags'||m.t==='flag'||m.t==='flagc'){flagMsg(m);if(m.t==='flags'&&S.sflag&&!flagMsg.sent){flagMsg.sent=1;Net.send({t:'sflag',id:S.sflag})}}
     else if(m.t==='trc'){TRC.clear();(m.list||[]).forEach(e=>TRC.set(e.n+e.k,e))}else if(m.t==='trc_add'){if(m.e)TRC.set(m.e.n+m.e.k,m.e)}
     else if(m.t==='leave'){const o=others.get(m.id);if(o){o.tag.remove();if(o.bub)o.bub.remove();others.delete(m.id)}if(TR.asking===m.id)TR.asking=0;if(tradeOpen())renderTrade()}

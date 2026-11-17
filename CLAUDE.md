@@ -94,3 +94,5 @@
 - ⚠️ 하늘낚시 골드를 화면이 더해서 저장 거절('판 것보다 골드가 많이 늘었어요') → sync로 하늘 도감까지 되돌아갔어요 (11-16~17) → 고침: server 'sky_got' (SKY_GOLD · s.skyd/skyn · rev+1 · dgold). skyd/skyn은 서버에 있으면 서버 것 유지. **화면에서 골드를 직접 더하는 새 기능은 만들지 말기 (서버가 주기).**
 - 🎲 은비칩: 원하는 수 입력 · eb_buy all:1 (가진 골드 모두).
 - 💠 꿈의 정수: 가질 수 있는 수 ES_MAX 1e9 · 칩→정수 한 주 10개 제한 없앰 (ess_chip n · all).
+- 🐾 반려동물 기분 (2026-11-18 · 업데이트 소식에 안 씀): S.cp.md 0~100 · 켜 둔 4분마다 -1 · 0이면 경험치 없음 · 80 이상 1.5배 · 쓰다듬기 +25 (20분) · 간식 하루 2번 가득 (cpPlay). 레벨 선물 CP_RW(10~99) = server cp_rw (cpLvS · CP_RWS · s.cprw 보존 목록) · 강화 상자 + 골드.
+- 로컬 서버 시험: scratchpad/stub/node_modules(express · supabase 가짜) + /opt/npm-tools/node_modules(ws)로 NODE_PATH 잡고 `PORT=8790 node server.js` → 메모리 저장 · localhost:8790 온라인 모드로 Playwright 가능.

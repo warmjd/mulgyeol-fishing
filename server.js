@@ -699,7 +699,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         for (const k of ['skyd', 'skyn']) if (me.save && me.save[k] != null) m.data[k] = me.save[k];   /* ☁️ 하늘 도감은 서버가 적어요 (서버에 아직 없으면 화면 것을 받아요) */
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
@@ -772,6 +772,9 @@ function trcCatch(me, f, c, sh) { if (!V || !me.here || (me.m & 4) || !(me.x > 0
 
 /* ---------- 🚩 낚시터 깃발 (2026-11-17): 이번 주 그 낚시터에서 손으로 가장 많이 낚은 사람의 깃발 · 월요일 0시에 새로
    지난주 깃발마다 강화권 3장 · 골드 500만 (다음 접속 때) · 주인이 바뀔 때만 작은 메시지 ---------- */
+const CP_NEED_S = L => Math.round(10 + .12 * L * L), CP_CUM_S = [0, 0]; for (let L = 1; L < 99; L++) CP_CUM_S[L + 1] = CP_CUM_S[L] + CP_NEED_S(L);
+const cpLvS = xp => { let L = 1; while (L < 99 && xp >= CP_CUM_S[L + 1]) L++; return L; };
+const CP_RWS = [[10, 'C', 1e7], [20, 'C', 3e7], [30, 'B', 5e7], [40, 'B', 1e8], [50, 'A', 2e8], [60, 'B', 3e8], [70, 'A', 5e8], [80, 'A', 7e8], [90, 'A', 1e9], [99, 'S', 3e9]];   /* 🐾 반려동물 레벨 선물 */
 const SKY_GOLD = [3e4, 8e4, 3e5, 1.5e6, 8e6, 4e7];   /* index.html SKY_PRICE와 같아요 */
 const FLAG_TK = 3, FLAG_G = 5e6, SFLAGS = ["sf_star", "sf_heart", "sf_fish", "sf_wave", "sf_rainbow", "sf_moon", "sf_sun", "sf_flower", "sf_clover", "sf_check", "sf_straw", "sf_anchor", "sf_cat", "sf_paw", "sf_snow", "sf_leaf", "sf_cloud", "sf_carp", "sf_fire", "sf_lantern", "sf_galaxy", "sf_crown", "sf_dragon", "sf_aurora"];   /* 🎨 깃발 치장 (index.html SFLAG와 같아요) */
 const sfOf = s => s && SFLAGS.includes(s.sflag) && ownsCos(s, s.sflag) ? s.sflag : '';
@@ -1152,6 +1155,12 @@ function onMsg(ws, me, m) {
     case 'raid_hit': raidHit(ws, me, m); break;
     case 'raid_down': case 'raid_up': case 'raid_rev': raidDown(ws, me, m); break;
     case 'ring_news': ringNews(ws, me, m); break;
+    case 'cp_rw': {   /* 🐾 반려동물 레벨 선물 (2026-11-18 · index.html CP_RW와 같아요) */
+      const now = Date.now(); if (now - (me.cprT || 0) < 3000) break; me.cprT = now; const s = me.save; if (!s || !s.cp || !s.cp.k) break;
+      const L = cpLvS(Math.max(0, Math.min(1e7, s.cp.xp | 0))), got = Array.isArray(s.cprw) ? s.cprw : (s.cprw = []), nw = [];
+      for (const r of CP_RWS) if (L >= r[0] && !got.includes(r[0])) { got.push(r[0]); nw.push(r); }
+      if (nw.length) { queueSave(me.key, s); const nm = String(s.cp.name || '반려동물').slice(0, 8); let gs = 0; for (const r of nw) { enhPack(me.key, r[1], '🐾 ' + nm + ' Lv' + r[0] + ' 선물'); gs += r[2]; } changeBag(me.key, { g: gs }, '🐾 ' + nm + ' 레벨 선물 · 골드 ' + gs.toLocaleString()).catch(() => { }); }
+      send(ws, { t: 'cprw', l: got }); break; }
     case 'sky_got': {   /* ☁️ 하늘낚시 (2026-11-17): 골드 · 하늘 도감 기록은 서버가 적어요 (화면이 골드를 더하면 저장이 거절됐어요) */
       const now = Date.now(); if (now - (me.skgT || 0) < 1200) break; me.skgT = now; const id = String(m.id || '').slice(0, 24); if (!/^[a-z0-9_]+$/i.test(id)) break; const r = Math.max(0, Math.min(5, m.r | 0)), c = m.c ? 1 : 0;
       withLock(me.key, () => { const s = me.save; if (!s) return; s.skyd = s.skyd && typeof s.skyd === 'object' ? s.skyd : {}; s.skyd[id] = (s.skyd[id] | 0) + 1; s.skyn = (s.skyn | 0) + 1; const g = c ? 0 : SKY_GOLD[r]; if (g) s.gold = (Number(s.gold) || 0) + g; s.rev = (s.rev | 0) + 1; queueSave(me.key, s); sendEnh(ws, me, { dgold: g, rev: s.rev }); }).catch(() => { });
