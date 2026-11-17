@@ -4813,7 +4813,7 @@ const IT_REQ_G=[0,1,3,6,10,15,22,30,40],itReq=it=>it.rq!=null?it.rq|0:1,itOk=it=
 function rpgSet(){const h=S.hunt||{},inv=h.inv||[],c={};RPG_SLOTS.forEach(k=>{const it=inv[h['eq'+k]];if(it&&it.t===k&&it.n!=null&&itOk(it))c[it.n]=(c[it.n]|0)+1});let bn=null,bc=0;for(const n in c)if(c[n]>bc){bc=c[n];bn=+n}return{n:bn,c:bc}}
 const SET_TXT=[[2,'공격 +10%'],[4,'방어 · 체력 +15%'],[6,'치명 +10%']];
 function rpgSum(){const h=S.hunt||{},inv=h.inv||[],S2={atk:0,def:0,hp:0,cri:0,spd:0,luk:0,chip:0,dr:0};RPG_SLOTS.forEach(k=>{const it=inv[h['eq'+k]];if(!it||it.t!==k||!itOk(it))return;const st=itStats(it);for(const q in st)S2[q]+=st[q]});return S2}
-function rpName(it){const th=RPG_THEME[Math.min(10,it.n|0)]||'',nn=it.t==='w'?(HWT[it.wt]||HWT.ham)[0]:(RPG_NOUN[it.t]||['장비'])[(it.v|0)%5];return(it.g>=8?'창세의 ':it.g>=7?'무한의 ':it.g>=6?'태초의 ':it.n!=null?th+' ':'')+nn}
+function rpName(it){const th=RPG_THEME[Math.min(10,it.n|0)]||'',nn=it.t==='w'?(HWT[it.wt]||HWT.ham)[0]:(RPG_NOUN[it.t]||['장비'])[(it.v|0)%5];return(it.cs?(it.cs==='d'?'🌒 밤구름 ':'🌅 새벽구름 '):'')+(it.g>=8?'창세의 ':it.g>=7?'무한의 ':it.g>=6?'태초의 ':it.n!=null?th+' ':'')+nn}
 /* 지금 낀 것과 비교 (주 능력치) */
 function itCmp(it){const cur=huItem(it.t),k=RPG_MAIN[it.t],a=itStats(it)[k]|0,b=cur?(itStats(cur)[k]|0):0,d=a-b;return cur?(d>0?'<b style="color:#2a9a4a">▲ '+RPG_STAT[k][0]+' +'+d+'</b> <span class="muted">지금 낀 것보다</span>':d<0?'<b style="color:#c04060">▼ '+RPG_STAT[k][0]+' '+d+'</b> <span class="muted">지금 낀 것보다</span>':'<span class="muted">지금 낀 것과 같아요</span>'):'<b style="color:#2a9a4a">✨ 빈 칸에 낄 수 있어요</b>'}
 const itCmpT=it=>{const cur=huItem(it.t),k=RPG_MAIN[it.t],d=(itStats(it)[k]|0)-(cur?(itStats(cur)[k]|0):0);return !itOk(it)?' (Lv'+itReq(it)+' 필요)':!cur?' · 빈 칸!':d>0?' ▲+'+d:''};
@@ -5250,7 +5250,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1117f',UPD_LOG=[
+const UPD_VER='1117g',UPD_LOG=[
+ ['11/17 ⛰️ 가장 높은 곳','⛰️',[['⛰️ 가장 높은 곳이 열려요','구름 항구 위쪽 계단 끝 문에 🌅 빛의 저울 · 🌒 그림자의 저울 · ✨ 새벽빛 들판 몬스터는 빛, 🌑 그림자 숲 몬스터는 그림자 저울을 채워요 (누구나 어느 쪽이든) · 둘 다 차면 그 주에 문이 열려요 · 매주 월요일에 비워져요'],['🕊️ 새벽과 밤의 수호자 (주간 보스)','20초마다 빛 ↔ 그림자 모습이 바뀌어요 · 반대편 길을 고른 사람이 ×1.5로 때려요 · 하늘에서 떨어지는 빛구슬 동그라미를 피해요 · 함께한 사람 모두: 골드 5천만 · 💠 10 · 💧 300 · 구름 장비 【무한】 이상'],['💧 구름 방울 · ☁️ 구름 상점','구름 낚시 (1~20) · 들판 · 숲 몬스터 (1~25)에서 💧 구름 방울을 모아요 · 구름 항구 파란 집 「구름 상점」: 🌅 새벽구름 / 🌒 밤구름 장비 (칸 골라서) · ⏳ 숨결 병 +20분 (하루 한 번) · 💠 정수 · 🎫 강화권'],['🌅 구름 장비','고른 길에 따라 새벽구름 / 밤구름 장비 · 구름 위에서 낀 개수마다 주는 피해 +4% · 받는 피해 -4% (8칸 모두 끼면 +32%)'],['🔓 바뀐 것','예전엔 「가장 높은 곳은 아직 닫혀 있어요」만 나왔는데, 이제 저울이 다 차면 열려요']]],
  ['11/17 통발','🪤',[['🪤 걷어 올리면 덤','통발을 직접 걷어 올리면 칸 수만큼 덤: 강화권 (3칸에 1장 반쯤) · 💤 꿈조각 (칸마다 30) · 가끔 📜 주문서 · 좋은 미끼면 강화권 1.5배'],['🔔 가득 차면 알림','통발이 가득 차면 한 번 알려 줘요 · 가득 차면 더 안 모이니까 걷으러 가요']]],
  ['11/17 ☁️ 구름 위 나라','☁️',[['☁️ 구름 위 나라 (새 세계)','지상 용사 Lv99 + 꿈의 심연 3 정화 → 🌟 별빛 광장의 🕯️ 나그네 부탁 3장 → 빛 / 그림자 고르기 → 하늘낚시 중 하늘에 열리는 🌀 「틈」으로 들어가요 (처음 한 번은 어둠의 길)'],['🗺️ 구름 위 지도','가운데 ☁️ 구름 항구 · 빛의 동쪽 (🍭 솜사탕 구름섬 · 🌈 무지개 폭포 호수 · ✨ 새벽빛 들판) · 그림자의 서쪽 (⚡ 번개구름 협곡 · 🌫️ 보랏빛 안개 호수 · 🌑 그림자 숲) · ⛰️ 가장 높은 곳은 아직 닫혀 있어요 · 솜사탕 구름 · 번개구름을 타고 건너요'],['🎣 구름 낚시 · 구름 도감 30종','호수 · 구름 끝에서 던지고, 입질에 챔질 → 반짝이는 칸에 맞춰 눌러요 · 골드 · 강화권 · 드문 물고기는 💠 꿈의 정수'],['⚔️ 함께 잡는 필드','새벽빛 들판 · 그림자 숲은 모두가 같은 몬스터를 봐요 · 함께 때리면 함께 보상 · 가끔 🐋 새벽 구름고래 · 🐢 천둥 거북이 나타나요'],['🌅 빛 / 🌒 그림자','빛: 조금씩 회복 · 그림자: 공격 1.3배 · 받는 피해 1.15배 · 조금 빠른 걸음 · 내 쪽 낚시 · 필드는 보상 1.2배 · 길은 7일에 한 번 바꿀 수 있어요'],['⏳ 구름 숨결 90분','하루 90분까지 머물 수 있어요 · 🍭 솜사탕을 뜯으면 하루 한 번 +10분 · 숨결이 다하면 별빛 광장으로 돌아와요'],['🌟 별빛 광장 · 없어진 것','예전 「모두의 정원」(꽃배 정원 마당) 자리가 별빛 광장이 됐어요 · <b>정원에서 꽃을 심고 기르는 것은 없어졌어요</b> · 갖고 있던 꽃 · 꿀은 그대로 팔 수 있어요'],['📦 데이터 아끼기','첫 화면을 압축해서 보내고, 바뀐 게 없으면 다시 받지 않아요 (훨씬 빨리 열려요)']]],
  ['11/17 안정','🛟',[['🛟 게임이 멈추지 않게','화면에서 오류가 한 번 나도 게임이 멈추지 않고 계속 돌아요 (멈추면 친구 화면에서 내가 사라질 수 있었어요)'],['⛵ 물 위를 걷는 친구','낚싯대 +25 「내 꽃배 부르기」예요 · 꽃배를 타고 물 위를 건너요 (버그가 아니에요)']]],
@@ -9419,7 +9420,8 @@ function openAdmin(){
    h+='<div class="sec">🧑 내 용사</div><div style="display:flex;gap:6px;margin:4px 0"><input class="tin" id="admHu" type="number" min="1" max="99" value="'+huS().lv+'" style="flex:1 1 30%"><button class="btn sm" data-adm="hulv" style="flex:1 1 60%">용사 레벨 맞추기</button></div><div class="warps"><button data-adm="huclr">🌟 사냥터 모두 정화 (심연 · 악몽 포함)</button></div>';
    if(ONLINE&&Net.me){const al=CEL.info&&CEL.info.al||{},A=(v,t)=>'<button data-adm="alset" data-v="'+v+'"'+((v===String(al.ch|0)&&!al.pick)||(v==='4'+al.pick)?' disabled':'')+'>'+t+'</button>';
      h+='<div class="sec">🕯️ 나그네 이야기 단계 <span class="cnt">지금 '+(al.pick?(al.pick==='l'?'🌅 빛':'🌒 그림자'):(al.ch|0)+'장')+'</span></div><div class="warps">'+A('0','처음으로')+A('1','1장 등불 찾기')+A('2','2장 별 조각')+A('3','3장 갈림길')+A('4l','🌅 빛 고름')+A('4d','🌒 그림자 고름')+'</div>';
-     h+='<div class="sec">🎁 나에게 바로</div><div class="warps"><button data-adm="gold" data-v="100000000">💰 1억 골드</button><button data-adm="tk" data-v="100">🎫 강화권 100</button><button data-adm="esme" data-v="50">💠 꿈의 정수 50</button><button data-adm="chipme" data-v="1000000">🎰 칩 100만</button></div>'}}
+     h+='<div class="sec">🎁 나에게 바로</div><div class="warps"><button data-adm="gold" data-v="100000000">💰 1억 골드</button><button data-adm="tk" data-v="100">🎫 강화권 100</button><button data-adm="esme" data-v="50">💠 꿈의 정수 50</button><button data-adm="chipme" data-v="1000000">🎰 칩 100만</button><button data-adm="ccme" data-v="1000">💧 구름 방울 1000</button></div>';
+     h+='<div class="sec">⛰️ 가장 높은 곳 <span class="cnt">'+(CEL.pk?(CEL.pk.clr?'이번 주 끝':CEL.pk.op?'열림 · 수호자 '+Math.round(CEL.pk.hp/CEL.pk.mhp*100)+'%':'빛 '+CEL.pk.l+' · 그림자 '+CEL.pk.d+' / '+CEL.pk.g):'구름 위에 한 번 들어가면 보여요')+'</span></div><div class="warps"><button data-adm="pkset" data-v="open">🚪 이번 주 문 열기</button><button data-adm="pkset" data-v="reset">↩️ 이번 주 처음으로 (수호자 체력 · 저울)</button></div>'}}
   h+='<div class="sec">🧭 길잡이 미끼 (운영자 전용)</div><div class="muted" style="font-size:12px">끼우면 이 낚시터에서 아직 손맛을 못 본 물고기가 꼭 걸려요 · 운영자 모드에서만 효과 · 지금 '+itN('b_compass')+'개</div><div class="warps"><button data-adm="compass" data-v="10">🧭 10개 받기</button></div>';
   h+='<div class="sec">내 직업 바로 바꾸기</div><div class="warps">'+JOB_IDS.map(id=>'<button data-adm="job" data-v="'+id+'"'+(j.id===id?' disabled':'')+'>'+JOBS[id].ic+' '+JOBS[id].name+'</button>').join('')+'</div>';
     if(ONLINE&&Net.me){h+='<div class="sec">🧪 시험 도구 <span class="cnt">밸런스를 미리 겪어 보기</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0"><input class="tin" id="admLv" type="number" min="0" max="30" value="'+ENH_LV()+'" style="flex:1 1 30%"><button class="btn sm" data-adm="setlv" style="flex:1 1 60%">고른 친구 낚싯대 +N으로</button></div>'+
@@ -9480,6 +9482,8 @@ function admClick(t){
   if(a==='huclr'){const u=huS();u.clr=u.clr||{};S.hunt.nclr=S.hunt.nclr||{};HFIELDS.forEach((f,i)=>{if(!f.raid){u.clr[i]=1;S.hunt.nclr[i]=1}});saveState(true);toast('🌟 모든 사냥터를 정화한 걸로 맞췄어요');return true}
   if(a==='alset'){Net.send({t:'adm',op:'al_set',to:Net.me.name.toLowerCase(),v});return true}
   if(a==='esme'){Net.flushSave(true);Net.send({t:'adm',op:'give',to:Net.me.name.toLowerCase(),k:'es',n:+v});return true}
+  if(a==='ccme'){Net.send({t:'adm',op:'give',to:Net.me.name.toLowerCase(),k:'cc',n:+v});return true}
+  if(a==='pkset'){Net.send({t:'adm',op:'pk_set',v});return true}
   if(a==='chipme'){Net.send({t:'adm',op:'givechip',to:Net.me.name.toLowerCase(),n:+v});return true}
   if(a==='compass'){if(!admOn()){toast('운영자 모드를 먼저 켜 주세요');return true}itAdd('b_compass',+v||10);saveState(true);toast('🧭 길잡이 미끼 +'+(+v||10));return true}
   if(a==='job'){if(!admOn()){toast('운영자 모드를 먼저 켜 주세요');return true}pickJob(v);return true}
@@ -11947,8 +11951,11 @@ function setupTalk(){
    하늘낚시 중 「틈」 → (처음 한 번) 어둠의 길 → 구름 항구
    · 하루 구름 숨결 90분 · 구름 낚시 30종 · 함께 쓰는 필드 2곳 (몬스터 움직임은 씨앗 · 시간으로 모두 같은 계산 → 데이터 거의 없음)
    ===================================================================== */
-const CEL={on:false,mode:'',x:550,y:430,dir:'down',anim:0,moving:false,hp:100,left:0,info:null,celd:{},t:0,hbT:0,fish:null,fieldF:'',toff:0,parts:[],pops:[],atkCd:0,hurtCd:0,hurtT:0,ferryOn:-1,flash:0,dark:null,static:null,lastRegion:''};
+const CEL={on:false,mode:'',x:550,y:430,dir:'down',anim:0,moving:false,hp:100,left:0,info:null,celd:{},t:0,hbT:0,fish:null,fieldF:'',toff:0,parts:[],pops:[],atkCd:0,hurtCd:0,hurtT:0,ferryOn:-1,flash:0,dark:null,static:null,lastRegion:'',celc:0,pk:null,pkI:-1,pkAim:null};
 const CW=1100,CH=800;
+/* ☁️ 구름 장비: 낀 개수마다 구름 위에서 주는 피해 +4% · 받는 피해 -4% (server csN과 같아요) */
+const csN=()=>{const h=S.hunt||{},inv=h.inv||[];return RPG_SLOTS.filter(k=>{const it=inv[h['eq'+k]];return it&&it.t===k&&it.cs}).length};
+const pkOpen=()=>!!(CEL.pk&&CEL.pk.op)||!!(CEL.info&&CEL.info.admin);
 const CEL_FISH=[
  ['솜구름 송사리',0,'rc',['#ffffff','#d8e8ff']],['분홍 솜사탕붕어',0,'c',['#ffc4dc','#ff8ab8']],['햇살 피라미',0,'r',['#fff0a0','#ffc860']],['무지개 버들치',1,'r',['#ff9a9a','#8ac8ff']],['딸기우유 잉어',1,'c',['#ffe0ea','#ff9ab0']],['꿀별 금붕어',1,'rc',['#ffd860','#ff9a30']],['새벽 종달고기',2,'r',['#ffe8c0','#ffb070']],['오로라 열대어',2,'rc',['#a0f0d0','#c49aff']],['아기 구름고래',3,'c',['#e8f2ff','#9ab8e8']],['일곱빛 비단잉어',3,'r',['#ffffff','#ff70a0']],['해무리 가오리',4,'r',['#fff6c8','#ffb040']],['새벽 별고래',4,'c',['#d8e4ff','#7a8ae0']],
  ['안개 송사리',0,'mt',['#d8d0f0','#a090c8']],['보랏빛 미꾸리',0,'m',['#b8a0e0','#6a4aa0']],['그을음 메기',0,'t',['#706880','#3a3448']],['번개 피라미',1,'t',['#fff080','#6a6aa0']],['달그림자 붕어',1,'m',['#8a80c0','#2a2850']],['도깨비불 금붕어',1,'mt',['#c0a0ff','#7a40d0']],['천둥 장어',2,'t',['#ffe060','#3a3a6a']],['밤안개 해파리',2,'m',['#e0d0ff','#9a70e0']],['검은 비늘 잉어',3,'mt',['#4a4060','#c8b0ff']],['폭풍 가오리',3,'t',['#5a6aa0','#e0f0ff']],['그믐달 상어',4,'m',['#3a3060','#fff0b0']],['뇌운 용고기',4,'t',['#2a2a4a','#ffe040']],
@@ -11974,7 +11981,7 @@ const CSPOT=[{sp:'c',x:902,y:252,tx:952,ty:270},{sp:'t',x:198,y:252,tx:148,ty:27
 const celRand=s=>{let x=s|0;return()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return((x>>>0)%100000)/100000}};
 const islAt=(x,y,sc)=>CISL.find(I=>((x-I.x)/I.rx)**2+((y-I.y)/I.ry)**2<(sc||1));
 function celWalk(x,y){
-  if(y<150&&!(CEL.info&&CEL.info.admin))return false;   // 가장 높은 곳은 아직 닫혀 있어요
+  if(y<150&&!pkOpen())return false;   // 가장 높은 곳: 빛 · 그림자 저울이 다 차야 열려요
   for(const f of CFERRY){const p=ferryPos(f);if(((x-p[0])/22)**2+((y-p[1])/9)**2<1)return true}
   for(const b of CBR){const dx=b[2]-b[0],dy=b[3]-b[1],L=dx*dx+dy*dy,t=Math.max(0,Math.min(1,((x-b[0])*dx+(y-b[1])*dy)/L)),qx=b[0]+dx*t,qy=b[1]+dy*t;if(Math.hypot(x-qx,y-qy)<(b[4]==='s'?9:8))return true}
   const I=islAt(x,y,.84);if(!I)return false;
@@ -12058,7 +12065,7 @@ function celUpdate(dt){CEL.t+=dt;CEL.flash=Math.max(0,CEL.flash-dt*1.2);
   if(!celWalk(CEL.x,CEL.y)&&!celWalk(CEL.x,CEL.y-3)){CEL.x=CGATE[0];CEL.y=CGATE[1]-22}   // 떨어지면 항구로
   const I=islAt(CEL.x,CEL.y,1.05),rn=I?I.n:'☁️ 구름 다리';if(rn!==CEL.lastRegion){CEL.lastRegion=rn;showRegion(rn)}
   /* 필드 들어가기 · 나오기 */
-  const fF=I&&I.field?I.field:'';if(fF!==CEL.fieldF){if(CEL.fieldF)Net.send({t:'cf_leave'});CEL.fieldF=fF;if(fF){Net.send({t:'cf_join',f:fF});showBanner(fF==='l'?'✨ 새벽빛 들판 · 모두 같은 몬스터를 함께 잡아요':'🌑 그림자 숲 · 모두 같은 몬스터를 함께 잡아요',2400)}else celHud()}
+  const fF=I&&I.field?I.field:I&&I.k==='peak'&&pkOpen()?'p':'';if(fF!==CEL.fieldF){if(CEL.fieldF)Net.send({t:'cf_leave'});CEL.fieldF=fF;if(fF==='p'){Net.send({t:'pk_join'});showBanner(CEL.pk&&CEL.pk.clr?'⛰️ 가장 높은 곳 · 이번 주 수호자는 고요해요 · 바람이 따뜻해요':'⛰️ 가장 높은 곳 · 「새벽과 밤의 수호자」 · 빛과 그림자가 함께 싸워요',2800)}else if(fF){Net.send({t:'cf_join',f:fF});showBanner(fF==='l'?'✨ 새벽빛 들판 · 모두 같은 몬스터를 함께 잡아요':'🌑 그림자 숲 · 모두 같은 몬스터를 함께 잡아요',2400)}else celHud()}
   if(I&&I.k==='hub'){CEL.hp=Math.min(huMaxHp(),CEL.hp+huMaxHp()*.2*dt)}   // 항구에선 금방 회복
   else if(CEL.info&&CEL.info.al&&CEL.info.al.pick==='l')CEL.hp=Math.min(huMaxHp(),CEL.hp+huMaxHp()*.012*dt);   // 빛: 조금씩 회복
   celFieldUpdate(dt);celFishUpdate(dt);
@@ -12070,12 +12077,13 @@ function cfPos(f,mo,now){const I=CISL.find(i=>i.field===f),r=celRand(mo.s),cxp=I
   let x=cxp+Math.sin(t*w1+p1)*ax+Math.sin(t*w2*1.7+p2)*ax*.35,y=cyp+Math.cos(t*w1*1.3+p2)*ay;const d=((x-I.x)/(I.rx*.78))**2+((y-I.y)/(I.ry*.74))**2;if(d>1){const s=1/Math.sqrt(d);x=I.x+(x-I.x)*s;y=I.y+(y-I.y)*s}return[x,y,Math.cos(t*w1+p1)]}
 function celFieldUpdate(dt){const f=CEL.fieldF;if(!f)return;const now=Date.now()+CEL.toff;
   CEL.hurtCd=Math.max(0,CEL.hurtCd-dt);CEL.hurtT=Math.max(0,CEL.hurtT-dt);
+  if(f==='p')return pkUpdate(dt,now);
   for(const mo of CFM[f]){if(mo.dead)continue;const p=cfPos(f,mo,now);mo.x=p[0];mo.y=p[1];mo.fx=p[2];mo.hit=Math.max(0,(mo.hit||0)-dt);
-    if(CEL.hurtCd<=0&&Math.hypot(mo.x-CEL.x,(mo.y-CEL.y)*1.4)<(mo.k===4?34:16)){const K=CF_K[f][mo.k],sh=CEL.info&&CEL.info.al&&CEL.info.al.pick==='d'?1.15:1,dmg=Math.max(3,Math.round((K[2]-huDef()*.6)*sh));CEL.hp-=dmg;CEL.hurtCd=1.2;CEL.hurtT=.3;Snd.hfx('hurt');CEL.pops.push({x:CEL.x,y:CEL.y-26,t:.9,s:'-'+dmg,c:'#ff6a8a'});
+    if(CEL.hurtCd<=0&&Math.hypot(mo.x-CEL.x,(mo.y-CEL.y)*1.4)<(mo.k===4?34:16)){const K=CF_K[f][mo.k],sh=(CEL.info&&CEL.info.al&&CEL.info.al.pick==='d'?1.15:1)*(1-.04*csN()),dmg=Math.max(3,Math.round((K[2]-huDef()*.6)*sh));CEL.hp-=dmg;CEL.hurtCd=1.2;CEL.hurtT=.3;Snd.hfx('hurt');CEL.pops.push({x:CEL.x,y:CEL.y-26,t:.9,s:'-'+dmg,c:'#ff6a8a'});
       if(CEL.hp<=0){CEL.hp=huMaxHp();Net.send({t:'cf_leave'});CEL.fieldF='';CEL.x=CGATE[0];CEL.y=CGATE[1]-22;showBanner('💫 쓰러져서 구름 항구에서 깨어났어요',2200)}}}
   CFM[f]=CFM[f].filter(m=>!m.dead||(m.dead-=dt)>0)}
-function celAttack(){const f=CEL.fieldF;if(!f||CEL.atkCd>0)return;CEL.atkCd=.45;let b=null,bd=40;for(const mo of CFM[f]){if(mo.dead)continue;const d=Math.hypot(mo.x-CEL.x,(mo.y-CEL.y)*1.3)-(mo.k===4?20:0);if(d<bd){bd=d;b=mo}}
-  Snd.hfx('swing');CEL.swing=.18;if(!b)return;const cr=Math.random()<huCrit(),sh=CEL.info&&CEL.info.al&&CEL.info.al.pick==='d'?1.3:1,d=Math.round(huAtk()*(cr?2:1)*sh*(.9+Math.random()*.2));
+function celAttack(){const f=CEL.fieldF;if(!f||CEL.atkCd>0)return;if(f==='p')return pkAttack();CEL.atkCd=.45;let b=null,bd=40;for(const mo of CFM[f]){if(mo.dead)continue;const d=Math.hypot(mo.x-CEL.x,(mo.y-CEL.y)*1.3)-(mo.k===4?20:0);if(d<bd){bd=d;b=mo}}
+  Snd.hfx('swing');CEL.swing=.18;if(!b)return;const cr=Math.random()<huCrit(),sh=(CEL.info&&CEL.info.al&&CEL.info.al.pick==='d'?1.3:1)*(1+.04*csN()),d=Math.round(huAtk()*(cr?2:1)*sh*(.9+Math.random()*.2));
   b.hp=Math.max(1,b.hp-d);b.hit=.25;CEL.pops.push({x:b.x,y:b.y-22,t:.8,s:(cr?'💥':'')+d,c:cr?'#ffd34d':'#ffffff'});for(let i=0;i<6;i++)CEL.parts.push({x:b.x,y:b.y-10,vx:(Math.random()-.5)*80,vy:-30-Math.random()*40,t:.4,c:f==='l'?'#fff0b0':'#d8b8ff'});Snd.hfx(cr?'crit':'swing');Net.send({t:'cf_hit',id:b.id,d})}
 /* ---------- 구름 낚시: 던지기 → 기다리기 → 입질 → 박자 맞추기 ---------- */
 function celFishSpot(){for(const I of CISL)if(I.lk){const[lx,ly,lrx,lry]=I.lk,d=((CEL.x-lx)/(lrx+16))**2+((CEL.y-ly)/(lry+14))**2;if(d<1)return{sp:I.k==='rlake'?'r':'m',tx:lx+(CEL.x-lx)*.45,ty:ly+(CEL.y-ly)*.45}}for(const s of CSPOT)if(Math.hypot(CEL.x-s.x,CEL.y-s.y)<26)return{sp:s.sp,tx:s.tx,ty:s.ty};return null}
@@ -12100,7 +12108,8 @@ function celNear(){if(CEL.mode!=='realm')return null;
   for(const t of CTREES)if(Math.hypot(CEL.x-t[0],CEL.y-t[1])<16)return{k:'eat',l:'솜사탕<br>뜯기'};
   if(CEL.fieldF)return{k:'atk',l:'⚔️<br>공격'};
   const sp=celFishSpot();if(sp)return{k:'fish',sp,l:'구름<br>낚시'};
-  if(Math.hypot(CEL.x-550,CEL.y-165)<26)return{k:'peak',l:'닫힌 문'};
+  if(Math.hypot(CEL.x-CSHOP[0],CEL.y-CSHOP[1])<16)return{k:'shop',l:'구름<br>상점'};
+  if(Math.hypot(CEL.x-550,CEL.y-165)<26)return{k:'peak',l:pkOpen()?'⛰️<br>저울':'닫힌 문'};
   return null}
 function celActLabel(){const a=$('act');let l='';if(CEL.mode==='dark')l='→';else if(CEL.fish)l=CEL.fish.st==='reel'?'지금!':CEL.fish.st==='bite'?'챔질!':CEL.fish.st==='got'?'🎉':'…';else{const n=celNear();l=n?n.l:'☁️'}if(a.dataset.cl!==l){a.dataset.cl=l;a.innerHTML=l}a.classList.toggle('hot',!!(CEL.fish&&(CEL.fish.st==='bite'||CEL.fish.st==='reel')))}
 function celAct(){Snd.resume&&Snd.resume();if(CEL.mode==='dark')return;if(CEL.fish){celFishPress();return}const n=celNear();if(!n)return;
@@ -12109,12 +12118,59 @@ function celAct(){Snd.resume&&Snd.resume();if(CEL.mode==='dark')return;if(CEL.fi
   if(n.k==='gate')return askConfirm('☁️ 마을로 돌아갈까요?','남은 구름 숨결 '+CEL.left+'분은 오늘 다시 쓸 수 있어요.','돌아가기',()=>celLeave());
   if(n.k==='eat')return Net.send({t:'cel_eat'});
   if(n.k==='glass')return celBook();
-  if(n.k==='peak')return toast('⛰️ 가장 높은 곳은 아직 닫혀 있어요 · 빛과 그림자가 함께 열 날이 와요')}
+  if(n.k==='shop')return celShop();
+  if(n.k==='peak')return pkBook()}
+const CSHOP=[586,410];   // 항구의 파란 집 = ☁️ 구름 상점
+function celShop(){const c=CEL.celc|0,pk=CEL.info&&CEL.info.al&&CEL.info.al.pick==='d'?'d':'l',row=(ic,t,d,cost,btn)=>'<div class="row" style="display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed #e8def4"><div style="font-size:26px">'+ic+'</div><div style="flex:1"><b>'+t+'</b><div class="muted" style="font-size:12px;line-height:1.5">'+d+'</div></div>'+btn+'</div>',B=(k,cost,ex)=>'<button class="btn sm '+(c>=cost?'pink':'ghost')+'" data-cbuy="'+k+'"'+(ex||'')+'>💧 '+cost+'</button>';
+  const SL=[['w','무기'],['a','갑옷'],['h','모자'],['g','장갑'],['s','신발'],['c','망토'],['r','반지'],['n','목걸이']];
+  openSheet('☁️ 구름 상점','<div class="muted" style="font-size:12.5px;line-height:1.7;margin-bottom:6px">구름 주인 할머니: 「구름 위에서 모은 💧 구름 방울로 바꿔 가요」<br>가진 구름 방울 <b style="font-size:15px;color:#5a7ad0">💧 '+c.toLocaleString()+'</b> · 구름 낚시 (1~20) · 들판 · 숲 몬스터 (1~25) · ⛰️ 수호자 (300)</div>'+
+   row(pk==='d'?'🌒':'🌅',(pk==='d'?'밤구름':'새벽구름')+' 장비','【무한】 확정 · 가끔 【창세】 · 구름 위에서 낀 개수마다 주는 피해 +4% · 받는 피해 -4%<br><span style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">'+SL.map(([k,n])=>'<button class="btn sm '+(c>=300?'pink':'ghost')+'" data-cbuy="gear" data-sl="'+k+'" style="padding:4px 8px">'+n+'</button>').join('')+'</span>',300,'<b style="color:#5a7ad0;white-space:nowrap">💧 300</b>')+
+   row('⏳','숨결 병','오늘 구름 숨결 +20분 · 하루 한 번'+(CEL.info&&CEL.info.buy?' <b>(오늘 샀어요)</b>':''),60,B('breath',60))+
+   row('💠','꿈의 정수 3개','+20 넘는 강화에 써요',40,B('es',40))+
+   row('🎫','강화권 5장','',25,B('tk',25)),'')}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-cbuy]');if(!t)return;const k=t.dataset.cbuy,sl=t.dataset.sl||'';Snd.sfx('page');
+  if(k==='gear'&&!sl)return toast('아래에서 장비 칸을 골라요');
+  const cost={gear:300,breath:60,es:40,tk:25}[k];if((CEL.celc|0)<cost)return toast('💧 구름 방울이 모자라요');
+  askConfirm('☁️ 구름 상점',(k==='gear'?'구름 장비 ('+t.textContent+')':t.closest('.row').querySelector('b').textContent)+'를 💧 '+cost+'에 바꿀까요?','바꾸기',()=>Net.send({t:'cel_buy',k,sl}))});
+/* ---------- ⛰️ 가장 높은 곳: 저울 · 수호자 ---------- */
+function pkBook(){const P=CEL.pk||{l:0,d:0,g:150,op:0},bar=(v,c)=>'<div style="height:12px;border-radius:8px;background:#efe8f8;overflow:hidden;margin:4px 0 10px"><i style="display:block;height:100%;width:'+Math.min(100,v/P.g*100)+'%;background:'+c+'"></i></div>';
+  openSheet('⛰️ 가장 높은 곳','<p style="line-height:1.85;font-size:14px;margin:0 0 8px">'+(P.clr?'이번 주 수호자는 고요해졌어요. 정상에 바람이 따뜻해요.<br>다음 주 월요일에 저울이 다시 비어요.':P.op?'빛과 그림자의 저울이 모두 찼어요!<br>계단을 올라가 「새벽과 밤의 수호자」를 함께 고요하게 해 줘요.':'문에 저울 두 개가 새겨져 있어요.<br>한쪽엔 해, 한쪽엔 달. 둘 다 차야 문이 열린대요.')+'</p>'+
+   '<b>🌅 빛의 저울</b> <span class="muted">'+Math.min(P.l,P.g)+' / '+P.g+'</span>'+bar(P.l,'linear-gradient(90deg,#ffe08a,#ffb0c8)')+'<b>🌒 그림자의 저울</b> <span class="muted">'+Math.min(P.d,P.g)+' / '+P.g+'</span>'+bar(P.d,'linear-gradient(90deg,#b8a0f0,#6a5ab8)')+
+   '<div class="muted" style="font-size:12px;line-height:1.7">✨ 새벽빛 들판 몬스터 → 빛의 저울 · 🌑 그림자 숲 몬스터 → 그림자의 저울<br>보통 1 · 큰 몬스터 5 · 필드 보스 30 · 누구나 어느 쪽이든 채울 수 있어요 (매주 월요일에 비워져요)<br>수호자는 20초마다 빛 ↔ 그림자 모습이 바뀌어요 · 반대편 길을 고른 사람이 1.5배로 때려요<br>쓰러뜨리면 함께한 사람 모두: 골드 5천만 · 💠 10 · 💧 300 · 구름 장비 【무한】 이상</div>','')}
+const PKB=[550,100],PKP=2.6;   // 수호자 자리 · 빛구슬 한 번 주기(초)
+const pkForm=now=>Math.floor(now/20000)%2;   // 0 빛 · 1 그림자
+function pkOrbs(T,frac){const i=Math.floor(T/PKP),r=celRand(i*131+17),n=frac<.3?7:frac<.65?6:5,L=[];for(let k=0;k<n;k++)L.push([550+(r()-.5)*130,114+(r()-.5)*58]);return{i,ph:T-i*PKP,L}}
+function pkUpdate(dt,now){const P=CEL.pk;if(!P||!P.op||P.clr||P.hp<=0)return;const T=now/1000,O=pkOrbs(T,P.hp/P.mhp);
+  if(O.i!==CEL.pkI){CEL.pkI=O.i;CEL.pkAim=[CEL.x,CEL.y];CEL.pkDone=0}
+  if(!CEL.pkDone&&O.ph>=1.6){CEL.pkDone=1;const L=O.L.concat(CEL.pkAim?[CEL.pkAim]:[]),hit=L.some(([x,y])=>((CEL.x-x)/17)**2+((CEL.y-y)/9)**2<1);Snd.hfx('swing');
+    if(hit){const sh=(CEL.info&&CEL.info.al&&CEL.info.al.pick==='d'?1.15:1)*(1-.04*csN()),dmg=Math.max(10,Math.round((300-huDef()*.6)*sh));CEL.hp-=dmg;CEL.hurtT=.3;Snd.hfx('hurt');CEL.pops.push({x:CEL.x,y:CEL.y-26,t:.9,s:'-'+dmg,c:'#ff6a8a'});
+      if(CEL.hp<=0){CEL.hp=huMaxHp();Net.send({t:'cf_leave'});CEL.fieldF='';CEL.x=CGATE[0];CEL.y=CGATE[1]-22;showBanner('💫 빛구슬에 쓰러져서 구름 항구에서 깨어났어요',2400)}}}}
+function pkAttack(){const P=CEL.pk;if(CEL.atkCd>0)return;CEL.atkCd=.45;Snd.hfx('swing');CEL.swing=.18;if(!P||!P.op||P.clr||P.hp<=0)return;
+  const now=Date.now()+CEL.toff,bx=PKB[0]+Math.sin(now/2000)*24;if(Math.hypot(CEL.x-bx,(CEL.y-PKB[1])*1.3)>54)return toast('수호자에게 조금 더 가까이');
+  const pick=CEL.info&&CEL.info.al&&CEL.info.al.pick,fm=pkForm(now),good=(pick==='l'&&fm===1)||(pick==='d'&&fm===0),cr=Math.random()<huCrit(),d=Math.round(huAtk()*(cr?2:1)*(pick==='d'?1.3:1)*(good?1.5:1)*(1+.04*csN())*(.9+Math.random()*.2));
+  CEL.pops.push({x:bx,y:PKB[1]-50,t:.8,s:(good?'✨':'')+(cr?'💥':'')+d,c:good?'#ffe9a0':cr?'#ffd34d':'#ffffff'});for(let i=0;i<8;i++)CEL.parts.push({x:bx,y:PKB[1]-30,vx:(Math.random()-.5)*90,vy:-30-Math.random()*40,t:.5,c:fm?'#d8b8ff':'#fff0b0'});Snd.hfx(cr?'crit':'swing');CEL.pkHit=.25;Net.send({t:'pk_hit',d})}
+function pkDraw(list){const P=CEL.pk;if(!P)return;const now=Date.now()+CEL.toff,T=now/1000,fm=pkForm(now),live=P.op&&!P.clr&&P.hp>0;
+  if(!live){if(P.clr)list.push({y:PKB[1],fn:()=>{for(let i=0;i<6;i++){const a=wt*.6+i*1.05;cx.fillStyle='rgba(255,246,200,'+(.5+.3*Math.sin(wt*2+i))+')';cx.fillRect(Math.round(PKB[0]+Math.cos(a)*22),Math.round(PKB[1]-40+Math.sin(a)*8),2,2)}}});return}
+  const O=pkOrbs(T,P.hp/P.mhp),L=O.L.concat(CEL.fieldF==='p'&&CEL.pkAim?[CEL.pkAim]:[]);
+  list.push({y:0,fn:()=>{L.forEach(([x,y])=>{if(O.ph<1.6){const k=O.ph/1.6;cx.strokeStyle=fm?'rgba(200,170,255,'+(.4+k*.5)+')':'rgba(255,220,130,'+(.4+k*.5)+')';cx.lineWidth=1;cx.beginPath();cx.ellipse(x,y,17,9,0,0,6.283);cx.stroke();cx.fillStyle=fm?'rgba(150,110,230,'+k*.3+')':'rgba(255,220,120,'+k*.3+')';cx.beginPath();cx.ellipse(x,y,17*k,9*k,0,0,6.283);cx.fill();const oy=y-90*(1-k);cx.fillStyle=fm?'#c8a8ff':'#fff0a0';cx.beginPath();cx.arc(x,oy,3,0,6.283);cx.fill();cx.fillStyle='rgba(255,255,255,.8)';cx.fillRect(Math.round(x)-1,Math.round(oy)-1,1,1)}else if(O.ph<2.1){const k=(O.ph-1.6)/.5;cx.fillStyle=fm?'rgba(200,170,255,'+(1-k)*.7+')':'rgba(255,240,170,'+(1-k)*.7+')';cx.beginPath();cx.ellipse(x,y,17+k*8,9+k*4,0,0,6.283);cx.fill()}})}});
+  list.push({y:PKB[1]+2,fn:()=>{const bx=PKB[0]+Math.sin(now/2000)*24,by=PKB[1]-30+Math.sin(T*1.6)*3,hurt=(CEL.pkHit=Math.max(0,(CEL.pkHit||0)-FXDT))>0,C=fm?{a:'rgba(170,130,255,',b:'#e8dcff',c:'#b8a0f0',d:'#6a5ab8',e:'#fff0b0'}:{a:'rgba(255,220,140,',b:'#fffaf0',c:'#ffe6b0',d:'#f0b860',e:'#ffffff'};
+    cx.fillStyle='rgba(40,30,80,.18)';cx.beginPath();cx.ellipse(bx,PKB[1]+2,26,6,0,0,6.283);cx.fill();
+    const g=cx.createRadialGradient(bx,by,4,bx,by,58);g.addColorStop(0,C.a+'.45)');g.addColorStop(1,C.a+'0)');cx.fillStyle=g;cx.fillRect(bx-58,by-58,116,116);
+    const fl=Math.sin(T*2.2)*.25;[-1,1].forEach(s2=>{for(let j=0;j<5;j++){const a=(-.5-j*.32+fl)*s2,len=34-j*3;cx.save();cx.translate(bx+s2*12,by-4);cx.rotate(s2>0?a:Math.PI+a);cx.fillStyle=j%2?C.c:C.b;cx.beginPath();cx.ellipse(len*.55,0,len*.55,4.5,0,0,6.283);cx.fill();cx.restore()}});
+    if(hurt)cx.globalAlpha=.6+.4*Math.sin(T*60);
+    const BD=[[0,4,15,C.c],[-7,0,10,C.b],[7,0,10,C.b],[0,-6,13,C.b],[0,12,10,C.c]];BD.forEach(([dx,dy,r])=>{cx.fillStyle=C.d;cx.beginPath();cx.arc(bx+dx,by+dy,r+1,0,6.283);cx.fill()});BD.forEach(([dx,dy,r,c])=>{cx.fillStyle=c;cx.beginPath();cx.arc(bx+dx,by+dy,r,0,6.283);cx.fill()});
+    cx.fillStyle=C.d;cx.fillRect(Math.round(bx)-6,Math.round(by)-6,4,1);cx.fillRect(Math.round(bx)+2,Math.round(by)-6,4,1);cx.fillRect(Math.round(bx)-5,Math.round(by)-5,2,1);cx.fillRect(Math.round(bx)+3,Math.round(by)-5,2,1);cx.fillRect(Math.round(bx)-1,Math.round(by)-1,3,1);
+    cx.fillStyle='rgba(255,150,180,.35)';cx.fillRect(Math.round(bx)-9,Math.round(by)-3,3,2);cx.fillRect(Math.round(bx)+6,Math.round(by)-3,3,2);
+    cx.globalAlpha=1;cx.strokeStyle=C.e;cx.lineWidth=1.5;cx.beginPath();cx.ellipse(bx,by-22,10,3,0,0,6.283);cx.stroke();
+    for(let i=0;i<4;i++){const a=T*1.2+i*1.571;cx.fillStyle=i%2?C.e:C.c;cx.beginPath();cx.arc(bx+Math.cos(a)*30,by+6+Math.sin(a)*10,2,0,6.283);cx.fill()}}})}
+function pkHud(){const P=CEL.pk;if(CEL.fieldF!=='p'||!P||!P.op||P.clr||P.hp<=0)return;const now=Date.now()+CEL.toff,fm=pkForm(now),left=20-Math.floor((now/1000)%20),pick=CEL.info&&CEL.info.al&&CEL.info.al.pick,good=(pick==='l'&&fm===1)||(pick==='d'&&fm===0),w=VW*.72,x=(VW-w)/2,y=Math.round(VH*.64);
+  cx.fillStyle='rgba(40,30,80,.55)';cx.fillRect(x-2,y-2,w+4,8);cx.fillStyle=fm?'#a890f0':'#ffd27a';cx.fillRect(x,y,w*P.hp/P.mhp,4);cx.fillStyle='rgba(255,255,255,.35)';cx.fillRect(x,y,w*P.hp/P.mhp,1);
+  cx.font='bold 7px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='rgba(40,30,80,.85)';const t1='새벽과 밤의 수호자 · '+(fm?'🌒 그림자의 모습':'🌅 빛의 모습')+' '+left+'초',t2=good?'✨ 지금 내 힘이 잘 들어요 ×1.5':'';cx.strokeText(t1,VW/2,y-5);cx.fillStyle='#fff';cx.fillText(t1,VW/2,y-5);if(t2){cx.strokeText(t2,VW/2,y+14);cx.fillStyle='#ffe9a0';cx.fillText(t2,VW/2,y+14)}}
 function celBook(){const n=Object.keys(CEL.celd).filter(k=>CEL.celd[k]>0).length;openSheet('☁️ 구름 도감 '+n+'/'+CEL_FISH.length,'<div class="muted" style="font-size:12.5px;line-height:1.7;margin-bottom:8px">🌈 무지개 호수 · 🍭 솜사탕 구름 끝 · 🌫️ 안개 호수 · ⚡ 번개 낭떠러지<br>오늘 남은 구름 숨결 <b>'+CEL.left+'분</b> · 🍭 솜사탕을 뜯으면 하루 한 번 +10분</div><div class="dexgrid">'+CEL_FISH.map((F,i)=>{const c=CEL.celd[i]|0;return'<div class="cell'+(c?' has':' unk')+'" title="'+esc(F[0])+'"><img src="'+celFishCan(i).toDataURL()+'"><span class="dot" style="background:'+['#c8c8c8','#7ad08a','#6aa8f0','#c07af0','#f0b030'][F[1]]+'"></span>'+(c?'<span class="cnt">'+c+'</span>':'')+'</div>'}).join('')+'</div><div class="muted" style="font-size:11.5px;text-align:center">'+CEL_FISH.filter((F,i)=>CEL.celd[i]).map(F=>F[0]).join(' · ')+'</div>')}
-function celHud(){const h=$('celHud');if(!CEL.on){h.hidden=true;return}h.hidden=false;const pk=CEL.info&&CEL.info.al&&CEL.info.al.pick;h.innerHTML='<b>☁️ 숨결 '+(CEL.info&&CEL.info.admin?'∞':CEL.left+'분')+'</b>'+(pk?' · '+(pk==='l'?'🌅 빛':'🌒 그림자'):' · 🛠️ 미리보기')+(CEL.fieldF?'<i style="--hp:'+Math.max(0,CEL.hp/huMaxHp()*100)+'%"></i>':'')}
+function celHud(){const h=$('celHud');if(!CEL.on){h.hidden=true;return}h.hidden=false;const pk=CEL.info&&CEL.info.al&&CEL.info.al.pick;h.innerHTML='<b>☁️ 숨결 '+(CEL.info&&CEL.info.admin?'∞':CEL.left+'분')+'</b> · 💧 '+(CEL.celc|0)+(pk?' · '+(pk==='l'?'🌅 빛':'🌒 그림자'):' · 🛠️ 미리보기')+(CEL.fieldF?'<i style="--hp:'+Math.max(0,CEL.hp/huMaxHp()*100)+'%"></i>':'')}
 /* ---------- 그리기 ---------- */
 function celRender(dt){if(CEL.mode==='dark')return celDarkRender(dt);
-  const cX=Math.max(0,Math.min(CW-VW,CEL.x-VW/2)),cY=Math.max(0,Math.min(CH-VH,CEL.y-VH/2)),h=kstHM(),night=h<5.5||h>=19.5,k=cX/(CW-VW||1);
+  const cX=Math.max(0,Math.min(CW-VW,CEL.x-VW/2)),cY=Math.max(-110,Math.min(CH-VH,CEL.y-VH/2)),h=kstHM(),night=h<5.5||h>=19.5,k=cX/(CW-VW||1);
   /* 하늘: 서쪽은 밤빛, 동쪽은 새벽빛 */
   const sky=cx.createLinearGradient(-cX,0,CW-cX,0);sky.addColorStop(0,night?'#1c1840':'#3a3170');sky.addColorStop(.42,night?'#4a4488':'#9c8fd0');sky.addColorStop(.58,night?'#7a6aa8':'#ffd2e4');sky.addColorStop(1,night?'#a08aa8':'#ffe6b4');cx.fillStyle=sky;cx.fillRect(0,0,VW,VH);
   const vg=cx.createLinearGradient(0,0,0,VH);vg.addColorStop(0,'rgba(255,255,255,0)');vg.addColorStop(1,'rgba(255,255,255,.22)');cx.fillStyle=vg;cx.fillRect(0,0,VW,VH);
@@ -12138,8 +12194,11 @@ function celRender(dt){if(CEL.mode==='dark')return celDarkRender(dt);
   /* 마을로 돌아가는 문 · 모래시계 */
   list.push({y:CGATE[1],fn:()=>{const[X,Y]=CGATE;cx.fillStyle='#fffaf0';cx.fillRect(X-14,Y-26,4,26);cx.fillRect(X+10,Y-26,4,26);cx.strokeStyle='#fff6d8';cx.lineWidth=4;cx.beginPath();cx.arc(X,Y-26,12,Math.PI,0);cx.stroke();const g=cx.createLinearGradient(0,Y-36,0,Y);g.addColorStop(0,'rgba(200,180,255,.2)');g.addColorStop(1,'rgba(255,240,200,'+(.35+.15*Math.sin(wt*2))+')');cx.fillStyle=g;cx.beginPath();cx.moveTo(X-10,Y);cx.lineTo(X-10,Y-26);cx.arc(X,Y-26,10,Math.PI,0);cx.lineTo(X+10,Y);cx.fill();cx.fillStyle='#ffd34d';cx.fillRect(X-1,Y-40,2,3)}});
   list.push({y:CGLASS[1]+4,fn:()=>{const[X,Y]=CGLASS,fr=CEL.info&&CEL.info.admin?1:Math.max(0,Math.min(1,CEL.left/90));cx.fillStyle='#e8d8b0';cx.fillRect(X-7,Y-24,14,3);cx.fillRect(X-7,Y,14,3);cx.fillStyle='rgba(220,240,255,.8)';cx.beginPath();cx.moveTo(X-6,Y-21);cx.lineTo(X+6,Y-21);cx.lineTo(X+1,Y-11);cx.lineTo(X+6,Y);cx.lineTo(X-6,Y);cx.lineTo(X-1,Y-11);cx.fill();cx.fillStyle='#ffe9a0';cx.beginPath();cx.moveTo(X-5*fr,Y-12-9*fr);cx.lineTo(X+5*fr,Y-12-9*fr);cx.lineTo(X,Y-12);cx.fill();cx.fillRect(X-5,Y-3*(1-fr)-1,10,3*(1-fr)+1);if(((wt*6)|0)%2)cx.fillRect(X,Y-11,1,8)}});
+  /* ⛰️ 수호자 · ☁️ 구름 상점 간판 */
+  if(cY<200)pkDraw(list);
+  list.push({y:CSHOP[1]-8,fn:()=>{const X=CSHOP[0]+16,Y=CSHOP[1]-26;cx.fillStyle='#a88a70';cx.fillRect(X,Y,1,12);cx.fillStyle='#fffaf0';cx.fillRect(X-6,Y-1,13,8);cx.strokeStyle='#8ab0f0';cx.lineWidth=1;cx.strokeRect(X-5.5,Y-.5,12,7);cx.fillStyle='#6aa8f0';cx.beginPath();cx.moveTo(X+.5,Y+1);cx.quadraticCurveTo(X+3.5,Y+4.5,X+.5,Y+5.5);cx.quadraticCurveTo(X-2.5,Y+4.5,X+.5,Y+1);cx.fill()}});
   /* 필드 몬스터 */
-  if(CEL.fieldF)CFM[CEL.fieldF].forEach(mo=>{if(mo.x==null)return;list.push({y:mo.y,fn:()=>{const al=mo.dead?Math.max(0,mo.dead/.8):1;cx.globalAlpha=al;celMonDraw(CEL.fieldF,mo.k,mo.x,mo.y,wt+mo.s%7,mo.hit||0);cx.globalAlpha=1;if(!mo.dead&&mo.hp<mo.mhp){const w=mo.k===4?40:16;cx.fillStyle='rgba(30,20,50,.6)';cx.fillRect(mo.x-w/2,mo.y-(mo.k===4?52:22),w,2);cx.fillStyle=mo.k===4?'#ff6a9a':'#ff9ab8';cx.fillRect(mo.x-w/2,mo.y-(mo.k===4?52:22),w*mo.hp/mo.mhp,2)}if(mo.k>=3&&!mo.dead){cx.font='bold 6px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='rgba(60,40,80,.8)';cx.strokeText(CF_K[CEL.fieldF][mo.k][0],mo.x,mo.y-(mo.k===4?56:26));cx.fillStyle=mo.k===4?'#ffe0f0':'#fff6c8';cx.fillText(CF_K[CEL.fieldF][mo.k][0],mo.x,mo.y-(mo.k===4?56:26))}}})});
+  if(CEL.fieldF&&CFM[CEL.fieldF])CFM[CEL.fieldF].forEach(mo=>{if(mo.x==null)return;list.push({y:mo.y,fn:()=>{const al=mo.dead?Math.max(0,mo.dead/.8):1;cx.globalAlpha=al;celMonDraw(CEL.fieldF,mo.k,mo.x,mo.y,wt+mo.s%7,mo.hit||0);cx.globalAlpha=1;if(!mo.dead&&mo.hp<mo.mhp){const w=mo.k===4?40:16;cx.fillStyle='rgba(30,20,50,.6)';cx.fillRect(mo.x-w/2,mo.y-(mo.k===4?52:22),w,2);cx.fillStyle=mo.k===4?'#ff6a9a':'#ff9ab8';cx.fillRect(mo.x-w/2,mo.y-(mo.k===4?52:22),w*mo.hp/mo.mhp,2)}if(mo.k>=3&&!mo.dead){cx.font='bold 6px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='rgba(60,40,80,.8)';cx.strokeText(CF_K[CEL.fieldF][mo.k][0],mo.x,mo.y-(mo.k===4?56:26));cx.fillStyle=mo.k===4?'#ffe0f0':'#fff6c8';cx.fillText(CF_K[CEL.fieldF][mo.k][0],mo.x,mo.y-(mo.k===4?56:26))}}})});
   /* 다른 사람 (구름 위 나라에 있는 친구만) */
   others.forEach(o=>{if(!o.cel||!o.seen)return;const k=1-Math.exp(-dt*12);o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k;const mv=o.m||Math.hypot(o.tx-o.x,o.ty-o.y)>.6;if(mv)o.anim+=dt;list.push({y:o.y,fn:()=>{const wp=walkPose(o.anim,mv),sp=lookSprites(o.look)[o.d][wp.fr];cx.fillStyle='rgba(40,30,80,.2)';cx.beginPath();cx.ellipse(Math.round(o.x),Math.round(o.y)-1,6,2.5,0,0,6.28);cx.fill();cx.drawImage(sp,Math.round(o.x-8),Math.round(o.y-21+wp.bob));worldTag([[o.name,'#4a3d6b']],Math.round(o.x),Math.round(o.y-24))}})});
   /* 나 */
@@ -12153,10 +12212,11 @@ function celRender(dt){if(CEL.mode==='dark')return celDarkRender(dt);
   CEL.parts.forEach(p=>{if(p.c==='ring'){const k=1-p.t/.9;cx.strokeStyle='rgba(255,255,255,'+(1-k)*.6+')';cx.lineWidth=1;cx.beginPath();cx.ellipse(p.x,p.y,3+k*10,1+k*3,0,0,6.283);cx.stroke()}else{cx.fillStyle=p.c;cx.globalAlpha=Math.min(1,p.t*2);cx.fillRect(Math.round(p.x),Math.round(p.y),1,1);cx.globalAlpha=1}});
   CEL.pops.forEach(p=>{cx.font='bold 8px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='rgba(40,30,80,.8)';cx.strokeText(p.s,p.x,p.y-(.9-p.t)*14);cx.fillStyle=p.c;cx.fillText(p.s,p.x,p.y-(.9-p.t)*14)});
   /* 섬 이름 */
-  CISL.forEach(I=>{cx.font='bold 7px sans-serif';cx.textAlign='center';cx.lineWidth=3;cx.strokeStyle=I.side==='d'?'rgba(40,30,70,.75)':'rgba(255,255,255,.85)';cx.strokeText(I.n,I.x,I.y-I.ry-14);cx.fillStyle=I.side==='d'?'#f0e6ff':'#6a4a7a';cx.fillText(I.n,I.x,I.y-I.ry-14)});
+  CISL.forEach(I=>{if(I.k==='peak'&&CEL.pk&&CEL.pk.op&&!CEL.pk.clr)return;cx.font='bold 7px sans-serif';cx.textAlign='center';cx.lineWidth=3;cx.strokeStyle=I.side==='d'?'rgba(40,30,70,.75)':'rgba(255,255,255,.85)';cx.strokeText(I.n,I.x,I.y-I.ry-14);cx.fillStyle=I.side==='d'?'#f0e6ff':'#6a4a7a';cx.fillText(I.n,I.x,I.y-I.ry-14)});
   cx.restore();
   /* 박자 맞추기 줄 (화면 아래) */
   const Q=CEL.fish;if(Q&&Q.st==='reel'){const bw=VW*.7,bx=(VW-bw)/2,by=VH*.72;cx.fillStyle='rgba(40,30,80,.55)';cx.fillRect(bx-3,by-3,bw+6,14);cx.fillStyle='rgba(255,255,255,.25)';cx.fillRect(bx,by,bw,8);cx.fillStyle='rgba(255,220,120,.85)';cx.fillRect(bx+bw*(Q.zc-Q.zone/2),by,bw*Q.zone,8);cx.fillStyle='#fff';cx.fillRect(bx+bw*Q.m-1,by-2,3,12);for(let i=0;i<Q.need;i++){cx.fillStyle=i<Q.hits?'#ffd34d':'rgba(255,255,255,.4)';cx.fillRect(bx+i*7,by+12,5,3)}}
+  pkHud();
   if(CEL.flash>0){cx.fillStyle='rgba(255,255,255,'+Math.min(1,CEL.flash)+')';cx.fillRect(0,0,VW,VH)}
   celHud()}
 function celDarkRender(dt){const D=CEL.dark,cX=Math.max(0,Math.min(660-VW,D.x-VW/2)),cY=0;cx.fillStyle='#07060c';cx.fillRect(0,0,VW,VH);cx.save();cx.translate(-Math.round(cX),Math.round(VH/2-62));
@@ -12168,12 +12228,17 @@ function celDarkRender(dt){const D=CEL.dark,cX=Math.max(0,Math.min(660-VW,D.x-VW
   cx.restore();if(CEL.flash>0){cx.fillStyle='rgba(255,255,255,'+Math.min(1,CEL.flash)+')';cx.fillRect(0,0,VW,VH)}}
 /* ---------- 서버 메시지 ---------- */
 function celOnMsg(m){
-  if(m.t==='cel'){CEL.info=m;CEL.celd=m.celd||{};if(m.ready!==undefined)PLAZA.ready=m.ready;if(PLAZA.talkOpen&&uiOpen&&/나그네/.test(($('sheethead')||{}).textContent||''))nagneTalk();return true}
-  if(m.t==='cel_ok'){celEnter(m);return true}
+  if(m.t==='cel'){CEL.info=m;CEL.celd=m.celd||{};if(m.celc!=null)CEL.celc=m.celc;if(m.pk)CEL.pk=m.pk;if(m.ready!==undefined)PLAZA.ready=m.ready;if(PLAZA.talkOpen&&uiOpen&&/나그네/.test(($('sheethead')||{}).textContent||''))nagneTalk();return true}
+  if(m.t==='cel_ok'){if(m.celc!=null)CEL.celc=m.celc;if(m.pk)CEL.pk=m.pk;celEnter(m);return true}
+  if(m.t==='celc'){CEL.celc=m.n|0;if(m.note){toast(m.note);Snd.sfx('buy');if(uiOpen&&/구름 상점/.test(($('sheethead')||{}).textContent||''))celShop()}return true}
+  if(m.t==='pk'){const was=CEL.pk&&CEL.pk.op;CEL.pk=m.pk;if(uiOpen&&/가장 높은 곳/.test(($('sheethead')||{}).textContent||''))pkBook();if(!was&&m.pk&&m.pk.op&&CEL.on)showBanner('⛰️ 가장 높은 곳의 문이 열렸어요!',2600);return true}
+  if(m.t==='pkj'){CEL.toff=(m.now||Date.now())-Date.now();CEL.pk=m.pk;return true}
+  if(m.t==='pkh'){if(CEL.pk){CEL.pk.hp=m.hp;if(Net.me&&m.by!==Net.me.id){const bx=PKB[0]+Math.sin((Date.now()+CEL.toff)/2000)*24;CEL.pops.push({x:bx+(Math.random()-.5)*20,y:PKB[1]-44,t:.6,s:''+m.d,c:'#c8d8ff'})}}return true}
+  if(m.t==='pkd'){if(CEL.pk){CEL.pk.hp=0;CEL.pk.clr=1}Snd.sfx('sparkle');CEL.flash=1.2;for(let i=0;i<40;i++)CEL.parts.push({x:PKB[0],y:PKB[1]-30,vx:(Math.random()-.5)*160,vy:-60-Math.random()*80,t:1.2,c:i%2?'#fff0b0':'#d8b8ff'});showBanner('⛰️ 수호자가 고요해졌어요 · 빛과 그림자가 함께 해냈어요',3200);return true}
   if(m.t==='cel_no'){toast(m.msg);Snd.sfx('no');return true}
   if(m.t==='cel_left'){CEL.left=m.left;if(CEL.left<=10&&CEL.left>0&&!CEL.warned){CEL.warned=1;toast('☁️ 구름 숨결이 '+CEL.left+'분 남았어요')}return true}
   if(m.t==='cel_out'){celLeave(m.msg);return true}
-  if(m.t==='celd'){CEL.celd=m.celd||{};return true}
+  if(m.t==='celd'){CEL.celd=m.celd||{};if(m.celc!=null)CEL.celc=m.celc;return true}
   if(m.t==='cf'){CEL.toff=(m.now||Date.now())-Date.now();CFM[m.f]=m.list.map(a=>({id:a[0],k:a[1],s:a[2],b:a[3],hp:a[4],mhp:a[5]}));return true}
   if(m.t==='cfn'){const a=m.m;CFM[m.f].push({id:a[0],k:a[1],s:a[2],b:a[3],hp:a[4],mhp:a[5]});return true}
   if(m.t==='cfh'){const mo=CFM[m.f].find(x=>x.id===m.id);if(mo){mo.hp=m.hp;if(Net.me&&m.by!==Net.me.id){mo.hit=.2;CEL.pops.push({x:mo.x,y:mo.y-20,t:.6,s:''+m.d,c:'#c8d8ff'})}}return true}

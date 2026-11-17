@@ -691,7 +691,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {}, shxUsed = baitUsed(me.save, m.data, 'b_shx'), luxUsed = baitUsed(me.save, m.data, 'b_lux');
@@ -1188,7 +1188,7 @@ function onMsg(ws, me, m) {
     case 'trap_list': case 'trap_set': case 'trap_claim': case 'trap_take': case 'trap_peek': case 'trap_note': case 'trap_skin': case 'trap_bait': trapMsg(ws, me, m); break;
     /* ----- 은비랜드 ----- */
     case 'eb_info': case 'eb_buy': case 'eb_shop': case 'eb_slot': case 'eb_race': case 'ebn_pick': case 'ebn_get': ebnMsg(ws, me, m); break;
-    case 'al_go': case 'cel_get': case 'cel_in': case 'cel_t': case 'cel_out': case 'cel_fish': case 'cel_eat': case 'cf_join': case 'cf_leave': case 'cf_hit': celMsg(ws, me, m); break;
+    case 'al_go': case 'cel_get': case 'cel_in': case 'cel_t': case 'cel_out': case 'cel_fish': case 'cel_eat': case 'cf_join': case 'cf_leave': case 'cf_hit': case 'pk_join': case 'pk_hit': case 'cel_buy': celMsg(ws, me, m); break;
     case 'shf_go': shfMsg(ws, me); break;
     case 'eb_hilo': case 'eb_wheel': case 'eb_egg': case 'eb_vip': ebMsg(ws, me, m); break;
     /* ----- 오늘의 일 세 가지 다 하면 강화권 1장 (하루 한 번) ----- */
@@ -1216,6 +1216,7 @@ function onMsg(ws, me, m) {
       if (!me.admin) return;
       const ok = text => send(ws, { t: 'adm_ok', text });
       if (m.op === 'errs') { const L = CERRS.slice(-12).reverse(); return send(ws, { t: 'adm_ok', text: L.length ? L.map(e => new Date(e.at + 9 * 3600e3).toISOString().slice(11, 16) + ' ' + e.n + ' [' + e.w + '] ' + e.m + (e.s ? ' ← ' + e.s.slice(0, 80) : '')).join('\n') : '최근 화면 오류가 없어요 🎉' }); }
+      if (m.op === 'pk_set') { const p = pkOf(); if (!p) return ok('마을 기록을 아직 못 읽었어요'); if (m.v === 'open') { p.l = p.d = PK_GOAL; p.op = 1; } else { V.pk = null; pkOf(); } vMark(); celCast({ t: 'pk', pk: pkPub() }); return ok(m.v === 'open' ? '⛰️ 가장 높은 곳 문을 열었어요 (이번 주)' : '⛰️ 이번 주 가장 높은 곳을 처음 상태로 돌렸어요'); }   // 🧪 2026-11-17 시험용
       if (m.op === 'brag') { const d = kstDay(), r = V && V.dk && V.dk.d === d && V.dk.p[me.key]; const n = r ? r.n | 0 : 0; if (!n) return ok('오늘 직접 낚은 물고기가 아직 없어요'); if (me.bragD === d && (me.bragN | 0) >= 3) return ok('오늘 자랑은 세 번까지예요'); me.bragN = me.bragD === d ? (me.bragN | 0) + 1 : 1; me.bragD = d; broadcast({ t: 'big', g: 3, text: '🎣📣 운영자 ' + me.name + ' 님도 오늘 ' + n.toLocaleString() + '마리를 낚았어요!' }); return ok('자랑했어요 (오늘 ' + n + '마리)'); }   // 2026-11-16: 진짜 오늘 마릿수만 (지어낸 숫자는 안 돼요)
       if (m.op === 'notice') { const text = cleanText(m.text, 80); if (text) { broadcast({ t: 'news', text: '📢 운영자: ' + text }); ok('공지를 보냈어요'); } return; }
       /* ----- 갇힘 · 이동 도구 (2026-11-05) ----- */
@@ -1305,6 +1306,7 @@ function onMsg(ws, me, m) {
         if (m.op === 'setsize') { const lv = Math.max(0, Math.min(3, m.n | 0)); if (m.kind === 'h') homeOf(s).lv = lv; else islOf(s).lv = lv; queueSave(key, s); await flushSave(key); if (l) l[1].save = s; return ok(nm + ' 님 ' + (m.kind === 'h' ? '집' : '섬') + ' 크기를 ' + lv + '단계로 맞췄어요'); }
         if (m.op === 'give') {
           const k = String(m.k || ''), lim = k === 'g' ? 1e9 : 1e7, n = Math.max(-lim, Math.min(lim, Math.round(+m.n || 0))); if (!n) return;
+          if (k === 'cc') { s.celc = Math.max(0, (s.celc | 0) + n); queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'celc', n: s.celc }); } return ok(nm + ' 님 💧 구름 방울 ' + (n > 0 ? '+' : '') + n + ' (지금 ' + s.celc + ')'); }
           if (k === 'tk' || k === 'es') {
             const e = enhOf(s); if (k === 'tk') e.tk = Math.max(0, Math.min(ENH.TK_MAX, e.tk + n)); else e.es = Math.max(0, (e.es | 0) + n); queueSave(key, s); await flushSave(key);
             if (l) { l[1].save = s; sendEnh(l[0], l[1], {}); }
@@ -3002,7 +3004,19 @@ setInterval(() => { for (const f of ['l', 'd']) if (CF[f] && !cfMembers(f).lengt
 function celDay(s) { const d = kstDay(); if (!s.cel || typeof s.cel !== 'object' || s.cel.d !== d) s.cel = { d, m: 0, eat: 0 }; return s.cel; }
 function alOf(s) { if (!s.al || typeof s.al !== 'object') s.al = { ch: 0, l: 0, d: 0, pick: '', sw: 0 }; return s.al; }
 const alReady = (s, me) => me.admin || (((s.hu && s.hu.lv) | 0) >= 99 && !!(s.hu && s.hu.clr && s.hu.clr[13]));
-const celPub = (s, me) => { const c = celDay(s), a = alOf(s); return { t: 'cel', al: a, ready: alReady(s, me), left: me.admin ? 999 : Math.max(0, CEL_MIN + (c.eat | 0) * CEL_EAT - (c.m | 0)), eat: c.eat | 0, celd: s.celd || {}, admin: !!me.admin }; };
+const celPub = (s, me) => { const c = celDay(s), a = alOf(s); return { t: 'cel', al: a, ready: alReady(s, me), left: me.admin ? 999 : Math.max(0, CEL_MIN + (c.eat | 0) * CEL_EAT + (c.buy ? CEL_BUY_MIN : 0) - (c.m | 0)), eat: c.eat | 0, buy: c.buy | 0, celd: s.celd || {}, celc: s.celc | 0, pk: pkPub(), admin: !!me.admin }; };
+/* ---------- ⛰️ 가장 높은 곳 (2026-11-17): 새벽빛 들판(빛) · 그림자 숲(그림자) 저울을 둘 다 채우면 그 주에 문이 열려요 → 「새벽과 밤의 수호자」 (주 1번)
+   수호자는 20초마다 빛 ↔ 그림자 모습이 바뀌고, 반대편 길을 고른 사람이 1.5배로 때려요 · 공격 무늬는 시간으로 모든 화면이 같이 계산 (위치는 안 보내요) ---------- */
+const PK_GOAL = 150, PK_HP = 2500000, PK_PT = [1, 1, 1, 5, 30];
+function pkOf() { if (!V) return null; const w = wkId(); if (!V.pk || V.pk.w !== w) { V.pk = { w, l: 0, d: 0, op: 0, hp: PK_HP, mhp: PK_HP, dm: {}, clr: 0 }; vMark(); } return V.pk; }
+const pkPub = () => { const p = pkOf(); return p ? { l: p.l | 0, d: p.d | 0, g: PK_GOAL, op: p.op | 0, hp: p.hp, mhp: p.mhp, clr: p.clr | 0 } : null; };
+function celCast(msg) { for (const [w, p] of players) if (p.celAt) send(w, msg); }
+function pkAdd(f, k) { const p = pkOf(); if (!p || p.op || (f !== 'l' && f !== 'd')) return; const b = p[f] | 0; p[f] = Math.min(PK_GOAL, b + PK_PT[k]); if (p[f] === b) return; vMark();
+  if (p.l >= PK_GOAL && p.d >= PK_GOAL) { p.op = 1; broadcast({ t: 'news', text: '⛰️ 빛과 그림자의 저울이 모두 찼어요! 구름 위 가장 높은 곳의 문이 열렸어요' }); }
+  celCast({ t: 'pk', pk: pkPub() }); }
+const csN = h => { let n = 0; const inv = Array.isArray(h && h.inv) ? h.inv : []; for (const k of RPG_SLOTS) { const it = inv[h['eq' + k]]; if (it && it.t === k && it.cs) n++; } return n; };   // ☁️ 구름 장비 몇 개 꼈는지
+const CEL_SHOP = { gear: 300, breath: 60, es: 40, tk: 25 }, CEL_BUY_MIN = 20;
+function celGear(s, g, sl) { const h = s.hunt = s.hunt || {}; h.inv = Array.isArray(h.inv) ? h.inv : []; const it = mkItem(10, g, sl); it.n = 16; it.cs = alOf(s).pick === 'd' ? 'd' : 'l'; invPut(h, it); return it; }
 function celMsg(ws, me, m) { const s = me.save; if (!s) return; const now = Date.now();
   if (m.t === 'cel_get') return send(ws, celPub(s, me));
   if (m.t === 'al_go') return withLock(me.key, () => {   // 나그네의 부탁: 1장 등불 · 2장 별 조각(돌려주기 l / 갖기 d) · 3장 갈림길(l / d) · 돌아오는 길(바꾸기 · 7일에 한 번)
@@ -3024,24 +3038,43 @@ function celMsg(ws, me, m) { const s = me.save; if (!s) return; const now = Date
     const rar = F[1], a = alOf(s), home = a.pick && ((a.pick === 'l') === (id < 12 || (id >= 24 && 'rc'.indexOf(sp) >= 0))) ? 1.2 : 1;
     const g = Math.round([3e5, 8e5, 2e6, 6e6, 2e7][rar] * home), tk = [1, 2, 3, 6, 12][rar], es = rar >= 3 ? rar - 2 : 0;
     s.celd = s.celd && typeof s.celd === 'object' ? s.celd : {}; const first = !s.celd[id]; s.celd[id] = (s.celd[id] | 0) + 1;
-    const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + tk); if (es) e.es = (e.es | 0) + es; s.gold = (Number(s.gold) || 0) + g; s.rev = (s.rev | 0) + 1; queueSave(me.key, s);
-    out.unshift('☁️ ' + F[0] + (first ? ' · 🆕 구름 도감!' : '') + ' · 골드 +' + g.toLocaleString() + ' · 강화권 +' + tk + (es ? ' · 💠 +' + es : ''));
-    sendEnh(ws, me, { dgold: g, rev: s.rev, note: out }); send(ws, { t: 'celd', celd: s.celd });
+    const e = enhOf(s), out = [], cc = [1, 2, 4, 8, 20][rar]; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + tk); if (es) e.es = (e.es | 0) + es; s.gold = (Number(s.gold) || 0) + g; s.celc = (s.celc | 0) + cc; s.rev = (s.rev | 0) + 1; queueSave(me.key, s);
+    out.unshift('☁️ ' + F[0] + (first ? ' · 🆕 구름 도감!' : '') + ' · 골드 +' + g.toLocaleString() + ' · 강화권 +' + tk + (es ? ' · 💠 +' + es : '') + ' · 💧 +' + cc);
+    sendEnh(ws, me, { dgold: g, rev: s.rev, note: out }); send(ws, { t: 'celd', celd: s.celd, celc: s.celc });
     if (rar >= 4) broadcast({ t: 'news', text: '☁️✨ ' + me.name + ' 님이 구름 위에서 전설 「' + F[0] + '」을(를) 낚았어요!' }); });
   if (m.t === 'cf_join') { const f = m.f === 'd' ? 'd' : 'l'; if (!me.celAt) return; cfLeave(me); me.cf = f; const F = cfField(f); send(ws, { t: 'cf', f, now, list: F.mons.map(cfPub) }); return cfCast(f, { t: 'cfp', f, n: cfMembers(f).length }); }
   if (m.t === 'cf_leave') return cfLeave(me);
+  if (m.t === 'pk_join') { if (!me.celAt) return; const p = pkOf(); if (!p) return; if (!p.op && !me.admin) return send(ws, { t: 'news', text: '⛰️ 아직 문이 닫혀 있어요' }); cfLeave(me); me.cf = 'p'; return send(ws, { t: 'pkj', now, pk: pkPub() }); }
+  if (m.t === 'pk_hit') { if (me.cf !== 'p') return; const p = pkOf(); if (!p || !p.op || p.clr || p.hp <= 0) return; if (now - (me.cfhT || 0) < 280) return; me.cfhT = now;
+    const h = s.hunt || {}, lv = (s.hu && s.hu.lv) | 0, R = rpgSum(h, lv), cap = Math.round(((5 + lv + R.atk) * 1.1 * 2.2 * 1.3 + 60) * (1 + .04 * csN(h)) * 1.5), d = Math.max(1, Math.min(cap, m.d | 0));
+    p.hp = Math.max(0, p.hp - d); p.dm[me.key] = (p.dm[me.key] | 0) + d; vMark();
+    if (p.hp > 0) return cfCast('p', { t: 'pkh', hp: p.hp, by: me.id, d });
+    p.clr = 1; cfCast('p', { t: 'pkd', by: me.name }); celCast({ t: 'pk', pk: pkPub() });
+    const keys = Object.keys(p.dm); broadcast({ t: 'big', g: 4, text: '⛰️🏆 「새벽과 밤의 수호자」가 고요해졌어요! (' + keys.length + '명이 함께) 이번 주 가장 높은 곳에 평화가 와요' });
+    for (const key of keys) { if ((p.dm[key] | 0) < p.mhp * .02 && keys.length > 1) continue; const l = liveByKey(key); if (!l) continue; const [w2, p2] = l, s2 = p2.save; if (!s2) continue;
+      withLock(key, () => { const E = enhOf(s2), g = 5e7; s2.gold = (Number(s2.gold) || 0) + g; E.es = (E.es | 0) + 10; s2.celc = (s2.celc | 0) + 300; const it = celGear(s2, Math.random() < .15 ? 8 : 7);
+        s2.rev = (s2.rev | 0) + 1; queueSave(key, s2); send(w2, { t: 'rpg', hunt: s2.hunt, note: '⛰️ 수호자의 선물 · 골드 +' + g.toLocaleString() + ' · 💠 +10 · 💧 +300 · 🎁 ' + (it.cs === 'd' ? '밤구름' : '새벽구름') + ' 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] }); send(w2, { t: 'celc', n: s2.celc }); sendEnh(w2, p2, { dgold: g, rev: s2.rev }); }).catch(() => { }); }
+    return; }
+  if (m.t === 'cel_buy') return withLock(me.key, () => { if (!me.celAt) return; const k = String(m.k || ''), cost = CEL_SHOP[k]; if (!cost) return; const have = s.celc | 0; if (have < cost) return send(ws, { t: 'news', text: '💧 구름 방울이 모자라요 (' + have + '/' + cost + ')' });
+    const E = enhOf(s); let note = '';
+    if (k === 'breath') { const c = celDay(s); if (c.buy) return send(ws, { t: 'news', text: '⏳ 숨결 병은 하루에 한 번이에요' }); c.buy = 1; note = '⏳ 구름 숨결 +' + CEL_BUY_MIN + '분'; }
+    else if (k === 'gear') { const h = s.hunt || {}; if (Array.isArray(h.inv) && h.inv.length >= 60) return send(ws, { t: 'news', text: '🎒 가방이 꽉 찼어요 · 분해하고 다시 와요' }); const it = celGear(s, Math.random() < .1 ? 8 : 7, RPG_SLOTS.includes(m.sl) ? m.sl : undefined); note = '🎁 ' + (it.cs === 'd' ? '밤구름' : '새벽구름') + ' 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t]; }
+    else if (k === 'es') { E.es = (E.es | 0) + 3; note = '💠 꿈의 정수 +3'; }
+    else if (k === 'tk') { if (E.tk >= ENH.TK_MAX) return send(ws, { t: 'news', text: '강화권이 이미 가득해요' }); E.tk = Math.min(ENH.TK_MAX, E.tk + 5); note = '🎫 강화권 +5'; }
+    s.celc = have - cost; s.rev = (s.rev | 0) + 1; queueSave(me.key, s);
+    send(ws, { t: 'celc', n: s.celc, note }); if (k === 'gear') send(ws, { t: 'rpg', hunt: s.hunt }); if (k === 'es' || k === 'tk') sendEnh(ws, me, { rev: s.rev }); if (k === 'breath') send(ws, { t: 'cel_left', left: celPub(s, me).left }); });
   if (m.t === 'cf_hit') { const f = me.cf; if (!f || !CF[f]) return; if (now - (me.cfhT || 0) < 280) return; me.cfhT = now; const F = CF[f], mo = F.mons.find(x => x.id === (m.id | 0)); if (!mo || mo.hp <= 0) return;
-    const h = s.hunt || {}, lv = (s.hu && s.hu.lv) | 0, R = rpgSum(h, lv), cap = Math.round((5 + lv + R.atk) * 1.1 * 2.2 * 1.3 + 60), d = Math.max(1, Math.min(cap, m.d | 0));
+    const h = s.hunt || {}, lv = (s.hu && s.hu.lv) | 0, R = rpgSum(h, lv), cap = Math.round(((5 + lv + R.atk) * 1.1 * 2.2 * 1.3 + 60) * (1 + .04 * csN(h))), d = Math.max(1, Math.min(cap, m.d | 0));
     mo.hp -= d; mo.dm.set(me.key, (mo.dm.get(me.key) || 0) + d);
     if (mo.hp > 0) return cfCast(f, { t: 'cfh', f, id: mo.id, hp: mo.hp, by: me.id, d });
     F.mons = F.mons.filter(x => x !== mo); const K = CF_KINDS[f][mo.k], boss = mo.k === 4; if (boss) { F.boss = 0; F.bossAt = now + CF_BOSS_RESPAWN; }
-    cfCast(f, { t: 'cfd', f, id: mo.id, by: me.name, k: mo.k });
+    cfCast(f, { t: 'cfd', f, id: mo.id, by: me.name, k: mo.k }); pkAdd(f, mo.k);
     for (const [key, dmg] of mo.dm) { if (dmg < mo.mhp * (boss ? .03 : .15) && key !== me.key) continue; const l = liveByKey(key); if (!l) continue; const [w2, p2] = l, s2 = p2.save; if (!s2 || p2.cf !== f) continue;
-      withLock(key, () => { const e = ebOf(s2), E = enhOf(s2), a = alOf(s2), home = a.pick === f ? 1.2 : 1, share = boss ? 1 : key === me.key ? 1 : .5, c = Math.round(K[3] * home * share); e.c = (e.c | 0) + c;
-        let es = Math.random() < K[4] ? (boss ? 3 + ((Math.random() * 4) | 0) : 1) : 0; if (es) E.es = (E.es | 0) + es; const note = [(boss ? '🏆 ' : '✨ ') + K[0] + ' · 칩 +' + c.toLocaleString() + (es ? ' · 💠 +' + es : '')];
+      withLock(key, () => { const e = ebOf(s2), E = enhOf(s2), a = alOf(s2), home = a.pick === f ? 1.2 : 1, share = boss ? 1 : key === me.key ? 1 : .5, c = Math.round(K[3] * home * share), cc = [1, 1, 1, 4, 25][mo.k]; e.c = (e.c | 0) + c; s2.celc = (s2.celc | 0) + cc;
+        let es = Math.random() < K[4] ? (boss ? 3 + ((Math.random() * 4) | 0) : 1) : 0; if (es) E.es = (E.es | 0) + es; const note = [(boss ? '🏆 ' : '✨ ') + K[0] + ' · 칩 +' + c.toLocaleString() + ' · 💧 +' + cc + (es ? ' · 💠 +' + es : '')];
         const h2 = s2.hunt = s2.hunt || {}; h2.inv = Array.isArray(h2.inv) ? h2.inv : [];
         if (Math.random() < K[5] && h2.inv.length < 60) { const gw = boss ? [0, 0, 6, 22, 34, 24, 10, 3.5, .5] : [6, 20, 30, 26, 12, 4.5, 1.2, .25, .05]; let r = Math.random() * gw.reduce((x, y) => x + y, 0), g = 0; for (; g < 8; g++) { r -= gw[g]; if (r <= 0) break; } const it = mkItem(10, g); it.n = 16; invPut(h2, it); note.push('🎁 【' + RPG_GN[g] + '】 ' + RPG_SN[it.t]); }
-        s2.rev = (s2.rev | 0) + 1; queueSave(key, s2); send(w2, { t: 'rpg', hunt: s2.hunt, c: e.c, note: note.join(' · ') }); if (es) sendEnh(w2, p2, { rev: s2.rev }); }).catch(() => { }); }
+        s2.rev = (s2.rev | 0) + 1; queueSave(key, s2); send(w2, { t: 'rpg', hunt: s2.hunt, c: e.c, note: note.join(' · ') }); send(w2, { t: 'celc', n: s2.celc }); if (es) sendEnh(w2, p2, { rev: s2.rev }); }).catch(() => { }); }
     setTimeout(() => { if (!CF[f]) return; if (!boss) { const nm = cfMon(f, cfKind()); CF[f].mons.push(nm); cfCast(f, { t: 'cfn', f, m: cfPub(nm) }); } }, boss ? 1000 : CF_RESPAWN);
     if (boss) broadcast({ t: 'news', text: '🏆 ' + K[0] + '을(를) 쓰러뜨렸어요! (' + [...mo.dm.keys()].length + '명이 함께)' }); return; }
 }
