@@ -12136,7 +12136,7 @@ function celDarkRender(dt){const D=CEL.dark,cX=Math.max(0,Math.min(660-VW,D.x-VW
   cx.restore();if(CEL.flash>0){cx.fillStyle='rgba(255,255,255,'+Math.min(1,CEL.flash)+')';cx.fillRect(0,0,VW,VH)}}
 /* ---------- 서버 메시지 ---------- */
 function celOnMsg(m){
-  if(m.t==='cel'){CEL.info=m;CEL.celd=m.celd||{};if(m.ready!==undefined)PLAZA.ready=m.ready;if(PLAZA.talkOpen)nagneTalk();return true}
+  if(m.t==='cel'){CEL.info=m;CEL.celd=m.celd||{};if(m.ready!==undefined)PLAZA.ready=m.ready;if(PLAZA.talkOpen&&uiOpen&&/나그네/.test(($('sheethead')||{}).textContent||''))nagneTalk();return true}
   if(m.t==='cel_ok'){celEnter(m);return true}
   if(m.t==='cel_no'){toast(m.msg);Snd.sfx('no');return true}
   if(m.t==='cel_left'){CEL.left=m.left;if(CEL.left<=10&&CEL.left>0&&!CEL.warned){CEL.warned=1;toast('☁️ 구름 숨결이 '+CEL.left+'분 남았어요')}return true}
@@ -12156,7 +12156,9 @@ function plazaBuild(T,Z,SOL,prop){const C=PLAZA;for(let y=0;y<30;y++)for(let x=7
   SOL[C.gate[1]][C.gate[0]-1]=true;SOL[C.gate[1]][C.gate[0]+1]=true;for(let y=C.gate[1];y<C.cy;y++)if(T[y][C.gate[0]]==='g')T[y][C.gate[0]]='p';
   [[C.cx-6,C.cy-4],[C.cx+6,C.cy-4],[C.cx-6,C.cy+4],[C.cx+6,C.cy+4]].forEach(([x,y])=>prop('lamp',x,y));
   [[C.cx-4,C.cy+6],[C.cx+4,C.cy+6]].forEach(([x,y])=>{if(T[y]&&T[y][x])prop('bench',x,y)})}
-function plazaDraw(list,x0,x1,y0,y1){const C=PLAZA;if(x1<72||x0>101||y0>28)return;const X=C.cx*TS+8,Y=C.cy*TS+8;
+function plazaDraw(list,x0,x1,y0,y1){const C=PLAZA;
+  const L=nagneCh()===1?plazaLantern():null;if(L&&L[0]>=x0-2&&L[0]<=x1+2&&L[1]>=y0-2&&L[1]<=y1+2)list.push({y:L[1]*TS+14,fn:()=>{const lx=L[0]*TS+8,ly=L[1]*TS+12,g=cx.createRadialGradient(lx,ly-6,1,lx,ly-6,18);g.addColorStop(0,'rgba(255,220,140,.6)');g.addColorStop(1,'rgba(255,220,140,0)');cx.fillStyle=g;cx.fillRect(lx-18,ly-24,36,36);cx.fillStyle='#6a5040';cx.fillRect(lx-3,ly-10,6,1);cx.fillStyle='#ffe0a0';cx.fillRect(lx-2,ly-9,4,6);cx.fillStyle='#6a5040';cx.fillRect(lx-3,ly-3,6,1)}})
+  if(x1<72||x0>101||y0>28)return;const X=C.cx*TS+8,Y=C.cy*TS+8;
   list.push({y:Y+10,fn:()=>{cx.fillStyle='#d8d4e8';cx.beginPath();cx.ellipse(X,Y+6,22,11,0,0,6.283);cx.fill();cx.fillStyle='#8ac8f0';cx.beginPath();cx.ellipse(X,Y+5,19,9,0,0,6.283);cx.fill();cx.fillStyle='rgba(255,255,255,.35)';cx.beginPath();cx.ellipse(X-6,Y+3,8,3,0,0,6.283);cx.fill();
     cx.fillStyle='#ece8f6';cx.fillRect(X-3,Y-12,6,16);cx.fillStyle='#fff6c8';const s=Math.sin(wt*1.5)*.15+1;cx.save();cx.translate(X,Y-18);cx.scale(s,s);cx.beginPath();for(let i=0;i<10;i++){const a=i/10*6.283-Math.PI/2,r=i%2?3:7;cx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}cx.fill();cx.restore();
     for(let i=0;i<4;i++){const a=i/4*6.283+wt*.3,k=(wt*1.6+i*.25)%1;cx.fillStyle='rgba(200,235,255,'+(1-k)+')';cx.fillRect(Math.round(X+Math.cos(a)*k*16),Math.round(Y-12+k*k*18-Math.sin(k*Math.PI)*8),1,2)}
@@ -12166,7 +12168,7 @@ function plazaDraw(list,x0,x1,y0,y1){const C=PLAZA;if(x1<72||x0>101||y0>28)retur
     [[-15,-30],[15,-30],[0,-45],[-10,-42],[10,-42]].forEach(([dx,dy],i)=>{cx.fillStyle=i%2?'#ffffff':'#e8e4ff';cx.beginPath();cx.arc(GX+dx,GY+dy,5,0,6.283);cx.fill()});
     const a=on?.35+.2*Math.sin(wt*2):.08,g=cx.createLinearGradient(0,GY-44,0,GY);g.addColorStop(0,'rgba(190,170,255,'+a+')');g.addColorStop(1,'rgba(255,230,190,'+a+')');cx.fillStyle=g;cx.beginPath();cx.moveTo(GX-12,GY);cx.lineTo(GX-12,GY-30);cx.arc(GX,GY-30,12,Math.PI,0);cx.lineTo(GX+12,GY);cx.fill();
     if(on&&Math.random()<.2)parts.push({x:GX+(Math.random()-.5)*20,y:GY-10,vx:0,vy:-14,life:.9,t:0,c:'#fff6d0',g:0,s:1})}});
-  const L=PLAZA.lantern;if(L&&nagneCh()===1)list.push({y:L[1]*TS+14,fn:()=>{const lx=L[0]*TS+8,ly=L[1]*TS+12,g=cx.createRadialGradient(lx,ly-6,1,lx,ly-6,18);g.addColorStop(0,'rgba(255,220,140,.6)');g.addColorStop(1,'rgba(255,220,140,0)');cx.fillStyle=g;cx.fillRect(lx-18,ly-24,36,36);cx.fillStyle='#6a5040';cx.fillRect(lx-3,ly-10,6,1);cx.fillStyle='#ffe0a0';cx.fillRect(lx-2,ly-9,4,6);cx.fillStyle='#6a5040';cx.fillRect(lx-3,ly-3,6,1)}})}
+}
 const nagneCh=()=>CEL.info&&CEL.info.al?CEL.info.al.ch|0:0;
 function plazaLantern(){if(PLAZA.lantern&&PLAZA.lantern.d===kstDay())return PLAZA.lantern;const d=kstDay(),r=celRand([...String(d)].reduce((a,c)=>a*31+c.charCodeAt(0),7)),C=[];for(let y=2;y<MH-2;y++)for(let x=2;x<MW-2;x++)if(W.T[y][x]==='p'&&!W.SOL[y][x]&&Math.hypot(x-PLAZA.cx,y-PLAZA.cy)>14&&y<90)C.push([x,y]);const L=C.length?C[(r()*C.length)|0]:[PLAZA.cx-3,PLAZA.cy+5];L.d=d;return PLAZA.lantern=L}
 function plazaNear(tx,ty){const C=PLAZA;if(Math.abs(tx-C.gate[0])<=1&&ty>=C.gate[1]&&ty<=C.gate[1]+2)return{type:'x',label:'구름<br>문',fn:plazaGate};
@@ -12178,7 +12180,7 @@ function plazaGate(){if(Net.me&&Net.me.admin)return askConfirm('🛠️ 운영�
 function nagneTalk(){PLAZA.talkOpen=true;const I=CEL.info,a=I&&I.al||{ch:0},ready=I&&I.ready,ch=a.ch|0,b=(s,txt,c)=>'<button class="btn '+(c||'pink')+'" style="width:100%;margin-top:8px" data-nagne="'+s+'">'+txt+'</button>',p=t=>'<p style="line-height:1.85;font-size:14px;margin:0 0 6px">'+t+'</p>';let h='';
   if(!ready&&ch===0)h=p('🕯️ 나그네: 오래 걸어왔어요. 저 하늘 너머에 구름 위 나라가 있대요.')+p('…아직은 때가 아니에요. <b>용사 Lv99</b>가 되고 <b>꿈의 심연 끝</b>까지 정화하면, 그때 부탁 하나 들어줄래요?')+'<div class="muted" style="font-size:12px">지금 용사 Lv'+huS().lv+'</div>';
   else if(ch===0)h=p('🕯️ 나그네: 와 줬군요. 어젯밤 아이 하나가 등불을 잃어버렸대요. 어두운 데서 울고 있을지도 몰라요.')+p('마을 어딘가 길 위에 작은 불빛이 있을 거예요. 찾아 줄래요?')+b(1,'🏮 찾아볼게요');
-  else if(ch===1)h=p('🕯️ 나그네: 등불은… 오늘 마을 길 어딘가에서 반짝이고 있을 거예요. 밤이 아니어도 보여요.')+'<div class="muted" style="font-size:12px">오늘 등불 자리: 마을 길 위 · 별빛 광장에서 조금 떨어진 곳</div>';
+  else if(ch===1){const L=plazaLantern(),dx=L[0]-PLAZA.cx,dy=L[1]-PLAZA.cy,dir=(Math.abs(dy)>Math.abs(dx)*.5?(dy<0?'북':'남'):'')+(Math.abs(dx)>Math.abs(dy)*.5?(dx<0?'서':'동'):'')+'쪽';h=p('🕯️ 나그네: 등불은… 오늘 마을 길 어딘가에서 반짝이고 있을 거예요. 밤이 아니어도 보여요.')+'<div class="muted" style="font-size:12px">🏮 별빛 광장에서 <b>'+dir+'</b>으로 약 '+Math.round(Math.hypot(dx,dy))+'걸음 · 길 위에 있어요 (날마다 자리가 바뀌어요)</div>'}
   else if(ch===2)h=p('🕯️ 나그네: 고마워요. 아이가 웃었어요.')+p('그런데… 아이 손에 <b>별 조각</b>이 하나 있었어요. 다른 아이 것을 몰래 가져온 거래요. 아주 귀하고, 아주 반짝여요.')+p('당신이라면 어떻게 할래요?')+b('3l','🌅 주인에게 돌려줄게요')+b('3d','🌒 내가 갖고 있을게요','ghost');
   else if(ch===3)h=p('🕯️ 나그네: 저기 구름 다리가 보이죠? 다리 끝에서 길이 두 갈래로 나뉘어요.')+p('<b style="color:#d08a10">🌅 빛의 길</b> — 함께 걷는 사람을 지키고, 다친 곳을 천천히 낫게 해요. 숨결 속에서 조금씩 회복해요.')+p('<b style="color:#7a4ac0">🌒 그림자의 길</b> — 더 세게, 더 빠르게. 대신 더 많이 다쳐요. 공격 1.3배 · 받는 피해 1.15배 · 조금 빠른 걸음.')+p('어느 쪽이든… 돌아오는 길은 늘 열려 있어요.')+b('4l','🌅 빛의 길로 갈게요')+b('4d','🌒 그림자의 길로 갈게요','ghost');
   else{const pk=a.pick;h=p('🕯️ 나그네: '+(pk==='l'?'빛의 길을 걷고 있군요. 따뜻해 보여요.':'그림자의 길을 걷고 있군요. …괜찮아요, 언제든 돌아와도 돼요.'))+p('하늘낚시를 하다 보면 하늘에 <b>「틈」</b>이 열려요. 그 너머가 구름 위 나라예요.')+'<div class="muted" style="font-size:12px">빛 '+(a.l|0)+' · 그림자 '+(a.d|0)+' · 오늘 남은 구름 숨결 '+(I.left|0)+'분</div>'+b(pk==='l'?'5d':'5l',pk==='l'?'🌒 그림자의 길로 바꾸기 (7일에 한 번)':'🌅 돌아오는 길 — 빛으로 (7일에 한 번)','ghost')}
