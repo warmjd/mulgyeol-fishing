@@ -103,3 +103,5 @@
 - ☁️ 구름 Lv: s.clv(경험치) · CLV_NEED 30+8L^1.6 · client cLv/hLv/hRealm · 구름 위 힘: 공격 8+Lv×3+장비 · 방어 · 체력은 용사 공식에 구름 Lv · 구름 장비 rq = CEL_RQ[g] · 첫 장비 1등급 rq1.
 - 몬스터 CF_SC로 줄였어요 (서버 CF_KINDS · client CF_K 같이) · 수호자 40만 · 빛구슬 120.
 - 최초 기록 V.gf (foot · lv30 · x · i · pk · s) · 시즌 4주 V.gr 순위 → V.gse 1~3등 강화 상자(특) + t_gking1~3. 'go' 메시지 · 'go_get'(순위) · 팻말 goSigns(마을 광장 · 별빛 광장) · goSheet.
+- 🪑 하늘 보는 흔들의자 (2026-11-18): SWG [[70,2],[84,2]] 마을 북쪽 끝 · 둘이 앉기 · server SW (메모리 · sw_sit/sw_up/sw_push · 끝 박자 |cos|<.4면 +.16) · 흔들림 A·sin(ω(t−t0)) 화면마다 계산 · 앉으면 P.swing (내 그림은 의자가 그려요) · 둘이면 하트.
+- ⛵ 꽃배 물 위 속도 절반 (P.boatK).

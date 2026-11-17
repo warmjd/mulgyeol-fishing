@@ -641,7 +641,7 @@ wss.on('connection', (ws) => {
         broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
         send(ws, { t: 'ice', list: icePub().filter(e => e.n !== p.name) }); iceOff(p);   // ❄️ 나간 자리 얼음
         send(ws, { t: 'trc', list: trcPub() });   // 🎣 낚시 자리의 흔적
-        send(ws, { t: 'flags', o: flagPub(), f: flagSf() }); flagPay(ws, p); send(ws, goPub());   /* 🎉 그랜드 오픈 */   /* 🚩 낚시터 깃발 */
+        send(ws, { t: 'flags', o: flagPub(), f: flagSf() }); flagPay(ws, p); send(ws, goPub()); for (let i = 0; i < SW_N; i++) if (SW[i].s[0] || SW[i].s[1] || SW[i].A0) send(ws, swPub(i));   /* 🎉 그랜드 오픈 */   /* 🚩 낚시터 깃발 */
         if (p.save) curMigrate(p.save);
         if (p.save) { const e = enhOf(p.save), out = []; enhDaily(e, out); enhSession(e, out); { const l0 = e.lv | 0; e.star = e.star | 0; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv); if (e.lv > l0) out.push('🎉 강화 3.0! 모아 둔 별로 +' + l0 + ' → +' + e.lv); } rankSet(key, p.name, e, p.look); sendEnh(ws, p, { note: out }); if (out.length) queueSave(key, p.save); }
         send(ws, { t: 'champ', c: champPub() });
@@ -741,6 +741,7 @@ wss.on('connection', (ws) => {
     try { iceSet(p); } catch (e) { }
     endTrade(p, p.name + ' 님이 마을을 떠났어요');
     try { cfLeave(p); } catch (e) { }
+    try { swLeave(p); } catch (e) { }
     players.delete(ws);
     if (LOUNGE.delete(p.key)) broadcast({ t: 'lounge', list: [...LOUNGE.values()] });
     // 배낚시 중에 껐다 켜도 배에서 내리지 않아요 (다시 들어오면 갑판으로). 출항 전 대기 중이면 내려요
@@ -776,6 +777,13 @@ function trcCatch(me, f, c, sh) { if (!V || !me.here || (me.m & 4) || !(me.x > 0
 const CP_NEED_S = L => Math.round(10 + .12 * L * L), CP_CUM_S = [0, 0]; for (let L = 1; L < 99; L++) CP_CUM_S[L + 1] = CP_CUM_S[L] + CP_NEED_S(L);
 const cpLvS = xp => { let L = 1; while (L < 99 && xp >= CP_CUM_S[L + 1]) L++; return L; };
 const CP_RWS = [[10, 'C', 1e7], [20, 'C', 3e7], [30, 'B', 5e7], [40, 'B', 1e8], [50, 'A', 2e8], [60, 'B', 3e8], [70, 'A', 5e8], [80, 'A', 7e8], [90, 'A', 1e9], [99, 'S', 3e9]];   /* 🐾 반려동물 레벨 선물 */
+/* 🪑 하늘 보는 흔들의자 (2026-11-18): 마을 북쪽 끝 둘 · 둘이 나란히 앉아 박자 맞춰 밀면 그네처럼 높이 · 메모리에만 (저장 안 해요)
+   흔들림 = A · sin(ω(t - t0)) · A는 tA부터 천천히 줄어요 (SW_TAU) · index.html SW_와 같아요 */
+const SW_N = 2, SW_W = 2 * Math.PI / 3.2, SW_TAU = 20000, SW_MAX = 1.15, SW = [];
+for (let i = 0; i < SW_N; i++) SW.push({ s: [0, 0], A0: 0, tA: 0, t0: Date.now() });
+const swA = (w, t) => w.A0 * Math.exp(-(t - w.tA) / SW_TAU);
+const swPub = i => ({ t: 'sw', i, s: SW[i].s, A0: SW[i].A0, tA: SW[i].tA, t0: SW[i].t0, now: Date.now() });
+function swLeave(p) { SW.forEach((w, i) => { const k = w.s.indexOf(p.id); if (k >= 0) { w.s[k] = 0; broadcast(swPub(i)); } }); }
 const SKY_GOLD = [3e4, 8e4, 3e5, 1.5e6, 8e6, 4e7];   /* index.html SKY_PRICE와 같아요 */
 const FLAG_TK = 3, FLAG_G = 5e6, SFLAGS = ["sf_star", "sf_heart", "sf_fish", "sf_wave", "sf_rainbow", "sf_moon", "sf_sun", "sf_flower", "sf_clover", "sf_check", "sf_straw", "sf_anchor", "sf_cat", "sf_paw", "sf_snow", "sf_leaf", "sf_cloud", "sf_carp", "sf_fire", "sf_lantern", "sf_galaxy", "sf_crown", "sf_dragon", "sf_aurora"];   /* 🎨 깃발 치장 (index.html SFLAG와 같아요) */
 const sfOf = s => s && SFLAGS.includes(s.sflag) && ownsCos(s, s.sflag) ? s.sflag : '';
@@ -1163,6 +1171,11 @@ function onMsg(ws, me, m) {
       for (const r of CP_RWS) if (L >= r[0] && !got.includes(r[0])) { got.push(r[0]); nw.push(r); }
       if (nw.length) { queueSave(me.key, s); const nm = String(s.cp.name || '반려동물').slice(0, 8); let gs = 0; for (const r of nw) { enhPack(me.key, r[1], '🐾 ' + nm + ' Lv' + r[0] + ' 선물'); gs += r[2]; } changeBag(me.key, { g: gs }, '🐾 ' + nm + ' 레벨 선물 · 골드 ' + gs.toLocaleString()).catch(() => { }); }
       send(ws, { t: 'cprw', l: got }); break; }
+    case 'sw_sit': { const i = m.i | 0, k = m.k ? 1 : 0, w = SW[i]; if (!w) break; if (w.s[k] && w.s[k] !== me.id) { const o = w.s[1 - k]; if (!o) { swLeave(me); w.s[1 - k] = me.id; broadcast(swPub(i)); } else send(ws, { t: 'sw_no' }); break; } swLeave(me); w.s[k] = me.id; broadcast(swPub(i)); break; }
+    case 'sw_up': swLeave(me); break;
+    case 'sw_push': { const now = Date.now(), w = SW[m.i | 0]; if (!w || w.s.indexOf(me.id) < 0) break; if (now - (me.swT || 0) < 300) break; me.swT = now;
+      const a = swA(w, now), good = Math.abs(Math.cos(SW_W * (now - w.t0) / 1000)) < .4, n = Math.min(SW_MAX, a + (good ? .16 : .03) * (1 - a / SW_MAX * .6));
+      w.A0 = n; w.tA = now; if (a < .05) w.t0 = now - 800; broadcast(swPub(m.i | 0)); break; }
     case 'sky_got': {   /* ☁️ 하늘낚시 (2026-11-17): 골드 · 하늘 도감 기록은 서버가 적어요 (화면이 골드를 더하면 저장이 거절됐어요) */
       const now = Date.now(); if (now - (me.skgT || 0) < 1200) break; me.skgT = now; const id = String(m.id || '').slice(0, 24); if (!/^[a-z0-9_]+$/i.test(id)) break; const r = Math.max(0, Math.min(5, m.r | 0)), c = m.c ? 1 : 0;
       withLock(me.key, () => { const s = me.save; if (!s) return; s.skyd = s.skyd && typeof s.skyd === 'object' ? s.skyd : {}; s.skyd[id] = (s.skyd[id] | 0) + 1; s.skyn = (s.skyn | 0) + 1; const g = c ? 0 : SKY_GOLD[r]; if (g) s.gold = (Number(s.gold) || 0) + g; s.rev = (s.rev | 0) + 1; queueSave(me.key, s); sendEnh(ws, me, { dgold: g, rev: s.rev }); }).catch(() => { });
