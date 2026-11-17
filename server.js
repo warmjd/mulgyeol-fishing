@@ -1277,6 +1277,10 @@ function onMsg(ws, me, m) {
         }
         const s = await loadSave(key); if (!s) return ok(nm + ' 님 저장이 아직 없어요');
         if (m.op === 'setlv') { const e = enhOf(s), n = Math.max(0, Math.min(ENH.MAX, m.n | 0)); e.lv = n; e.max = Math.max(e.max | 0, n); e.star = 0; e.fl = 0; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; sendEnh(l[0], l[1], { note: ['🛠️ 운영자: 낚싯대 +' + n] }); } return ok(nm + ' 님 낚싯대를 +' + n + '(으)로 맞췄어요'); }
+        if (m.op === 'al_set') {   // 🧪 2026-11-17: 나그네 이야기 단계 맞추기 (시험용)
+          const v = String(m.v || '0'), a = alOf(s); a.ch = Math.max(0, Math.min(4, parseInt(v) | 0)); a.pick = a.ch === 4 ? (v.slice(-1) === 'd' ? 'd' : 'l') : ''; a.sw = 0;
+          queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], celPub(s, l[1])); } return ok(nm + ' 님 나그네 이야기를 ' + (a.pick ? (a.pick === 'l' ? '빛' : '그림자') + ' 고른 상태' : a.ch + '장') + '(으)로 맞췄어요'); }
+        if (m.op === 'cel_reset') { s.cel = { d: kstDay(), m: 0, eat: 0 }; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], celPub(s, l[1])); send(l[0], { t: 'cel_left', left: celPub(s, l[1]).left }); } return ok(nm + ' 님 구름 숨결을 다시 채웠어요'); }
         if (m.op === 'skreset') { s.skc = {}; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'sk_reset' }); } return ok(nm + ' 님 직업 기술 대기를 모두 풀었어요'); }
         if (m.op === 'ptreset') { s.ptd = null; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], { t: 'pt', p: ptPub(), today: 0 }); } return ok(nm + ' 님 오늘 배낚시 횟수를 0으로 돌렸어요'); }
         if (m.op === 'unjob') {   // 직업 바꾸기 대기 14일 · 끝 노드 잠금 풀기
@@ -1301,14 +1305,14 @@ function onMsg(ws, me, m) {
         if (m.op === 'setsize') { const lv = Math.max(0, Math.min(3, m.n | 0)); if (m.kind === 'h') homeOf(s).lv = lv; else islOf(s).lv = lv; queueSave(key, s); await flushSave(key); if (l) l[1].save = s; return ok(nm + ' 님 ' + (m.kind === 'h' ? '집' : '섬') + ' 크기를 ' + lv + '단계로 맞췄어요'); }
         if (m.op === 'give') {
           const k = String(m.k || ''), lim = k === 'g' ? 1e9 : 1e7, n = Math.max(-lim, Math.min(lim, Math.round(+m.n || 0))); if (!n) return;
-          if (k === 'tk') {
-            const e = enhOf(s); e.tk = Math.max(0, Math.min(ENH.TK_MAX, e.tk + n)); queueSave(key, s); await flushSave(key);
-            if (l) sendEnh(l[0], l[1], {});
+          if (k === 'tk' || k === 'es') {
+            const e = enhOf(s); if (k === 'tk') e.tk = Math.max(0, Math.min(ENH.TK_MAX, e.tk + n)); else e.es = Math.max(0, (e.es | 0) + n); queueSave(key, s); await flushSave(key);
+            if (l) { l[1].save = s; sendEnh(l[0], l[1], {}); }
           } else {
             if (!keyKind(k)) return ok('그런 물건은 없어요');
             await changeBag(key, { [k]: n }, null);   // 2026-11-11: 받는 사람에게도 조용히
           }
-          return ok(nm + ' 님에게 ' + (k === 'g' ? '골드' : k === 'tk' ? '강화권' : k) + ' ' + n + ' 보냈어요');
+          return ok(nm + ' 님에게 ' + (k === 'g' ? '골드' : k === 'tk' ? '강화권' : k === 'es' ? '💠 꿈의 정수' : k) + ' ' + n + ' 보냈어요');
         }
       }).catch(e => { console.error('adm', e.message); ok('처리하지 못했어요'); });
       break;

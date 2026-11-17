@@ -4372,7 +4372,7 @@ let HUTOP=0;const huCatch=()=>{const d=HUTOP-huS().lv;return d>=30?3:d>=20?2:d>=
 const HDF=[{n:'쉬움',c:'#5ab06a',hp:.45,atk:.45,xp:.7,req:.5},{n:'보통',c:'#5a8ae0',hp:1,atk:1,xp:1,req:1},{n:'악몽',c:'#7a3ac0',hp:3,atk:2.2,xp:2,req:1}];
 const hdf=()=>Math.max(0,Math.min(2,S.hdf==null?1:S.hdf|0));
 /* 🔐 사냥터 순서: 앞 사냥터 우두머리를 쓰러뜨려야 다음이 열려요 + 권장 방어력 미만이면 못 들어가요 */
-function hfLock(i){const u=huS(),clr=u.clr||{},f=HFIELDS[i];if(f.raid){if(huS().lv<10)return'용사 Lv10부터 함께해요';return''}if(f.abyss){if(u.lv<40)return'용사 Lv40부터';if(i===11?!((S.hunt.nclr||{})[9]):!clr[i-1])return i===11?'「꿈의 끝 · 악몽 숲」을 악몽 난이도로 먼저 정화해요':'「'+HFIELDS[i-1].n+'」 우두머리를 먼저 쓰러뜨려요';const rq=Math.floor(HREQ[i]*HDF[hdf()].req);if(huDef()<rq)return'방어력 '+rq+' 필요 (지금 '+huDef()+')';return''}if(hdf()===2&&!clr[i]&&hfOpen(f))return'보통 난이도로 먼저 정화해요';if(!hfOpen(f))return f.night?'용사 Lv15부터':'아직 못 가 본 곳';if(i>0&&!clr[i-1])return'「'+HFIELDS[i-1].n+'」 우두머리를 먼저 쓰러뜨려요';{const rq=Math.floor(HREQ[i]*HDF[hdf()].req);if(huDef()<rq)return'방어력 '+rq+' 필요 (지금 '+huDef()+')'}return''}
+function hfLock(i){if(admOn())return'';const u=huS(),clr=u.clr||{},f=HFIELDS[i];if(f.raid){if(huS().lv<10)return'용사 Lv10부터 함께해요';return''}if(f.abyss){if(u.lv<40)return'용사 Lv40부터';if(i===11?!((S.hunt.nclr||{})[9]):!clr[i-1])return i===11?'「꿈의 끝 · 악몽 숲」을 악몽 난이도로 먼저 정화해요':'「'+HFIELDS[i-1].n+'」 우두머리를 먼저 쓰러뜨려요';const rq=Math.floor(HREQ[i]*HDF[hdf()].req);if(huDef()<rq)return'방어력 '+rq+' 필요 (지금 '+huDef()+')';return''}if(hdf()===2&&!clr[i]&&hfOpen(f))return'보통 난이도로 먼저 정화해요';if(!hfOpen(f))return f.night?'용사 Lv15부터':'아직 못 가 본 곳';if(i>0&&!clr[i-1])return'「'+HFIELDS[i-1].n+'」 우두머리를 먼저 쓰러뜨려요';{const rq=Math.floor(HREQ[i]*HDF[hdf()].req);if(huDef()<rq)return'방어력 '+rq+' 필요 (지금 '+huDef()+')'}return''}
 function huHurt(raw){if(HUNT.down>0)return;if(HUNT.roll>0){huPop(HUNT.x,HUNT.y-30,'구르기!','blue');return}if(HUNT.ifr>0)return;HUNT.ifr=.5;const dm=Math.max(1,Math.round(raw*100/(100+huDef()*6)));HUNT.hp-=dm;HUNT.hurt=.35;SHK={t:.25,a:3};Snd.hfx('hurt');huPop(HUNT.x,HUNT.y-30,'-'+dm,'red');for(let i=0;i<8;i++)parts.push({x:HUNT.x,y:HUNT.y-10,vx:(Math.random()-.5)*60,vy:-30,life:.5,t:0,c:'#ff6a7a',g:100,s:2});if(HUNT.run)HUNT.run.hurt+=dm;if(HUNT.hp<=0)huDie()}
 function huEnter(fi,go){if(HFIELDS[fi]&&HFIELDS[fi].raid&&!go){openRaid();return}if(ONLINE&&Net.me&&isXKing('hl',Net.me.name))setTimeout(()=>{if(HUNT.on){HUNT.scare=performance.now()+2600;showBanner('⚔️ 몬스터들이 용사 왕을 알아봤어요… ❗❓',2200)}},900);if(F.mode!=='idle'){toast('낚시를 마치고 들어가요');return}const lk=hfLock(fi);if(lk){toast('🔒 '+lk);Snd.sfx('no');return}const cd=Math.ceil(((HUNT.cdUntil||0)-Date.now())/1000);if(cd>0){toast('😮‍💨 숨 고르는 중… '+cd+'초 뒤에 다시 들어갈 수 있어요');return}
   huS();closeSheet();const goal=24+HFIELDS[fi].t*2;Object.assign(HUNT,{on:true,fi,df:HFIELDS[fi].raid?1:hdf(),mons:[],ep:[],pkA:{},rollN:2,rollR:0,ifr:0,dim:0,run:{t0:Date.now(),k:0,xp:0,c:0,dr:0,items:[],scr:[],hurt:0,boss:0,lv0:huS().lv,goal,wave:1},x:HUNT.W*TS/2,y:(HUNT.H-3)*TS,hp:huMaxHp(),spawnT:0,kc:0,boss:null,combo:0,roll:0});HUNT.props=huProps(fi);
@@ -9408,12 +9408,38 @@ function openAdmin(){
   if(!isAdmin())return;Snd.sfx('ui');const j=jS(),names=ONLINE&&Net.me?ROSTER.map(p=>p.name):['나'];if(!ADM.to||names.indexOf(ADM.to)<0)ADM.to=names[0]||'';
   const opt=(v,t,cur)=>'<option value="'+esc(v)+'"'+(v===cur?' selected':'')+'>'+esc(t)+'</option>';
   let h='<div class="pethead" style="background:linear-gradient(#ece8f8,#f8f4ff)"><div style="flex:1"><div style="font-size:17px">🛠️ 운영자 모드 <b>'+(admOn()?'켜짐':'꺼짐')+'</b></div><div class="muted" style="font-size:12px">켜 두면 직업을 대기 · 골드 · 레벨 없이 바로 바꿀 수 있고, 끝 노드 잠금도 없어요.</div></div><button class="btn sm '+(admOn()?'ghost':'pink')+'" data-adm="tog">'+(admOn()?'끄기':'켜기')+'</button></div>';
+  const T=ADM.tab||'test',TB=[['test','🧪 시험'],['users','👥 유저'],['gift','🎁 선물'],['vil','📣 마을']];
+  h+='<div class="tabs" style="margin:8px 0 10px">'+TB.map(x=>'<button class="tab'+(T===x[0]?' on':'')+'" data-adm="tab" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>';
+  if(T==='test'){
+  {const W2=(k,t)=>'<button data-adm="warp2" data-v="'+k+'">'+t+'</button>',C2=(k,t)=>'<button data-adm="celgo" data-v="'+k+'">'+t+'</button>';
+   h+='<div class="sec">📍 순간 이동</div><div class="warps"><button data-adm="warp" data-v="spawn">마을 광장</button>'+W2('plaza','🌟 별빛 광장')+W2('eden','🌳 물결 정원')+W2('sky','☁️ 하늘 끝 (하늘낚시)')+'<button data-adm="warp" data-v="dock">항구 부두</button><button data-adm="warp" data-v="isle">안개 섬</button><button data-adm="warp" data-v="boat">배낚시 배</button></div>';
+   h+='<div class="sec">☁️ 구름 위 나라 바로 가기 <span class="cnt">숨결 제한 없어요</span></div><div class="warps">'+C2('hub','☁️ 구름 항구')+C2('cotton','🍭 솜사탕섬')+C2('rlake','🌈 무지개 호수')+C2('dawn','✨ 새벽빛 들판')+C2('thunder','⚡ 번개 협곡')+C2('mlake','🌫️ 안개 호수')+C2('shadow','🌑 그림자 숲')+C2('peak','⛰️ 가장 높은 곳')+'</div>'+
+     '<div class="warps"><button data-adm="celdark">🌑 어둠의 길 다시 보기</button><button data-adm="rift">🌀 하늘 틈 바로 열기</button>'+(ONLINE&&Net.me?'<button data-adm="celfill">⏳ 내 구름 숨결 다시 채우기</button>':'')+'</div>';
+   h+='<div class="sec">⚔️ 사냥터 바로 가기 <span class="cnt">운영자 모드면 잠금 없이</span></div><div class="warps">'+HFIELDS.map((f,i)=>'<button data-adm="hfgo" data-v="'+i+'"><b>'+(i+1)+'</b> '+esc(f.n)+'</button>').join('')+'</div>';
+   h+='<div class="sec">🧑 내 용사</div><div style="display:flex;gap:6px;margin:4px 0"><input class="tin" id="admHu" type="number" min="1" max="99" value="'+huS().lv+'" style="flex:1 1 30%"><button class="btn sm" data-adm="hulv" style="flex:1 1 60%">용사 레벨 맞추기</button></div><div class="warps"><button data-adm="huclr">🌟 사냥터 모두 정화 (심연 · 악몽 포함)</button></div>';
+   if(ONLINE&&Net.me){const al=CEL.info&&CEL.info.al||{},A=(v,t)=>'<button data-adm="alset" data-v="'+v+'"'+((v===String(al.ch|0)&&!al.pick)||(v==='4'+al.pick)?' disabled':'')+'>'+t+'</button>';
+     h+='<div class="sec">🕯️ 나그네 이야기 단계 <span class="cnt">지금 '+(al.pick?(al.pick==='l'?'🌅 빛':'🌒 그림자'):(al.ch|0)+'장')+'</span></div><div class="warps">'+A('0','처음으로')+A('1','1장 등불 찾기')+A('2','2장 별 조각')+A('3','3장 갈림길')+A('4l','🌅 빛 고름')+A('4d','🌒 그림자 고름')+'</div>';
+     h+='<div class="sec">🎁 나에게 바로</div><div class="warps"><button data-adm="gold" data-v="100000000">💰 1억 골드</button><button data-adm="tk" data-v="100">🎫 강화권 100</button><button data-adm="esme" data-v="50">💠 꿈의 정수 50</button><button data-adm="chipme" data-v="1000000">🎰 칩 100만</button></div>'}}
   h+='<div class="sec">🧭 길잡이 미끼 (운영자 전용)</div><div class="muted" style="font-size:12px">끼우면 이 낚시터에서 아직 손맛을 못 본 물고기가 꼭 걸려요 · 운영자 모드에서만 효과 · 지금 '+itN('b_compass')+'개</div><div class="warps"><button data-adm="compass" data-v="10">🧭 10개 받기</button></div>';
   h+='<div class="sec">내 직업 바로 바꾸기</div><div class="warps">'+JOB_IDS.map(id=>'<button data-adm="job" data-v="'+id+'"'+(j.id===id?' disabled':'')+'>'+JOBS[id].ic+' '+JOBS[id].name+'</button>').join('')+'</div>';
+    if(ONLINE&&Net.me){h+='<div class="sec">🧪 시험 도구 <span class="cnt">밸런스를 미리 겪어 보기</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0"><input class="tin" id="admLv" type="number" min="0" max="30" value="'+ENH_LV()+'" style="flex:1 1 30%"><button class="btn sm" data-adm="setlv" style="flex:1 1 60%">고른 친구 낚싯대 +N으로</button></div>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0"><input class="tin" id="admPl" type="number" min="1" max="99" value="'+petLv(partnerId())+'" style="flex:1 1 30%"><button class="btn sm" data-adm="petlv" style="flex:1 1 60%">내 짝꿍 펫 레벨 맞추기</button></div>'+
+    '<div class="warps"><button data-adm="traphurry" data-v="3">내 통발 3시간 당기기</button><button data-adm="traphurry" data-v="24">내 통발 24시간 당기기</button></div>';
+}
+  }
   if(ONLINE&&Net.me){
-    h+='<div class="sec">유저 현황</div><button class="btn sm mint" style="width:100%;margin:4px 0 12px" data-adm="users">👥 모두의 레벨 · 강화 · 골드 보기</button>';
-    h+='<div class="sec">마을 공지</div><div style="display:flex;gap:6px;margin:4px 0 12px"><input class="tin" id="admNote" maxlength="80" placeholder="모두에게 보낼 말"><button class="btn sm" data-adm="notice">보내기</button></div><button class="btn sm mint" data-adm="brag" style="width:100%;margin:-6px 0 12px">🎣📣 오늘 낚은 마릿수 자랑하기 (진짜 오늘 기록 · 하루 3번)</button><button class="btn sm ghost" data-adm="errs" style="width:100%;margin:-6px 0 12px">🐞 최근 화면 오류 보기 (누구 화면에서 무엇이)</button>';
-    h+='<div class="sec">선물 주기 · 빼기 (서버가 바로 넣어 줘요)</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0">'+
+    if(T==='users'){    h+='<div class="sec">유저 현황</div><button class="btn sm mint" style="width:100%;margin:4px 0 12px" data-adm="users">👥 모두의 레벨 · 강화 · 골드 보기</button>';
+    h+='<div class="sec">🚑 갇힘 · 이동 도구 <span class="cnt">위 「선물」의 친구 선택을 같이 써요</span></div><div class="warps">'+
+      '<button data-adm="rescue">🏠 마을로 빼내기</button><button data-adm="summon">🧲 내 옆으로 소환</button><button data-adm="goto">🏃 그 친구에게 가기</button><button data-adm="ptreset">⚓ 오늘 배낚시 횟수 0으로</button><button data-adm="skreset">⏱️ 직업 기술 대기 초기화</button><button data-adm="kick">🔌 연결 끊기 (다시 접속하게)</button></div>'+
+      '<div class="muted" style="font-size:12px;margin:2px 0 10px">마을로 빼내기: 배낚시 중이면 배에서 내리고 광장으로 옮겨요. 접속 안 한 친구는 다음 접속 때 광장에서 시작해요.</div>';
+    {const w=ADM.who,pt=w&&w.party;h+='<div class="sec">👀 접속자 위치 · 배낚시 관리</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0"><button class="btn sm" data-adm="who">새로 보기</button><button class="btn sm pink" data-adm="pt_end">배낚시 강제 귀항 (보상 줌)</button><button class="btn sm ghost" data-adm="pt_clear">배낚시 해산 (보상 없음)</button></div>';
+      if(w){h+='<div class="muted" style="font-size:12px;margin:4px 0">'+(pt?'⚓ 배낚시 '+(pt.state==='sea'?'바다 위 · 어창 '+pt.hold+'/'+pt.need+' · '+Math.floor(pt.left/60)+'분 '+pt.left%60+'초 남음':'모집 중')+' · '+pt.members.map(esc).join(', '):'지금 배낚시 없음')+'</div>'+
+        w.list.map(p=>'<div class="trow"><span class="nm">'+esc(p.name)+'</span><span class="muted" style="font-size:12px">'+p.where+' ('+p.tx+','+p.ty+')'+(p.pt?' ⚓':'')+(p.ty>=100&&!p.pt?' <b style="color:#d0644a">갇힘?</b>':'')+'</span></div>').join('')}
+      h+='</div>'}
+    h+='<div class="sec">친구 직업 대기 풀기</div><div class="muted" style="font-size:12px;margin:2px 0 6px">14일 기다리지 않고 바로 직업을 바꿀 수 있게 해 줘요 (끝 노드 2주 잠금도 풀려요)</div>'+
+      '<div class="warps">'+names.map(n=>'<button data-adm="unjob" data-v="'+esc(n)+'">'+esc(n)+'</button>').join('')+'</div>';
+}
+    if(T==='gift'){    h+='<div class="sec">선물 주기 · 빼기 (서버가 바로 넣어 줘요)</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0">'+
       '<select class="tin" id="admTo" style="flex:1 1 40%">'+names.map(n=>opt(n,n,ADM.to)).join('')+'</select>'+
       '<select class="tin" id="admK" style="flex:1 1 40%">'+opt('tk','강화권',ADM.k)+opt('g','골드',ADM.k)+ITEM_IDS.map(k=>opt('i:'+k,ITEMS[k].ic+' '+ITEMS[k].n,ADM.k)).join('')+'</select>'+
       '<input class="tin" id="admN" type="number" value="'+ADM.n+'" style="flex:1 1 30%" aria-label="개수 (빼려면 마이너스)"><button class="btn sm pink" data-adm="give" style="flex:1 1 30%">보내기</button></div>'+
@@ -9432,28 +9458,29 @@ function openAdmin(){
       row('<input class="tin" id="admChip" type="number" value="100000" style="flex:1 1 55%"><button class="btn sm pink" data-adm="givechip" style="flex:1 1 40%">🎰 은비 칩 주기</button>')+
       row(sel('admSzK','<option value="i">🏝️ 섬 크기</option><option value="h">🏠 집 크기</option>','flex:1 1 35%')+sel('admSz','<option value="0">0 (없음/원룸)</option><option value="1">1</option><option value="2">2</option><option value="3">3 (가장 큼)</option>','flex:1 1 30%')+'<button class="btn sm pink" data-adm="setsize" style="flex:1 1 30%">맞추기</button>')+
       '<div class="muted" style="font-size:12px;margin-bottom:10px">가구 · 물고기 · 칩은 마이너스로 빼기도 돼요 · 접속 안 한 친구는 다음에 들어오면 받아요</div>'}
-    h+='<div class="sec">🚑 갇힘 · 이동 도구 <span class="cnt">위 「선물」의 친구 선택을 같이 써요</span></div><div class="warps">'+
-      '<button data-adm="rescue">🏠 마을로 빼내기</button><button data-adm="summon">🧲 내 옆으로 소환</button><button data-adm="goto">🏃 그 친구에게 가기</button><button data-adm="ptreset">⚓ 오늘 배낚시 횟수 0으로</button><button data-adm="skreset">⏱️ 직업 기술 대기 초기화</button><button data-adm="kick">🔌 연결 끊기 (다시 접속하게)</button></div>'+
-      '<div class="muted" style="font-size:12px;margin:2px 0 10px">마을로 빼내기: 배낚시 중이면 배에서 내리고 광장으로 옮겨요. 접속 안 한 친구는 다음 접속 때 광장에서 시작해요.</div>';
-    {const w=ADM.who,pt=w&&w.party;h+='<div class="sec">👀 접속자 위치 · 배낚시 관리</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0"><button class="btn sm" data-adm="who">새로 보기</button><button class="btn sm pink" data-adm="pt_end">배낚시 강제 귀항 (보상 줌)</button><button class="btn sm ghost" data-adm="pt_clear">배낚시 해산 (보상 없음)</button></div>';
-      if(w){h+='<div class="muted" style="font-size:12px;margin:4px 0">'+(pt?'⚓ 배낚시 '+(pt.state==='sea'?'바다 위 · 어창 '+pt.hold+'/'+pt.need+' · '+Math.floor(pt.left/60)+'분 '+pt.left%60+'초 남음':'모집 중')+' · '+pt.members.map(esc).join(', '):'지금 배낚시 없음')+'</div>'+
-        w.list.map(p=>'<div class="trow"><span class="nm">'+esc(p.name)+'</span><span class="muted" style="font-size:12px">'+p.where+' ('+p.tx+','+p.ty+')'+(p.pt?' ⚓':'')+(p.ty>=100&&!p.pt?' <b style="color:#d0644a">갇힘?</b>':'')+'</span></div>').join('')}
-      h+='</div>'}
-    h+='<div class="sec">친구 직업 대기 풀기</div><div class="muted" style="font-size:12px;margin:2px 0 6px">14일 기다리지 않고 바로 직업을 바꿀 수 있게 해 줘요 (끝 노드 2주 잠금도 풀려요)</div>'+
-      '<div class="warps">'+names.map(n=>'<button data-adm="unjob" data-v="'+esc(n)+'">'+esc(n)+'</button>').join('')+'</div>';
-  }
-  h+='<div class="sec">📍 나 순간 이동 (운영자 모드를 켜야 바다에서 안 튕겨요)</div><div class="warps"><button data-adm="warp" data-v="spawn">마을 광장</button><button data-adm="warp" data-v="dock">항구 부두</button><button data-adm="warp" data-v="isle">안개 섬</button><button data-adm="warp" data-v="boat">배낚시 배</button></div>';
-  if(!(ONLINE&&Net.me))h+='<div class="muted" style="font-size:12px;margin-top:8px">공지 · 선물 · 친구 직업 풀기는 Render 서버에 운영자 계정으로 로그인하면 쓸 수 있어요.</div>';
-  if(ONLINE&&Net.me){h+='<div class="sec">🧪 시험 도구 <span class="cnt">밸런스를 미리 겪어 보기</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0"><input class="tin" id="admLv" type="number" min="0" max="30" value="'+ENH_LV()+'" style="flex:1 1 30%"><button class="btn sm" data-adm="setlv" style="flex:1 1 60%">고른 친구 낚싯대 +N으로</button></div>'+
-    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0"><input class="tin" id="admPl" type="number" min="1" max="99" value="'+petLv(partnerId())+'" style="flex:1 1 30%"><button class="btn sm" data-adm="petlv" style="flex:1 1 60%">내 짝꿍 펫 레벨 맞추기</button></div>'+
-    '<div class="warps"><button data-adm="traphurry" data-v="3">내 통발 3시간 당기기</button><button data-adm="traphurry" data-v="24">내 통발 24시간 당기기</button><button data-adm="gold" data-v="100000000">나에게 1억 골드</button><button data-adm="tk" data-v="100">나에게 강화권 100</button></div>';
+}
+    if(T==='vil'){    h+='<div class="sec">마을 공지</div><div style="display:flex;gap:6px;margin:4px 0 12px"><input class="tin" id="admNote" maxlength="80" placeholder="모두에게 보낼 말"><button class="btn sm" data-adm="notice">보내기</button></div><button class="btn sm mint" data-adm="brag" style="width:100%;margin:-6px 0 12px">🎣📣 오늘 낚은 마릿수 자랑하기 (진짜 오늘 기록 · 하루 3번)</button><button class="btn sm ghost" data-adm="errs" style="width:100%;margin:-6px 0 12px">🐞 최근 화면 오류 보기 (누구 화면에서 무엇이)</button>';
     h+='<div class="sec">📮 편지함 <span class="cnt">의견 · 환불 요청</span></div><button class="btn sm" data-adm="adq">새로 보기</button>'+(ADM.q?ADM.q.slice().reverse().map(q=>'<div class="adq'+(q.st?' done':'')+'"><div><b>'+esc(q.name)+'</b> · '+(q.kind==='refund'?'환불 요청 · 「'+esc(q.cn||q.cos)+'」 '+fmt(q.g)+' 골드':'의견')+' <small class="muted">'+ago(q.at)+'</small></div><div class="muted" style="font-size:12.5px">'+esc(q.text||'')+'</div>'+(q.st?'<small>'+({ok:'처리함 ✓',no:'거절함',gone:'이미 없음'}[q.st]||q.st)+'</small>':'<div style="display:flex;gap:6px;margin-top:4px"><button class="btn xs pink" data-adm="adq_ok" data-v="'+q.id+'">'+(q.kind==='refund'?'환불해 주기':'읽음 · 답장')+'</button><button class="btn xs ghost" data-adm="adq_no" data-v="'+q.id+'">거절</button></div>')+'</div>').join(''):'')}
+  }else if(T!=='test')h+='<div class="muted" style="font-size:12px;margin-top:8px">유저 · 선물 · 마을 도구는 서버에 운영자 계정으로 로그인하면 쓸 수 있어요.</div>';
   openSheet('운영자 도구',h);
   ['admTo','admK','admN'].forEach(id=>{const el=$(id);if(el)el.onchange=()=>{ADM.to=$('admTo').value;ADM.k=$('admK').value;ADM.n=+$('admN').value|0}});
 }
 function admClick(t){
   const a=t.dataset.adm,v=t.dataset.v;if(!a)return false;Snd.sfx('tap');
   if(a==='tog'){S.set.adm=!S.set.adm;saveState();recalc();openAdmin();return true}
+  if(a==='tab'){ADM.tab=v;openAdmin();return true}
+  /* 🧪 2026-11-17 시험 도구: 어디든 가서 바로 시험해 보기 */
+  if(a==='warp2'){if(CEL.on)celLeave('');if(HUNT.on)huExit('');let p=null;if(v==='plaza')p=[PLAZA.cx*TS+8,(PLAZA.cy+4)*TS+12];else if(v==='eden')p=[EDEN.cx*TS+8,(EDEN.cy+12)*TS+12];else if(v==='sky'){for(let x=(MW/2)|0;x<MW-2&&!p;x++)for(let y=1;y<6&&!p;y++)if(!blockedAt(x*TS+8,y*TS+12))p=[x*TS+8,y*TS+12]}if(p){closeSheet();forceTp(p[0],p[1],'📍 이동했어요')}return true}
+  if(a==='celgo'){closeSheet();if(HUNT.on)huExit('');if(CEL.on){celGoTo(v);return true}ADM.celTo=v;celAsk();return true}
+  if(a==='celdark'){S.celSeen=0;saveState();toast('🌑 다음에 들어갈 때 어둠의 길을 다시 걸어요');return true}
+  if(a==='rift'){if(F.mode!=='sky'){toast('하늘 끝에서 하늘낚시를 먼저 시작해요 (📍 하늘 끝)');return true}RIFT.t=99;closeSheet();return true}
+  if(a==='celfill'){Net.send({t:'adm',op:'cel_reset',to:Net.me.name.toLowerCase()});return true}
+  if(a==='hfgo'){if(!admOn()){toast('운영자 모드를 먼저 켜 주세요 (잠금 없이 들어가려면)');return true}closeSheet();if(CEL.on)celLeave('');if(HUNT.on)huExit('');HUNT.cdUntil=0;setTimeout(()=>huEnter(+v,true),300);return true}
+  if(a==='hulv'){const L=Math.max(1,Math.min(99,+$('admHu').value|0));huS().lv=L;huS().xp=0;saveState(true);toast('⚔️ 용사 Lv'+L+'(으)로 맞췄어요');openAdmin();return true}
+  if(a==='huclr'){const u=huS();u.clr=u.clr||{};S.hunt.nclr=S.hunt.nclr||{};HFIELDS.forEach((f,i)=>{if(!f.raid){u.clr[i]=1;S.hunt.nclr[i]=1}});saveState(true);toast('🌟 모든 사냥터를 정화한 걸로 맞췄어요');return true}
+  if(a==='alset'){Net.send({t:'adm',op:'al_set',to:Net.me.name.toLowerCase(),v});return true}
+  if(a==='esme'){Net.flushSave(true);Net.send({t:'adm',op:'give',to:Net.me.name.toLowerCase(),k:'es',n:+v});return true}
+  if(a==='chipme'){Net.send({t:'adm',op:'givechip',to:Net.me.name.toLowerCase(),n:+v});return true}
   if(a==='compass'){if(!admOn()){toast('운영자 모드를 먼저 켜 주세요');return true}itAdd('b_compass',+v||10);saveState(true);toast('🧭 길잡이 미끼 +'+(+v||10));return true}
   if(a==='job'){if(!admOn()){toast('운영자 모드를 먼저 켜 주세요');return true}pickJob(v);return true}
   if(a==='users'){Net.send({t:'adm',op:'users'});return true}
@@ -12012,7 +12039,9 @@ function celAsk(){if(!ONLINE||!Net.me)return toast('☁️ 구름 위 나라는 
 function celEnter(info){CEL.info=info;CEL.left=info.left;CEL.celd=info.celd||{};closeSheet&&closeSheet();if(F.mode!=='idle'){try{skyEnd&&skyEnd()}catch(e){}F.mode='idle'}
   const first=!S.celSeen;CEL.on=true;document.body.classList.add('celv');CEL.hp=huMaxHp();CEL.fish=null;CEL.fieldF='';
   if(first){CEL.mode='dark';CEL.dark={x:20,y:60,t:0};Snd.sfx('gate');showBanner('🌑 어둠의 길… 등불 하나만 들고 앞으로 걸어가요',3200)}else celArrive();
+  if(ADM.celTo){const k=ADM.celTo;ADM.celTo=null;if(CEL.mode==='realm')celGoTo(k)}
   celHud();saveState(true)}
+function celGoTo(k){const I=CISL.find(i=>i.k===k);if(!I)return;CEL.mode='realm';CEL.x=I.x;CEL.y=I.lk?I.y+I.ry*.62:I.y+(I.k==='hub'?40:0);CEL.flash=.6;CEL.fish=null}
 function celArrive(){CEL.mode='realm';CEL.x=CGATE[0];CEL.y=CGATE[1]-22;CEL.dir='up';CEL.flash=1;S.celSeen=1;Snd.sfx('sparkle');showBanner('☁️ 구름 항구에 왔어요! 하루 구름 숨결 '+CEL.left+'분',3000)}
 function celLeave(msg){if(!CEL.on)return;if(CEL.fieldF){Net.send({t:'cf_leave'});CEL.fieldF=''}Net.send({t:'cel_out'});CEL.on=false;CEL.mode='';document.body.classList.remove('celv');$('celHud').hidden=true;
   P.x=PLAZA.gate[0]*TS+8;P.y=(PLAZA.gate[1]+2)*TS+12;P.dir='down';$('act').dataset.k='';saveState(true);showBanner(msg||'🌟 별빛 광장으로 돌아왔어요',2400)}
