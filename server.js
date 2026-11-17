@@ -699,6 +699,7 @@ wss.on('connection', (ws) => {
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
         for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['skyd', 'skyn']) if (me.save && me.save[k] != null) m.data[k] = me.save[k];   /* ☁️ 하늘 도감은 서버가 적어요 (서버에 아직 없으면 화면 것을 받아요) */
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
         const oldSd = (me.save && me.save.sdex) || {}, shxUsed = baitUsed(me.save, m.data, 'b_shx'), luxUsed = baitUsed(me.save, m.data, 'b_lux');
@@ -770,6 +771,7 @@ function trcCatch(me, f, c, sh) { if (!V || !me.here || (me.m & 4) || !(me.x > 0
 
 /* ---------- 🚩 낚시터 깃발 (2026-11-17): 이번 주 그 낚시터에서 손으로 가장 많이 낚은 사람의 깃발 · 월요일 0시에 새로
    지난주 깃발마다 강화권 3장 · 골드 500만 (다음 접속 때) · 주인이 바뀔 때만 작은 메시지 ---------- */
+const SKY_GOLD = [3e4, 8e4, 3e5, 1.5e6, 8e6, 4e7];   /* index.html SKY_PRICE와 같아요 */
 const FLAG_TK = 3, FLAG_G = 5e6, SFLAGS = ["sf_star", "sf_heart", "sf_fish", "sf_wave", "sf_rainbow", "sf_moon", "sf_sun", "sf_flower", "sf_clover", "sf_check", "sf_straw", "sf_anchor", "sf_cat", "sf_paw", "sf_snow", "sf_leaf", "sf_cloud", "sf_carp", "sf_fire", "sf_lantern", "sf_galaxy", "sf_crown", "sf_dragon", "sf_aurora"];   /* 🎨 깃발 치장 (index.html SFLAG와 같아요) */
 const sfOf = s => s && SFLAGS.includes(s.sflag) && ownsCos(s, s.sflag) ? s.sflag : '';
 function flagOf() { if (!V) return null; const w = wkId(); if (!V.flag || V.flag.w !== w) { const old = V.flag; V.flag = { w, z: {}, o: {} }; vMark();
@@ -1149,6 +1151,10 @@ function onMsg(ws, me, m) {
     case 'raid_hit': raidHit(ws, me, m); break;
     case 'raid_down': case 'raid_up': case 'raid_rev': raidDown(ws, me, m); break;
     case 'ring_news': ringNews(ws, me, m); break;
+    case 'sky_got': {   /* ☁️ 하늘낚시 (2026-11-17): 골드 · 하늘 도감 기록은 서버가 적어요 (화면이 골드를 더하면 저장이 거절됐어요) */
+      const now = Date.now(); if (now - (me.skgT || 0) < 1200) break; me.skgT = now; const id = String(m.id || '').slice(0, 24); if (!/^[a-z0-9_]+$/i.test(id)) break; const r = Math.max(0, Math.min(5, m.r | 0)), c = m.c ? 1 : 0;
+      withLock(me.key, () => { const s = me.save; if (!s) return; s.skyd = s.skyd && typeof s.skyd === 'object' ? s.skyd : {}; s.skyd[id] = (s.skyd[id] | 0) + 1; s.skyn = (s.skyn | 0) + 1; const g = c ? 0 : SKY_GOLD[r]; if (g) s.gold = (Number(s.gold) || 0) + g; s.rev = (s.rev | 0) + 1; queueSave(me.key, s); sendEnh(ws, me, { dgold: g, rev: s.rev }); }).catch(() => { });
+      break; }
     case 'sky_news': { const now = Date.now(); if (now - (me.skyT || 0) < 30000) break; me.skyT = now; const r = Math.max(0, Math.min(5, m.r | 0)); if (r < 4) break; broadcast({ t: 'news', text: '☁️ ' + me.name + ' 님이 하늘낚시로 【' + (r >= 5 ? '신화' : '전설') + '】 「' + cleanText(m.n, 16) + '」을(를) 낚았어요!' + (m.nw ? ' (처음 만났어요)' : '') }); break; }
     case 'wh_get': if (me.save) send(ws, { t: 'wh', wh: whOf(me.save), steps: WH_STEPS }); break;
     case 'wh_claim': whClaim(ws, me).catch(() => { }); break;
@@ -1865,7 +1871,7 @@ function ebMsg(ws, me, m) {
     if (m.t === 'eb_vip') return err('VIP 등급은 문을 닫았어요 · 🥚 알 부화로 최고 당첨에 도전해 봐요');
     if (m.t === 'eb_vip') { const t = ebVip(e.wag | 0); if (t < 0) return err('VIP 브론즈부터 받을 수 있어요'); if (e.vd === kstDay()) return err('오늘 보너스는 이미 받았어요'); e.vd = kstDay(); const n = EB.VIP[t][2]; e.c += n; return done({ win: n, note: 'VIP ' + EB.VIP[t][1] + ' 오늘의 보너스 칩 +' + n }); }
     if (m.t === 'eb_buy') {
-      const n = Math.floor(Number(m.n) || 0), cap = ebCap(s); if (n < 10 || n > cap) return;
+      const n = m.all ? Math.floor((Number(s.gold) || 0) / EB.RATE) : Math.floor(Number(m.n) || 0), cap = ebCap(s); if (n < 10 || n > cap) return m.all ? err('골드가 모자라요') : undefined;   /* 2026-11-17 가진 골드 모두 */
       if ((e.buy | 0) + n > cap) return err('오늘은 ' + fmtN(cap - (e.buy | 0)) + '칩까지 바꿀 수 있어요');
       const g = n * EB.RATE; if (!hasKey(s, 'g', g)) return err('골드가 모자라요');
       await changeBag(me.key, { g: -g }, null); e.buy = (e.buy | 0) + n; e.c = (e.c | 0) + n; return done({ note: '칩 ' + fmtN(n) + '개로 바꿨어요' });

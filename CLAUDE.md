@@ -91,3 +91,5 @@
 - 구름 위 선명하게: RPAL 진하게 · 섬 가장자리 테두리 · 구름 위에선 마을 날씨 안 그림 · 하루 색조 65% 약하게.
 - 치장 상점: 카드 눌러 입어 볼 땐 renderBoutique.po=1 → 미리보기만 바꿔요. 🚩 깃발 미리보기 sfPrevStart (#sfprev).
 - ❄️ 음비의 겨울옷 o_umbi (drawOutfit · server LOOK_IDS.o).
+- ⚠️ 하늘낚시 골드를 화면이 더해서 저장 거절('판 것보다 골드가 많이 늘었어요') → sync로 하늘 도감까지 되돌아갔어요 (11-16~17) → 고침: server 'sky_got' (SKY_GOLD · s.skyd/skyn · rev+1 · dgold). skyd/skyn은 서버에 있으면 서버 것 유지. **화면에서 골드를 직접 더하는 새 기능은 만들지 말기 (서버가 주기).**
+- 🎲 은비칩: 원하는 수 입력 · eb_buy all:1 (가진 골드 모두).

@@ -5340,7 +5340,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1117p',UPD_LOG=[
+const UPD_VER='1117q',UPD_LOG=[
+ ['11/17 저녁','🎲',[['☁️ 하늘 도감 고침','하늘낚시로 낚은 물고기가 하늘 도감에 남지 않고 되돌아가던 것을 고쳤어요 · 이제 서버가 함께 적어요 (이미 사라진 기록은 되돌리지 못했어요 · 미안해요)'],['🎲 칩 원하는 만큼','은비랜드 칩 바꾸기에서 원하는 칩 수를 적어 바꿀 수 있어요 · 「💰 가진 골드 모두 바꾸기」 버튼도 생겼어요']]],
  ['11/17 ❄️ 음비의 겨울옷','❄️',[['❄️ 음비의 겨울옷','치장 상점 「옷」 · 뽀글뽀글 크림색 털 재킷에 남색 땡땡이 · 남색 테두리'],['🚩 깃발 미리보기','치장 상점 「🚩 깃발」에서 낮 · 밤 물가에 펄럭이는 모습을 크게 볼 수 있어요 (등불은 밤에 빛나요)'],['⚡ 치장 상점이 빨라졌어요','카드를 눌러 입어 볼 때 위 미리보기만 바뀌어요 (예전엔 카드를 전부 다시 그려서 느렸어요)'],['📱 메뉴 버튼','좁은 화면에서 오른쪽 위 「메뉴」가 잘리던 것 고쳤어요 · 대신 시계 칸이 조금 줄어요']]],
  ['11/17 🚩 깃발 치장','🎨',[['🎨 깃발 치장 24종','치장 상점 「🚩 깃발」 · 내가 차지한 낚시터 깃발이 그 모양으로 펄럭여요 · 별 · 하트 · 물고기 · 무지개 · 초승달 · 고양이 · 잉어 바람자루 · 불꽃 · 등불(밤에 빛나요) · 은하 · 왕관 · 용 · 오로라 …'],['🚩 모양도 여러 가지','삼각 · 제비꼬리 · 네모 · 바람자루 · 고르지 않으면 내 색 기본 깃발']]],
  ['11/17 🎫 강화 보상','🎫',[['🎫 보상이 강화로','모두 골드보다 낚시 강화를 원해서 보상을 바꿨어요 · 행사 · 레이드 · 마을 목표 · 돌아온 날 보상의 강화권이 5배 + 💠 꿈의 정수도 함께'],['📦 강화 상자','주간 낚시 대회 우승 (강화권 300 · 정수 60 · 별 120) · 하루 낚시왕 · 월척 대회 1등 · 수호자 (강화권 120 · 정수 25 · 별 40) · 깃발 · 월척 대회 2~3등 (강화권 40 · 정수 8 · 별 12) · 골드 상금은 그대로'],['💪 성실 보상 크게','주간 마릿수 단계마다 강화권 30 → 400 · 정수 5 → 90'],['📅 출석 강화권','하루 출석 강화권 3장 → 10장'],['🎰 은비랜드 고침','어제 밤부터 은비랜드에서 칩 바꾸기 · 슬롯 · 하이로우 · 룰렛 · 알 부화가 안 되던 문제를 고쳤어요']]],
@@ -8211,8 +8212,11 @@ function skyTick(dt){if(F.mode!=='sky')return;const k=kbVec(),mm=Math.hypot(k[0]
     SKYF.rt-=dt;if(inR&&SKYF.rt<=0){SKYF.rt=.22;Snd.sfx('skyreel',SKYF.prog/100)}
     if(SKYF.prog>=100){skyGot(e,false);SKYF.m='wait';SKYF.t=3.5+Math.random()*6*(ST.wait||1);SKYF.lx=Math.max(24,Math.min(VW-24,VW/2+(Math.random()-.5)*90));SKYF.lk=.38+Math.random()*.28}
     else if(SKYF.prog<=0){SKYF.m='wait';SKYF.t=3+Math.random()*5;Snd.sfx('skymiss');toast('「'+(SKYF.e.k==='f'?'하늘 손님':'반짝임')+'」이(가) 구름 속으로 숨었어요…')}}}
-function skyGot(e,wish){const d=skyD(),was=d[e.id]|0;d[e.id]=was+1;S.skyn=(S.skyn|0)+1;let note='';
-  if(e.k!=='c'){const g=SKY_PRICE[e.rar];S.gold+=g;note=' · +'+fmtShort(g)+'골드'}
+/* 2026-11-17 고침: 하늘 물고기 골드를 화면이 직접 더해서 서버가 「판 것보다 골드가 많이 늘었어요」로 저장을 거절 → 하늘 도감 기록까지 되돌아갔어요
+   이제 골드 · 하늘 도감 기록은 서버가 함께 적어요 (sky_got) */
+function skyGot(e,wish){const d=skyD(),was=d[e.id]|0;d[e.id]=was+1;S.skyn=(S.skyn|0)+1;let note='';const on=ONLINE&&Net.me;
+  if(e.k!=='c'){const g=SKY_PRICE[e.rar];if(!on)S.gold+=g;note=' · +'+fmtShort(g)+'골드'}
+  if(on)Net.send({t:'sky_got',id:e.id,r:e.rar,c:e.k==='c'?1:0});
   if(e.id==='moonp')itAdd('sp_moon',1);
   if(skyNow().sa<-4&&e.k==='f'&&Math.random()<.25){itAdd('sp_dust',1);note+=' · ✨ 별먼지'}
   if(!wish)Snd.sfx('skycatch',e.rar);
@@ -12447,7 +12451,9 @@ function renderEb(){
       '<div class="fg-btns"><button class="btn mint" data-eb="hi"'+(!up||d.c<EBS.bet?' disabled':'')+'>▲ 높다 ×'+mx(up)+'</button><button class="btn pink" data-eb="lo"'+(!dn||d.c<EBS.bet?' disabled':'')+'>▼ 낮다 ×'+mx(dn)+'</button></div><p class="note">같은 숫자가 나오면 져요.</p>'}
   if(EBS.tab==='coin'){const left=(d.cap||EB.BUY_DAY)-d.buy;
     h+='<div class="eb-coin">'+[100,1000,10000,100000,1000000].map(n=>'<button class="ccard" data-ebc="'+n+'"'+(n>left||S.gold<n*EB.RATE?' disabled':'')+'><b>🎲 '+fmt(n)+'</b><small>'+fmt(n*EB.RATE)+' 골드</small></button>').join('')+'</div>'+
-      '<p class="note">오늘 '+fmt(left)+'칩 더 바꿀 수 있어요 · 칩은 골드로 되돌릴 수 없어요</p>'}
+      '<div class="row" style="display:flex;gap:6px;margin:8px 0"><input id="ebcN" type="number" inputmode="numeric" min="10" step="10" placeholder="원하는 칩 수" style="flex:1;min-width:0;padding:10px;border-radius:12px;border:2px solid var(--line);font:inherit"><button class="btn pink" data-ebcn="1">바꾸기</button></div>'+
+      '<button class="btn mint big" data-ebcall="1" style="width:100%"'+(S.gold<EB.RATE*10?' disabled':'')+'>💰 가진 골드 모두 바꾸기 (🎲 '+fmt(Math.floor(S.gold/EB.RATE))+'칩)</button>'+
+      '<p class="note">칩 1개 = '+EB.RATE+'골드 · 원하는 만큼 바꿀 수 있어요 · 칩은 골드로 되돌릴 수 없어요</p>'}
   if(EBS.tab==='rank'){h+=rankFull('eb','🏆 은비랜드 최고 당첨 (한 번에 딴 칩)')}
   if(EBS.tab==='shop'){h+='<div class="cgrid">'+EB.SHOP.map(it=>{const c=COS_BY[it[0]],have=owns(it[0]),ic=cosIcon(it[0]);return'<div class="ccard'+(have?' have':'')+'">'+(ic?'<img class="ci" src="'+ic+'" alt="">':'<span class="ttl sm">「」</span>')+'<div class="cn">'+(c.k==='title'?'「'+esc(c.name)+'」':esc(c.name))+'</div>'+(have?'<span class="lock">가지고 있어요</span>':'<button class="btn xs pink" data-ebs="'+it[0]+'"'+(d.c>=it[1]?'':' disabled')+'>🎲 '+fmtK(it[1])+'</button>')+'</div>'}).join('')+'</div><p class="note">여기서만 바꿀 수 있는 은비랜드 한정 치장이에요.</p>'}
   body().innerHTML=h;if(EBS.tab==='race')ebDrawRace(EBS.raceT||null);if(EBS.tab==='wheel')ebDrawWheel(EBS.wang);
@@ -12459,6 +12465,9 @@ function ebClick(t){
   if(t.dataset.ebp){EBS.pick=+t.dataset.ebp;Snd.sfx('tap');renderEb();return true}
   if(t.dataset.ebw){EBS.wpick=t.dataset.ebw;Snd.sfx('tap');renderEb();return true}
   if(t.dataset.ebc){Net.flushSave(true);Net.send({t:'eb_buy',n:+t.dataset.ebc});Snd.sfx('coin');return true}
+  if(t.dataset.ebcn){const el=$('ebcN'),n=Math.floor(+(el&&el.value)||0);if(n<10){toast('10칩부터 바꿀 수 있어요');Snd.sfx('no');return true}if(n*EB.RATE>S.gold){toast('골드가 모자라요 (최대 '+fmt(Math.floor(S.gold/EB.RATE))+'칩)');Snd.sfx('no');return true}
+    askConfirm('🎲 칩 바꾸기','<div class="askp"><b>🎲 '+fmt(n)+'칩</b></div>'+askPrice(n*EB.RATE),'바꾸기',()=>{Net.flushSave(true);Net.send({t:'eb_buy',n});Snd.sfx('coin')});return true}
+  if(t.dataset.ebcall){const n=Math.floor(S.gold/EB.RATE);if(n<10)return true;askConfirm('💰 가진 골드 모두 칩으로?','<div class="askp"><b>🎲 약 '+fmt(n)+'칩</b></div>'+askPrice(n*EB.RATE)+'<div class="muted" style="font-size:12px;margin-top:4px">칩은 골드로 되돌릴 수 없어요</div>','모두 바꾸기',()=>{Net.flushSave(true);Net.send({t:'eb_buy',all:1});Snd.sfx('coin')});return true}
   if(t.dataset.ebs){Net.send({t:'eb_shop',id:t.dataset.ebs});Snd.sfx('buy');return true}
   const k=t.dataset.eb;if(!k)return false;if(EBS.busy||(k!=='vip'&&performance.now()<(EBS.cdU||0)))return true;
   if(k==='vip'){Net.send({t:'eb_vip'});return true}
