@@ -5313,7 +5313,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1117j',UPD_LOG=[
+const UPD_VER='1117k',UPD_LOG=[
+ ['11/17 🤢 잊힌 통발','🤢',[['🤢 오래 안 걷은 통발','2일 넘게 안 걷으면 냄새가 풀풀 · 파리가 윙윙 · 4일이면 물이 탁해지고 뽀글뽀글 · 7일이면 이끼와 버섯 · 15일이면 늪이 돼서 개구리가 살아요'],['✨ 걷어 올리면 깨끗','통발을 걷어 올리면 다시 깨끗해져요 · 이름표에 며칠째인지 보여요']]],
  ['11/17 🎣 낚시 자리의 흔적','🎣',[['🪑 친구가 낚던 자리','친구가 한자리에서 5마리 넘게 낚으면 그 자리에 작은 접이 의자 · 미끼통 · 컵이 남아요 · 가까이 가면 몇 마리 · 몇 시간 전인지 보여요'],['🐟 큰 걸 낚은 자리','전설 이상 · 아주 큰 물고기 · ✨반짝 물고기를 낚은 자리엔 그 물고기 그림 팻말이 꽂혀요'],['🕰️ 하루 동안','흔적은 하루 동안 남고 천천히 흐려져요 · 같이 접속하지 않아도 누가 다녀갔는지 알 수 있어요'],['✨ 반짝 물고기 팔기 고침','가방 반짝 칸에서 팔 때 골드가 안 들어오던 문제를 고쳤어요 (11/16 밤부터)'],['⚔️ 사냥 보상 고침','11/16 밤부터 사냥터에서 몬스터를 잡아도 칩 · 장비 · 주문서가 제대로 안 들어오던 문제를 고쳤어요']]],
  ['11/17 ❄️ 머물던 자리','❄️',[['❄️ 머물던 자리에 얼음 동상','친구가 접속을 끊으면 마지막에 서 있던 자리에 그 모습 그대로 얼음 동상이 생겨요 (낚시하던 중이면 낚싯대도 함께) · 얼음 결정이 둘러싸고 반짝여요 · 가까이 가면 「몇 시간 전」인지 보여요'],['💧 천천히 녹아요','몇 시간 지나면 금이 가고 물방울이 똑똑 · 하루쯤이면 반쯤 녹아 흐릿해지고 · 사흘이면 작은 웅덩이만 남아요 · 다시 들어오면 쨍! 하고 깨지며 풀려나요'],['👀 친구가 안 보이던 것 고침','어제부터 서로의 모습이 마을에서 안 보이던 문제를 고쳤어요 (리치맨 님만이 아니라 모두였어요)']]],
  ['11/17 밤 🌪️ 하늘이 갈라진 밤','🌪️',[['🌪️ 하늘이 갈라진 밤','어젯밤 마을 북쪽 하늘에서 아주 큰 바람이 불어 내려왔어요 · 무엇이 열렸는지는 아직 아무도 몰라요… 🕯️ 별빛 광장에 낯선 나그네가 나타났대요'],['🌷 내 정원 → 부서진 꽃배','바람에 꽃배 정원이 바닷가로 밀려와 부서졌어요 · 이제 생활 거리 동쪽 바닷가의 부서진 꽃배 안이 내 정원이에요 (메뉴 → 가 볼 곳 → 내 정원) · 심은 꽃 · 나무 · 벌집 · 장식은 그대로예요 · 잠깐 정원에 들어갈 수 없던 것도 고쳤어요'],['🏚️ 무너진 가게 (없어진 것)','💗 꼬북린 폴댄스 · 🧘 은비땅 필라테스 · 💪 치킨 헬스장 · 🩻 조돌맹 정형외과 · 🧗 락트리 클라이밍 · 🏭 ALOF 가구 공장이 바람에 무너졌어요 · 그 가게들의 놀이 · 굿즈 · 가구 판매도 없어졌어요 · 이미 산 굿즈 · 가구 · 칭호는 그대로예요'],['🏭 떠내려가는 ALOF 간판','ALOF 간판이 바다에 떨어져 생활 거리 앞바다를 둥둥 떠다녀요 · 잔해 조각들도 함께 떠다녀요'],['☁️ 그대로인 곳','구름과자 라운지만 무사해요']]],
@@ -10207,8 +10208,20 @@ function trapFlag2(x,px,py,fl,night){const R=(c,a,b,w,h)=>{x.fillStyle=c;x.fillR
   case'tfl_ribbon':R('#ff7aa8',-3,-1,3,3);R('#ff7aa8',1,-1,3,3);R('#e05088',0,0,1,1);R('#ff7aa8',-1,2,1,3);R('#ff7aa8',1,2,1,3);return true}
   return false}
 
+/* 🤢 오래 안 걷은 통발 (2026-11-17): 2일 냄새 · 4일 썩은 물 · 7일 이끼 · 버섯 · 15일 늪이 돼요 (걷어 올리면 깨끗해져요) */
+const trapRot=tr=>{const d=(Date.now()-(tr.t0||Date.now()))/864e5;return d>=15?4:d>=7?3:d>=4?2:d>=2?1:0};
+const trapDays=tr=>Math.floor((Date.now()-(tr.t0||Date.now()))/864e5);
+function trapRotDraw(list,tr,cxp,byp){const st=trapRot(tr);if(!st)return;const R=[0,14,20,26,34][st],C=['','rgba(150,160,80,.22)','rgba(120,110,50,.32)','rgba(80,110,50,.4)','rgba(70,90,50,.5)'][st];
+  list.push({y:byp-60,fn:()=>{const c=cx;c.fillStyle=C;c.beginPath();c.ellipse(cxp,byp-2,R,R*.45,0,0,6.283);c.fill();
+    if(st>=2){c.fillStyle='rgba(90,80,40,.25)';c.beginPath();c.ellipse(cxp+R*.3,byp+1,R*.55,R*.22,0,0,6.283);c.fill();for(let i=0;i<st;i++){const ph=(wt*.7+i*.37+tr.x)%1;if(ph<.75){const bx=cxp-R*.6+((i*29+tr.y*7)%(R*1.2)),by=byp-3+((i*11)%6),r=1+ph*2;c.strokeStyle='rgba(200,210,150,'+(.8-ph)+')';c.lineWidth=1;c.beginPath();c.arc(bx,by,r,0,6.283);c.stroke()}}}   // 뽀글뽀글
+    if(st>=4){[[-R*.7,4],[R*.6,-2],[R*.1,R*.35]].forEach(([dx,dy],i)=>{c.fillStyle='#4a7a3a';c.beginPath();c.ellipse(cxp+dx,byp+dy,5,2.4,0,0,6.283);c.fill();c.fillStyle='#6a9a4a';c.fillRect(Math.round(cxp+dx)-2,Math.round(byp+dy)-1,3,1)});
+      const fj=Math.sin(wt*3+tr.x)>.94,fx=cxp-R*.7,fy=byp+4-(fj?5:0);c.fillStyle='#5aa040';c.fillRect(Math.round(fx)-2,Math.round(fy)-3,5,3);c.fillStyle='#fff';c.fillRect(Math.round(fx)-2,Math.round(fy)-4,1,1);c.fillRect(Math.round(fx)+2,Math.round(fy)-4,1,1)}}});   // 늪 연잎 · 개구리
+  list.push({y:byp+40,fn:()=>{const c=cx;
+    if(st>=3){c.fillStyle='rgba(90,140,60,.75)';c.fillRect(cxp-12,byp-14,8,3);c.fillRect(cxp+3,byp-16,9,2);c.fillRect(cxp-6,byp-6,5,2);[[-9,-17],[8,-19]].forEach(([dx,dy],i)=>{c.fillStyle='#e8dcc8';c.fillRect(cxp+dx,byp+dy+2,1,3);c.fillStyle=i?'#c86a4a':'#b0a080';c.fillRect(cxp+dx-2,byp+dy,5,2)})}   // 이끼 · 버섯
+    for(let i=0;i<st+1;i++){const ph=(wt*.45+i*.31+tr.x*.1)%1,wx=cxp-6+i*4+Math.sin(wt*2+i)*3,wy=byp-14-ph*22;c.strokeStyle='rgba('+(st>=3?'120,150,70':'150,170,90')+','+(.55*(1-ph))+')';c.lineWidth=1;c.beginPath();c.moveTo(wx,wy);c.quadraticCurveTo(wx+3,wy-3,wx,wy-6);c.quadraticCurveTo(wx-3,wy-9,wx,wy-12);c.stroke()}   // 풀풀 냄새
+    for(let i=0;i<Math.min(5,st*2);i++){const a=wt*(4+i)+i*2,fx=cxp+Math.cos(a)*(8+i*2),fy=byp-16+Math.sin(a*1.3)*5;c.fillStyle='#2a2a2a';c.fillRect(Math.round(fx),Math.round(fy),1,1);c.fillStyle='rgba(220,230,255,.7)';c.fillRect(Math.round(fx)-1,Math.round(fy)-1,1,1)}}})}   // 파리
 function trapDrawables(list,x0,x1,y0,y1){const now=Date.now(),night=isNight(dayTint().ph);TRAPS.forEach(tr=>{if(tr.x<x0-2||tr.x>x1+2||tr.y<y0-2||tr.y>y1+2)return;
-  const items=trapRoll(tr,now),n=items.length,rar=items.reduce((a,c)=>Math.max(a,FISH[c.id].rar),0),full=n>=tr.cap;
+  const items=trapRoll(tr,now),n=items.length,rar=items.reduce((a,c)=>Math.max(a,FISH[c.id].rar),0),full=n>=tr.cap;trapRotDraw(list,tr,tr.x*TS+8,tr.y*TS+14);
   list.push({y:tr.y*TS+14,fn:()=>{const bob=Math.round(Math.sin(wt*1.6+tr.x)*1),cxp=tr.x*TS+8,byp=tr.y*TS+14+bob;drawTrapTo(cx,cxp,byp,tr.sk,tr.fl,n,rar,false,night);
     if(n&&Math.random()<FXDT*(full?6:2))parts.push({x:cxp-8+Math.random()*16,y:byp-6,vx:0,vy:-10,life:1,t:0,c:'rgba(255,255,255,.9)',g:0,s:1});
     if(full&&Math.random()<FXDT*4)parts.push({x:cxp-12+Math.random()*24,y:byp-18+Math.random()*10,vx:0,vy:-4,life:.7,t:0,c:'#fff6b0',g:0,s:2})}})})}
@@ -10216,7 +10229,7 @@ const TRAP_TAGS=[];
 function trapTags(cX,cY){const ox=(innerWidth-VW*SC)/2,oy=(innerHeight-VH*SC)/2,now=Date.now();let i=0;
   TRAPS.forEach(tr=>{const sx=ox+(tr.x*TS+8-cX)*SC,sy=oy+(tr.y*TS+30-cY)*SC;if(sx<-80||sx>innerWidth+80||sy<-40||sy>innerHeight+40)return;
     let el=TRAP_TAGS[i];if(!el){el=document.createElement('div');el.className='ntag ttag';$('tags').appendChild(el);TRAP_TAGS[i]=el}i++;
-    const n=trapN(tr,now),t=tr.n+'의 통발'+(n?' · '+n+(n>=tr.cap?' 가득':''):'');if(el.textContent!==t){el.textContent=t;el.style.borderColor=nameCol(tr.n)}if(el.hidden)el.hidden=false;
+    const n=trapN(tr,now),rt=trapRot(tr),t=tr.n+'의 통발'+(n?' · '+n+(n>=tr.cap?' 가득':''):'')+(rt?' · '+['','🤢 냄새나요','🤢 썩은 물','🍄 이끼가 꼈어요','🐸 늪이 됐어요'][rt]+' ('+trapDays(tr)+'일째)':'');if(el.textContent!==t){el.textContent=t;el.style.borderColor=nameCol(tr.n)}if(el.hidden)el.hidden=false;
     el.style.transform='translate('+Math.round(sx)+'px,'+Math.round(sy)+'px) translate(-50%,0)'});
   for(;i<TRAP_TAGS.length;i++)if(!TRAP_TAGS[i].hidden)TRAP_TAGS[i].hidden=true}
 /* ===================== 자연 1.0 (2026-11-05) =====================
