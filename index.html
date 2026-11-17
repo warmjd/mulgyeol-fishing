@@ -5249,7 +5249,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1117i',UPD_LOG=[
+const UPD_VER='1117j',UPD_LOG=[
+ ['11/17 🎣 낚시 자리의 흔적','🎣',[['🪑 친구가 낚던 자리','친구가 한자리에서 5마리 넘게 낚으면 그 자리에 작은 접이 의자 · 미끼통 · 컵이 남아요 · 가까이 가면 몇 마리 · 몇 시간 전인지 보여요'],['🐟 큰 걸 낚은 자리','전설 이상 · 아주 큰 물고기 · ✨반짝 물고기를 낚은 자리엔 그 물고기 그림 팻말이 꽂혀요'],['🕰️ 하루 동안','흔적은 하루 동안 남고 천천히 흐려져요 · 같이 접속하지 않아도 누가 다녀갔는지 알 수 있어요'],['✨ 반짝 물고기 팔기 고침','가방 반짝 칸에서 팔 때 골드가 안 들어오던 문제를 고쳤어요 (11/16 밤부터)']]],
  ['11/17 ❄️ 머물던 자리','❄️',[['❄️ 머물던 자리에 얼음 동상','친구가 접속을 끊으면 마지막에 서 있던 자리에 그 모습 그대로 얼음 동상이 생겨요 (낚시하던 중이면 낚싯대도 함께) · 얼음 결정이 둘러싸고 반짝여요 · 가까이 가면 「몇 시간 전」인지 보여요'],['💧 천천히 녹아요','몇 시간 지나면 금이 가고 물방울이 똑똑 · 하루쯤이면 반쯤 녹아 흐릿해지고 · 사흘이면 작은 웅덩이만 남아요 · 다시 들어오면 쨍! 하고 깨지며 풀려나요'],['👀 친구가 안 보이던 것 고침','어제부터 서로의 모습이 마을에서 안 보이던 문제를 고쳤어요 (리치맨 님만이 아니라 모두였어요)']]],
  ['11/17 밤 🌪️ 하늘이 갈라진 밤','🌪️',[['🌪️ 하늘이 갈라진 밤','어젯밤 마을 북쪽 하늘에서 아주 큰 바람이 불어 내려왔어요 · 무엇이 열렸는지는 아직 아무도 몰라요… 🕯️ 별빛 광장에 낯선 나그네가 나타났대요'],['🌷 내 정원 → 부서진 꽃배','바람에 꽃배 정원이 바닷가로 밀려와 부서졌어요 · 이제 생활 거리 동쪽 바닷가의 부서진 꽃배 안이 내 정원이에요 (메뉴 → 가 볼 곳 → 내 정원) · 심은 꽃 · 나무 · 벌집 · 장식은 그대로예요 · 잠깐 정원에 들어갈 수 없던 것도 고쳤어요'],['🏚️ 무너진 가게 (없어진 것)','💗 꼬북린 폴댄스 · 🧘 은비땅 필라테스 · 💪 치킨 헬스장이 바람에 무너졌어요 · 그 가게의 놀이 · 굿즈 판매도 없어졌어요 · 이미 산 굿즈 · 칭호는 그대로예요 · 잔해 조각들이 바다를 떠다녀요'],['☁️ 그대로인 곳','구름과자 라운지 · 조돌맹 정형외과 · 락트리 클라이밍 · ALOF 가구 공장은 무사해요']]],
  ['11/17 통발','🪤',[['🪤 걷어 올리면 덤','통발을 직접 걷어 올리면 칸 수만큼 덤: 강화권 (3칸에 1장 반쯤) · 💤 꿈조각 (칸마다 30) · 가끔 📜 주문서 · 좋은 미끼면 강화권 1.5배'],['🔔 가득 차면 알림','통발이 가득 차면 한 번 알려 줘요 · 가득 차면 더 안 모이니까 걷으러 가요']]],
@@ -10360,7 +10361,7 @@ function natDrawables(list,x0,x1,y0,y1){
   HIVE_AT.forEach(([x,y])=>{if(!inV(x,y))return;for(let k=0;k<2;k++){const a=wt*3+k*3.1+x,bx=x*TS+8+Math.cos(a)*7,by=y*TS+2+Math.sin(a*1.3)*4;list.push({y:y*TS+16,fn:()=>{cx.fillStyle='#ffc020';cx.fillRect(Math.round(bx),Math.round(by),2,1);cx.fillStyle='#302010';cx.fillRect(Math.round(bx)+1,Math.round(by),1,1)}})}});
   BUGS.forEach(b=>list.push({y:b.y+30,fn:()=>drawBug(b)}));
   if(GLEAF.length)list.push({y:-1e9,fn:()=>GLEAF.forEach(q=>{if(q[0]>x0*TS-20&&q[0]<(x1+1)*TS+20&&q[1]>y0*TS-20&&q[1]<(y1+1)*TS+20)gLeaf(q[0],q[1],q[2])})});
-  drawArkShip(list);edenDraw(list,x0,x1,y0,y1);plazaDraw(list,x0,x1,y0,y1);ruinsDraw(list,x0,x1,y0,y1);drawIce(list,x0,x1,y0,y1);edDraw(list,x0,x1,y0,y1);
+  drawArkShip(list);edenDraw(list,x0,x1,y0,y1);plazaDraw(list,x0,x1,y0,y1);ruinsDraw(list,x0,x1,y0,y1);drawIce(list,x0,x1,y0,y1);drawTrc(list,x0,x1,y0,y1);edDraw(list,x0,x1,y0,y1);
 }
 /* ===== 🌳 물결 정원 그리기 (2026-11-13): 두 나무 · 정원 문 · 샘의 물고기 · 평화의 들판 동물들 ===== */
 const ED_ANI=[{k:'rabbit',x:112,y:20},{k:'rabbit',x:118,y:8},{k:'deer',x:128,y:24},{k:'sheep',x:176,y:26},{k:'deer',x:166,y:6},{k:'rabbit',x:181,y:9},{k:'sheep',x:120,y:26},{k:'sheep',x:170,y:22},{k:'lion',x:172,y:22,lie:1},{k:'lamb',x:174,y:22.4,lie:1},{k:'deer',x:160,y:24},{k:'sheep',x:180,y:19},{k:'rabbit',x:150,y:25},{k:'rabbit',x:124,y:8},{k:'deer',x:182,y:25},{k:'sheep',x:164,y:19}];
@@ -11240,6 +11241,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='kicked'){this.kicked=true;netBanner()}
     else if(m.t==='join')addOther(m);
     else if(m.t==='ice'||m.t==='ice_add'||m.t==='ice_off')iceMsg(m);
+    else if(m.t==='trc'){TRC.clear();(m.list||[]).forEach(e=>TRC.set(e.n+e.k,e))}else if(m.t==='trc_add'){if(m.e)TRC.set(m.e.n+m.e.k,m.e)}
     else if(m.t==='leave'){const o=others.get(m.id);if(o){o.tag.remove();if(o.bub)o.bub.remove();others.delete(m.id)}if(TR.asking===m.id)TR.asking=0;if(tradeOpen())renderTrade()}
     else if(m.t==='s')m.p.forEach(a=>{const o=others.get(a[0]);if(!o)return;o.tx=a[1];o.ty=a[2];o.d=a[3];o.m=a[4]&1;o.boat=(a[4]&2)>0;o.cel=(a[4]&4)>0;{const nb=a[5]|0;if(nb!==o.b&&nb>0){o.castAt=performance.now();o.landed=0;o._b=nb}o.b=nb;const nf=a[6]|0;if(nf!==o.fs){if(nf===4||(o.fs===3&&nf===0&&nb===0))o.yankAt=performance.now();if(nf===2)o.biteAt=performance.now();o.fs=nf}}if(!o.seen){o.x=o.tx;o.y=o.ty;o.seen=true}});
     /* 3단계: 친구의 외형 · 말 · 감정표현 */
@@ -11386,6 +11388,23 @@ function drawIce(list,x0,x1,y0,y1){if(!ICE.size||HUNT.on||CEL.on)return;const no
       for(let i=0;i<3;i++){const ph=(wt*.8+i*1.3+e.t%5)%3;if(ph<.6){const a=Math.sin(ph/.6*Math.PI),sx=X-10+((i*37+(e.t%13))%20),sy=Y-28+((i*11)%22);c.fillStyle='rgba(255,255,255,'+a+')';c.fillRect(sx-2,sy,5,1);c.fillRect(sx,sy-2,1,5)}}
       if(melt>.08&&solid>.05){const ph=(wt*1.4+e.t%3)%1.6;if(ph<1){c.fillStyle='rgba(170,220,255,.9)';c.fillRect(X+6,Y-12+Math.round(ph*11),1,2)}}
       if(P&&Math.hypot(e.x-P.x,e.y-P.y)<TS*5)worldTag([['❄️ '+e.n+' ','#3a6a9a'],[ago(e.t),'#7d70a0',true]],X,Y-(solid>.02?34:24))}})})}
+/* 🎣 낚시 자리의 흔적: 친구가 오래 낚던 자리엔 작은 의자 · 미끼통 · 큰 걸 낚은 자리엔 물고기 팻말 · 하루 동안 (점점 흐려져요) */
+const TRC=new Map();
+function drawTrc(list,x0,x1,y0,y1){if(!TRC.size||HUNT.on||CEL.on)return;const now=Date.now();
+  TRC.forEach(e=>{const tx=e.x/TS,ty=e.y/TS,age=now-e.t;if(age>864e5||tx<x0-2||tx>x1+2||ty<y0-2||ty>y1+3)return;const a=Math.max(.35,1-age/864e5*.65),near=P&&Math.hypot(e.x-P.x,e.y-P.y)<TS*3.5;
+    if(e.k==='s'){const sd={left:[10,2],right:[-10,2],up:[0,8],down:[0,-6]}[e.d]||[0,-6],X=Math.round(e.x+sd[0]),Y=Math.round(e.y+sd[1]);
+      list.push({y:Y,fn:()=>{const c=cx;c.globalAlpha=a;c.fillStyle='rgba(60,50,100,.18)';c.beginPath();c.ellipse(X+3,Y,10,3,0,0,6.283);c.fill();
+        c.fillStyle='#8a5a30';c.fillRect(X-5,Y-6,2,6);c.fillRect(X+2,Y-6,2,6);c.fillRect(X-6,Y-8,11,2);c.fillStyle='#e8c070';c.fillRect(X-6,Y-9,11,2);c.fillStyle='#c84040';for(let i=-6;i<5;i+=3)c.fillRect(X+i,Y-9,1,2);   // 접이 의자
+        c.fillStyle='#5d9be8';c.fillRect(X+7,Y-6,6,6);c.fillStyle='#3a6ab0';c.fillRect(X+7,Y-6,6,1);c.fillStyle='#d8d8e8';c.fillRect(X+8,Y-8,4,1);c.fillStyle='#e07a8a';c.fillRect(X+9,Y-7,1,1);c.fillRect(X+11,Y-7,1,1);   // 미끼통
+        c.fillStyle='#fff6ec';c.fillRect(X-10,Y-3,3,3);c.fillStyle='#a87040';c.fillRect(X-10,Y-3,3,1);   // 컵
+        if(age<20*60e3&&((wt*2)%3)<1){c.fillStyle='rgba(255,255,255,.5)';c.fillRect(X-9,Y-6-Math.round(((wt*2)%1)*3),1,2)}   // 따뜻한 김
+        c.globalAlpha=1;if(near)worldTag([['🎣 '+e.n+' ','#3a6a9a'],[e.c+'마리 · '+ago(e.t),'#7d70a0',true]],X,Y-14)}})}
+    else{const F0=FISH[e.f];if(!F0)return;const X=Math.round(e.x+12),Y=Math.round(e.y+2);
+      list.push({y:Y,fn:()=>{const c=cx;c.globalAlpha=a;c.fillStyle='rgba(60,50,100,.18)';c.fillRect(X-4,Y-1,9,2);c.fillStyle='#8a5a30';c.fillRect(X,Y-14,2,14);
+        c.fillStyle='#e8d0a8';c.fillRect(X-8,Y-22,18,10);c.fillStyle='#a87a4a';c.fillRect(X-8,Y-22,18,1);c.fillRect(X-8,Y-13,18,1);
+        c.fillStyle=(F0.spec&&F0.spec.c)||'#5d9be8';c.beginPath();c.ellipse(X,Y-17,5,2.5,0,0,6.283);c.fill();c.beginPath();c.moveTo(X+4,Y-17);c.lineTo(X+8,Y-20);c.lineTo(X+8,Y-14);c.closePath();c.fill();c.fillStyle='#2a2430';c.fillRect(X-3,Y-18,1,1);
+        if(e.sh){const ph=(wt*1.5)%2;if(ph<.8){c.fillStyle='rgba(255,255,255,'+Math.sin(ph/.8*Math.PI)+')';c.fillRect(X+5,Y-24,1,3);c.fillRect(X+4,Y-23,3,1)}}
+        c.globalAlpha=1;if(near)worldTag([['🐟 '+e.n+' · '+(e.sh?'✨':'')+F0.name+' ','#3a6a9a'],[ago(e.t),'#7d70a0',true]],X+1,Y-26)}})}})}
 function drawOthers(dt,list){
   const k=1-Math.exp(-dt*12);
   others.forEach(o=>{

@@ -634,6 +634,7 @@ wss.on('connection', (ws) => {
         for (const [ows, op] of players) if (ows !== ws) send(ws, { t: 'join', id: op.id, name: op.name, color: op.color, x: op.x, y: op.y, d: op.d, here: op.here, look: op.look });
         broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
         send(ws, { t: 'ice', list: icePub().filter(e => e.n !== p.name) }); iceOff(p);   // ❄️ 나간 자리 얼음
+        send(ws, { t: 'trc', list: trcPub() });   // 🎣 낚시 자리의 흔적
         if (p.save) curMigrate(p.save);
         if (p.save) { const e = enhOf(p.save), out = []; enhDaily(e, out); enhSession(e, out); { const l0 = e.lv | 0; e.star = e.star | 0; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv); if (e.lv > l0) out.push('🎉 강화 3.0! 모아 둔 별로 +' + l0 + ' → +' + e.lv); } rankSet(key, p.name, e, p.look); sendEnh(ws, p, { note: out }); if (out.length) queueSave(key, p.save); }
         send(ws, { t: 'champ', c: champPub() });
@@ -750,6 +751,17 @@ function icePub() { if (!V || !V.ice) return []; const now = Date.now(), out = [
 function iceSet(p) { if (!V || !p.here || !(p.x > 0 && p.y > 0) || (p.m & 4) || p.y >= 100 * 16) return;   // 구름 위 · 먼바다는 빼요 (마지막 마을 자리가 남아 있어요)
   V.ice = V.ice || {}; const e = { n: p.name, x: p.x, y: p.y, d: p.d, b: p.b | 0, lk: p.look, t: Date.now() }; V.ice[p.key] = e; vMark(); broadcast({ t: 'ice_add', e }); }
 function iceOff(p) { if (V && V.ice && V.ice[p.key]) { delete V.ice[p.key]; vMark(); broadcast({ t: 'ice_off', n: p.name }); } }
+
+/* ---------- 🎣 낚시 자리의 흔적 (2026-11-17): 한자리에서 오래 낚으면 의자 · 미끼통이 남고, 큰 걸 낚은 자리엔 물고기 팻말 · 하루 동안
+   한 사람에 의자 하나 · 팻말 하나 (가장 최근) · V.trc에 저장 · 바뀔 때만 작은 메시지 ---------- */
+const TRC_MS = 864e5, TRC_SIT = 5;   // 같은 자리(3칸 안)에서 5마리부터 의자
+function trcPub() { if (!V || !V.trc) return []; const now = Date.now(), out = []; for (const k in V.trc) { const e = V.trc[k]; if (!e || now - e.t > TRC_MS) { delete V.trc[k]; vMark(); continue; } out.push(e); } return out; }
+function trcPut(key, e) { V.trc = V.trc || {}; V.trc[key] = e; vMark(); broadcast({ t: 'trc_add', e }); }
+function trcCatch(me, f, c, sh) { if (!V || !me.here || (me.m & 4) || !(me.x > 0) || me.y >= 100 * 16) return; const now = Date.now();
+  const sp = me.spot; if (!sp || Math.hypot(me.x - sp.x, me.y - sp.y) > 48) me.spot = { x: me.x, y: me.y, d: me.d, n: 0, t0: now }; const S2 = me.spot; S2.n++; S2.x = me.x; S2.y = me.y; S2.d = me.d;
+  if (S2.n >= TRC_SIT && (S2.n === TRC_SIT || S2.n % 5 === 0)) trcPut(me.key + ':s', { k: 's', n: me.name, x: S2.x, y: S2.y, d: S2.d, c: S2.n, m: Math.round((now - S2.t0) / 60000), t: now });
+  const r = fishRar(f); if (sh || r >= 3 || c === 'giant') { const old = V.trc && V.trc[me.key + ':b']; const sc = (sh ? 10 : 0) + r + (c === 'giant' ? 1 : 0);
+    if (!old || now - old.t > 3 * 3600e3 || sc >= (old.sc | 0)) trcPut(me.key + ':b', { k: 'b', n: me.name, x: me.x, y: me.y, f, sh: sh ? 1 : 0, sc, t: now }); } }
 
 /* ---------- 3·4단계 메시지: 외형 · 말 · 감정표현 · 교환소 ---------- */
 const EMOTES = ['heart', 'laugh', 'sweat', 'sleepy', 'sparkle', 'clap'];
@@ -869,6 +881,7 @@ function onMsg(ws, me, m) {
       const now = Date.now(); if (now - (me.holdT || 0) < 700) return; me.holdT = now;
       if (m.miss) { broadcast({ t: 'hold', id: me.id, miss: 1 }, ws); break; }
       const f = m.f | 0; if (!validFish(f)) return; const c = ['small', 'mid', 'big', 'giant'].includes(m.c) ? m.c : 'mid';
+      try { trcCatch(me, f, c, !!m.sh); } catch (e) { }   // 🎣 낚시 자리의 흔적
       broadcast({ t: 'hold', id: me.id, f, len: Math.max(1, Math.min(9999, m.len | 0)), c, sh: !!m.sh, nw: !!m.nw, pf: !!m.pf, bt: !!m.bt, x2: Math.min(3, m.x2 | 0), wl: !!m.wl, vr: Array.isArray(m.vr) ? [m.vr[0] | 0, String(m.vr[1] || '').slice(0, 12)] : null, ln: String(m.ln || '').replace(/[<>]/g, '').slice(0, 40) }, ws); break;
     }
     case 'wow': {   // 친구가 든 물고기에 '우와!'

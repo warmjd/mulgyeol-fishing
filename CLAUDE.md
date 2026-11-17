@@ -60,5 +60,8 @@
 - 접속을 끊으면 그 자리에 얼음 동상 (server V.ice · iceSet/iceOff/icePub · 3일 ICE_MS) · client ICE · drawIce (녹는 단계) · 끄기 설정은 안 만들어요 (친한 친구들 게임).
 - ⚠️ server pos 처리에서 `me.here = true; me.dirty = true;`가 주석 뒤에 붙어 11-16부터 친구 위치가 안 갔어요 → 고침. 한 줄 끝에 주석을 붙일 때 뒤에 코드가 있는지 꼭 확인.
 
+- 🎣 낚시 자리의 흔적: 같은 자리 5마리부터 의자 · 미끼통 (k 's'), 전설 이상 · giant · 반짝은 물고기 팻말 (k 'b') · 하루 (server V.trc · trcCatch는 'hold'에서) · client TRC · drawTrc.
+- ⚠️ 반짝 물고기 팔기(sh_sell)도 주석에 묻혀 11/16 밤부터 골드 없이 물고기만 빠졌어요 → 고침.
+
 ## 앞으로 하고 싶다고 한 것
 - 산 맵 · 우주(별바다) 맵 → 반지 남은 조각 채우기. 눈 오는 겨울. 비눗방울 잠자리채가 앞모습에서 잘 안 보이는 것 손보기.
