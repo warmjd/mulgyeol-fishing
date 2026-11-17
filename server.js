@@ -2297,7 +2297,13 @@ function trapMsg(ws, me, m) {
     const snap = JSON.parse(JSON.stringify(mine));
     if (m.t === 'trap_take') delete T[me.key];
     else Object.assign(mine, { t0: now, seed: crypto.randomBytes(4).readUInt32LE(0), vis: {}, notes: [] }, trapParams(m));
-    vMark(); trapSoon(); return send(ws, { t: 'trap_got', tr: snap, at: now, take: m.t === 'trap_take' });
+    vMark(); trapSoon(); send(ws, { t: 'trap_got', tr: snap, at: now, take: m.t === 'trap_take' });
+    /* 🪤 2026-11-17 통발 개편: 직접 걷어 올리면 칸 수만큼 덤 (강화권 · 💤 꿈조각 · 가끔 주문서) — 화면과 같은 식(trapN)으로 셈해요 */
+    const n = Math.max(0, Math.min(snap.cap, Math.floor((now - snap.t0) / (snap.min * 60000)))); if (n >= 3 && s) withLock(me.key, () => {
+      const e = enhOf(s), out = [], tk = Math.floor(n / 2 * (snap.bx >= 3.5 ? 1.5 : 1)), dr = n * 30; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + tk);
+      const h = s.hunt = s.hunt || {}; h.dr = (h.dr | 0) + dr; let sc = ''; if (Math.random() < n / 40) { const SC = scrMig(h), id = rollScr(); SC[id] = (SC[id] | 0) + 1; sc = ' · 📜 주문서 1장'; }
+      s.rev = (s.rev | 0) + 1; queueSave(me.key, s); out.unshift('🪤 통발 덤 · 강화권 +' + tk + ' · 💤 꿈조각 +' + dr + sc); sendEnh(ws, me, { rev: s.rev, note: out }); send(ws, { t: 'rpg', hunt: h });
+    }); return;
   }
   if (m.t === 'trap_peek' || m.t === 'trap_note') {
     const key = Object.keys(T).find(k => T[k].n === m.n); if (!key || key === me.key) return; const t = T[key];
