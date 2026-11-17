@@ -3056,7 +3056,8 @@ function cfLeave(p) { if (p && p.cf) { const f = p.cf; p.cf = null; cfCast(f, { 
 setInterval(() => { for (const f of ['l', 'd', 'x', 'i', 's']) if (CF[f] && !cfMembers(f).length && CF[f].mons.length < CF_N) { while (CF[f].mons.filter(m => m.k < 4).length < CF_N) CF[f].mons.push(cfMon(f, cfKind())); } }, 60e3);
 function celDay(s) { const d = kstDay(); if (!s.cel || typeof s.cel !== 'object' || s.cel.d !== d) s.cel = { d, m: 0, eat: 0 }; return s.cel; }
 function alOf(s) { if (!s.al || typeof s.al !== 'object') s.al = { ch: 0, l: 0, d: 0, pick: '', sw: 0 }; return s.al; }
-const alReady = (s, me) => me.admin || (((s.hu && s.hu.lv) | 0) >= 99 && !!(s.hu && s.hu.clr && s.hu.clr[13]));
+const alReady = (s, me) => me.admin || (((s.hu && s.hu.lv) | 0) >= AL_LV && !!(s.hu && s.hu.clr && (s.hu.clr[11] || s.hu.clr[12] || s.hu.clr[13])));   /* 2026-11-17: Lv99 · 심연 3 → Lv70 · 심연 1 */
+const AL_LV = 70;
 const celPub = (s, me) => { const c = celDay(s), a = alOf(s); return { t: 'cel', al: a, ready: alReady(s, me), left: me.admin ? 999 : Math.max(0, CEL_MIN + (c.eat | 0) * CEL_EAT + (c.buy ? CEL_BUY_MIN : 0) - (c.m | 0)), eat: c.eat | 0, buy: c.buy | 0, celd: s.celd || {}, celc: s.celc | 0, pk: pkPub(), admin: !!me.admin }; };
 /* ---------- ⛰️ 가장 높은 곳 (2026-11-17): 새벽빛 들판(빛) · 그림자 숲(그림자) 저울을 둘 다 채우면 그 주에 문이 열려요 → 「새벽과 밤의 수호자」 (주 1번)
    수호자는 20초마다 빛 ↔ 그림자 모습이 바뀌고, 반대편 길을 고른 사람이 1.5배로 때려요 · 공격 무늬는 시간으로 모든 화면이 같이 계산 (위치는 안 보내요) ---------- */
@@ -3074,7 +3075,7 @@ function celMsg(ws, me, m) { const s = me.save; if (!s) return; const now = Date
   if (m.t === 'cel_get') return send(ws, celPub(s, me));
   if (m.t === 'al_go') return withLock(me.key, () => {   // 나그네의 부탁: 1장 등불 · 2장 별 조각(돌려주기 l / 갖기 d) · 3장 갈림길(l / d) · 돌아오는 길(바꾸기 · 7일에 한 번)
     const a = alOf(s), st = m.step | 0, c = m.c === 'd' ? 'd' : 'l';
-    if (!alReady(s, me)) return send(ws, { t: 'news', text: '🕯️ 나그네: 아직은… 용사 Lv99가 되고, 꿈의 심연 끝까지 정화하면 다시 와 주세요' });
+    if (!alReady(s, me)) return send(ws, { t: 'news', text: '🕯️ 나그네: 아직은… 용사 Lv' + AL_LV + '이 되고, 꿈의 심연을 한 번 정화하면 다시 와 주세요' });
     if (st === 1 && a.ch === 0) a.ch = 1;
     else if (st === 2 && a.ch === 1) a.ch = 2;
     else if (st === 3 && a.ch === 2) { a.ch = 3; a[c] = (a[c] | 0) + 1; }
