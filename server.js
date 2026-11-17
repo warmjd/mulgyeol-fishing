@@ -639,7 +639,7 @@ wss.on('connection', (ws) => {
         broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
         send(ws, { t: 'ice', list: icePub().filter(e => e.n !== p.name) }); iceOff(p);   // ❄️ 나간 자리 얼음
         send(ws, { t: 'trc', list: trcPub() });   // 🎣 낚시 자리의 흔적
-        send(ws, { t: 'flags', o: flagPub() }); flagPay(ws, p);   /* 🚩 낚시터 깃발 */
+        send(ws, { t: 'flags', o: flagPub(), f: flagSf() }); flagPay(ws, p);   /* 🚩 낚시터 깃발 */
         if (p.save) curMigrate(p.save);
         if (p.save) { const e = enhOf(p.save), out = []; enhDaily(e, out); enhSession(e, out); { const l0 = e.lv | 0; e.star = e.star | 0; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv); if (e.lv > l0) out.push('🎉 강화 3.0! 모아 둔 별로 +' + l0 + ' → +' + e.lv); } rankSet(key, p.name, e, p.look); sendEnh(ws, p, { note: out }); if (out.length) queueSave(key, p.save); }
         send(ws, { t: 'champ', c: champPub() });
@@ -770,13 +770,15 @@ function trcCatch(me, f, c, sh) { if (!V || !me.here || (me.m & 4) || !(me.x > 0
 
 /* ---------- 🚩 낚시터 깃발 (2026-11-17): 이번 주 그 낚시터에서 손으로 가장 많이 낚은 사람의 깃발 · 월요일 0시에 새로
    지난주 깃발마다 강화권 3장 · 골드 500만 (다음 접속 때) · 주인이 바뀔 때만 작은 메시지 ---------- */
-const FLAG_TK = 3, FLAG_G = 5e6;
+const FLAG_TK = 3, FLAG_G = 5e6, SFLAGS = ["sf_star", "sf_heart", "sf_fish", "sf_wave", "sf_rainbow", "sf_moon", "sf_sun", "sf_flower", "sf_clover", "sf_check", "sf_straw", "sf_anchor", "sf_cat", "sf_paw", "sf_snow", "sf_leaf", "sf_cloud", "sf_carp", "sf_fire", "sf_lantern", "sf_galaxy", "sf_crown", "sf_dragon", "sf_aurora"];   /* 🎨 깃발 치장 (index.html SFLAG와 같아요) */
+const sfOf = s => s && SFLAGS.includes(s.sflag) && ownsCos(s, s.sflag) ? s.sflag : '';
 function flagOf() { if (!V) return null; const w = wkId(); if (!V.flag || V.flag.w !== w) { const old = V.flag; V.flag = { w, z: {}, o: {} }; vMark();
     if (old && old.o) { V.fpend = V.fpend || {}; for (const z in old.o) { const k = old.o[z].k; V.fpend[k] = (V.fpend[k] | 0) + 1; } broadcast({ t: 'flags', o: {} }); for (const k of Object.keys(V.fpend)) { const l = liveByKey(k); if (l) flagPay(l[0], l[1]); } } }
   return V.flag; }
 const flagPub = () => { const F = flagOf(), o = {}; if (F) for (const z in F.o) o[z] = F.o[z].n; return o; };
+const flagSf = () => { const F = flagOf(), o = {}; if (F) for (const z in F.o) if (F.o[z].sf) o[z] = F.o[z].sf; return o; };
 function flagCatch(me, f) { const F = flagOf(); if (!F || !me.here) return; const z = placeOf(f); if (!z || z === 7 || z > 30) return; const Z = F.z[z] = F.z[z] || {}; const e = Z[me.key] = Z[me.key] || { n: me.name, c: 0 }; e.c++; e.n = me.name; vMark();
-  const cur = F.o[z]; if (!cur || (cur.k !== me.key && e.c > ((Z[cur.k] && Z[cur.k].c) | 0))) { const was = cur && cur.n; F.o[z] = { k: me.key, n: me.name }; broadcast({ t: 'flag', z, n: me.name, was: was || '' }); } }
+  const cur = F.o[z]; if (!cur || (cur.k !== me.key && e.c > ((Z[cur.k] && Z[cur.k].c) | 0))) { const was = cur && cur.n, sf = sfOf(me.save); F.o[z] = { k: me.key, n: me.name, sf }; broadcast({ t: 'flag', z, n: me.name, was: was || '', sf }); } }
 function flagPay(ws, me) { if (!V || !V.fpend || !V.fpend[me.key]) return; const n = V.fpend[me.key] | 0; delete V.fpend[me.key]; vMark();
   withLock(me.key, () => { const s = me.save; if (!s) return; const E = enhOf(s); E.tk = Math.min(ENH.TK_MAX, E.tk + FLAG_TK * n); s.gold = (Number(s.gold) || 0) + FLAG_G * n; s.rev = (s.rev | 0) + 1; queueSave(me.key, s);
     sendEnh(ws, me, { dgold: FLAG_G * n, rev: s.rev, note: ['🚩 지난주 낚시터 깃발 ' + n + '개! 골드 +' + (FLAG_G * n).toLocaleString()] }); }).catch(() => { }); enhPack(me.key, 'B', '🚩 낚시터 깃발 ' + n + '개 강화 상자', n); }
@@ -896,7 +898,8 @@ function onMsg(ws, me, m) {
       b[id]--; const g = Math.round(fishPrice(id) * 25 * enhSell(s.enh && s.enh.lv));   // 반짝은 25배
       await changeBag(me.key, { g }, null); send(ws, { t: 'shb', shb: b, sold: id, g });
     }).catch(e => console.error('sh_sell', e.message)); break;
-    case 'flag_get': { const now = Date.now(); if (now - (me.fgT || 0) < 1500) return; me.fgT = now; send(ws, { t: 'flagc', b: flagBoard(), o: flagPub() }); break; }
+    case 'flag_get': { const now = Date.now(); if (now - (me.fgT || 0) < 1500) return; me.fgT = now; send(ws, { t: 'flagc', b: flagBoard(), o: flagPub(), f: flagSf() }); break; }
+    case 'sflag': { const s = me.save; if (!s) return; const id = String(m.id || ''); if (id && !(SFLAGS.includes(id) && ownsCos(s, id))) return; s.sflag = id; queueSave(me.key, s); const F = flagOf(); let ch = 0; if (F) for (const z in F.o) if (F.o[z].k === me.key && F.o[z].sf !== id) { F.o[z].sf = id; ch = 1; } if (ch) { vMark(); broadcast({ t: 'flags', o: flagPub(), f: flagSf() }); } break; }
     case 'hold': {   // 잡은 물고기를 머리 위로 번쩍 (친구들 화면에도) · 놓치면 털썩
       const now = Date.now(); if (now - (me.holdT || 0) < 700) return; me.holdT = now;
       if (m.miss) { broadcast({ t: 'hold', id: me.id, miss: 1 }, ws); break; }

@@ -86,3 +86,4 @@
 - 🤢 잊힌 통발: trapRot/trapRotDraw (t0부터 2~15일 천천히) · **글 설명은 통발을 열었을 때만** (이름표엔 안 써요). ALOF 간판도 글자 이름표 없이 그림만.
 - ⚠️ 주석 사고 3번째: 사냥 처치 보상 `const got = []`가 주석에 묻혀 11/16 밤부터 사냥 보상이 안 들어갔어요 → 고침. **줄 중간 주석은 /* */로.**
 - 🚩 낚시터 깃발 (2026-11-17): server V.flag {w, z:{zone:{key:{n,c}}}, o:{zone:{k,n}}} · 'hold'에 fc:1(손으로 낚은 것만) → flagCatch(placeOf 낚시터) · 주인 바뀔 때만 'flag' · 월요일 새로 · 지난주 깃발마다 강화권 3 · 500만 (V.fpend → flagPay) · 'flag_get' → 'flagc' 1~3등. client FLAGS · flagPos(낚시터 물가 자동) · drawFlags · flagNear · flagSheet.
+- 🎨 깃발 치장 (2026-11-17): COS k 'sflag' 24종 (sf_* · client SFLAG [모양 pen/swal/ban/sock, 색, 무늬] · drawSFlag) · 끼면 S.sflag + 'sflag' 메시지 → server SFLAGS · ownsCos 확인 · s.sflag · 내 깃발 F.o[z].sf 바꾸고 'flags'(o, f) 다시 보냄.
