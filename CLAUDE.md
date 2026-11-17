@@ -61,7 +61,7 @@
 - 그리기: realmSky(하늘) · realmGround(512px 조각 캐시 RCH) · realmShore · realmDraws(RD 꾸밈) · 땅 타일 C(땅) Q(길) q(다리) v(빈 하늘, SOL).
 - 낚시는 마을 낚시 그대로: zone 40~43이면 startNibble에서 celPick (구름 물고기 id 음수) → finishCatch 앞에서 celCatchDone → 서버 cel_fish. 자동 낚시 안 됨 · 꽃배(+25) 안 됨.
 - 들어가기: 운영자 시험 탭 「새 구름 위 나라」 → realmGo (서버 cel_in · 숨결 cel_t) · 나가기 구름 나루 포털. 예전 CEL 장면(필드 · 수호자)은 아직 그대로 · 옮기는 중.
-- 남은 것: 필드 몬스터 · 가장 높은 곳 수호자 · 나그네를 새 세상으로 옮기기 → 하늘 틈을 새 세상으로 바꾸기 → 예전 CEL 지우기 → 빛/그림자 장비 → 장마다 새 땅.
+- 필드(새벽빛 들판 · 그림자 숲) · 수호자도 새 세상에서: realmFieldTick (CEL.x/y를 P에 맞춰 예전 celFieldUpdate · celAttack · pk* 그대로) · cfPos는 inRealm이면 RISL 좌표 · PKB는 새 정상. 하늘 틈 → (처음이면 어둠의 길) → celArrive → realmArrive. 예전 CEL 장면은 어둠의 길만 써요.
 
 ## 2026-11-17 ❄️ 머물던 자리
 - 접속을 끊으면 그 자리에 얼음 동상 (server V.ice · iceSet/iceOff/icePub · 3일 ICE_MS) · client ICE · drawIce (녹는 단계) · 끄기 설정은 안 만들어요 (친한 친구들 게임).
