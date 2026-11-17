@@ -87,3 +87,7 @@
 - ⚠️ 주석 사고 3번째: 사냥 처치 보상 `const got = []`가 주석에 묻혀 11/16 밤부터 사냥 보상이 안 들어갔어요 → 고침. **줄 중간 주석은 /* */로.**
 - 🚩 낚시터 깃발 (2026-11-17): server V.flag {w, z:{zone:{key:{n,c}}}, o:{zone:{k,n}}} · 'hold'에 fc:1(손으로 낚은 것만) → flagCatch(placeOf 낚시터) · 주인 바뀔 때만 'flag' · 월요일 새로 · 지난주 깃발마다 강화권 3 · 500만 (V.fpend → flagPay) · 'flag_get' → 'flagc' 1~3등. client FLAGS · flagPos(낚시터 물가 자동) · drawFlags · flagNear · flagSheet.
 - 🎨 깃발 치장 (2026-11-17): COS k 'sflag' 24종 (sf_* · client SFLAG [모양 pen/swal/ban/sock, 색, 무늬] · drawSFlag) · 끼면 S.sflag + 'sflag' 메시지 → server SFLAGS · ownsCos 확인 · s.sflag · 내 깃발 F.o[z].sf 바꾸고 'flags'(o, f) 다시 보냄.
+- ⚔️ 구름 위 사냥 손맛 (2026-11-17 · 잠수함): RC 모듈 (rcTick · rcScreen · rcHitFx · rcKill · rcDash) · 3단 베기(3번째 ×1.4, 넉백 · 돌진) · 히트스톱 RC.stop · 하얀 번쩍(lighter로 한 번 더 그리기) · 몬스터 공격 예고 mo.wind(빨간 원 + !) → 💨 구르기(#rDash, Shift/C) 무적 RC.iv · 수호자 빛구슬도 구르기로 피함 · 서버 cf_hit/pk_hit 240ms · cap ×1.45.
+- 구름 위 선명하게: RPAL 진하게 · 섬 가장자리 테두리 · 구름 위에선 마을 날씨 안 그림 · 하루 색조 65% 약하게.
+- 치장 상점: 카드 눌러 입어 볼 땐 renderBoutique.po=1 → 미리보기만 바꿔요. 🚩 깃발 미리보기 sfPrevStart (#sfprev).
+- ❄️ 음비의 겨울옷 o_umbi (drawOutfit · server LOOK_IDS.o).
