@@ -1,0 +1,5 @@
+# 테스트 스크린샷은 저장소에 넣지 않아요
+/*.png
+!/icon-*.png
+!/apple-touch-icon.png
+_t.html
