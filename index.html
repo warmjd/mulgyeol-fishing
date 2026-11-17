@@ -5249,7 +5249,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1117h',UPD_LOG=[
+const UPD_VER='1117i',UPD_LOG=[
+ ['11/17 ❄️ 머물던 자리','❄️',[['❄️ 머물던 자리에 얼음 동상','친구가 접속을 끊으면 마지막에 서 있던 자리에 그 모습 그대로 얼음 동상이 생겨요 (낚시하던 중이면 낚싯대도 함께) · 얼음 결정이 둘러싸고 반짝여요 · 가까이 가면 「몇 시간 전」인지 보여요'],['💧 천천히 녹아요','몇 시간 지나면 금이 가고 물방울이 똑똑 · 하루쯤이면 반쯤 녹아 흐릿해지고 · 사흘이면 작은 웅덩이만 남아요 · 다시 들어오면 쨍! 하고 깨지며 풀려나요'],['👀 친구가 안 보이던 것 고침','어제부터 서로의 모습이 마을에서 안 보이던 문제를 고쳤어요 (리치맨 님만이 아니라 모두였어요)']]],
  ['11/17 밤 🌪️ 하늘이 갈라진 밤','🌪️',[['🌪️ 하늘이 갈라진 밤','어젯밤 마을 북쪽 하늘에서 아주 큰 바람이 불어 내려왔어요 · 무엇이 열렸는지는 아직 아무도 몰라요… 🕯️ 별빛 광장에 낯선 나그네가 나타났대요'],['🌷 내 정원 → 부서진 꽃배','바람에 꽃배 정원이 바닷가로 밀려와 부서졌어요 · 이제 생활 거리 동쪽 바닷가의 부서진 꽃배 안이 내 정원이에요 (메뉴 → 가 볼 곳 → 내 정원) · 심은 꽃 · 나무 · 벌집 · 장식은 그대로예요 · 잠깐 정원에 들어갈 수 없던 것도 고쳤어요'],['🏚️ 무너진 가게 (없어진 것)','💗 꼬북린 폴댄스 · 🧘 은비땅 필라테스 · 💪 치킨 헬스장이 바람에 무너졌어요 · 그 가게의 놀이 · 굿즈 판매도 없어졌어요 · 이미 산 굿즈 · 칭호는 그대로예요 · 잔해 조각들이 바다를 떠다녀요'],['☁️ 그대로인 곳','구름과자 라운지 · 조돌맹 정형외과 · 락트리 클라이밍 · ALOF 가구 공장은 무사해요']]],
  ['11/17 통발','🪤',[['🪤 걷어 올리면 덤','통발을 직접 걷어 올리면 칸 수만큼 덤: 강화권 (3칸에 1장 반쯤) · 💤 꿈조각 (칸마다 30) · 가끔 📜 주문서 · 좋은 미끼면 강화권 1.5배'],['🔔 가득 차면 알림','통발이 가득 차면 한 번 알려 줘요 · 가득 차면 더 안 모이니까 걷으러 가요']]],
  ['11/17 안정','🛟',[['🛟 게임이 멈추지 않게','화면에서 오류가 한 번 나도 게임이 멈추지 않고 계속 돌아요 (멈추면 친구 화면에서 내가 사라질 수 있었어요)'],['⛵ 물 위를 걷는 친구','낚싯대 +25 「내 꽃배 부르기」예요 · 꽃배를 타고 물 위를 건너요 (버그가 아니에요)']]],
@@ -10359,7 +10360,7 @@ function natDrawables(list,x0,x1,y0,y1){
   HIVE_AT.forEach(([x,y])=>{if(!inV(x,y))return;for(let k=0;k<2;k++){const a=wt*3+k*3.1+x,bx=x*TS+8+Math.cos(a)*7,by=y*TS+2+Math.sin(a*1.3)*4;list.push({y:y*TS+16,fn:()=>{cx.fillStyle='#ffc020';cx.fillRect(Math.round(bx),Math.round(by),2,1);cx.fillStyle='#302010';cx.fillRect(Math.round(bx)+1,Math.round(by),1,1)}})}});
   BUGS.forEach(b=>list.push({y:b.y+30,fn:()=>drawBug(b)}));
   if(GLEAF.length)list.push({y:-1e9,fn:()=>GLEAF.forEach(q=>{if(q[0]>x0*TS-20&&q[0]<(x1+1)*TS+20&&q[1]>y0*TS-20&&q[1]<(y1+1)*TS+20)gLeaf(q[0],q[1],q[2])})});
-  drawArkShip(list);edenDraw(list,x0,x1,y0,y1);plazaDraw(list,x0,x1,y0,y1);ruinsDraw(list,x0,x1,y0,y1);edDraw(list,x0,x1,y0,y1);
+  drawArkShip(list);edenDraw(list,x0,x1,y0,y1);plazaDraw(list,x0,x1,y0,y1);ruinsDraw(list,x0,x1,y0,y1);drawIce(list,x0,x1,y0,y1);edDraw(list,x0,x1,y0,y1);
 }
 /* ===== 🌳 물결 정원 그리기 (2026-11-13): 두 나무 · 정원 문 · 샘의 물고기 · 평화의 들판 동물들 ===== */
 const ED_ANI=[{k:'rabbit',x:112,y:20},{k:'rabbit',x:118,y:8},{k:'deer',x:128,y:24},{k:'sheep',x:176,y:26},{k:'deer',x:166,y:6},{k:'rabbit',x:181,y:9},{k:'sheep',x:120,y:26},{k:'sheep',x:170,y:22},{k:'lion',x:172,y:22,lie:1},{k:'lamb',x:174,y:22.4,lie:1},{k:'deer',x:160,y:24},{k:'sheep',x:180,y:19},{k:'rabbit',x:150,y:25},{k:'rabbit',x:124,y:8},{k:'deer',x:182,y:25},{k:'sheep',x:164,y:19}];
@@ -11238,6 +11239,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='login_fail'){if(!this.me){this.creds=null;loginMsg(m.msg,true)}else toast(m.msg)}
     else if(m.t==='kicked'){this.kicked=true;netBanner()}
     else if(m.t==='join')addOther(m);
+    else if(m.t==='ice'||m.t==='ice_add'||m.t==='ice_off')iceMsg(m);
     else if(m.t==='leave'){const o=others.get(m.id);if(o){o.tag.remove();if(o.bub)o.bub.remove();others.delete(m.id)}if(TR.asking===m.id)TR.asking=0;if(tradeOpen())renderTrade()}
     else if(m.t==='s')m.p.forEach(a=>{const o=others.get(a[0]);if(!o)return;o.tx=a[1];o.ty=a[2];o.d=a[3];o.m=a[4]&1;o.boat=(a[4]&2)>0;o.cel=(a[4]&4)>0;{const nb=a[5]|0;if(nb!==o.b&&nb>0){o.castAt=performance.now();o.landed=0;o._b=nb}o.b=nb;const nf=a[6]|0;if(nf!==o.fs){if(nf===4||(o.fs===3&&nf===0&&nb===0))o.yankAt=performance.now();if(nf===2)o.biteAt=performance.now();o.fs=nf}}if(!o.seen){o.x=o.tx;o.y=o.ty;o.seen=true}});
     /* 3단계: 친구의 외형 · 말 · 감정표현 */
@@ -11351,6 +11353,39 @@ function addOther(m){
   const o={id:m.id,name:m.name,color:m.color|0,look:cleanLook(m.look,m.color),x:m.x||0,y:m.y||0,tx:m.x||0,ty:m.y||0,d:m.d||'down',m:0,b:0,anim:0,seen:!!m.here,tag:tag,bub:null,say:null,emo:null};
   setTag(o,o.name,o.look.ti,o.look.e);others.set(m.id,o);if(tradeOpen())renderTrade();
 }
+/* ❄️ 나간 자리 얼음 (2026-11-17): 친구가 접속을 끊은 자리에 그 모습 그대로 얼음 동상 · 얼음 결정 · 3일 동안 서서히 녹아요
+   막 나감: 단단한 얼음 기둥 + 결정 · 몇 시간: 금 · 물방울 · 하루: 반쯤 녹아 흐릿 · 웅덩이 · 2~3일: 웅덩이와 얼음 조각만 · 다시 들어오면 쨍 하고 깨져요 */
+const ICE_MS=3*864e5,ICE=new Map(),ICESP={};
+function iceMsg(m){if(m.t==='ice'){ICE.clear();(m.list||[]).forEach(e=>ICE.set(e.n,e));return}
+  if(m.t==='ice_add'){const e=m.e;if(!e||(Net.me&&e.n===Net.me.name))return;ICE.set(e.n,e);if(P&&Math.hypot(e.x-P.x,e.y-P.y)<VW){for(let i=0;i<26;i++){const a=Math.random()*6.28,r=6+Math.random()*14;parts.push({x:e.x+Math.cos(a)*r,y:e.y-10+Math.sin(a)*r,vx:-Math.cos(a)*20,vy:-Math.sin(a)*20,life:.7,t:0,c:i%2?'#dff4ff':'#ffffff',g:0,s:1})}Snd.sfx('sparkle')}return}
+  if(m.t==='ice_off'){const e=ICE.get(m.n);if(!e)return;ICE.delete(m.n);if(P&&Math.hypot(e.x-P.x,e.y-P.y)<VW){for(let i=0;i<34;i++)parts.push({x:e.x+(Math.random()-.5)*16,y:e.y-6-Math.random()*22,vx:(Math.random()-.5)*110,vy:-40-Math.random()*70,life:.8,t:0,c:['#dff4ff','#ffffff','#a8d8ff'][i%3],g:180,s:Math.random()<.4?2:1});Snd.sfx('crack');Snd.sfx('sparkle')}}}
+function iceSprite(e){const k=e.n+'|'+e.d+'|'+e.t;if(ICESP[k])return ICESP[k];const lk=cleanLook(e.lk,0),sp=lookSprites(lk)[e.d||'down'][0],c=document.createElement('canvas');c.width=sp.width;c.height=sp.height;const g=c.getContext('2d');
+  g.drawImage(sp,0,0);g.globalCompositeOperation='source-atop';g.fillStyle='rgba(150,205,255,.5)';g.fillRect(0,0,c.width,c.height);g.fillStyle='rgba(255,255,255,.22)';g.fillRect(0,0,c.width,Math.ceil(c.height*.35));ICESP[k]=c;return c}
+function drawIce(list,x0,x1,y0,y1){if(!ICE.size||HUNT.on||CEL.on)return;const now=Date.now();
+  ICE.forEach(e=>{const tx=e.x/TS,ty=e.y/TS;if(tx<x0-3||tx>x1+3||ty<y0-3||ty>y1+4)return;const age=Math.max(0,now-e.t),m=Math.min(1,age/ICE_MS),X=Math.round(e.x),Y=Math.round(e.y),R=RNG((e.t%100000)+7);
+    const shards=[];for(let i=0;i<7;i++){const a=-2.9+i*.48+R()*.2;shards.push([Math.cos(a)*(9+R()*5),Math.sin(a)*3+2,5+R()*9,R()*.6-.3])}
+    list.push({y:e.y+1,fn:()=>{const c=cx,melt=m,solid=1-Math.min(1,melt*1.25),pud=Math.min(1,melt*1.6);
+      /* 물웅덩이 */
+      if(pud>.05){c.fillStyle='rgba(140,200,240,'+(.35*pud)+')';c.beginPath();c.ellipse(X,Y,6+12*pud,2.5+4*pud,0,0,6.283);c.fill();c.fillStyle='rgba(255,255,255,'+(.4*pud*(.5+.5*Math.sin(wt*2+e.t)))+')';c.fillRect(X-4,Y-1,3,1)}
+      c.fillStyle='rgba(60,90,130,.16)';c.beginPath();c.ellipse(X,Y-1,8,3,0,0,6.283);c.fill();
+      /* 얼어붙은 낚싯대 (낚시하다 나갔으면) */
+      if(e.b>0&&solid>.2){const bx=((e.b-1)%MW)*TS+8,by=Math.floor((e.b-1)/MW)*TS+8,off={right:[13,-21],left:[-13,-21],up:[6,-25],down:[9,-11]}[e.d]||[9,-11],tip=[X+off[0],Y+off[1]];c.globalAlpha=Math.min(1,solid+.2);drawRod(X+({right:4,left:-4,up:3,down:3}[e.d]||3),Y-12,tip[0],tip[1],(e.lk||{}).rod);c.strokeStyle='rgba(220,240,255,.7)';c.lineWidth=1;c.beginPath();c.moveTo(tip[0],tip[1]);c.quadraticCurveTo((tip[0]+bx)/2,Math.max(tip[1],by)+4,bx,by);c.stroke();c.fillStyle='rgba(200,235,255,.75)';c.beginPath();c.ellipse(bx,by,5,2.5,0,0,6.283);c.fill();c.fillStyle='#ff6a8a';c.fillRect(bx-1,by-3,3,3);c.globalAlpha=1}
+      /* 사람: 녹을수록 흐릿해져요 */
+      c.globalAlpha=Math.max(.12,1-melt*.9);c.drawImage(iceSprite(e),X-8,Y-21);c.globalAlpha=1;
+      /* 얼음 기둥 */
+      if(solid>.02){const h=Math.round(30*(.35+.65*solid)),w=Math.round(22*(.6+.4*solid)),top=Y-h;c.globalAlpha=.85;
+        c.fillStyle='rgba(190,230,255,.38)';c.beginPath();c.moveTo(X-w/2,Y);c.lineTo(X-w/2-1,top+6);c.lineTo(X-w/4,top);c.lineTo(X+w/4+1,top+2);c.lineTo(X+w/2,top+7);c.lineTo(X+w/2+1,Y);c.closePath();c.fill();
+        c.strokeStyle='rgba(235,248,255,.85)';c.lineWidth=1;c.stroke();
+        c.fillStyle='rgba(255,255,255,.55)';c.fillRect(X-w/2+2,top+7,2,h-10);c.fillRect(X-w/2+5,top+5,1,6);   // 빛 반사
+        const sh=(wt*.6+e.t%7)%3;if(sh<1){c.fillStyle='rgba(255,255,255,'+(.5*Math.sin(sh*Math.PI))+')';c.fillRect(X-w/2+Math.round(sh*w),top+4,2,h-6)}   // 스르륵 지나가는 빛
+        if(melt>.12){c.strokeStyle='rgba(110,160,210,.7)';c.beginPath();c.moveTo(X+2,top+3);c.lineTo(X-1,top+10);c.lineTo(X+3,top+15);c.lineTo(X,top+22);c.stroke();if(melt>.3){c.beginPath();c.moveTo(X-w/2+3,top+14);c.lineTo(X-3,top+18);c.lineTo(X-5,top+25);c.stroke()}}   // 금
+        c.globalAlpha=1}
+      /* 얼음 결정 */
+      shards.forEach(([dx,dy,hh,tl],i)=>{const k=Math.max(0,1-melt*1.15-(i%3)*.05);if(k<=.05)return;const H=Math.max(2,Math.round(hh*k)),bx2=X+dx,by2=Y+dy;c.save();c.translate(bx2,by2);c.rotate(tl);c.fillStyle='rgba(200,236,255,.8)';c.beginPath();c.moveTo(-2,0);c.lineTo(0,-H);c.lineTo(2,0);c.closePath();c.fill();c.fillStyle='rgba(255,255,255,.85)';c.fillRect(-1,-H+2,1,Math.max(1,H-3));c.restore()});
+      /* 반짝 · 물방울 */
+      for(let i=0;i<3;i++){const ph=(wt*.8+i*1.3+e.t%5)%3;if(ph<.6){const a=Math.sin(ph/.6*Math.PI),sx=X-10+((i*37+(e.t%13))%20),sy=Y-28+((i*11)%22);c.fillStyle='rgba(255,255,255,'+a+')';c.fillRect(sx-2,sy,5,1);c.fillRect(sx,sy-2,1,5)}}
+      if(melt>.08&&solid>.05){const ph=(wt*1.4+e.t%3)%1.6;if(ph<1){c.fillStyle='rgba(170,220,255,.9)';c.fillRect(X+6,Y-12+Math.round(ph*11),1,2)}}
+      if(P&&Math.hypot(e.x-P.x,e.y-P.y)<TS*5)worldTag([['❄️ '+e.n+' ','#3a6a9a'],[ago(e.t),'#7d70a0',true]],X,Y-(solid>.02?34:24))}})})}
 function drawOthers(dt,list){
   const k=1-Math.exp(-dt*12);
   others.forEach(o=>{

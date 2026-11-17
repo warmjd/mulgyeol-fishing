@@ -633,6 +633,7 @@ wss.on('connection', (ws) => {
         // 지금 있는 친구들 알려 주기 / 내가 왔다고 알리기 (외형 포함)
         for (const [ows, op] of players) if (ows !== ws) send(ws, { t: 'join', id: op.id, name: op.name, color: op.color, x: op.x, y: op.y, d: op.d, here: op.here, look: op.look });
         broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
+        send(ws, { t: 'ice', list: icePub().filter(e => e.n !== p.name) }); iceOff(p);   // ❄️ 나간 자리 얼음
         if (p.save) curMigrate(p.save);
         if (p.save) { const e = enhOf(p.save), out = []; enhDaily(e, out); enhSession(e, out); { const l0 = e.lv | 0; e.star = e.star | 0; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv); if (e.lv > l0) out.push('🎉 강화 3.0! 모아 둔 별로 +' + l0 + ' → +' + e.lv); } rankSet(key, p.name, e, p.look); sendEnh(ws, p, { note: out }); if (out.length) queueSave(key, p.save); }
         send(ws, { t: 'champ', c: champPub() });
@@ -728,6 +729,7 @@ wss.on('connection', (ws) => {
   });
   ws.on('close', () => {
     const p = players.get(ws); if (!p) return;
+    try { iceSet(p); } catch (e) { }
     endTrade(p, p.name + ' 님이 마을을 떠났어요');
     try { cfLeave(p); } catch (e) { }
     players.delete(ws);
@@ -740,6 +742,14 @@ wss.on('connection', (ws) => {
     console.log('나감', p.name, '현재', players.size, '명');
   });
 });
+
+/* ---------- ❄️ 나간 자리 얼음 (2026-11-17): 접속을 끊은 자리에 그 모습 그대로 얼음 동상 · 3일 동안 서서히 녹아요
+   마을 기록(V.ice)에 남겨서 서버가 자다 깨도 그대로 · 들어올 때 한 번만 보내요 (5명 · 아주 작아요) ---------- */
+const ICE_MS = 3 * 864e5;
+function icePub() { if (!V || !V.ice) return []; const now = Date.now(), out = []; for (const k in V.ice) { const e = V.ice[k]; if (!e || now - e.t > ICE_MS) { delete V.ice[k]; vMark(); continue; } out.push(e); } return out; }
+function iceSet(p) { if (!V || !p.here || !(p.x > 0 && p.y > 0) || (p.m & 4) || p.y >= 100 * 16) return;   // 구름 위 · 먼바다는 빼요 (마지막 마을 자리가 남아 있어요)
+  V.ice = V.ice || {}; const e = { n: p.name, x: p.x, y: p.y, d: p.d, b: p.b | 0, lk: p.look, t: Date.now() }; V.ice[p.key] = e; vMark(); broadcast({ t: 'ice_add', e }); }
+function iceOff(p) { if (V && V.ice && V.ice[p.key]) { delete V.ice[p.key]; vMark(); broadcast({ t: 'ice_off', n: p.name }); } }
 
 /* ---------- 3·4단계 메시지: 외형 · 말 · 감정표현 · 교환소 ---------- */
 const EMOTES = ['heart', 'laugh', 'sweat', 'sleepy', 'sparkle', 'clap'];
