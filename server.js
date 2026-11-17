@@ -1303,6 +1303,7 @@ function onMsg(ws, me, m) {
         }
         const s = await loadSave(key); if (!s) return ok(nm + ' 님 저장이 아직 없어요');
         if (m.op === 'setlv') { const e = enhOf(s), n = Math.max(0, Math.min(ENH.MAX, m.n | 0)); e.lv = n; e.max = Math.max(e.max | 0, n); e.star = 0; e.fl = 0; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; sendEnh(l[0], l[1], { note: ['🛠️ 운영자: 낚싯대 +' + n] }); } return ok(nm + ' 님 낚싯대를 +' + n + '(으)로 맞췄어요'); }
+        if (m.op === 'al_set' && /^g\d$/.test(String(m.v))) { const a = alOf(s); a.sg = +String(m.v)[1]; a.gd = a.sg >= 1 ? 1 : 0; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], celPub(s, l[1])); } return ok(nm + ' 님 이야기 단계 → ' + a.sg); }
         if (m.op === 'al_set') {   // 🧪 2026-11-17: 나그네 이야기 단계 맞추기 (시험용)
           const v = String(m.v || '0'), a = alOf(s); a.ch = Math.max(0, Math.min(4, parseInt(v) | 0)); a.pick = a.ch === 4 ? (v.slice(-1) === 'd' ? 'd' : 'l') : ''; a.sw = 0;
           queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], celPub(s, l[1])); } return ok(nm + ' 님 나그네 이야기를 ' + (a.pick ? (a.pick === 'l' ? '빛' : '그림자') + ' 고른 상태' : a.ch + '장') + '(으)로 맞췄어요'); }
@@ -3009,7 +3010,10 @@ const CEL_MIN = 90, CEL_EAT = 10;
 const CEL_FISH = [   // [이름, 등급 0~4, 낚시터 r 무지개 호수 · c 솜사탕 구름 끝 · m 안개 호수 · t 번개 낭떠러지]
  ['솜구름 송사리', 0, 'rc'], ['분홍 솜사탕붕어', 0, 'c'], ['햇살 피라미', 0, 'r'], ['무지개 버들치', 1, 'r'], ['딸기우유 잉어', 1, 'c'], ['꿀별 금붕어', 1, 'rc'], ['새벽 종달고기', 2, 'r'], ['오로라 열대어', 2, 'rc'], ['아기 구름고래', 3, 'c'], ['일곱빛 비단잉어', 3, 'r'], ['해무리 가오리', 4, 'r'], ['새벽 별고래', 4, 'c'],
  ['안개 송사리', 0, 'mt'], ['보랏빛 미꾸리', 0, 'm'], ['그을음 메기', 0, 't'], ['번개 피라미', 1, 't'], ['달그림자 붕어', 1, 'm'], ['도깨비불 금붕어', 1, 'mt'], ['천둥 장어', 2, 't'], ['밤안개 해파리', 2, 'm'], ['검은 비늘 잉어', 3, 'mt'], ['폭풍 가오리', 3, 't'], ['그믐달 상어', 4, 'm'], ['뇌운 용고기', 4, 't'],
- ['구름 조각 물고기', 1, 'rcmt'], ['깃털 날치', 2, 'rcmt'], ['별가루 해마', 2, 'rm'], ['유리 날개 물고기', 3, 'ct'], ['하늘빛 산호어', 3, 'rm'], ['가장 높은 곳의 그림자', 4, 'rcmt']];
+ ['구름 조각 물고기', 1, 'rcmt'], ['깃털 날치', 2, 'rcmt'], ['별가루 해마', 2, 'rm'], ['유리 날개 물고기', 3, 'ct'], ['하늘빛 산호어', 3, 'rm'], ['가장 높은 곳의 그림자', 4, 'rcmt'],
+ ['수정 송사리', 0, 'x'], ['프리즘 피라미', 1, 'x'], ['자수정 붕어', 1, 'x'], ['빛결 메기', 2, 'x'], ['무지개 수정어', 3, 'x'], ['노래하는 수정고래', 4, 'x'],
+ ['눈꽃 송사리', 0, 'i'], ['얼음 빙어', 0, 'i'], ['서리 열목어', 1, 'i'], ['만년설 연어', 2, 'i'], ['오로라 송어', 3, 'i'], ['잠든 얼음 왕', 4, 'i'],
+ ['별빛 송사리', 0, 's'], ['은하 피라미', 1, 's'], ['초승달 붕어', 1, 's'], ['혜성 꼬리고기', 2, 's'], ['성운 해파리', 3, 's'], ['별바다의 마지막 조각', 4, 's']];   // 2026-11-17 이야기 땅 (index.html CEL_FISH와 같은 순서)
 const CF_KINDS = {   // 필드 몬스터: [이름, 체력, 공격, 칩, 정수 확률, 장비 확률]
   l: [['솜털 양구름', 2600, 70, 22000, .01, .05], ['햇살 나비', 2200, 60, 20000, .01, .05], ['무지개 달팽이', 4200, 95, 30000, .015, .07], ['금빛 종달새', 15000, 160, 90000, .08, .3], ['새벽 구름고래', 320000, 260, 900000, 1, 1]],
   d: [['그림자 박쥐', 2400, 80, 22000, .01, .05], ['안개 여우', 2800, 75, 24000, .01, .05], ['번개 해파리', 4400, 110, 32000, .015, .07], ['보랏빛 도깨비불', 16000, 175, 95000, .08, .3], ['천둥 거북', 340000, 280, 950000, 1, 1]] };
@@ -3050,6 +3054,10 @@ function celMsg(ws, me, m) { const s = me.save; if (!s) return; const now = Date
     if (st === 1 && a.ch === 0) a.ch = 1;
     else if (st === 2 && a.ch === 1) a.ch = 2;
     else if (st === 3 && a.ch === 2) { a.ch = 3; a[c] = (a[c] | 0) + 1; }
+    else if (st === 6 && a.ch === 4 && a.pick && (a.gd || me.admin) && !(a.sg >= 1)) { a.sg = 1; }   /* 4장 수호자의 지도 → 💎 크리스탈 골짜기 */
+    else if (st >= 7 && st <= 9 && a.ch === 4 && (a.sg | 0) === st - 6) { const d = s.celd || {}, cnt = (i0) => { let c = 0; for (let i = i0; i < i0 + 6; i++) if (d[i]) c++; return c; };
+      if (st === 7 && cnt(30) < 3) return; if (st === 8 && cnt(36) < 3) return; if (st === 9 && !d[47]) return; a.sg = st - 5;
+      if (st === 9) broadcast({ t: 'news', text: '🕊️ ' + me.name + ' 님이 별바다에서 마지막 조각을 찾아 나그네에게 건넸어요' }); }
     else if (st === 4 && a.ch === 3) { a.ch = 4; a.pick = c; a[c] = (a[c] | 0) + 1; broadcast({ t: 'news', text: (c === 'l' ? '🌅 ' : '🌒 ') + me.name + ' 님이 갈림길에서 ' + (c === 'l' ? '빛' : '그림자') + '의 길을 골랐어요' }); }
     else if (st === 5 && a.ch === 4 && a.pick && c !== a.pick) { if (now - (a.sw || 0) < 7 * 864e5) return send(ws, { t: 'news', text: '🕯️ 길을 바꾸는 건 7일에 한 번이에요' }); a.pick = c; a.sw = now; a[c] = (a[c] | 0) + 1; }
     else return send(ws, celPub(s, me));
@@ -3080,7 +3088,7 @@ function celMsg(ws, me, m) { const s = me.save; if (!s) return; const now = Date
     p.clr = 1; cfCast('p', { t: 'pkd', by: me.name }); celCast({ t: 'pk', pk: pkPub() });
     const keys = Object.keys(p.dm); broadcast({ t: 'big', g: 4, text: '⛰️🏆 「새벽과 밤의 수호자」가 고요해졌어요! (' + keys.length + '명이 함께) 이번 주 가장 높은 곳에 평화가 와요' });
     for (const key of keys) { if ((p.dm[key] | 0) < p.mhp * .02 && keys.length > 1) continue; const l = liveByKey(key); if (!l) continue; const [w2, p2] = l, s2 = p2.save; if (!s2) continue;
-      withLock(key, () => { const E = enhOf(s2), g = 5e7; s2.gold = (Number(s2.gold) || 0) + g; E.es = (E.es | 0) + 10; s2.celc = (s2.celc | 0) + 300; const it = celGear(s2, Math.random() < .15 ? 8 : 7);
+      withLock(key, () => { const E = enhOf(s2), g = 5e7; alOf(s2).gd = 1; s2.gold = (Number(s2.gold) || 0) + g; E.es = (E.es | 0) + 10; s2.celc = (s2.celc | 0) + 300; const it = celGear(s2, Math.random() < .15 ? 8 : 7);
         s2.rev = (s2.rev | 0) + 1; queueSave(key, s2); send(w2, { t: 'rpg', hunt: s2.hunt, note: '⛰️ 수호자의 선물 · 골드 +' + g.toLocaleString() + ' · 💠 +10 · 💧 +300 · 🎁 ' + (it.cs === 'd' ? '밤구름' : '새벽구름') + ' 【' + RPG_GN[it.g] + '】 ' + RPG_SN[it.t] }); send(w2, { t: 'celc', n: s2.celc }); sendEnh(w2, p2, { dgold: g, rev: s2.rev }); }).catch(() => { }); }
     return; }
   if (m.t === 'cel_buy') return withLock(me.key, () => { if (!me.celAt) return; const k = String(m.k || ''), cost = CEL_SHOP[k]; if (!cost) return; const have = s.celc | 0; if (have < cost) return send(ws, { t: 'news', text: '💧 구름 방울이 모자라요 (' + have + '/' + cost + ')' });
