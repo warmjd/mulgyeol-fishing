@@ -3015,7 +3015,7 @@ function pkAdd(f, k) { const p = pkOf(); if (!p || p.op || (f !== 'l' && f !== '
   if (p.l >= PK_GOAL && p.d >= PK_GOAL) { p.op = 1; broadcast({ t: 'news', text: '⛰️ 빛과 그림자의 저울이 모두 찼어요! 구름 위 가장 높은 곳의 문이 열렸어요' }); }
   celCast({ t: 'pk', pk: pkPub() }); }
 const csN = h => { let n = 0; const inv = Array.isArray(h && h.inv) ? h.inv : []; for (const k of RPG_SLOTS) { const it = inv[h['eq' + k]]; if (it && it.t === k && it.cs) n++; } return n; };   // ☁️ 구름 장비 몇 개 꼈는지
-const CEL_SHOP = { gear: 300, breath: 60, es: 40, tk: 25 }, CEL_BUY_MIN = 20;
+const CEL_SHOP = { breath: 60, es: 40, tk: 25 }   /* 2026-11-17: 장비는 상점에서 안 팔아요 (구름 위 장비는 드랍으로만) */, CEL_BUY_MIN = 20;
 function celGear(s, g, sl) { const h = s.hunt = s.hunt || {}; h.inv = Array.isArray(h.inv) ? h.inv : []; const it = mkItem(10, g, sl); it.n = 16; it.cs = alOf(s).pick === 'd' ? 'd' : 'l'; invPut(h, it); return it; }
 function celMsg(ws, me, m) { const s = me.save; if (!s) return; const now = Date.now();
   if (m.t === 'cel_get') return send(ws, celPub(s, me));
