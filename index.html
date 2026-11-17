@@ -1581,7 +1581,7 @@ function creamTile(v){const b=Buf(16,16),r=RNG(500+v);fillR(b,0,0,16,16,[255,226
 function snowTile(v){const b=Buf(16,16),r=RNG(600+v);fillR(b,0,0,16,16,[244,248,255]);for(let i=0;i<10;i++){const x=(r()*16)|0,y=(r()*16)|0;px(b,x,y,r()<.5?[220,232,248]:[255,255,255])}return b}
 function sandTile(v){const b=Buf(16,16),r=RNG(300+v);fillR(b,0,0,16,16,[248,234,202]);
   for(let i=0;i<12;i++){const x=(r()*16)|0,y=(r()*16)|0;px(b,x,y,r()<.5?[234,216,180]:[255,246,222])}return b}
-const WATER_COL={1:[170,222,226],2:[156,212,236],3:[140,198,236],4:[116,170,224],5:[200,182,240],6:[150,196,204],7:[96,146,206],8:[150,214,222],9:[176,204,206],10:[164,214,228],11:[110,214,214],13:[160,200,190],14:[150,190,220],15:[90,160,220],16:[250,196,220],17:[190,220,250],18:[206,232,248],19:[150,190,228],20:[90,190,210],21:[60,60,130]};
+const WATER_COL={40:[206,228,255],41:[255,206,228],42:[196,178,236],43:[178,172,216],1:[170,222,226],2:[156,212,236],3:[140,198,236],4:[116,170,224],5:[200,182,240],6:[150,196,204],7:[96,146,206],8:[150,214,222],9:[176,204,206],10:[164,214,228],11:[110,214,214],13:[160,200,190],14:[150,190,220],15:[90,160,220],16:[250,196,220],17:[190,220,250],18:[206,232,248],19:[150,190,228],20:[90,190,210],21:[60,60,130]};
 function waterTile(frame,zone){const b=Buf(16,16),c=WATER_COL[zone]||WATER_COL[1];fillR(b,0,0,16,16,c);
   const hi=lighten(c,.5),lo=mixc(c,[90,110,190],.18);
   for(let row=0;row<4;row++){const y=row*4+((row*3)%4)%3,off=(frame*3+row*5)%16;
@@ -3420,6 +3420,57 @@ const EDEN={x0:101,x1:191,y0:1,y1:30,cx:146,cy:15,rx:36,ry:11,px:25,py:8.4,hx0:1
 const inHill=(x,y)=>x>=EDEN.hx0&&x<=EDEN.hx1&&y>=EDEN.hy0&&y<=EDEN.hy1;
 const inEden=(tx,ty)=>tx>=EDEN.x0&&tx<=EDEN.x1&&ty>=EDEN.y0&&ty<=EDEN.y1;
 const PLAZA={cx:86,cy:13,r:7,gate:[93,6],nagne:[79,10],ready:false,talkOpen:false};
+/* ===================== ☁️ 구름 위 나라 2.0 (2026-11-17 · 짓는 중 · 운영자 미리보기): 마을과 같은 타일 세상 (지도 아래쪽 130~229줄)
+   걷기 · 낚시 · 친구 모두 마을과 똑같아요 · 섬 사이 빈 하늘은 못 걸어요 · 물 위 걷기(+25 꽃배)도 여기선 안 돼요 ===================== */
+const RY0=130,VMH=130;   // 마을은 0~129줄 그대로 · 구름 위는 130줄부터
+const inRealm=()=>!!(P&&P.y>=RY0*TS);
+const RZ={40:['🌈 무지개 폭포 호수','r'],41:['🍭 솜사탕 연못','c'],42:['🌫️ 보랏빛 안개 호수','m'],43:['⚡ 번개 웅덩이','t']};
+/* 섬: [키, 가운데 x, 가운데 줄(130부터 셈), 가로 반지름, 세로 반지름, 쪽(n 가운데 · l 빛 · d 그림자), 이름] */
+const RISL=[
+ ['gate',97,90,10,5,'n','🌀 구름 나루'],
+ ['hub',97,60,17,11,'n','☁️ 구름 항구'],
+ ['peak',97,12,12,7,'n','⛰️ 가장 높은 곳'],
+ ['cotton',135,37,14,8,'l','🍭 솜사탕 구름섬'],
+ ['rlake',141,79,17,10,'l','🌈 무지개 폭포 호수'],
+ ['dawn',172,56,19,22,'l','✨ 새벽빛 들판'],
+ ['thunder',59,37,14,8,'d','⚡ 번개구름 협곡'],
+ ['mlake',53,79,17,10,'d','🌫️ 보랏빛 안개 호수'],
+ ['shadow',22,56,19,22,'d','🌑 그림자 숲']];
+/* 구름 다리: [x1, 줄1, x2, 줄2] */
+const RBR=[[97,70,97,86],[97,49,97,18],[113,56,123,41],[113,65,126,75],[148,40,155,46],[156,75,159,70],[81,56,71,41],[81,65,68,75],[46,40,39,46],[38,75,35,70]];
+const RLAKE=[[141,78,8,4.6,40],[138,36,4,2.3,41],[53,78,8,4.6,42],[56,36,4,2.3,43]];
+const RDECO=[];
+const rNoise=(x,y)=>{const h=Math.sin(x*12.9898+y*78.233)*43758.5453;return h-Math.floor(h)};
+function rIslAt(tx,ty){const r=ty-RY0;let best=null,bd=9;for(const I of RISL){const d=((tx-I[1])/I[3])**2+((r-I[2])/I[4])**2;if(d<1.25&&d<bd){bd=d;best=I}}return best}
+function realmBuild(T,Z,SOL){
+  for(let y=RY0;y<MH;y++)for(let x=0;x<MW;x++){T[y][x]='v';Z[y][x]=0;SOL[y][x]=true}
+  const ok=(x,y)=>x>=0&&x<MW&&y>=RY0&&y<MH,set=(x,y,c)=>{if(!ok(x,y))return;T[y][x]=c;SOL[y][x]=c==='v';Z[y][x]=0};
+  RISL.forEach(([k,cx0,r0,rx,ry])=>{const cy0=RY0+r0;for(let y=cy0-ry-2;y<=cy0+ry+2;y++)for(let x=cx0-rx-2;x<=cx0+rx+2;x++){const a=Math.atan2((y-cy0)/ry,(x-cx0)/rx),wob=.09*Math.sin(a*5+cx0)+.06*Math.sin(a*9+r0)+(rNoise(x,y)-.5)*.07,d=((x-cx0)/rx)**2+((y-cy0)/ry)**2;if(d<1+wob)set(x,y,'C')}});
+  const line=(x1,y1,x2,y2,fn)=>{const n=Math.ceil(Math.hypot(x2-x1,y2-y1)*2);for(let i=0;i<=n;i++){const t=i/n;fn(Math.round(x1+(x2-x1)*t),Math.round(y1+(y2-y1)*t))}};
+  /* 다리 (빈 하늘 위만) + 섬 안쪽 길 (다리 끝 → 섬 가운데) */
+  RBR.forEach(([x1,r1,x2,r2])=>{const y1=RY0+r1,y2=RY0+r2,hz=Math.abs(x2-x1)>Math.abs(y2-y1);
+    line(x1,y1,x2,y2,(x,y)=>{for(let d=-1;d<=1;d++){const X=hz?x:x+d,Y=hz?y+d:y;if(ok(X,Y)&&T[Y][X]==='v')set(X,Y,'q')}});
+    [[x1,y1],[x2,y2]].forEach(([ex,ey])=>{const I=rIslAt(ex,ey);if(!I)return;line(ex,ey,I[1],RY0+I[2],(x,y)=>{for(const[dx,dy]of[[0,0],[1,0],[0,1]])if(ok(x+dx,y+dy)&&T[y+dy][x+dx]==='C')T[y+dy][x+dx]='Q'})})});
+  /* 섬 둘레 산책길 (항구 · 나루) */
+  [['hub',.62],['gate',.55]].forEach(([k,f])=>{const I=RISL.find(i=>i[0]===k),cy0=RY0+I[2];for(let i=0;i<360;i++){const a=i/360*6.283,x=Math.round(I[1]+Math.cos(a)*I[3]*f),y=Math.round(cy0+Math.sin(a)*I[4]*f);if(ok(x,y)&&T[y][x]==='C')T[y][x]='Q';if(ok(x+1,y)&&T[y][x+1]==='C')T[y][x+1]='Q'}});
+  RLAKE.forEach(([lx,lr,rx,ry,z])=>{const ly=RY0+lr;for(let y=Math.floor(ly-ry-1);y<=ly+ry+1;y++)for(let x=Math.floor(lx-rx-1);x<=lx+rx+1;x++){const d=((x+.5-lx-.5)/rx)**2+((y+.5-ly-.5)/ry)**2+(rNoise(x,y)-.5)*.12;if(d<1&&ok(x,y)){T[y][x]='w';Z[y][x]=z;SOL[y][x]=true}}});
+  /* 꾸밈 (RDECO): 섬마다 어울리는 것들 · 나무 · 결정은 못 지나가요 */
+  RDECO.length=0;const R=RNG(901),occ=new Set(),free=(x,y,w,h)=>{for(let j=0;j<h;j++)for(let i=0;i<w;i++){const X=x+i,Y=y-j;if(!ok(X,Y)||T[Y][X]!=='C'||occ.has(X+','+Y))return false;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]])if(ok(X+dx,Y+dy)&&(T[Y+dy][X+dx]==='Q'||T[Y+dy][X+dx]==='v'||T[Y+dy][X+dx]==='q'))return false}return true},
+    put=(k,x,y,sol,w,h,ex)=>{w=w||1;h=h||1;for(let j=0;j<h;j++)for(let i=0;i<w;i++){occ.add((x+i)+','+(y-j));if(sol)SOL[y-j][x+i]=true}RDECO.push(Object.assign({k,x,y,v:(R()*4)|0},ex||{}))},
+    scatter=(isl,k,n,sol,w,h)=>{const I=RISL.find(i=>i[0]===isl);for(let t=0,c=0;t<n*40&&c<n;t++){const a=R()*6.283,rr=Math.sqrt(R())*.86,x=Math.round(I[1]+Math.cos(a)*I[3]*rr),y=Math.round(RY0+I[2]+Math.sin(a)*I[4]*rr);if(free(x,y,w||1,h||1)){put(k,x,y,sol,w,h);c++}}};
+  {const I=RISL.find(i=>i[0]==='hub'),y=RY0+I[2];put('sfount',I[1]-1,y,true,3,2);[[-8,-5],[8,-5],[-8,5],[8,5]].forEach(([dx,dy])=>put('clamp',I[1]+dx,y+dy,true));
+    put('cott',I[1]-12,y-3,true,3,2,{c:0});put('cott',I[1]+10,y-3,true,3,2,{c:1,shop:1});put('cott',I[1]-12,y+5,true,3,2,{c:2});[[-4,8],[4,8]].forEach(([dx,dy])=>put('cbench',I[1]+dx,y+dy,true))}
+  {const I=RISL.find(i=>i[0]==='gate');put('rport',I[1]-1,RY0+I[2]+1,true,3,2)}
+  {const I=RISL.find(i=>i[0]==='peak');put('tower',I[1]-1,RY0+I[2]-1,true,3,3);for(let x=I[1]-1;x<=I[1]+1;x++){SOL[RY0+20][x]=!0;occ.add(x+','+(RY0+20))}RDECO.push({k:'pgate',x:I[1]-1,y:RY0+20,v:0})}
+  {const L=RLAKE[0];RDECO.push({k:'arch',x:L[0],y:RY0+L[1]-5,v:0});const I=RISL.find(i=>i[0]==='rlake');RDECO.push({k:'rfall',x:I[1]-2,y:RY0+I[2]+I[4]-1,v:0})}
+  scatter('cotton','ctree',13,true);scatter('cotton','cflow',12,false);
+  scatter('rlake','rflow',16,false);scatter('rlake','ctree',5,true);
+  scatter('dawn','gtuft',70,false);scatter('dawn','lcry',9,true);scatter('dawn','dflow',34,false);
+  scatter('thunder','scry',10,true);scatter('thunder','drock',7,true);
+  scatter('mlake','mlan',7,true);scatter('mlake','dreed',16,false);
+  scatter('shadow','stree',26,true);scatter('shadow','gmush',26,false);scatter('shadow','dreed',20,false);
+  scatter('hub','hflow',14,false);scatter('gate','hflow',6,false)}
+
 /* 2026-11-17 밤 🌪️ 하늘이 갈라진 밤: 큰 바람에 내 정원(꽃배)이 바닷가로 밀려와 부서졌어요 · 심은 꽃 · 나무 · 장식은 그대로 · 부서진 꽃배 안에서 계속 가꿔요 */
 const SHIP_N=1,SHIP_W=24,SHIP_H=13,SHIP_PX=7,SHIP_PLOT_ROWS=[2,4,9,11];
 const shipO=i=>[155,36];   // 바닷가 (생활 거리 동쪽 · 모래사장에 걸쳐 반쯤 바다)
@@ -3438,7 +3489,7 @@ const plotAt=(x,y)=>{const s=myShip();if(s<0)return-1;const[ox,oy]=shipO(s),r=SH
 const treeRel=(o,i)=>o&&Number.isInteger(o.x)&&Number.isInteger(o.y)?[o.x,o.y]:(SHIP_ORCH[i]||[2,2]);
 const shipTreeXY=(s,o,i)=>{const[ox,oy]=shipO(s),r=treeRel(o,i);return[ox+r[0],oy+r[1]]};
 const myTreeXY=i=>{const s=myShip(),o=gdS().o[i];return s<0?ORCH[i]||[0,0]:shipTreeXY(s,o,+i)};
-const TS=16,OW=34,MW=194,W1=50,MH=130;   // 72칸부터 꽃배 선단 바다   // 자연 1.0: 50칸부터 꽃밭 언덕 (예전 땅은 W1까지 그대로)   // OW: 예전 너비 (34칸) · 35칸부터 축제 광장 // 60~99줄 2부 안개 섬 · 100줄부터 배낚시 먼바다
+const TS=16,OW=34,MW=194,W1=50,MH=230;   // 2026-11-17: 130줄부터 ☁️ 구름 위 나라 (마을은 VMH 130줄 그대로)   // 72칸부터 꽃배 선단 바다   // 자연 1.0: 50칸부터 꽃밭 언덕 (예전 땅은 W1까지 그대로)   // OW: 예전 너비 (34칸) · 35칸부터 축제 광장 // 60~99줄 2부 안개 섬 · 100줄부터 배낚시 먼바다
 function genWorld(){
   const T=[],Z=[],SOL=[],MASK=[];
   for(let y=0;y<MH;y++){T.push(new Array(MW).fill('g'));Z.push(new Array(MW).fill(0));SOL.push(new Array(MW).fill(false));MASK.push(new Array(MW).fill(0))}
@@ -3446,7 +3497,7 @@ function genWorld(){
   const rnd=RNG(7);
   /* 바다와 모래사장 */
   const shoreY=x=>39+Math.round(Math.sin(x*.55)*1+Math.sin(x*.21)*.8);
-  for(let y=32;y<MH;y++)for(let x=0;x<MW;x++){
+  for(let y=32;y<VMH;y++)for(let x=0;x<MW;x++){
     if(y<shoreY(x))T[y][x]='s';else{T[y][x]='w';Z[y][x]=y<49?3:y<63?4:y<100?6:7}
   }
   /* 부두 (2칸 폭) */
@@ -3521,9 +3572,6 @@ function genWorld(){
     {id:'ebland',x:43,y:21,w:3,h:3,door:[44,22],opts:{wall:[255,240,250],roof:[255,150,200],roofD:[226,110,170],door:[190,110,170],kind:'ebland'}},
     {id:'aqua',x:36,y:21,w:3,h:3,door:[37,22],opts:{wall:[236,248,255],roof:[110,190,236],roofD:[80,156,210],door:[120,170,210],kind:'aqua'}},
     {id:'home',x:28,y:19,w:3,h:3,door:[29,20],opts:{wall:[255,244,232],roof:[214,150,120],roofD:[184,120,96],door:[170,120,90],kind:'home'}},
-    {id:'st_ortho',x:92,y:35,w:3,h:3,door:[93,36],st:'ortho',opts:{wall:[255,255,255],roof:[120,180,230],roofD:[90,150,210],door:[150,190,230],kind:'st_ortho'}},
-    {id:'st_rock',x:98,y:35,w:3,h:3,door:[99,36],st:'rock',opts:{wall:[250,244,232],roof:[120,170,90],roofD:[90,140,64],door:[150,120,90],kind:'st_rock'}},
-    {id:'st_alof',x:104,y:35,w:3,h:3,door:[105,36],st:'alof',opts:{wall:[250,250,250],roof:[44,44,44],roofD:[20,20,20],door:[40,40,40],kind:'st_alof'}},
     {id:'st_roof',x:109,y:35,w:3,h:3,door:[110,36],st:'roof',opts:{wall:[140,100,76],roof:[90,66,52],roofD:[64,46,36],door:[70,48,36],kind:'st_roof'}},
     {id:'isleshop',x:19,y:80,w:3,h:3,door:[20,81],opts:{wall:[236,246,244],roof:[90,170,170],roofD:[60,130,136],door:[120,150,160],kind:'isleshop'}},
     {id:'isleforge',x:46,y:87,w:3,h:3,door:[47,88],opts:{wall:[232,236,240],roof:[96,110,150],roofD:[70,80,120],door:[130,110,100],kind:'shop'}}
@@ -3576,6 +3624,7 @@ function genWorld(){
    for(let y=E.cy+3;y<=E.cy+11;y++)for(const x of[E.cx,E.cx+1])pave(x,y);
    E.falls=[];for(let x=E.hx0;x<=E.hx1;x++){const yb=E.hy1;
      for(const[dy,ch]of[[1,'K'],[2,'B']]){const y=yb+dy,t0=T[y][x];if(t0==='w'){T[y][x]='V';Z[y][x]=0;SOL[y][x]=true;if(dy===2)E.falls.push([x,y])}else if(t0==='p'||t0==='k'){T[y][x]='U';SOL[y][x]=false}else{T[y][x]=ch;SOL[y][x]=true}}}}
+  realmBuild(T,Z,SOL);   /* ☁️ 구름 위 나라 2.0 (130줄부터) */
   /* 물가 마스크 (육지와 맞닿은 면) */
   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){
     if(T[y][x]==='w'){SOL[y][x]=true;let m=0;
@@ -3593,8 +3642,8 @@ function genWorld(){
     }
     if(T[y][x]==='w'&&(Z[y][x]===1||Z[y][x]===5)&&MASK[y][x]===0&&rnd()<.14)deco.push({k:'lily',x:x,y:y,v:(rnd()*5)|0});
   };
-  for(let y=0;y<MH;y++)for(let x=0;x<OW;x++)deco1(x,y,rnd);   // 예전 땅은 예전 그대로
-  {const r2=RNG(77);for(let y=0;y<MH;y++)for(let x=OW;x<W1;x++)deco1(x,y,r2)}
+  for(let y=0;y<VMH;y++)for(let x=0;x<OW;x++)deco1(x,y,rnd);   // 예전 땅은 예전 그대로
+  {const r2=RNG(77);for(let y=0;y<VMH;y++)for(let x=OW;x<W1;x++)deco1(x,y,r2)}
   /* 나무 */
   const trees=[],okTree=(x,y)=>{
     if(!inb(x,y)||T[y][x]!=='g'||SOL[y][x]||occ.has(x+','+y))return false;
@@ -3602,7 +3651,7 @@ function genWorld(){
     if(trees.some(t=>Math.abs(t.x-x)<2&&Math.abs(t.y-y)<2))return false;
     return true};
   for(let i=0;i<900;i++){
-    const x=(rnd()*OW)|0,y=(rnd()*MH)|0;
+    const x=(rnd()*OW)|0,y=(rnd()*VMH)|0;
     if(y>=31)continue;
     const edge=x<=1||x>=OW-2||y<=1;
     if(!edge&&rnd()<.78)continue;
@@ -3834,7 +3883,7 @@ function cosIcon(id){
 function toCan(buf){const c=document.createElement('canvas');c.width=buf.w;c.height=buf.h;const x=c.getContext('2d'),id=x.createImageData(buf.w,buf.h);id.data.set(buf.d);x.putImageData(id,0,0);return c}
 function buildSprites(){SP.crystal=toCan(crystalSprite());
   SP.grass=[0,1,2].map(v=>toCan(grassTile(v)));SP.path=[0,1].map(v=>toCan(pathTile(v)));SP.cream=[0,1].map(v=>toCan(creamTile(v)));SP.snowt=[0,1].map(v=>toCan(snowTile(v)));SP.sand=[0,1].map(v=>toCan(sandTile(v)));
-  SP.plank=toCan(plankTile());SP.hgrass=[0,1,2].map(v=>{const b=grassTile(v);for(let i=0;i<b.d.length;i+=4){b.d[i]=Math.min(255,b.d[i]+14);b.d[i+1]=Math.min(255,b.d[i+1]+10);b.d[i+2]=Math.min(255,b.d[i+2]+8)}return toCan(b)});SP.ed={face:[0,1,2].map(v=>toCan(EDA.cliff('face',v))),base:[0,1,2].map(v=>toCan(EDA.cliff('base',v))),fall:[0,1,2,3].map(f=>toCan(EDA.fall(f))),fallT:[0,1,2,3].map(f=>toCan(EDA.fall(f,1))),splash:[0,1].map(f=>toCan(EDA.splash(f))),stone:[0,1,2].map(v=>toCan(EDA.stone(v))),stair:[0,1].map(v=>toCan(EDA.stair(v)))};SP.water={};for(let z=1;z<=21;z++)SP.water[z]=[0,1,2,3].map(f=>toCan(waterTile(f,z)));SP.water[12]=SP.water[3];
+  SP.plank=toCan(plankTile());SP.hgrass=[0,1,2].map(v=>{const b=grassTile(v);for(let i=0;i<b.d.length;i+=4){b.d[i]=Math.min(255,b.d[i]+14);b.d[i+1]=Math.min(255,b.d[i+1]+10);b.d[i+2]=Math.min(255,b.d[i+2]+8)}return toCan(b)});SP.ed={face:[0,1,2].map(v=>toCan(EDA.cliff('face',v))),base:[0,1,2].map(v=>toCan(EDA.cliff('base',v))),fall:[0,1,2,3].map(f=>toCan(EDA.fall(f))),fallT:[0,1,2,3].map(f=>toCan(EDA.fall(f,1))),splash:[0,1].map(f=>toCan(EDA.splash(f))),stone:[0,1,2].map(v=>toCan(EDA.stone(v))),stair:[0,1].map(v=>toCan(EDA.stair(v)))};SP.water={};for(let z=1;z<=21;z++)SP.water[z]=[0,1,2,3].map(f=>toCan(waterTile(f,z)));for(let z=40;z<=43;z++)SP.water[z]=[0,1,2,3].map(f=>toCan(waterTile(f,z)));SP.water[12]=SP.water[3];
   SP.fenceH=toCan(fenceTile('h'));SP.fenceV=toCan(fenceTile('v'));SP.gateC=toCan(gateTile(false));SP.gateO=toCan(gateTile(true));
   SP.treeBy={};SP.house={};
   W.buildings.forEach(b=>SP.house[b.id]=toCan(buildHouse(b.opts)));
@@ -3855,7 +3904,7 @@ const ginkgoTree=t=>t.x<72&&t.y<34&&!(t.kind||'').startsWith('ed_')&&(t.kind==='
 const GLEAF=[];   // 흔들어서 떨어진 은행잎 (이번 접속 동안)
 function treeSpr(t){if(isAutumn()&&ginkgoTree(t)){const k='gk'+t.seed;return SP.treeBy[k]||(SP.treeBy[k]=toCan(EDA.ginkgo(t.seed)))}const k=t.kind+t.seed;return SP.treeBy[k]||(SP.treeBy[k]=toCan(t.kind.indexOf('ed_')===0?EDA.tree(t):treeSprite(t.kind,t.seed)))}
 const iconCache={};
-function fishCan(id){return iconCache[id]||(iconCache[id]=toCan(buildFish(FISH[id].spec,id*7+3)))}
+function fishCan(id){if(id<0)return celFishCan(-1-id);return iconCache[id]||(iconCache[id]=toCan(buildFish(FISH[id].spec,id*7+3)))}
 const urlCache={};
 function fishURL(id){return urlCache[id]||(urlCache[id]=fishCan(id).toDataURL())}
 /* 🐟 재료 칩의 물고기를 누르면 어디서 낚는지 (2026-11-12) */
@@ -3886,14 +3935,15 @@ const boatOK=()=>ENH_LV()>=25&&!S.noBoat&&P&&P.aboard==null&&!(typeof HUNT!=='un
 const isWaterT=(tx,ty)=>!!(W.T[ty]&&W.T[ty][tx]==='w');
 function boatPass(x,y){if(y>=99*TS)return false;const hw=4,c=[[x-hw,y],[x+hw,y],[x-hw,y-4],[x+hw,y-4]];for(const[a,b]of c){const tx=Math.floor(a/TS),ty=Math.floor(b/TS);if(!W.inb(tx,ty))return false;if(isSolid(tx,ty)&&!isWaterT(tx,ty))return false}return true}
 const passAt=(x,y)=>!blockedAt(x,y)||(boatOK()&&boatPass(x,y));
-const onBoatNow=()=>!!(P&&boatOK()&&isWaterT(Math.floor(P.x/TS),Math.floor((P.y-2)/TS)));
+const onBoatNow=()=>!!(P&&!inRealm()&&boatOK()&&isWaterT(Math.floor(P.x/TS),Math.floor((P.y-2)/TS)));
 function drawFlowerBoat(c,x,y,mv,col){const X=Math.round(x),Y=Math.round(y+Math.sin(wt*2.2+x*.01)*1);c.fillStyle='rgba(30,60,90,.25)';c.beginPath();c.ellipse(X,Y+3,13,3,0,0,6.28);c.fill();
   c.fillStyle='#8a5a3a';c.beginPath();c.moveTo(X-13,Y-4);c.lineTo(X+13,Y-4);c.lineTo(X+9,Y+2);c.lineTo(X-9,Y+2);c.closePath();c.fill();   // 선체
   c.fillStyle='#b07a4a';c.fillRect(X-12,Y-5,24,2);c.fillStyle=col||'#ff9ab8';for(let i=-10;i<=10;i+=4){c.fillRect(X+i,Y-7,2,2)}c.fillStyle='#ffe27a';c.fillRect(X-8,Y-7,1,1);c.fillRect(X+6,Y-7,1,1);   // 난간 꽃
   if(mv&&Math.random()<.5)parts.push({x:X-(Math.random()-.5)*20,y:Y+2,vx:(Math.random()-.5)*10,vy:-4,life:.6,t:0,c:'rgba(230,245,255,.9)',g:10,s:1})}
 function blockedAt(x,y){const hw=4;return isSolid(Math.floor((x-hw)/TS),Math.floor(y/TS))||isSolid(Math.floor((x+hw)/TS),Math.floor(y/TS))||isSolid(Math.floor((x-hw)/TS),Math.floor((y-4)/TS))||isSolid(Math.floor((x+hw)/TS),Math.floor((y-4)/TS))}
 function newPlayer(){P={x:S.px||W.spawn.x,y:S.py||W.spawn.y,dir:'down',anim:0,moving:false,stepT:0};if(blockedAt(P.x,P.y)){P.x=W.spawn.x;P.y=W.spawn.y}
-  if(P.y>=100*TS){P.x=17*TS+8;P.y=46*TS+12}}   // 배 위에서 껐다 켜면 일단 항구 부두에서 시작 (아직 바다 위면 서버가 알려 줘서 다시 갑판으로)
+  if(P.y>=RY0*TS){P.x=PLAZA.gate[0]*TS+8;P.y=(PLAZA.gate[1]+2)*TS+12}   // ☁️ 구름 위에서 껐다 켜면 별빛 광장에서
+  else if(P.y>=100*TS){P.x=17*TS+8;P.y=46*TS+12}}   // 배 위에서 껐다 켜면 일단 항구 부두에서 시작 (아직 바다 위면 서버가 알려 줘서 다시 갑판으로)
 
 /* ----- 낚시 상태기계 ----- */
 const F={mode:'idle',t:0,target:null,zone:1,fish:null,wait:0,ripT:0,len:0,isNew:false,pageUp:-1,reel:null,from:null};
@@ -3914,9 +3964,10 @@ function findCast(){
 }
 function nearAction0(){
   const tx=Math.floor(P.x/TS),ty=Math.floor((P.y-2)/TS);
+  if(inRealm()){const r=realmNear();if(r)return r}
   if(WK){const w=walkAct();if(w)return w;const pt=nearPet();if(pt&&pt.p.id==='ruby'&&wishReady())return{type:'wish',label:'냄새<br>맡게 하기'};if(pt)return{type:'pet',pet:pt,label:'쓰다듬기'};return null}
   if(P.aboard!=null){if(SAIL&&SAIL.me)return null;if(PTY&&PTY.isLeader&&PTY.state==='lobby'&&PTY.members.length>=PT_MIN)return{type:'sail',label:'출항!'};if(PTY&&PTY.state==='lobby'&&P.y<100*TS){const c=findCast();if(c)return{type:'fish',label:'낚시',cast:c}}return{type:'unboard',label:'내리기'}}
-  if(P.y>=100*TS){const c=findCast();if(c)return{type:'fish',label:'낚시',cast:c}}   // 배 위에선 낚시가 먼저 (펫 산책 버튼이 낚시를 가리지 않게)
+  if(P.y>=100*TS&&P.y<RY0*TS){const c=findCast();if(c)return{type:'fish',label:'낚시',cast:c}}   // 배 위에선 낚시가 먼저 (펫 산책 버튼이 낚시를 가리지 않게)
   if(hbNear(tx,ty))return boatAway()?{type:'boatinfo',label:'배낚시<br>나감'}:{type:'board',label:'어선<br>타기'};
   {const ea=edAct(tx,ty);if(ea)return ea}
   {const wo=wowTarget();if(wo&&wo.wowed!==wo.hold.at)return{type:'wow',o:wo,label:'우와!'}}
@@ -4211,6 +4262,7 @@ document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest
   openSheet('👥 지금 마을에 있어요','<div class="row"><div class="nm"><div>🟢 '+esc(Net.me.name)+' (나)</div><div class="muted" style="font-size:12px">'+esc(regionName())+'</div></div></div>'+(L.length?L.map(o=>'<div class="row"><div class="nm"><div>🟢 '+esc(o.name)+'</div><div class="muted" style="font-size:12px">'+(o.seen?esc(regionName(o.x,o.y))+(o.b>0?' · 🎣 낚시 중':''):'근처에 없어요')+'</div></div></div>').join(''):'<div class="muted" style="text-align:center;padding:12px">지금은 나 혼자예요</div>'))});
 function regionName(px,py){
   const tx=(px!=null?px:P.x)/TS,ty=(py!=null?py:P.y)/TS;
+  if(ty>=RY0)return realmRegion(tx|0,ty|0);
   if(ty>=100)return'먼바다 배낚시';
   if(ty>=63&&tx>=31&&tx<70)return'물안개 숲 섬';
   if(tx>=70&&tx<98&&ty>=38&&ty<64)return'🍊 제주 이벤트 섬';
@@ -5252,7 +5304,7 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
 const UPD_VER='1117j',UPD_LOG=[
  ['11/17 🎣 낚시 자리의 흔적','🎣',[['🪑 친구가 낚던 자리','친구가 한자리에서 5마리 넘게 낚으면 그 자리에 작은 접이 의자 · 미끼통 · 컵이 남아요 · 가까이 가면 몇 마리 · 몇 시간 전인지 보여요'],['🐟 큰 걸 낚은 자리','전설 이상 · 아주 큰 물고기 · ✨반짝 물고기를 낚은 자리엔 그 물고기 그림 팻말이 꽂혀요'],['🕰️ 하루 동안','흔적은 하루 동안 남고 천천히 흐려져요 · 같이 접속하지 않아도 누가 다녀갔는지 알 수 있어요'],['✨ 반짝 물고기 팔기 고침','가방 반짝 칸에서 팔 때 골드가 안 들어오던 문제를 고쳤어요 (11/16 밤부터)']]],
  ['11/17 ❄️ 머물던 자리','❄️',[['❄️ 머물던 자리에 얼음 동상','친구가 접속을 끊으면 마지막에 서 있던 자리에 그 모습 그대로 얼음 동상이 생겨요 (낚시하던 중이면 낚싯대도 함께) · 얼음 결정이 둘러싸고 반짝여요 · 가까이 가면 「몇 시간 전」인지 보여요'],['💧 천천히 녹아요','몇 시간 지나면 금이 가고 물방울이 똑똑 · 하루쯤이면 반쯤 녹아 흐릿해지고 · 사흘이면 작은 웅덩이만 남아요 · 다시 들어오면 쨍! 하고 깨지며 풀려나요'],['👀 친구가 안 보이던 것 고침','어제부터 서로의 모습이 마을에서 안 보이던 문제를 고쳤어요 (리치맨 님만이 아니라 모두였어요)']]],
- ['11/17 밤 🌪️ 하늘이 갈라진 밤','🌪️',[['🌪️ 하늘이 갈라진 밤','어젯밤 마을 북쪽 하늘에서 아주 큰 바람이 불어 내려왔어요 · 무엇이 열렸는지는 아직 아무도 몰라요… 🕯️ 별빛 광장에 낯선 나그네가 나타났대요'],['🌷 내 정원 → 부서진 꽃배','바람에 꽃배 정원이 바닷가로 밀려와 부서졌어요 · 이제 생활 거리 동쪽 바닷가의 부서진 꽃배 안이 내 정원이에요 (메뉴 → 가 볼 곳 → 내 정원) · 심은 꽃 · 나무 · 벌집 · 장식은 그대로예요 · 잠깐 정원에 들어갈 수 없던 것도 고쳤어요'],['🏚️ 무너진 가게 (없어진 것)','💗 꼬북린 폴댄스 · 🧘 은비땅 필라테스 · 💪 치킨 헬스장이 바람에 무너졌어요 · 그 가게의 놀이 · 굿즈 판매도 없어졌어요 · 이미 산 굿즈 · 칭호는 그대로예요 · 잔해 조각들이 바다를 떠다녀요'],['☁️ 그대로인 곳','구름과자 라운지 · 조돌맹 정형외과 · 락트리 클라이밍 · ALOF 가구 공장은 무사해요']]],
+ ['11/17 밤 🌪️ 하늘이 갈라진 밤','🌪️',[['🌪️ 하늘이 갈라진 밤','어젯밤 마을 북쪽 하늘에서 아주 큰 바람이 불어 내려왔어요 · 무엇이 열렸는지는 아직 아무도 몰라요… 🕯️ 별빛 광장에 낯선 나그네가 나타났대요'],['🌷 내 정원 → 부서진 꽃배','바람에 꽃배 정원이 바닷가로 밀려와 부서졌어요 · 이제 생활 거리 동쪽 바닷가의 부서진 꽃배 안이 내 정원이에요 (메뉴 → 가 볼 곳 → 내 정원) · 심은 꽃 · 나무 · 벌집 · 장식은 그대로예요 · 잠깐 정원에 들어갈 수 없던 것도 고쳤어요'],['🏚️ 무너진 가게 (없어진 것)','💗 꼬북린 폴댄스 · 🧘 은비땅 필라테스 · 💪 치킨 헬스장 · 🩻 조돌맹 정형외과 · 🧗 락트리 클라이밍 · 🏭 ALOF 가구 공장이 바람에 무너졌어요 · 그 가게들의 놀이 · 굿즈 · 가구 판매도 없어졌어요 · 이미 산 굿즈 · 가구 · 칭호는 그대로예요'],['🏭 떠내려가는 ALOF 간판','ALOF 간판이 바다에 떨어져 생활 거리 앞바다를 둥둥 떠다녀요 · 잔해 조각들도 함께 떠다녀요'],['☁️ 그대로인 곳','구름과자 라운지만 무사해요']]],
  ['11/17 통발','🪤',[['🪤 걷어 올리면 덤','통발을 직접 걷어 올리면 칸 수만큼 덤: 강화권 (3칸에 1장 반쯤) · 💤 꿈조각 (칸마다 30) · 가끔 📜 주문서 · 좋은 미끼면 강화권 1.5배'],['🔔 가득 차면 알림','통발이 가득 차면 한 번 알려 줘요 · 가득 차면 더 안 모이니까 걷으러 가요']]],
  ['11/17 안정','🛟',[['🛟 게임이 멈추지 않게','화면에서 오류가 한 번 나도 게임이 멈추지 않고 계속 돌아요 (멈추면 친구 화면에서 내가 사라질 수 있었어요)'],['⛵ 물 위를 걷는 친구','낚싯대 +25 「내 꽃배 부르기」예요 · 꽃배를 타고 물 위를 건너요 (버그가 아니에요)']]],
  ['11/17 칩','⭐',[['⭐ 장비 별 강화 (새로)','꿈의 문 가방에서 장비를 누르면 「⭐ 별 강화」 · 은비랜드 칩으로 · 실패 없음 · +10까지 · 단계마다 기본 능력치가 올라요'],['📜 없어진 것: 칩으로 주문서 사기','주문서는 이제 사냥 드랍 · 장비 분해 · 💤 꿈조각 교환으로만 얻어요 (주문서가 넘쳐서 칩이 쓸모없던 것 정리) · 갖고 있던 주문서는 그대로예요']]],
@@ -5491,7 +5543,7 @@ const REEL={
 function hook(){
   const f=F.fish;F.perfect=false;F.reeled=false;const shy=F.shq===true;F.reelSh=shy;
   if(shy){const b=bobberPos();sparkFx(b[0],b[1],26,['#ffffff','#fff6b0','#c8f0ff']);toast('✨ 반짝이는 물고기가 거세게 저항해요!')}
-  if(!shy&&!easyMode()&&f.rar<=1&&mastered(f.id)){F.mode='pull';F.t=0;F.from=bobberPos();F.familiar=true;Snd.sfx('hook');Snd.sfx('splash');return}
+  if(!shy&&!easyMode()&&f.rar<=1&&f.cel==null&&mastered(f.id)){F.mode='pull';F.t=0;F.from=bobberPos();F.familiar=true;Snd.sfx('hook');Snd.sfx('splash');return}
   F.familiar=false;
   // 흔함 · 보통은 줄다리기 없이 바로 낚아요. 희귀 이상만 짧은 줄다리기
   if(!shy&&easyMode()&&f.rar<=1){F.mode='pull';F.t=0;F.from=bobberPos();Snd.sfx('hook');Snd.sfx('splash');return}
@@ -5683,7 +5735,8 @@ function biteFx(f){const r=f.myth?4:f.rar,b=bobberPos();
   if(navigator.vibrate)try{navigator.vibrate(VIB[Math.min(4,r)])}catch(e){}}
 function slowAlert(){try{if(ECO.on)ecoOff()}catch(e){}try{navigator.vibrate&&navigator.vibrate([220,120,220,120,320])}catch(e){}Snd.sfx('bite')}
 function slowAgain(msg){F.mode='wait';F.t=0;F.wait=20+Math.random()*25;toast('🍃 '+msg)}
-function startNibble(){if(F.slowFish)slowAlert();const U=F.slowFish?null:ultRoll();F.fish=F.slowFish||U||surpFish(rollFish(F.zone,condNow(F.target)),F.zone);F.shq=false;F.shOk=false;if(!U&&!F.slowFish&&(F.hsK==='myth'||F.hsK==='legend')&&!F.fish.boss){for(let i=0;i<2;i++){const g=rollFish(F.zone,condNow(F.target));if(g&&!g.boss&&(g.myth?5:g.rar)>(F.fish.myth?5:F.fish.rar))F.fish=g}}const f=F.fish,n=NIB[f.myth?4:f.rar];F.nib=n[0]+Math.floor(Math.random()*(n[1]-n[0]+1));
+function startNibble(){if(F.zone>=40){F.fish=celPick(F.zone);F.shq=false;F.shOk=false;const n=NIB[F.fish.rar];F.nib=n[0]+Math.floor(Math.random()*(n[1]-n[0]+1));F.mode=F.nib?'nibble':'bite';F.t=0;F.nibT=.5+Math.random()*.6;F.dip=0;if(!F.nib){Snd.sfx('bite');biteFx(F.fish)}return}   // ☁️ 구름 호수
+  if(F.slowFish)slowAlert();const U=F.slowFish?null:ultRoll();F.fish=F.slowFish||U||surpFish(rollFish(F.zone,condNow(F.target)),F.zone);F.shq=false;F.shOk=false;if(!U&&!F.slowFish&&(F.hsK==='myth'||F.hsK==='legend')&&!F.fish.boss){for(let i=0;i<2;i++){const g=rollFish(F.zone,condNow(F.target));if(g&&!g.boss&&(g.myth?5:g.rar)>(F.fish.myth?5:F.fish.rar))F.fish=g}}const f=F.fish,n=NIB[f.myth?4:f.rar];F.nib=n[0]+Math.floor(Math.random()*(n[1]-n[0]+1));
   F.mode=F.nib?'nibble':'bite';F.t=0;F.nibT=.5+Math.random()*.6;F.dip=0;if(!F.nib){Snd.sfx('bite');biteFx(f)}
   if(!F.afk&&ONLINE&&Net.me&&!F.fish.boss&&!F.fish.get){F.shq=null;Net.send({t:'shq',f:F.fish.id,bx:F.bait==='b_shx'?1:0})}}
 function stepNibble(dt){F.nibT-=dt;F.dip=Math.max(0,F.dip-dt*4);
@@ -5737,6 +5790,7 @@ function reelLost(r){if(F.reelSh&&!r.snap&&Math.random()<.04){F.shOk=true;F.reel
   toast(r.snap?'줄이 끊어졌어요! 물고기가 당길 때는 손을 살짝 풀어요':r.gap?'앗, 놓쳤어요… 「'+zoneNm(F.zone)+'」 권장 강화 +'+REC_ENH[F.zone]+' (지금 +'+S.enh.lv+')':'앗, 놓쳤어요… '+(F.fish.rar>=2?'다음엔 또 만날 거예요':'다시 던져 봐요'))}
 
 function finishCatch(){
+  if(F.fish&&F.fish.cel!=null)return celCatchDone(F.fish);
   const f=F.fish,id=f.id,_sl=F.slowFish&&F.slowFish.id===id?1:0;if(_sl){const ms=Date.now()-(F.slowT0||Date.now());F.slowFish=null;if(ONLINE&&Net.me)setTimeout(()=>Net.send({t:'slow_got',id,ms}),700);else toast('🍃 '+Math.round(ms/60000)+'분을 기다려 만난 물고기예요')}if(!F.afk)try{crownPop()}catch(e){}try{edCatch(f)}catch(e){}if(autoOn()&&!F.afk&&!F.reelHand)S.rcx=(S.rcx|0)+1;F.reelHand=0;if(F.shOk){F.shOk=false;F.reelSh=false;setTimeout(()=>Net.send({t:'shok',f:id}),1500)}{const _had=!!S.dex[id];setTimeout(()=>{diaryCatch(f,_had);wfCatch(id)},60);}if(P)rodSig(S.cos.look.rod,P.x,P.y-8,false);if(ONLINE&&Net.me&&!f.boss)setTimeout(()=>Net.send({t:'fdrop',slow:_sl,rar:f.myth?4:f.rar,z:F.zone}),400);
   F.len=Math.max(1,Math.round(f.len*(.7+Math.random()*.6)));
   if(F.bait==='b_hand'||F.bait2==='b_hand')F.len=Math.round(F.len*1.15);
@@ -5807,6 +5861,7 @@ function startAfk(){
 }
 function stopAfk(msg){if(!F.afk)return;F.afk=false;if(F.mode==='wait'||F.mode==='cast')F.mode='idle';if(msg)toast(msg)}
 function afkBite(){
+  if(F.zone>=40){stopAfk('☁️ 구름 위에선 자동 낚시가 안 돼요');return}
   F.wait=afkSec();
   if(afkLeft()<=0){stopAfk('오늘 자동 낚시는 다 썼어요');return}
   let f=rollFish(F.zone,condNow(F.target));
@@ -7206,7 +7261,7 @@ setInterval(()=>{if(SAIL&&!SAIL.me&&performance.now()-SAIL.t0>SAIL_MS)SAIL=null}
 const DECK=[[13,111],[21,111],[13,117],[21,117],[17,119]],DOCK_BACK=[17*TS+8,46*TS+12],PT_MIN=3;let PT_DAY=12;setInterval(()=>{PT_DAY=12+(arkSt()>=4?4:0)},3000);   // 2026-11-05: 한 주에 (월요일에 다시) // server.js와 같아요
 let PTY=null,bossTaps=0;
 const inSea=()=>!!(PTY&&PTY.state==='sea'&&PTY.me);
-const zoneOk=z=>z===21?farCast():z===20?true:z===7?inSea():z===8?hasZone(3):z>=9?hasZone(6):hasZone(z);
+const zoneOk=z=>z>=40?inRealm():z===21?farCast():z===20?true:z===7?inSea():z===8?hasZone(3):z>=9?hasZone(6):hasZone(z);
 /* 바다 이벤트 (server.js PT_EV와 같은 이름) · 배 위 기본 혜택: 입질 20% 빨리 · 희귀 확률 15% 더 */
 const SEA_EV={
  dolphin:{i:'🐬',n:'돌고래 떼',t:'돌고래 떼가 배를 따라와요! 30초 동안 입질이 아주 빨라져요',wait:.55},
@@ -7251,7 +7306,7 @@ function seaGo(slot,back){const d=DECK[slot%DECK.length];if(F.afk)stopAfk();if(W
   P.x=d[0]*TS+8;P.y=d[1]*TS+12;P.dir=slot<2?'up':'down';camX=P.x-VW/2;camY=P.y-VH/2;Snd.sfx('gate');sparkFx(P.x,P.y-10,16,['#ffffff','#a9d8f2']);
   seaFxReset();if(!back)setTimeout(()=>Snd.sfx('horn'),400);
   if(!$('sheetwrap').hidden)closeSheet();toast(back?'⚓ 다시 배에 올랐어요! 아직 바다 위예요':'⚓ 출항! 10분 동안 같이 어창을 채워요');ptBar()}
-function seaHome(msg){if(P.y>=100*TS){P.aboard=null;P.sit=null;if(F.afk)stopAfk();if(F.mode!=='idle'){F.mode='idle';showReel(false);Snd.setIntense(false)}P.x=DOCK_BACK[0];P.y=DOCK_BACK[1];camX=P.x-VW/2;camY=P.y-VH/2;$('result').hidden=true}
+function seaHome(msg){if(P.y>=100*TS&&P.y<RY0*TS){P.aboard=null;P.sit=null;if(F.afk)stopAfk();if(F.mode!=='idle'){F.mode='idle';showReel(false);Snd.setIntense(false)}P.x=DOCK_BACK[0];P.y=DOCK_BACK[1];camX=P.x-VW/2;camY=P.y-VH/2;$('result').hidden=true}
   SEA.ev=null;SEA.boss=null;$('bossbtn').hidden=true;bossUI();ptBar();evBanner();if(msg)setTimeout(()=>toast(msg),300);saveState(true)}
 function onPt(m){
   const was=inSea(),wasSt=PTY&&PTY.state,hadBoss=!!(PTY&&PTY.boss);const p=m.p;
@@ -7270,7 +7325,7 @@ function onPt(m){
   if(PTY&&PTY.boss&&inSea()&&!hadBoss&&!m.boss){SEA.boss={k:PTY.boss.k,t0:performance.now()};bossStart(true)}   // 보스 중에 다시 들어온 경우
   if(m.bossEnd){bossEnd(m.bossEnd==='win',m.bk)}
   if(!PTY||!PTY.boss){$('bossbtn').hidden=true;if(!m.bossEnd&&SEA.boss&&!SEA.boss.win)SEA.boss=null}
-  if(m.end){seaHome(m.end)}else if(!inSea()&&P.y>=100*TS&&!(PTY&&PTY.practice))seaHome(was?'배낚시에서 돌아왔어요':'배낚시가 끝나서 항구로 돌아왔어요');
+  if(m.end){seaHome(m.end)}else if(!inSea()&&P.y>=100*TS&&P.y<RY0*TS&&!(PTY&&PTY.practice))seaHome(was?'배낚시에서 돌아왔어요':'배낚시가 끝나서 항구로 돌아왔어요');
   ptBar();bossUI();evBanner();if(!$('sheetwrap').hidden&&$('sheettitle').textContent==='배낚시')openParty();
 }
 function ptFullFx(n){Snd.sfx('page');Snd.sfx('horn');sparkFx(P.x,P.y-14,26,['#ffd34d','#ff8a8a','#ffffff']);SEA.flag=performance.now();toast(n===2?'🏆 대만선!!! 귀항하면 보상이 더 커져요':'🚩 만선!! 위쪽 「만선 귀항」으로 바로 돌아가거나, 계속 낚아서 대만선에 도전!')}
@@ -7344,7 +7399,7 @@ function forceTp(x,y,why){if(!P)return;if(F.afk)stopAfk();if(WK)stopWalk();P.sit
   SEA.left=performance.now();SEA.ev=null;SEA.boss=null;$('bossbtn').hidden=true;
   P.x=x;P.y=y;if(blockedAt(P.x,P.y)){P.x=W.spawn.x;P.y=W.spawn.y}camX=P.x-VW/2;camY=P.y-VH/2;
   if(!$('sheetwrap').hidden)closeSheet();ptBar();bossUI();evBanner();sparkFx(P.x,P.y-10,14,['#ffffff','#ffd34d']);Snd.sfx('gate');if(why)toast(why);saveState(true)}
-const lostAtSea=()=>!!(P&&P.y>=100*TS&&!inSea()&&!(PTY&&PTY.practice)&&!(SAIL&&SAIL.me)&&!admOn());
+const lostAtSea=()=>!!(P&&P.y>=100*TS&&P.y<RY0*TS&&!inSea()&&!(PTY&&PTY.practice)&&!(SAIL&&SAIL.me)&&!admOn());
 const stuckHere=()=>!!(P&&(lostAtSea()||(P.aboard==null&&!P.sit&&!SAIL&&!P.onBoat&&blockedAt(P.x,P.y))));
 let homeAsk=0,homeLast=0;
 function goHome(){const now=Date.now();
@@ -7362,7 +7417,7 @@ setInterval(()=>{if(!P||($('title')&&!$('title').hidden))return;
 /* ========== 배낚시 장면 3.0: 진짜 배를 타고 먼바다에 나온 느낌 ==========
    흐르는 바다 · 출렁이는 선체 · 뱃머리 물보라 · 항적 · 돛 · 조타실 · 어창 · 만선 풍어기
    갈매기 · 돌고래 · 청새치 · 날치 · 고래 · 정어리 떼 · 큰 파도 · 보스 그림자 */
-const atSeaView=()=>!!(P&&P.y>=100*TS);
+const atSeaView=()=>!!(P&&P.y>=100*TS&&P.y<RY0*TS);
 const BOAT_C={x:17.5*TS,y:113*TS};
 const HULL=[[280,1696],[300,1720],[318,1740],[338,1757],[355,1770],[355,1904],[346,1918],[334,1927],[226,1927],[214,1918],[205,1904],[205,1770],[222,1757],[242,1740],[260,1720]];
 const DECKP=HULL.map(p=>[BOAT_C.x+(p[0]-BOAT_C.x)*.93,1812+(p[1]-1812)*.95]);
@@ -7513,7 +7568,7 @@ function bossAbove(dt){const b=SEA.boss,now=performance.now(),k=b.k|0,img=fishCa
   const [x,y,t]=bossPos(),jump=(t%3.2)<.7?Math.sin((t%3.2)/.7*Math.PI):0;
   // 낚싯줄: 나 · 다른 선원 자리에서 보스까지
   const tip=castTip();cx.strokeStyle='rgba(255,255,255,.85)';cx.lineWidth=1;cx.beginPath();cx.moveTo(tip[0],tip[1]);cx.quadraticCurveTo((tip[0]+x)/2,(tip[1]+y)/2+10-((b.tug&&now-b.tug<160)?8:0),x,y);cx.stroke();
-  others.forEach(o=>{if(!o.seen||o.y<100*TS)return;cx.strokeStyle='rgba(255,255,255,.5)';cx.beginPath();cx.moveTo(o.x,o.y-20);cx.quadraticCurveTo((o.x+x)/2,(o.y-20+y)/2+12,x,y);cx.stroke()});
+  others.forEach(o=>{if(!o.seen||o.y<100*TS||o.y>=RY0*TS)return;cx.strokeStyle='rgba(255,255,255,.5)';cx.beginPath();cx.moveTo(o.x,o.y-20);cx.quadraticCurveTo((o.x+x)/2,(o.y-20+y)/2+12,x,y);cx.stroke()});
   if(jump>0){const sc=2.2,h=jump*24;cx.save();cx.translate(Math.round(x),Math.round(y-h));cx.rotate(-Math.cos(jump*Math.PI)*.4);cx.drawImage(img,Math.round(-img.width*sc/2),Math.round(-img.height*sc/2),Math.round(img.width*sc),Math.round(img.height*sc));cx.restore();
     if(jump>.97)seaSplash(x,y,14,true)}
 }
@@ -7600,6 +7655,7 @@ const GLC=[['#ffd23a','#c89418'],['#ffc21a','#b88010'],['#f4e070','#c8a830'],['#
 function gLeaf(x,y,v){const c=GLC[v],X=x|0,Y=y|0;cx.fillStyle=c[0];cx.fillRect(X,Y,4,1);cx.fillRect(X+1,Y+1,2,1);cx.fillStyle=c[1];cx.fillRect(X+1,Y+2,1,1);if(v&1)cx.fillRect(X,Y,1,1)}
 function drawTile(x,y){
   const t=W.T[y][x],px_=x*TS,py_=y*TS,h=(x*7+y*13)%3;
+  if(y>=RY0&&t!=='w')return;   // ☁️ 구름 땅은 realmGround 조각으로
   if(t==='g'){const hl=inHill(x,y);cx.drawImage(hl?SP.hgrass[h]:SP.grass[h],px_,py_);if(AUT&&x<100&&((x*92821+y*68917)%9)===0)gLeaf(px_+((x*37+y)%10)+2,py_+((x*11+y*29)%9)+3,(x+y)&3);
     if(hl){if(x===EDEN.hx0){cx.fillStyle='#9cc896';cx.fillRect(px_,py_,2,TS)}if(x===EDEN.hx1){cx.fillStyle='#9cc896';cx.fillRect(px_+TS-2,py_,2,TS)}if(y===EDEN.hy0){cx.fillStyle='#eefae4';cx.fillRect(px_,py_,TS,1);cx.fillStyle='#b8dcaa';cx.fillRect(px_,py_+1,TS,1)}}
     else if(y>=EDEN.hy0&&y<=EDEN.hy1+2&&(x===EDEN.hx0-1||x===EDEN.hx1+1)){cx.fillStyle='rgba(60,80,70,.12)';cx.fillRect(x===EDEN.hx0-1?px_+TS-4:px_,py_,4,TS)}
@@ -7799,18 +7855,18 @@ function render(dt){
   const lift=Math.round(VH*.26*Math.max(0,Math.min(1,(11*TS-P.y)/(7*TS)))),tx=P.x-VW/2,ty=P.y-VH/2-4-lift,ck=1-Math.exp(-dt*6);   // 🌅 북쪽 끝에 가까워지면 카메라를 올려 하늘을 크게
   camX+=(tx-camX)*ck;camY+=(ty-camY)*ck;
   const mxX=MW*TS-VW,mxY=MH*TS-VH;
-  const TOPP=Math.round(VH*.62);camX=Math.max(0,Math.min(mxX,camX));camY=Math.max(-TOPP,Math.min(mxY,camY));
+  const RLM=inRealm(),TOPP=RLM?-RY0*TS:Math.round(VH*.62),mxY2=RLM?mxY:VMH*TS-VH;camX=Math.max(0,Math.min(mxX,camX));camY=Math.max(-TOPP,Math.min(mxY2,camY));   // ☁️ 구름 위에선 마을이, 마을에선 구름 위가 안 보이게
   if(MW*TS<VW)camX=mxX/2;
   const lx=tx-camX,ly=ty-camY;
   if(Math.abs(lx-camLX)>.8)camLX=Math.round(lx);if(Math.abs(ly-camLY)>.8)camLY=Math.round(ly);
   let cX=(camX<=0||camX>=mxX)?Math.round(camX):Math.max(0,Math.min(mxX,Math.round(P.x)-(VW>>1)-camLX));
-  let cY=(camY<=-TOPP||camY>=mxY)?Math.round(camY):Math.max(-TOPP,Math.min(mxY,Math.round(P.y)-(VH>>1)-4-lift-camLY));
-  cx.fillStyle='#d6ecd0';cx.fillRect(0,0,VW,VH);try{drawSkyBack(cX,cY)}catch(e){SKF.on=false}
+  let cY=(camY<=-TOPP||camY>=mxY2)?Math.round(camY):Math.max(-TOPP,Math.min(mxY2,Math.round(P.y)-(VH>>1)-4-lift-camLY));
+  cx.fillStyle='#d6ecd0';cx.fillRect(0,0,VW,VH);if(RLM)realmSky(cX,cY);else try{drawSkyBack(cX,cY)}catch(e){SKF.on=false}
   {const sv=-cY>VH*.28;if(sv!==!!render.sv){render.sv=sv;document.body.classList.toggle('skyview',sv)}}   // 하늘 보기: 화면 위 알림 · 미니맵을 살짝 숨겨요
   if(SHK.t>0){SHK.t-=dt;cX+=Math.round((Math.random()-.5)*SHK.a*2);cY+=Math.round((Math.random()-.5)*SHK.a*2)}
   cx.save();cx.translate(-cX,-cY);
   const x0=Math.max(0,Math.floor(cX/TS)),x1=Math.min(MW-1,Math.floor((cX+VW)/TS)),y0=Math.max(0,Math.floor(cY/TS)),y1=Math.min(MH-1,Math.floor((cY+VH)/TS));
-  drawBG(x0,x1,y0,y1);try{skyWater(x0,x1,y0,y1)}catch(e){}drawPlates();
+  if(RLM)realmGround(x0,x1,y0,y1);drawBG(x0,x1,y0,y1);if(RLM)realmShore(x0,x1,y0,y1);try{skyWater(x0,x1,y0,y1)}catch(e){}drawPlates();
   const SEAV=atSeaView();if(SEAV)drawSeaUnder(dt,cX,cY);
   shWater(x0,x1,y0,y1);sdWater(x0,x1,y0,y1);gtWater();
   // 물 위 연잎 · 파문
@@ -7826,7 +7882,7 @@ function render(dt){
     else drawables.push({y:d.y*TS+12,fn:()=>cx.drawImage(SP.reed[d.v],d.x*TS+Math.round(Math.sin(wt*1.5+d.x)*.8)+windAt(d.x,d.y),d.y*TS)})});
   if(shaking){shaking.time+=dt;if(shaking.time>.6)shaking=null}
   W.trees.forEach(t=>{if(t.x>=x0-2&&t.x<=x1+2&&t.y>=y0-2&&t.y<=y1+3){if(treeCut(t)){drawables.push({y:t.y*TS+15,fn:()=>{cx.fillStyle='#7a5636';cx.fillRect(t.x*TS+4,t.y*TS+9,8,5);cx.fillStyle='#c89a6a';cx.beginPath();cx.ellipse(t.x*TS+8,t.y*TS+9,4,1.6,0,0,6.28);cx.fill()}});return}const s=treeSpr(t),wob=shaking&&shaking.t===t?Math.round(Math.sin(shaking.time*40)*1.5):0;drawables.push({y:t.y*TS+15,fn:()=>cx.drawImage(s,t.x*TS+8-(s.width>>1)+wob,t.y*TS+17-s.height)})}});
-  drawFishBoat(drawables);
+  drawFishBoat(drawables);if(RLM){realmDraws(drawables,x0,x1,y0,y1);realmHoldDraw(drawables)}
   W.buildings.forEach(b=>drawables.push({y:(b.y+1)*TS,fn:()=>{const hx=b.x*TS+(b.w*TS-48)/2,hy=(b.y+1)*TS-50;cx.drawImage(SP.house[b.id],hx,hy);houseLife(b,hx,hy)}}));
   W.props.forEach(p=>{if(p.kind==='evb'){drawables.push({y:p.y*TS+15,fn:()=>evbDraw(p.x*TS,p.y*TS)});return}if(p.kind==='kst'){drawables.push({y:p.y*TS+15,fn:()=>kstDraw(p.x*TS,p.y*TS)});return}if(p.kind==='cst'){drawables.push({y:p.y*TS+15,fn:()=>cstDraw(p.x*TS,p.y*TS,p.ck)});return}const s=p.kind==='litter'?SP.litter[litterDirty()?1:0]:SP[p.kind];if(!s)return;drawables.push({y:p.y*TS+15,fn:()=>{cx.drawImage(s,p.x*TS+(TS-s.width)/2,p.y*TS+16-s.height);if(p.kind==='litter'&&litterDirty())litterFlies(p.x*TS+8,p.y*TS+6)}})});
   natDrawables(drawables,x0,x1,y0,y1);trapDrawables(drawables,x0,x1,y0,y1);smDrawables(drawables);npcDrawables(drawables);jejuDrawables(drawables);decoDrawables(drawables,x0,x1,y0,y1);critDrawables(drawables);drawables.push({y:20*TS+12,fn:drawPortal});wedDrawables(drawables);boatDrawables(drawables);painterDraw(drawables);npcZ(drawables);evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
@@ -8371,13 +8427,13 @@ const MMAP={base:null,t:0,lbl:0};
 const nameHue=n=>{let h=0;for(const c of String(n||''))h=(h*131+c.codePointAt(0))>>>0;return h%360};
 const nameCol=n=>'hsl('+nameHue(n)+',78%,58%)';
 function mmBase(){if(MMAP.base)return MMAP.base;const c=document.createElement('canvas');c.width=MW;c.height=MH;const x=c.getContext('2d'),im=x.createImageData(MW,MH),d=im.data;
-  const C={K:[176,160,156],B:[176,160,156],U:[214,200,186],V:[200,232,250],c:[255,214,228],n:[240,246,255],g:[168,214,150],p:[232,214,168],s:[240,224,176],k:[196,160,112],f:[160,120,80],F:[196,160,112],w:[124,190,232]};
-  for(let y=0;y<MH;y++)for(let X=0;X<MW;X++){const t=W.T[y][X];let col=C[t]||[200,210,190];if(t==='w'&&W.Z[y][X]>=6&&W.Z[y][X]!==8)col=[150,190,220];if(t!=='w'&&W.SOL[y][X])col=[150,180,130];const i=(y*MW+X)*4;d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=255}
+  const C={C:[250,246,255],Q:[255,236,206],q:[236,226,252],v:[168,186,232],K:[176,160,156],B:[176,160,156],U:[214,200,186],V:[200,232,250],c:[255,214,228],n:[240,246,255],g:[168,214,150],p:[232,214,168],s:[240,224,176],k:[196,160,112],f:[160,120,80],F:[196,160,112],w:[124,190,232]};
+  for(let y=0;y<MH;y++)for(let X=0;X<MW;X++){const t=W.T[y][X];let col=C[t]||[200,210,190];if(t==='w'&&W.Z[y][X]>=6&&W.Z[y][X]!==8)col=[150,190,220];if(t!=='w'&&W.SOL[y][X]&&y<RY0)col=[150,180,130];const i=(y*MW+X)*4;d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=255}
   x.putImageData(im,0,0);x.fillStyle='rgb(206,170,214)';W.buildings.forEach(b=>x.fillRect(b.x,b.y-1,b.w,b.h+1));MMAP.base=c;return c}
 function mmOn(){return!S.mmOff}
 function mmTick(){const wrap=$('mmap');if(!wrap)return;const vis=!!P&&$('title').hidden&&!uiOpen&&!ECO.on;
   const on=mmOn();wrap.hidden=!vis||!on;const tg=$('mmTog');if(tg)tg.hidden=!vis||on;if(!vis||!on)return;
-  const cv=$('mmc'),x=cv.getContext('2d'),VWT=56,VHT=40,ptx=P.x/TS,pty=P.y/TS;let ox=Math.round(ptx-VWT/2),oy=Math.round(pty-VHT/2);ox=Math.max(0,Math.min(MW-VWT,ox));oy=Math.max(0,Math.min(MH-VHT,oy));
+  const cv=$('mmc'),x=cv.getContext('2d'),VWT=56,VHT=40,ptx=P.x/TS,pty=P.y/TS;let ox=Math.round(ptx-VWT/2),oy=Math.round(pty-VHT/2);ox=Math.max(0,Math.min(MW-VWT,ox));oy=inRealm()?Math.max(RY0,Math.min(MH-VHT,oy)):Math.max(0,Math.min(VMH-VHT,oy));
   const K=cv.width/VWT;x.imageSmoothingEnabled=false;x.clearRect(0,0,cv.width,cv.height);x.drawImage(mmBase(),ox,oy,VWT,VHT,0,0,cv.width,cv.height);
   const dot=(wx,wy,col,r,ring)=>{const sx=(wx/TS-ox)*K,sy=(wy/TS-oy)*K;if(sx<-4||sy<-4||sx>cv.width+4||sy>cv.height+4)return null;x.beginPath();x.arc(sx,sy,r,0,6.28);x.fillStyle=col;x.fill();x.lineWidth=1.5;x.strokeStyle=ring;x.stroke();return[sx,sy]};
   if(typeof TRAPS!=='undefined')TRAPS.forEach(t=>{const sx=(t.x+.5-ox)*K,sy=(t.y+.5-oy)*K;if(sx<0||sy<0||sx>cv.width||sy>cv.height)return;const mine=Net.me&&t.n===Net.me.name;x.fillStyle=mine?'#ffffff':nameCol(t.n);x.strokeStyle='#4a3d6b';x.lineWidth=1;x.fillRect(sx-3,sy-3,6,6);x.strokeRect(sx-3,sy-3,6,6);if(mine&&t.vis){x.fillStyle='#ff6e9a';x.beginPath();x.arc(sx+4,sy-4,2,0,6.28);x.fill()}});
@@ -9414,7 +9470,8 @@ function openAdmin(){
   if(T==='test'){
   {const W2=(k,t)=>'<button data-adm="warp2" data-v="'+k+'">'+t+'</button>',C2=(k,t)=>'<button data-adm="celgo" data-v="'+k+'">'+t+'</button>';
    h+='<div class="sec">📍 순간 이동</div><div class="warps"><button data-adm="warp" data-v="spawn">마을 광장</button>'+W2('plaza','🌟 별빛 광장')+W2('eden','🌳 물결 정원')+W2('sky','☁️ 하늘 끝 (하늘낚시)')+'<button data-adm="warp" data-v="dock">항구 부두</button><button data-adm="warp" data-v="isle">안개 섬</button><button data-adm="warp" data-v="boat">배낚시 배</button></div>';
-   h+='<div class="sec">☁️ 구름 위 나라 바로 가기 <span class="cnt">숨결 제한 없어요</span></div><div class="warps">'+C2('hub','☁️ 구름 항구')+C2('cotton','🍭 솜사탕섬')+C2('rlake','🌈 무지개 호수')+C2('dawn','✨ 새벽빛 들판')+C2('thunder','⚡ 번개 협곡')+C2('mlake','🌫️ 안개 호수')+C2('shadow','🌑 그림자 숲')+C2('peak','⛰️ 가장 높은 곳')+'</div>'+
+   h+='<div class="sec">☁️ 새 구름 위 나라 (짓는 중 · 마을과 같은 세상) </div><div class="warps">'+RISL.map(I=>'<button data-adm="rgo" data-v="'+I[0]+'">'+I[6]+'</button>').join('')+(inRealm()?'<button data-adm="rout">🏠 마을로 나가기</button>':'')+'</div>';
+   h+='<div class="sec">☁️ 예전 구름 위 나라 바로 가기 <span class="cnt">숨결 제한 없어요</span></div><div class="warps">'+C2('hub','☁️ 구름 항구')+C2('cotton','🍭 솜사탕섬')+C2('rlake','🌈 무지개 호수')+C2('dawn','✨ 새벽빛 들판')+C2('thunder','⚡ 번개 협곡')+C2('mlake','🌫️ 안개 호수')+C2('shadow','🌑 그림자 숲')+C2('peak','⛰️ 가장 높은 곳')+'</div>'+
      '<div class="warps"><button data-adm="celdark">🌑 어둠의 길 다시 보기</button><button data-adm="rift">🌀 하늘 틈 바로 열기</button>'+(ONLINE&&Net.me?'<button data-adm="celfill">⏳ 내 구름 숨결 다시 채우기</button>':'')+'</div>';
    h+='<div class="sec">⚔️ 사냥터 바로 가기 <span class="cnt">운영자 모드면 잠금 없이</span></div><div class="warps">'+HFIELDS.map((f,i)=>'<button data-adm="hfgo" data-v="'+i+'"><b>'+(i+1)+'</b> '+esc(f.n)+'</button>').join('')+'</div>';
    h+='<div class="sec">🧑 내 용사</div><div style="display:flex;gap:6px;margin:4px 0"><input class="tin" id="admHu" type="number" min="1" max="99" value="'+huS().lv+'" style="flex:1 1 30%"><button class="btn sm" data-adm="hulv" style="flex:1 1 60%">용사 레벨 맞추기</button></div><div class="warps"><button data-adm="huclr">🌟 사냥터 모두 정화 (심연 · 악몽 포함)</button>'+(S.admBak?'<button data-adm="hurest">↩️ 시험 전으로 되돌리기 (Lv'+S.admBak.lv+')</button>':'')+'</div><div class="muted" style="font-size:12px">레벨 · 정화를 처음 바꿀 때 지금 용사를 기억해 둬요 · 되돌리기 한 번이면 원래대로</div>';
@@ -9485,6 +9542,8 @@ function admClick(t){
   if(a==='huclr'){const u=huS();u.clr=u.clr||{};S.hunt.nclr=S.hunt.nclr||{};HFIELDS.forEach((f,i)=>{if(!f.raid){u.clr[i]=1;S.hunt.nclr[i]=1}});saveState(true);toast('🌟 모든 사냥터를 정화한 걸로 맞췄어요');openAdmin();return true}
   if(a==='alset'){Net.send({t:'adm',op:'al_set',to:Net.me.name.toLowerCase(),v});return true}
   if(a==='esme'){Net.flushSave(true);Net.send({t:'adm',op:'give',to:Net.me.name.toLowerCase(),k:'es',n:+v});return true}
+  if(a==='rgo'){closeSheet();if(HUNT.on)huExit('');if(CEL.on)celLeave('');const I=RISL.find(i=>i[0]===v);if(!I)return true;if(inRealm()){forceTp(I[1]*TS+8,(RY0+I[2]+(v==='peak'?3:v==='gate'?-2:2))*TS+12,'');realmGateSync()}else{REALM.to=v;realmGo()}return true}
+  if(a==='rout'){closeSheet();realmLeave();return true}
   if(a==='ccme'){Net.send({t:'adm',op:'give',to:Net.me.name.toLowerCase(),k:'cc',n:+v});return true}
   if(a==='pkset'){Net.send({t:'adm',op:'pk_set',v});return true}
   if(a==='chipme'){Net.send({t:'adm',op:'givechip',to:Net.me.name.toLowerCase(),n:+v});return true}
@@ -10361,7 +10420,7 @@ function natDrawables(list,x0,x1,y0,y1){
   HIVE_AT.forEach(([x,y])=>{if(!inV(x,y))return;for(let k=0;k<2;k++){const a=wt*3+k*3.1+x,bx=x*TS+8+Math.cos(a)*7,by=y*TS+2+Math.sin(a*1.3)*4;list.push({y:y*TS+16,fn:()=>{cx.fillStyle='#ffc020';cx.fillRect(Math.round(bx),Math.round(by),2,1);cx.fillStyle='#302010';cx.fillRect(Math.round(bx)+1,Math.round(by),1,1)}})}});
   BUGS.forEach(b=>list.push({y:b.y+30,fn:()=>drawBug(b)}));
   if(GLEAF.length)list.push({y:-1e9,fn:()=>GLEAF.forEach(q=>{if(q[0]>x0*TS-20&&q[0]<(x1+1)*TS+20&&q[1]>y0*TS-20&&q[1]<(y1+1)*TS+20)gLeaf(q[0],q[1],q[2])})});
-  drawArkShip(list);edenDraw(list,x0,x1,y0,y1);plazaDraw(list,x0,x1,y0,y1);ruinsDraw(list,x0,x1,y0,y1);drawIce(list,x0,x1,y0,y1);drawTrc(list,x0,x1,y0,y1);edDraw(list,x0,x1,y0,y1);
+  drawArkShip(list);edenDraw(list,x0,x1,y0,y1);plazaDraw(list,x0,x1,y0,y1);ruinsDraw(list,x0,x1,y0,y1);alofSignDraw(list,x0,x1,y0,y1);drawIce(list,x0,x1,y0,y1);drawTrc(list,x0,x1,y0,y1);edDraw(list,x0,x1,y0,y1);
 }
 /* ===== 🌳 물결 정원 그리기 (2026-11-13): 두 나무 · 정원 문 · 샘의 물고기 · 평화의 들판 동물들 ===== */
 const ED_ANI=[{k:'rabbit',x:112,y:20},{k:'rabbit',x:118,y:8},{k:'deer',x:128,y:24},{k:'sheep',x:176,y:26},{k:'deer',x:166,y:6},{k:'rabbit',x:181,y:9},{k:'sheep',x:120,y:26},{k:'sheep',x:170,y:22},{k:'lion',x:172,y:22,lie:1},{k:'lamb',x:174,y:22.4,lie:1},{k:'deer',x:160,y:24},{k:'sheep',x:180,y:19},{k:'rabbit',x:150,y:25},{k:'rabbit',x:124,y:8},{k:'deer',x:182,y:25},{k:'sheep',x:164,y:19}];
@@ -10561,7 +10620,7 @@ function drawGDeco(k,X,Y){const c=cx,r=(col,x,y,w,h)=>{c.fillStyle=col;c.fillRec
 function shipDeco(list,i,x){return wreckYard(list,i,x)}
 /* 🌪️ 부서진 꽃배: 모래사장에 걸린 선체 · 뜯긴 난간 · 부러진 돛대와 찢어진 돛 · 구멍 · 파도 거품 · 갈라진 틈마다 꽃 */
 /* 🌪️ 무너진 가게 (하늘이 갈라진 밤): 폴댄스 · 필라테스 · 헬스장 자리엔 잔해 · 바다엔 떠다니는 조각 · 산 굿즈는 그대로예요 */
-const RUINS=[['pole',74,[255,120,190],[255,240,248]],['pila',80,[170,220,200],[244,252,248]],['gym',86,[70,74,92],[236,238,244]]];
+const RUINS=[['pole',74,[255,120,190],[255,240,248]],['pila',80,[170,220,200],[244,252,248]],['gym',86,[70,74,92],[236,238,244]],['ortho',92,[120,180,230],[255,255,255]],['rock',98,[120,170,90],[250,244,232]],['alof',104,[44,44,44],[250,250,250]]];
 function ruinsDraw(list,x0,x1,y0,y1){if(x1<70||x0>125||y1<30||y0>70)return;const rgb=a=>'rgb('+a.join(',')+')';
   RUINS.forEach(([k,bx,roof,wall],n)=>{const X=bx*TS,Y=33*TS,R=RNG(70+n);list.push({y:Y+3*TS-2,fn:()=>{const c=cx;
     c.fillStyle='rgba(0,0,0,.14)';c.beginPath();c.ellipse(X+24,Y+40,26,6,0,0,6.283);c.fill();
@@ -10573,6 +10632,9 @@ function ruinsDraw(list,x0,x1,y0,y1){if(x1<70||x0>125||y1<30||y0>70)return;const
     if(k==='pole'){c.fillStyle='#d8d8e8';c.save();c.translate(X+36,Y+10);c.rotate(.45);c.fillRect(0,0,2,26);c.restore();c.fillStyle='rgba(255,90,180,.85)';c.fillRect(X+4,Y+38,14,3)}   // 휘어진 폴 · 꺼진 네온
     if(k==='pila'){c.fillStyle='#9ad8c0';c.fillRect(X+28,Y+40,16,3);c.fillStyle='#ffb0c8';c.beginPath();c.arc(X+12,Y+42,4,0,6.283);c.fill()}   // 요가 매트 · 짐볼
     if(k==='gym'){c.fillStyle='#3a3a48';c.fillRect(X+26,Y+40,14,2);c.fillRect(X+24,Y+38,3,6);c.fillRect(X+39,Y+38,3,6)}   // 아령
+    if(k==='ortho'){c.fillStyle='#fff';c.fillRect(X+28,Y+36,12,8);c.fillStyle='#e04050';c.fillRect(X+33,Y+37,2,6);c.fillRect(X+31,Y+39,6,2);c.fillStyle='#f0f0f0';c.fillRect(X+6,Y+40,10,2);c.fillStyle='#d8d8e0';c.fillRect(X+8,Y+40,1,2)}   // 쓰러진 십자 간판 · 붕대
+    if(k==='rock'){[[8,26,'#ff8a5a'],[14,32,'#5ad08a'],[10,36,'#ffd34d'],[34,34,'#8a7aff']].forEach(([a,b,col])=>{c.fillStyle=col;c.fillRect(X+a,Y+b,4,3)});c.fillStyle='#d8c8a0';c.fillRect(X+26,Y+40,10,2)}   // 떨어진 홀드
+    if(k==='alof'){c.fillStyle='#1a1a1a';c.fillRect(X+28,Y+36,8,6);c.fillStyle='#fafafa';c.fillRect(X+6,Y+38,12,4)}   // 간판은 바다로 떠내려갔어요
     c.fillStyle='#e8d098';c.beginPath();c.ellipse(X+24,Y+44,24,3,0,0,6.283);c.fill()}})});
   /* 바다에 떠다니는 조각들 (천천히 흘러요) */
   const t=wt;[[78,42,'pole'],[95,46,'pila'],[100,52,'gym'],[103,43,'pole'],[96,58,'pila'],[72,48,'gym'],[108,49,'pole']].forEach(([tx,ty,k],n)=>{const R=RUINS.find(r=>r[0]===k),X=tx*TS+Math.sin(t*.22+n)*18,Y=ty*TS+Math.sin(t*1.1+n*2)*1.5;
@@ -10581,6 +10643,13 @@ function ruinsDraw(list,x0,x1,y0,y1){if(x1<70||x0>125||y1<30||y0>70)return;const
       else if(n%3===1){c.fillStyle='#8a5a30';c.fillRect(x,y+1,20,3);c.fillStyle='#a87a4a';c.fillRect(x,y+1,20,1)}   // 판자
       else{c.fillStyle='#fff6ec';c.fillRect(x,y,14,7);c.fillStyle=rgb(R[2]);c.fillRect(x+2,y+2,10,3)}   // 간판 조각
       c.fillStyle='rgba(255,255,255,.55)';c.fillRect(x-1,y+5,3,1);c.fillRect(x+17,y+5,3,1)}})})}
+/* 🏭 ALOF 간판: 바람에 떨어져 바다에 둥둥 · 생활 거리 앞바다를 천천히 오가요 (멀리서도 보이게 크게) */
+function alofSignDraw(list,x0,x1,y0,y1){if(x1<88||x0>136||y1<36||y0>46)return;const t=wt,X=Math.round((106+Math.sin(t*.045)*14)*TS),Y=Math.round(40.6*TS+Math.sin(t*1.1)*2),tl=Math.sin(t*.8)*.06;
+  list.push({y:Y-100,fn:()=>{const c=cx;c.fillStyle='rgba(30,60,110,.28)';c.beginPath();c.ellipse(X+2,Y+12,40,5,0,0,6.283);c.fill();c.save();c.translate(X,Y);c.rotate(tl);
+    c.fillStyle='#111';c.fillRect(-36,-12,72,22);c.fillStyle='#2a2a2a';c.fillRect(-36,6,72,4);c.fillStyle='#fafafa';c.font='bold 15px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('ALOF',0,-1);c.textBaseline='alphabetic';
+    c.fillStyle='#8a5a30';c.fillRect(-30,9,4,6);c.fillRect(26,9,4,6);c.restore();
+    for(let i=0;i<5;i++){const fx=X-38+i*19+Math.sin(t*2+i)*2;c.fillStyle='rgba(255,255,255,'+(.4+.3*Math.sin(t*2.5+i))+')';c.fillRect(Math.round(fx),Y+11,5,1)}
+    if(P&&Math.hypot(X-P.x,Y-P.y)<TS*9)worldTag([['🏭 떠내려가는 ALOF 간판','#3a3a3a']],X,Y-20)}})}
 function wreckYard(list,i,x){const[ox,oy]=shipO(i),X=ox*TS,Y=oy*TS,Wd=SHIP_W*TS,Hd=SHIP_H*TS,col=x?shipCol(x.name):'#ff8ab0',ex=X+SHIP_EXIT[0]*TS,R=RNG(331);
   const PL=[];for(let k=0;k<7;k++)PL.push([R()*1.6-.3,R()*.6+.15,R()*6.28,(R()*3|0)]);   // 떠다니는 판자
   const gapT=[14,15,16],gapB=[3,4,17,18,19],gapR=[4,5];   // 뜯겨 나간 난간 칸
@@ -10885,7 +10954,7 @@ setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden|
 /* ===== 길 안내: 메뉴에서 장소를 누르면 화살표가 그 건물 문까지 데려다줘요 ===== */
 const GO_PLACES=[['garden','🌷','꽃밭 언덕',[57,23],()=>{const n=bloomCount();return n?'활짝 '+n+'송이':'꽃 · 나무 · 꿀'}],['shipdock','🏝️','섬 나루터',[63,47],()=>'내 섬으로 가는 배'],['myyard','🌷','내 정원 (부서진 꽃배)',[160,34],()=>{const n=shipBloom(gdS());return n?'활짝 '+n+'송이':'꽃 · 나무 · 꾸미기'}],['forge','🔨','강화소',null,()=>'+'+S.enh.lv+' · 강화권 '+S.enh.tk],['shop','🛒','물결 상점',null,()=>'팔기 · 장비'],['boutique','🎀','치장 상점',null,()=>S.btqSeen!==NEW_DAY?'🆕 신제품!':'옷 · 한정'],['trade','🔁','교환소',null,()=>'게시판 · 교환'],
  ['lib','📚','도감관',null,()=>'도감'],['evboard','🎪','행사 게시판',[21,24],()=>EVS.length?EVS.length+'개 열림':'행사'],['roster','📋','일꾼 현황판',[13,24],()=>'직업 · 예보'],['ebland','🎰','은비랜드',null,()=>'축제 광장'],
- ['aqua','🐠','수족관',null,()=>'축제 광장'],['hunthut','🌀','꿈의 문 (사냥터)',[17,21],()=>'물결 용사 Lv'+huS().lv],['home','🏠','우리 집',null,()=>'다리 옆'],['islport','🏝️','섬 나루터',[116,41],()=>'내 섬 · 친구 섬'],['street','🏙️','물결 생활 거리',[95,37],()=>'가게 3곳 · 라운지 · 무너진 자리'],['party','⚓','물결 어선',[17,46],()=>PTY&&PTY.state==='lobby'?PTY.members.length+'명 탐':PTY&&PTY.state==='sea'?'바다 위':'배낚시'],['boat','⛵','물결호 부두',[17,57],()=>boatReady()?'안개 섬':'배 만들기']];
+ ['aqua','🐠','수족관',null,()=>'축제 광장'],['hunthut','🌀','꿈의 문 (사냥터)',[17,21],()=>'물결 용사 Lv'+huS().lv],['home','🏠','우리 집',null,()=>'다리 옆'],['islport','🏝️','섬 나루터',[116,41],()=>'내 섬 · 친구 섬'],['street','🏙️','물결 생활 거리',[100,37],()=>'라운지 · 무너진 자리'],['party','⚓','물결 어선',[17,46],()=>PTY&&PTY.state==='lobby'?PTY.members.length+'명 탐':PTY&&PTY.state==='sea'?'바다 위':'배낚시'],['boat','⛵','물결호 부두',[17,57],()=>boatReady()?'안개 섬':'배 만들기']];
 let GUIDE=null;
 function goPos(id){const g=GO_PLACES.find(x=>x[0]===id);if(!g)return null;if(g[3])return[g[3][0]*TS+8,g[3][1]*TS+8];const d=W.doors[id];return d?[((d.x0+d.x1)/2)*TS+8,d.y*TS+10]:null}
 function goGuide(id){const g=GO_PLACES.find(x=>x[0]===id),p=goPos(id);if(!g||!p)return;
@@ -10973,7 +11042,7 @@ function emote(k){const now=performance.now();if(now-lastEmo<400)return;lastEmo=
 const TR={tab:'board',view:'list',posts:null,mail:[],err:'',wait:0,draft:null,pick:null,ses:null,asking:0,fr:null,frMiss:true};
 /* 교환 규칙 (server.js tradeRule과 같아요): 물고기는 물고기와만, 같은 낚시터끼리만. 골드 · 아이템 교환은 그대로 */
 const placeOf=id=>FISH[id]?FISH[id].zone:0;
-const zoneNm=z=>ZONES[z-1]?ZONES[z-1].name:'?';
+const zoneNm=z=>RZ[z]?RZ[z][0]:ZONES[z-1]?ZONES[z-1].name:'?';
 const isFishKey=k=>k!=='g'&&k.indexOf('i:')!==0;
 function tradeRule(a,b){const all=[a||{},b||{}];if(all.some(o=>(o['i:shard']|0)>0))return'안개 조각은 주고받을 수 없어요';if(!all.some(o=>Object.keys(o).some(k=>o[k]>0)))return'올린 것이 없어요';return''}
 /* 교환 중인 물고기의 낚시터 (없으면 0) */
@@ -11334,7 +11403,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     if(!this.me||this.state!=='open')return;
     this.posT-=dt;this.hbT-=dt;
     if(P&&this.posT<=0){this.posT=.1;if(!this.celQ){this.celQ=1;this.send({t:'cel_get'})}const x=Math.round(CEL.on?CEL.x:P.x),y=Math.round(CEL.on?CEL.y:P.y),mv=(CEL.on?CEL.moving:P.moving)?1:0,
-      bt=(P.onBoat&&!CEL.on?2:0)+(CEL.on?4:0),b=!CEL.on&&(F.mode==='wait'||F.mode==='nibble'||F.mode==='bite'||F.mode==='pull'||F.mode==='reel')&&F.target?F.target.y*MW+F.target.x+1:0,fs=b?({nibble:1,bite:2,reel:3,pull:4}[F.mode]|0):0,k=x+','+y+','+P.dir+','+mv+','+b+','+fs+','+bt;   // fs: 친구 화면에 입질 · 챔질 · 줄다리기 · 낚아채기 (2026-11-16)
+      bt=(P.onBoat&&!CEL.on?2:0)+(CEL.on||inRealm()?4:0),b=!CEL.on&&(F.mode==='wait'||F.mode==='nibble'||F.mode==='bite'||F.mode==='pull'||F.mode==='reel')&&F.target?F.target.y*MW+F.target.x+1:0,fs=b?({nibble:1,bite:2,reel:3,pull:4}[F.mode]|0):0,k=x+','+y+','+P.dir+','+mv+','+b+','+fs+','+bt;   // fs: 친구 화면에 입질 · 챔질 · 줄다리기 · 낚아채기 (2026-11-16)
       if(k!==this.lastPos||this.hbT<=0){this.lastPos=k;this.hbT=20;this.send({t:'pos',x:x,y:y,d:CEL.on?CEL.dir:P.dir,m:mv+bt,b:b,f:fs})}}
     if(this.saveQ&&performance.now()-this.saveT>3000)this.flushSave();
   },
@@ -11355,6 +11424,133 @@ function addOther(m){
   const o={id:m.id,name:m.name,color:m.color|0,look:cleanLook(m.look,m.color),x:m.x||0,y:m.y||0,tx:m.x||0,ty:m.y||0,d:m.d||'down',m:0,b:0,anim:0,seen:!!m.here,tag:tag,bub:null,say:null,emo:null};
   setTag(o,o.name,o.look.ti,o.look.e);others.set(m.id,o);if(tradeOpen())renderTrade();
 }
+/* ===================== ☁️ 구름 위 나라 2.0 · 그리기 · 들어가기 · 낚시 (2026-11-17 · 운영자 미리보기) ===================== */
+const RSP={};const rSide=x=>x>=118?'l':x<=76?'d':'n';
+const RPAL={n:{b:[246,244,255],h:[255,255,255],s:[226,222,246],p:[255,240,214],pd:[236,214,180]},l:{b:[255,244,240],h:[255,255,250],s:[250,222,222],p:[255,232,170],pd:[238,200,130]},d:{b:[226,220,244],h:[240,236,252],s:[198,188,226],p:[214,200,240],pd:[176,160,214]}};
+/* ☁️ 구름 땅은 512px 조각으로 미리 그려 둬요 (부드러운 가장자리 · 섬 두께 · 둥근 길 · 큰 무늬) · 물은 따로 움직이게 */
+const RCH=new Map(),RCS=32;let RDIST=null;
+function rDist(){if(RDIST)return RDIST;const D=[];for(let y=RY0;y<MH;y++){D[y]=new Int8Array(MW).fill(9)}const q=[];const land=(x,y)=>{const t=W.T[y]&&W.T[y][x];return t==='C'||t==='Q'||t==='w'};
+  for(let y=RY0;y<MH;y++)for(let x=0;x<MW;x++)if(land(x,y)){let e=false;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy;if(Y<RY0||Y>=MH||X<0||X>=MW||!land(X,Y)&&W.T[Y][X]!=='q')e=true}if(e){D[y][x]=0;q.push([x,y])}}
+  for(let i=0;i<q.length;i++){const[x,y]=q[i],d=D[y][x];if(d>=6)continue;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy;if(Y<RY0||Y>=MH||X<0||X>=MW||!land(X,Y))continue;if(D[Y][X]>d+1){D[Y][X]=d+1;q.push([X,Y])}}}
+  return RDIST=D}
+const rMix=(a,b,t)=>'rgb('+Math.round(a[0]+(b[0]-a[0])*t)+','+Math.round(a[1]+(b[1]-a[1])*t)+','+Math.round(a[2]+(b[2]-a[2])*t)+')';
+const rSm=(x,y,s)=>{const X=x*s,Y=y*s,xi=Math.floor(X),yi=Math.floor(Y),fx=X-xi,fy=Y-yi,n=(a,b)=>rNoise(a,b),u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return n(xi,yi)*(1-u)*(1-v)+n(xi+1,yi)*u*(1-v)+n(xi,yi+1)*(1-u)*v+n(xi+1,yi+1)*u*v};
+function rChunk(ci,cj){const k=ci+','+cj;if(RCH.has(k)){const c=RCH.get(k);RCH.delete(k);RCH.set(k,c);return c}
+  const c=document.createElement('canvas');c.width=c.height=RCS*TS;const g=c.getContext('2d'),D=rDist(),T=W.T,x0=ci*RCS,y0=RY0+cj*RCS,isL=t=>t==='C'||t==='Q'||t==='w',isB=t=>t==='q';
+  const at=(x,y)=>y>=RY0&&y<MH&&x>=0&&x<MW?T[y][x]:'v';
+  /* 1) 섬 두께 (아래로 드리운 구름 밑동) */
+  for(let y=y0-4;y<y0+RCS+1;y++)for(let x=x0-2;x<x0+RCS+2;x++){const t=at(x,y);if(!isL(t))continue;if(at(x,y+1)!=='v')continue;const sd=rSide(x),P0=RPAL[sd],px=(x-x0)*TS+8,py=(y-y0)*TS+8;
+    for(let k=0;k<3;k++){const r=10-k*2+rNoise(x,k)*3,yy=py+6+k*7;g.fillStyle=rMix(P0.s,[150,140,200],.15+k*.22);g.beginPath();g.ellipse(px+(rNoise(x,y+k)-.5)*6,yy,r+2,r*.8,0,0,6.283);g.fill()}
+    g.fillStyle='rgba(255,255,255,.25)';g.beginPath();g.ellipse(px,py+6,9,3,0,0,6.283);g.fill()}
+  /* 2) 땅: 큰 무늬로 색이 천천히 바뀌고, 가장자리로 갈수록 그늘 */
+  for(let y=y0-1;y<y0+RCS+1;y++)for(let x=x0-1;x<x0+RCS+1;x++){const t=at(x,y);if(!isL(t))continue;const sd=rSide(x),P0=RPAL[sd],px=(x-x0)*TS,py=(y-y0)*TS,n=rSm(x,y,.12),d=D[y]?D[y][x]:9,sh=d===0?.32:d===1?.16:d===2?.07:0;
+    g.fillStyle=rMix(rMix0(P0.b,P0.h,n*.8),P0.s,sh);g.fillRect(px,py,TS,TS)}
+  /* 3) 가장자리 몽실몽실 (빈 하늘 쪽으로 동그랗게) */
+  for(let y=y0-1;y<y0+RCS+1;y++)for(let x=x0-1;x<x0+RCS+1;x++){const t=at(x,y);if(!isL(t)||!D[y]||D[y][x]!==0)continue;const sd=rSide(x),P0=RPAL[sd],px=(x-x0)*TS+8,py=(y-y0)*TS+8;
+    for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){if(at(x+dx,y+dy)!=='v')continue;const r=6+rNoise(x*3+dx,y*3+dy)*3;g.fillStyle=dy===1?rMix(P0.b,P0.s,.45):dy===-1?rMix(P0.h,P0.b,.1):rMix(P0.b,P0.s,.2);g.beginPath();g.arc(px+dx*7,py+dy*6,r,0,6.283);g.fill();
+      if(dy===-1){g.fillStyle='rgba(255,255,255,.9)';g.beginPath();g.arc(px+dx*7-1,py-7,r*.55,0,6.283);g.fill()}}}
+  /* 4) 길: 이어지는 판판한 길 · 바깥 모서리는 둥글게 · 가장자리 살짝 진하게 */
+  for(let y=y0-1;y<y0+RCS+1;y++)for(let x=x0-1;x<x0+RCS+1;x++){if(at(x,y)!=='Q')continue;const P0=RPAL[rSide(x)],px=(x-x0)*TS,py=(y-y0)*TS,q=(X,Y)=>at(X,Y)==='Q',U=q(x,y-1),Dn=q(x,y+1),L=q(x-1,y),Rt=q(x+1,y);
+    g.fillStyle=rMix(P0.p,[255,255,255],rSm(x,y,.25)*.3);g.fillRect(px,py,TS,TS);g.fillStyle=rMix(P0.pd,P0.p,.3);if(!U)g.fillRect(px,py,TS,1);if(!Dn)g.fillRect(px,py+TS-2,TS,2);if(!L)g.fillRect(px,py,1,TS);if(!Rt)g.fillRect(px+TS-1,py,1,TS);
+    const gc=rMix(P0.b,P0.h,.3);g.fillStyle=gc;if(!U&&!L){g.fillRect(px,py,3,1);g.fillRect(px,py,1,3)}if(!U&&!Rt){g.fillRect(px+TS-3,py,3,1);g.fillRect(px+TS-1,py,1,3)}if(!Dn&&!L){g.fillRect(px,py+TS-1,3,1);g.fillRect(px,py+TS-3,1,3)}if(!Dn&&!Rt){g.fillRect(px+TS-3,py+TS-1,3,1);g.fillRect(px+TS-1,py+TS-3,1,3)}
+    if(rNoise(x,y)<.3){g.fillStyle='rgba(255,255,255,.6)';g.fillRect(px+3+((x*5)%8),py+4+((y*3)%6),3,1)}if(rNoise(y,x)<.25){g.fillStyle=rMix(P0.pd,P0.p,.15);g.fillRect(px+2+((x*7)%10),py+2+((y*5)%10),2,1)}}
+  /* 5) 땅 위 잔무늬: 빛 쪽 금빛 꽃가루 · 그림자 쪽 보랏빛 이끼 · 가운데 하얀 솜털 */
+  for(let y=y0;y<y0+RCS;y++)for(let x=x0;x<x0+RCS;x++){if(at(x,y)!=='C')continue;const sd=rSide(x),px=(x-x0)*TS,py=(y-y0)*TS,r=rNoise(x*1.7,y*2.3);if(r>.32)continue;
+    if(sd==='l'){g.fillStyle=r<.1?'#ffd890':'#fff0c8';g.fillRect(px+((x*11)%13)+1,py+((y*7)%13)+1,2,1);if(r<.06){g.fillStyle='#ffb0c8';g.fillRect(px+6,py+8,2,2)}}
+    else if(sd==='d'){g.fillStyle=r<.1?'#a890e0':'#c8bcec';g.fillRect(px+((x*11)%13)+1,py+((y*7)%13)+1,2,1);if(r<.06){g.fillStyle='#8a78c8';g.fillRect(px+5,py+9,3,1)}}
+    else{g.fillStyle='rgba(255,255,255,.9)';g.beginPath();g.arc(px+((x*11)%12)+2,py+((y*7)%12)+2,1.6,0,6.283);g.fill()}}
+  /* 6) 다리 */
+  for(let y=y0;y<y0+RCS;y++)for(let x=x0;x<x0+RCS;x++){if(!isB(at(x,y)))continue;const sd=rSide(x),px=(x-x0)*TS,py=(y-y0)*TS,c1=sd==='l'?'#fff2dc':sd==='d'?'#e8e0fa':'#fbf8ff',c2=sd==='l'?'#f6d8c8':sd==='d'?'#cfc4f0':'#e6e0f8';
+    g.fillStyle=c1;g.fillRect(px,py,TS,TS);g.fillStyle=c2;const hz=at(x-1,y)==='q'||at(x+1,y)==='q';for(let k=0;k<4;k++)hz?g.fillRect(px+k*4+1,py,1,TS):g.fillRect(px,py+k*4+1,TS,1);
+    const vU=at(x,y-1)==='v',vD=at(x,y+1)==='v',vL=at(x-1,y)==='v',vR=at(x+1,y)==='v',rc=sd==='l'?'#f0b0c4':sd==='d'?'#9a88d0':'#c0b0ec';
+    if(vD){g.fillStyle='rgba(150,140,200,.35)';g.fillRect(px,py+TS,TS,5)}if(vR){g.fillStyle='rgba(150,140,200,.3)';g.fillRect(px+TS,py,4,TS)}
+    g.fillStyle=rc;if(vU)g.fillRect(px,py,TS,2);if(vD)g.fillRect(px,py+TS-2,TS,2);if(vL)g.fillRect(px,py,2,TS);if(vR)g.fillRect(px+TS-2,py,2,TS)}
+  RCH.set(k,c);if(RCH.size>14)RCH.delete(RCH.keys().next().value);return c}
+const rMix0=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+/* 호숫가: 네모난 물 가장자리를 둥글게 덮고 하얀 물거품 */
+function realmShore(x0,x1,y0,y1){for(let y=Math.max(RY0,y0-1);y<=Math.min(MH-1,y1+1);y++)for(let x=Math.max(0,x0-1);x<=Math.min(MW-1,x1+1);x++){if(W.T[y][x]!=='w')continue;const px=x*TS+8,py=y*TS+8;
+    for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]){const t=W.T[y+dy]&&W.T[y+dy][x+dx];if(t!=='C'&&t!=='Q')continue;const P0=RPAL[rSide(x)],dg=dx&&dy;cx.fillStyle='rgb('+P0.b.join(',')+')';cx.beginPath();cx.arc(px+dx*(dg?10:10),py+dy*(dg?10:10),(dg?5:7)+rNoise(x+dx,y+dy)*2,0,6.283);cx.fill();if(dg)continue;
+      const f=.5+.4*Math.sin(wt*1.8+x*.7+y);cx.fillStyle='rgba(255,255,255,'+f+')';cx.fillRect(Math.round(px+dx*3-(dy?4:0)),Math.round(py+dy*3-(dx?4:0)),dy?8:1,dx?8:1)}}}
+function realmGround(x0,x1,y0,y1){const ci0=Math.floor(x0/RCS),ci1=Math.floor(x1/RCS),cj0=Math.max(0,Math.floor((y0-RY0)/RCS)),cj1=Math.floor((y1-RY0)/RCS);
+  for(let cj=cj0;cj<=cj1;cj++)for(let ci=ci0;ci<=ci1;ci++)cx.drawImage(rChunk(ci,cj),ci*RCS*TS,(RY0+cj*RCS)*TS);
+  /* 다리 난간 기둥 · 등불 (움직이는 반짝임은 매번) */
+  for(let y=Math.max(RY0,y0);y<=y1;y++)for(let x=x0;x<=x1;x++){if(W.T[y][x]!=='q')continue;const vU=W.T[y-1]&&W.T[y-1][x]==='v',vD=W.T[y+1]&&W.T[y+1][x]==='v',vL=W.T[y][x-1]==='v',vR=W.T[y][x+1]==='v',px=x*TS,py=y*TS;
+    if((vU||vD)&&x%4===0){cx.fillStyle='#b89a80';cx.fillRect(px+7,py+(vU?-5:TS-6),2,7);const gl=.6+.4*Math.sin(wt*2+x);cx.fillStyle='rgba(255,236,160,'+gl+')';cx.fillRect(px+6,py+(vU?-7:TS-8),4,3)}
+    if((vL||vR)&&y%4===0){cx.fillStyle='#b89a80';cx.fillRect(px+(vL?-1:TS-1),py+3,2,8);const gl=.6+.4*Math.sin(wt*2+y);cx.fillStyle='rgba(255,236,160,'+gl+')';cx.fillRect(px+(vL?-2:TS-2),py+1,4,3)}}}
+
+/* 하늘 배경: 시간 따라 색 · 밤엔 별 · 아주 먼 구름이 천천히 흘러요 (화면 고정 + 살짝 따라오기) */
+function realmSky(cX,cY){const ph=dayTint().ph,night=isNight(ph),dusk=ph>.7&&!night,dawn=ph<.12&&!night,g=cx.createLinearGradient(0,0,0,VH);
+  if(night){g.addColorStop(0,'#1c1a44');g.addColorStop(.6,'#3a2e6a');g.addColorStop(1,'#6a5090')}else if(dusk){g.addColorStop(0,'#6a70c8');g.addColorStop(.55,'#f0a0b8');g.addColorStop(1,'#ffd0a0')}else if(dawn){g.addColorStop(0,'#8ab0f0');g.addColorStop(.6,'#ffc8d8');g.addColorStop(1,'#fff0c8')}else{g.addColorStop(0,'#8ec4f8');g.addColorStop(.6,'#c8e2ff');g.addColorStop(1,'#f4eaff')}
+  cx.fillStyle=g;cx.fillRect(0,0,VW,VH);
+  if(night)for(let i=0;i<70;i++){const sx=((i*97+((cX*.05)|0))%(VW+40))-20,sy=(i*53)%VH,tw=.4+.6*Math.abs(Math.sin(wt*.8+i));cx.fillStyle='rgba(255,255,240,'+tw+')';cx.fillRect(sx,sy,i%7?1:2,i%7?1:2)}
+  for(let L=0;L<3;L++){const sp=[4,9,16][L],al=night?[.08,.12,.16][L]:[.35,.5,.7][L],sz=[18,26,36][L];cx.fillStyle=(night?'rgba(180,170,230,':'rgba(255,255,255,')+al+')';
+    for(let i=0;i<7;i++){const bx=((i*173+wt*sp-cX*(.05+L*.08))%(VW+160)+VW+160)%(VW+160)-80,by=((i*61+L*97)%(VH-40))+20-(cY%400)*(.02+L*.03);for(let j=0;j<4;j++){cx.beginPath();cx.ellipse(bx+j*sz*.45,by+Math.sin(j*1.7)*sz*.12,sz*.42,sz*.24,0,0,6.283);cx.fill()}}}}
+/* 꾸밈 그리기 */
+const RD={
+ ctree:(X,Y,v)=>{const c=[['#ffb8d8','#ff8ab8'],['#b8e0ff','#80c0f0'],['#fff0a0','#ffc860'],['#d8c8ff','#b098f0']][v];cx.fillStyle='rgba(120,100,160,.15)';cx.beginPath();cx.ellipse(X+8,Y+15,7,2.5,0,0,6.283);cx.fill();cx.fillStyle='#f0e0d0';cx.fillRect(X+7,Y+2,2,13);cx.fillStyle='#e0b0b8';for(let i=0;i<4;i++)cx.fillRect(X+7,Y+3+i*3,2,1);const sw=Math.sin(wt*1.2+X)*.8;
+   [[8,-6,8],[3,-2,6],[13,-2,6],[8,-12,6]].forEach(([dx,dy,r],i)=>{cx.fillStyle=i%2?c[1]:c[0];cx.beginPath();cx.arc(X+dx+sw,Y+dy,r,0,6.283);cx.fill()});cx.fillStyle='rgba(255,255,255,.8)';cx.fillRect(X+5+sw,Y-12,3,2);cx.fillRect(X+10+sw,Y-6,2,1)},
+ cflow:(X,Y,v)=>{const c=['#ff8ab8','#8ac8ff','#ffd860','#c8a8ff'][v];cx.fillStyle='#8ac890';cx.fillRect(X+7,Y+9,1,5);cx.fillStyle=c;cx.fillRect(X+5,Y+6,5,4);cx.fillStyle='#fff';cx.fillRect(X+7,Y+7,1,1)},
+ rflow:(X,Y,v)=>{const C=['#ff9a9a','#ffd27a','#a0e8a0','#8ac8ff','#c8a8ff'];for(let i=0;i<3;i++){cx.fillStyle='#7ac080';cx.fillRect(X+3+i*4,Y+10,1,4);cx.fillStyle=C[(v+i)%5];cx.fillRect(X+2+i*4,Y+8,3,3)}},
+ hflow:(X,Y,v)=>{cx.fillStyle='#9ad0a0';cx.fillRect(X+8,Y+10,1,4);cx.fillStyle=['#fff6c0','#ffd6e6','#dce8ff','#fff'][v];cx.fillRect(X+7,Y+8,3,3)},
+ gtuft:(X,Y,v)=>{const s=Math.sin(wt*1.6+X*.1)*1;cx.fillStyle=v%2?'#f0c860':'#ffe090';for(let i=0;i<4;i++)cx.fillRect(X+4+i*2+Math.round(s*(i/3)),Y+8-(i%2)*3,1,6+(i%2)*3)},
+ dflow:(X,Y,v)=>{cx.fillStyle='#a8c878';cx.fillRect(X+8,Y+9,1,5);const o=.6+.4*Math.sin(wt*2+X);cx.fillStyle='rgba(255,230,140,'+o+')';cx.fillRect(X+6,Y+6,5,4);cx.fillStyle='#fff8d8';cx.fillRect(X+8,Y+7,1,1)},
+ lcry:(X,Y,v)=>{const gl=.5+.5*Math.sin(wt*1.5+X);cx.fillStyle='rgba(255,230,150,'+(.25*gl)+')';cx.beginPath();cx.arc(X+8,Y+4,12,0,6.283);cx.fill();cx.fillStyle='#ffe8a0';cx.beginPath();cx.moveTo(X+8,Y-12);cx.lineTo(X+13,Y+4);cx.lineTo(X+8,Y+14);cx.lineTo(X+3,Y+4);cx.closePath();cx.fill();cx.fillStyle='#fffbe8';cx.beginPath();cx.moveTo(X+8,Y-10);cx.lineTo(X+10,Y+3);cx.lineTo(X+8,Y+10);cx.closePath();cx.fill();cx.fillStyle='#e8b860';cx.fillRect(X+3,Y+4,10,1)},
+ scry:(X,Y,v)=>{const f=Math.random()<.01;cx.fillStyle='rgba(80,60,140,.2)';cx.beginPath();cx.ellipse(X+8,Y+14,7,2.5,0,0,6.283);cx.fill();cx.fillStyle=v%2?'#8a70d0':'#6a58b0';cx.beginPath();cx.moveTo(X+4,Y+14);cx.lineTo(X+6,Y-6);cx.lineTo(X+9,Y-10);cx.lineTo(X+12,Y+14);cx.closePath();cx.fill();cx.fillStyle='#c8b8ff';cx.fillRect(X+7,Y-6,1,14);if(f||((wt*3+X)%7)<.15){cx.strokeStyle='#fff6a0';cx.lineWidth=1;cx.beginPath();cx.moveTo(X+8,Y-10);cx.lineTo(X+5,Y-16);cx.lineTo(X+9,Y-18);cx.lineTo(X+6,Y-24);cx.stroke()}},
+ drock:(X,Y,v)=>{cx.fillStyle='#8a80a8';cx.beginPath();cx.ellipse(X+8,Y+10,8,6,0,0,6.283);cx.fill();cx.fillStyle='#a8a0c8';cx.beginPath();cx.ellipse(X+6,Y+8,5,3,0,0,6.283);cx.fill();cx.fillStyle='#5a5078';cx.fillRect(X+2,Y+14,12,2)},
+ mlan:(X,Y,v)=>{const gl=.6+.4*Math.sin(wt*2+X);cx.fillStyle='rgba(200,170,255,'+(.22*gl)+')';cx.beginPath();cx.arc(X+8,Y-4,10,0,6.283);cx.fill();cx.fillStyle='#4a4068';cx.fillRect(X+7,Y-2,2,16);cx.fillStyle='#e8d8ff';cx.fillRect(X+5,Y-9,6,7);cx.fillStyle='rgba(190,150,255,'+gl+')';cx.fillRect(X+6,Y-8,4,5);cx.fillStyle='#4a4068';cx.fillRect(X+5,Y-10,6,1)},
+ dreed:(X,Y,v)=>{const s=Math.sin(wt*1.3+X)*1;cx.fillStyle='#7a70a0';for(let i=0;i<3;i++)cx.fillRect(X+5+i*3+Math.round(s*(i/2)),Y+4+i,1,10-i);cx.fillStyle='#a090c8';cx.fillRect(X+5+Math.round(s*0),Y+3,1,2)},
+ stree:(X,Y,v)=>{cx.fillStyle='rgba(30,20,60,.25)';cx.beginPath();cx.ellipse(X+8,Y+15,9,3,0,0,6.283);cx.fill();cx.fillStyle='#3a3050';cx.fillRect(X+6,Y,4,15);const c=['#4a3a78','#3e3468','#56428a','#443a70'][v];
+   [[8,-8,10],[2,-2,7],[14,-2,7],[8,-16,7]].forEach(([dx,dy,r],i)=>{cx.fillStyle=i===3?'#5a4a90':c;cx.beginPath();cx.arc(X+dx,Y+dy,r,0,6.283);cx.fill()});const gl=.5+.5*Math.sin(wt*1.7+X*.3);cx.fillStyle='rgba(200,170,255,'+gl+')';[[4,-6],[12,-10],[9,-2]].forEach(([dx,dy])=>cx.fillRect(X+dx,Y+dy,2,2))},
+ gmush:(X,Y,v)=>{const gl=.5+.5*Math.sin(wt*2.2+X);cx.fillStyle='rgba(160,220,255,'+(.25*gl)+')';cx.beginPath();cx.arc(X+8,Y+8,7,0,6.283);cx.fill();cx.fillStyle='#e8e0f0';cx.fillRect(X+7,Y+9,2,5);cx.fillStyle=v%2?'#80d0ff':'#c8a0ff';cx.beginPath();cx.ellipse(X+8,Y+9,5,3,0,Math.PI,0);cx.fill();cx.fillStyle='#fff';cx.fillRect(X+6,Y+7,1,1)},
+ clamp:(X,Y,v)=>{const ph=dayTint().ph,on=isNight(ph)||ph>.72;if(on){cx.fillStyle='rgba(255,240,180,.25)';cx.beginPath();cx.arc(X+8,Y-12,12,0,6.283);cx.fill()}cx.fillStyle='#c8b8e8';cx.fillRect(X+7,Y-8,2,22);cx.fillStyle='#fff';cx.beginPath();cx.arc(X+8,Y-12,4,0,6.283);cx.fill();cx.fillStyle=on?'#ffe890':'#fff6d8';cx.beginPath();cx.moveTo(X+8,Y-16);cx.lineTo(X+9,Y-13);cx.lineTo(X+12,Y-12);cx.lineTo(X+9,Y-11);cx.lineTo(X+8,Y-8);cx.lineTo(X+7,Y-11);cx.lineTo(X+4,Y-12);cx.lineTo(X+7,Y-13);cx.closePath();cx.fill()},
+ cbench:(X,Y,v)=>{cx.fillStyle='#e8dcff';cx.beginPath();cx.ellipse(X+8,Y+10,9,4,0,0,6.283);cx.fill();cx.fillStyle='#fff';cx.beginPath();cx.ellipse(X+6,Y+8,6,3,0,0,6.283);cx.fill();cx.beginPath();cx.ellipse(X+11,Y+8,5,3,0,0,6.283);cx.fill()},
+ sfount:(X,Y,v)=>{const W2=48;cx.fillStyle='rgba(120,100,180,.15)';cx.beginPath();cx.ellipse(X+W2/2,Y+14,24,6,0,0,6.283);cx.fill();cx.fillStyle='#ece6ff';cx.beginPath();cx.ellipse(X+W2/2,Y+8,22,9,0,0,6.283);cx.fill();cx.fillStyle='#bfe0ff';cx.beginPath();cx.ellipse(X+W2/2,Y+7,18,6,0,0,6.283);cx.fill();
+   cx.fillStyle='#fff';cx.fillRect(X+W2/2-2,Y-14,4,20);for(let i=0;i<10;i++){const a=wt*1.4+i*.63,r=4+((wt*20+i*7)%14);cx.fillStyle='rgba(255,246,190,'+(1-r/18)+')';cx.fillRect(Math.round(X+W2/2+Math.cos(a)*r),Math.round(Y-14+r*.6+Math.sin(a)*2),2,2)}
+   cx.fillStyle='#ffe890';cx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?3:7;cx.lineTo(X+W2/2+Math.cos(a)*r,Y-20+Math.sin(a)*r+Math.sin(wt*2)*1)}cx.closePath();cx.fill()},
+ cott:(X,Y,v,d)=>{const C=[['#ffd8e8','#ff9ac0'],['#d8ecff','#7ab0f0'],['#fff0c8','#f0b860']][d.c||0],W2=48;cx.fillStyle='rgba(120,100,180,.18)';cx.beginPath();cx.ellipse(X+W2/2,Y+14,26,6,0,0,6.283);cx.fill();
+   cx.fillStyle='#fffaff';cx.fillRect(X+4,Y-14,W2-8,28);cx.fillStyle='rgba(200,190,235,.4)';cx.fillRect(X+4,Y+10,W2-8,4);
+   cx.fillStyle=C[1];cx.beginPath();cx.ellipse(X+W2/2,Y-14,W2/2+2,14,0,Math.PI,0);cx.fill();cx.fillStyle=C[0];cx.beginPath();cx.ellipse(X+W2/2,Y-15,W2/2-2,11,0,Math.PI,0);cx.fill();cx.fillStyle='rgba(255,255,255,.7)';cx.beginPath();cx.ellipse(X+W2/2-8,Y-20,7,3,0,0,6.283);cx.fill();
+   cx.fillStyle=C[1];cx.beginPath();cx.ellipse(X+W2/2,Y+6,6,8,0,Math.PI,0);cx.fill();cx.fillRect(X+W2/2-6,Y+6,12,8);cx.fillStyle='#ffe890';cx.fillRect(X+W2/2+3,Y+8,2,2);
+   const ph=dayTint().ph,lit=isNight(ph)||ph>.72;[[10,-4],[W2-16,-4]].forEach(([dx,dy])=>{cx.fillStyle=lit?'#ffe9a0':'#cfe6ff';cx.beginPath();cx.arc(X+dx+3,Y+dy,4,0,6.283);cx.fill();cx.fillStyle='rgba(255,255,255,.8)';cx.fillRect(X+dx+2,Y+dy-2,2,1)});
+   if(d.shop){cx.fillStyle='#a88a70';cx.fillRect(X+W2-6,Y-6,1,10);cx.fillStyle='#fffaf0';cx.fillRect(X+W2-12,Y-10,13,8);cx.strokeStyle='#8ab0f0';cx.lineWidth=1;cx.strokeRect(X+W2-11.5,Y-9.5,12,7);cx.fillStyle='#6aa8f0';cx.beginPath();cx.arc(X+W2-5.5,Y-5,2,0,6.283);cx.fill()}},
+ rport:(X,Y,v)=>{const W2=48,cxp=X+W2/2,cyp=Y-10;cx.fillStyle='rgba(120,90,200,.2)';cx.beginPath();cx.ellipse(cxp,Y+12,22,6,0,0,6.283);cx.fill();for(let i=0;i<3;i++){cx.strokeStyle=['rgba(200,170,255,.9)','rgba(150,200,255,.8)','rgba(255,220,250,.7)'][i];cx.lineWidth=2;cx.beginPath();cx.ellipse(cxp,cyp,12-i*3+Math.sin(wt*2+i)*1,18-i*4,0,0,6.283);cx.stroke()}
+   const g=cx.createRadialGradient(cxp,cyp,2,cxp,cyp,14);g.addColorStop(0,'rgba(255,255,255,.9)');g.addColorStop(1,'rgba(160,120,255,.2)');cx.fillStyle=g;cx.beginPath();cx.ellipse(cxp,cyp,10,15,0,0,6.283);cx.fill();for(let i=0;i<5;i++){const a=wt*1.5+i*1.26;cx.fillStyle='#fff';cx.fillRect(Math.round(cxp+Math.cos(a)*14),Math.round(cyp+Math.sin(a)*20),1,1)}},
+ tower:(X,Y,v)=>{const W2=48;cx.fillStyle='rgba(120,100,180,.2)';cx.beginPath();cx.ellipse(X+W2/2,Y+14,22,5,0,0,6.283);cx.fill();cx.fillStyle='#f6f2ff';cx.fillRect(X+12,Y-58,24,72);cx.fillStyle='#e0d8f8';cx.fillRect(X+30,Y-58,6,72);cx.fillStyle='#d8ccf8';cx.beginPath();cx.moveTo(X+8,Y-58);cx.lineTo(X+24,Y-80);cx.lineTo(X+40,Y-58);cx.closePath();cx.fill();
+   cx.fillStyle='#ffe890';cx.beginPath();cx.arc(X+24,Y-84,3+Math.sin(wt*2),0,6.283);cx.fill();cx.fillStyle='#b8a8e0';cx.beginPath();cx.ellipse(X+24,Y+2,6,9,0,Math.PI,0);cx.fill();cx.fillRect(X+18,Y+2,12,12);cx.fillStyle='#cfe6ff';[[18,-40],[26,-24]].forEach(([dx,dy])=>cx.fillRect(X+dx,Y+dy,4,6))},
+ pgate:(X,Y,v)=>{const open=realmPkOpen();cx.fillStyle='#c8b8e8';cx.fillRect(X-2,Y-20,4,34);cx.fillRect(X+46,Y-20,4,34);cx.fillStyle='#ffe890';cx.fillRect(X-3,Y-22,6,3);cx.fillRect(X+45,Y-22,6,3);if(!open){cx.fillStyle='rgba(220,210,255,.85)';cx.fillRect(X+2,Y-12,44,24);cx.fillStyle='#fff8e0';cx.beginPath();cx.arc(X+16,Y,5,0,6.283);cx.fill();cx.fillStyle='#8a78c8';cx.beginPath();cx.arc(X+32,Y,5,0,6.283);cx.fill();cx.fillStyle='#ffe890';cx.beginPath();cx.arc(X+30,Y-1,4,0,6.283);cx.fill()}else{cx.fillStyle='rgba(255,240,180,'+(.3+.2*Math.sin(wt*3))+')';cx.fillRect(X+2,Y-12,44,24)}},
+ arch:(X,Y,v)=>{const C=['#ff9a9a','#ffd27a','#fff09a','#a0e8a0','#8ac8ff','#c8a8ff'];cx.globalAlpha=.75;C.forEach((c,i)=>{cx.strokeStyle=c;cx.lineWidth=2;cx.beginPath();cx.ellipse(X+8,Y+40,74-i*2.5,52-i*2.5,0,Math.PI,0);cx.stroke()});cx.globalAlpha=1},
+ rfall:(X,Y,v)=>{const C=['#ff9a9a','#ffd27a','#a0e8a0','#8ac8ff','#c8a8ff'];for(let i=0;i<5;i++){cx.fillStyle=C[i];cx.globalAlpha=.8;cx.fillRect(X+i*7,Y+6,7,70);cx.globalAlpha=1;for(let k=0;k<4;k++){const yy=((wt*60+k*18+i*9)%70);cx.fillStyle='rgba(255,255,255,.6)';cx.fillRect(X+i*7+2,Y+6+yy,2,4)}}const g=cx.createLinearGradient(0,Y+40,0,Y+80);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(255,255,255,.9)');cx.fillStyle=g;cx.fillRect(X-4,Y+40,43,40)}
+};
+function realmDraws(list,x0,x1,y0,y1){if(y1<RY0)return;RDECO.forEach(d=>{if(d.x<x0-4||d.x>x1+4||d.y<y0-3||d.y>y1+6)return;const fn=RD[d.k];if(!fn)return;const X=d.x*TS,Y=d.y*TS;const sy=d.k==='arch'?Y-200:d.k==='rfall'?Y-300:d.k==='pgate'?Y+12:Y+14;list.push({y:sy,fn:()=>fn(X,Y,d.v,d)})});
+  /* 빛 쪽엔 반짝이는 빛 알갱이, 그림자 쪽엔 보랏빛 안개가 흘러요 */
+  for(let i=0;i<18;i++){const isL=i<9,bx=(isL?150:5)*TS+((i*211+wt*(isL?6:-5))%(36*TS)+36*TS)%(36*TS),by=(RY0+40)*TS+((i*97)%(32*TS))+Math.sin(wt*.7+i)*12;if(bx<x0*TS-20||bx>x1*TS+20||by<y0*TS-20||by>y1*TS+20)continue;
+    list.push({y:by+400,fn:()=>{if(isL){const a=.5+.5*Math.sin(wt*2+i);cx.fillStyle='rgba(255,236,160,'+a+')';cx.fillRect(Math.round(bx),Math.round(by),2,2)}else{cx.fillStyle='rgba(170,150,220,.12)';cx.beginPath();cx.ellipse(bx,by,26,7,0,0,6.283);cx.fill()}}})}}
+const realmPkOpen=()=>!!(CEL.pk&&CEL.pk.op)||!!(CEL.info&&CEL.info.admin)||(!ONLINE&&admOn());
+function realmGateSync(){const I=RISL.find(i=>i[0]==='peak'),o=realmPkOpen();for(let x=I[1]-1;x<=I[1]+1;x++)W.SOL[RY0+20][x]=!o}
+/* 이름 */
+function realmRegion(tx,ty){const I=rIslAt(tx,ty);if(I&&W.T[ty]&&W.T[ty][tx]!=='q')return I[6];return'☁️ 구름 다리'}
+/* 들어가기 · 나가기 · 숨결 */
+const REALM={want:0,back:null,hb:60};
+function realmGo(){if(ONLINE&&Net.me){REALM.want=1;Net.send({t:'cel_in'});return}realmArrive({left:999})}
+function realmArrive(m){REALM.want=0;if(CEL.on){CEL.on=false;CEL.mode='';document.body.classList.remove('celv')}if(m&&m.left!=null)CEL.left=m.left;REALM.hb=60;
+  const I=RISL.find(i=>i[0]===(REALM.to||'gate'))||RISL[0];forceTp(I[1]*TS+8,(RY0+I[2]+(I[0]==='gate'?-2:I[0]==='peak'?3:2))*TS+12,'');REALM.to='';realmGateSync();Snd.sfx('gate');showBanner('☁️ 구름 위 나라 · 구름 나루에 내려왔어요',2600);realmHud()}
+function realmLeave(msg){if(!inRealm())return;if(ONLINE&&Net.me)Net.send({t:'cel_out'});if(F.mode!=='idle'){F.mode='idle';try{showReel(false)}catch(e){}Snd.setIntense(false)}
+  forceTp(PLAZA.gate[0]*TS+8,(PLAZA.gate[1]+2)*TS+12,'');showBanner(msg||'🌟 별빛 광장으로 돌아왔어요',2400);realmHud()}
+function realmHud(){const h=$('celHud');if(!h)return;if(!inRealm()){if(!CEL.on)h.hidden=true;return}h.hidden=false;const pk=CEL.info&&CEL.info.al&&CEL.info.al.pick;h.innerHTML='<b>☁️ 숨결 '+(CEL.info&&CEL.info.admin||!ONLINE?'∞':CEL.left+'분')+'</b> · 💧 '+(CEL.celc|0)+(pk?' · '+(pk==='l'?'🌅 빛':'🌒 그림자'):' · 🛠️ 미리보기')}
+setInterval(()=>{if(!inRealm())return;realmHud();realmGateSync();REALM.hb-=1;if(REALM.hb<=0){REALM.hb=60;if(ONLINE&&Net.me)Net.send({t:'cel_t'})}},1000);
+function realmNear(){const tx=(P.x/TS)|0,ty=(P.y/TS)|0;for(const d of RDECO){
+    if(d.k==='rport'&&Math.abs(tx-d.x-1)<=2&&ty-d.y>=-1&&ty-d.y<=2)return{type:'x',fn:()=>askConfirm('🌀 구름 나루','마을(별빛 광장)로 돌아갈까요?','돌아가기',()=>realmLeave()),label:'🌀 마을로<br>돌아가기'};
+    if(d.k==='cott'&&d.shop&&Math.abs(tx-d.x-1)<=1&&ty-d.y>=1&&ty-d.y<=2)return{type:'x',fn:()=>celShop(),label:'구름<br>상점'};
+    if(d.k==='pgate'&&Math.abs(tx-d.x-1)<=2&&ty-d.y>=0&&ty-d.y<=3&&!realmPkOpen())return{type:'x',fn:()=>pkBook(),label:'닫힌 문<br>저울'}}
+  return null}
+/* 낚시: 마을 낚시 그대로 (찌 · 입질 · 줄다리기) · 잡히는 건 구름 물고기 30종 · 보상은 서버 cel_fish */
+function celPick(z){const sp=(RZ[z]||[0,'r'])[1],pool=CEL_FISH.map((F,i)=>[F,i]).filter(([F])=>F[2].indexOf(sp)>=0),w=[50,28,14,6,2];let r=Math.random()*pool.reduce((a,[F])=>a+w[F[1]],0),pick=pool[0];for(const p of pool){r-=w[p[0][1]];if(r<=0){pick=p;break}}
+  const[F0,i]=pick;return{id:-1-i,cel:i,sp,name:F0[0],rar:F0[1],diff:.32+F0[1]*.13,len:[14,22,34,52,90][F0[1]],spec:{tpl:F0[1]>=3?'long':'round',c:F0[3][0]},zone:z}}
+function celCatchDone(f){F.mode='idle';F.t=0;try{showReel(false)}catch(e){}Snd.setIntense(false);Snd.sfx('sparkle');const first=!(CEL.celd&&CEL.celd[f.cel]);
+  REALM.hold={i:f.cel,at:performance.now()};sparkFx(P.x,P.y-30,f.rar>=3?30:14,['#ffffff','#fff6b0','#cfe8ff','#ffd6e6']);showBanner('☁️ '+f.name+'!'+(first?' 🆕 구름 도감':''),2200);
+  if(ONLINE&&Net.me)Net.send({t:'cel_fish',id:f.cel,sp:f.sp});else{CEL.celd=CEL.celd||{};CEL.celd[f.cel]=(CEL.celd[f.cel]|0)+1}}
+function realmHoldDraw(list){const H=REALM.hold;if(!H||!P)return;const t=(performance.now()-H.at)/1000;if(t>2.6){REALM.hold=null;return}list.push({y:P.y+2,fn:()=>{const c=celFishCan(H.i),bob=Math.sin(t*6)*1.5;cx.drawImage(c,Math.round(P.x-c.width/2),Math.round(P.y-40+bob));cx.fillStyle='rgba(255,255,255,'+(.5+.5*Math.sin(t*10))+')';cx.fillRect(Math.round(P.x+c.width/2-2),Math.round(P.y-42+bob),2,2)}})}
+
 /* ❄️ 나간 자리 얼음 (2026-11-17): 친구가 접속을 끊은 자리에 그 모습 그대로 얼음 동상 · 얼음 결정 · 3일 동안 서서히 녹아요
    막 나감: 단단한 얼음 기둥 + 결정 · 몇 시간: 금 · 물방울 · 하루: 반쯤 녹아 흐릿 · 웅덩이 · 2~3일: 웅덩이와 얼음 조각만 · 다시 들어오면 쨍 하고 깨져요 */
 const ICE_MS=3*864e5,ICE=new Map(),ICESP={};
@@ -11408,7 +11604,7 @@ function drawTrc(list,x0,x1,y0,y1){if(!TRC.size||HUNT.on||CEL.on)return;const no
 function drawOthers(dt,list){
   const k=1-Math.exp(-dt*12);
   others.forEach(o=>{
-    if(!o.seen||o.cel){if(o.tag&&!o.tag.hidden&&o.cel)o.tag.hidden=true;return}
+    if(!o.seen||(o.cel&&!inRealm())||(!o.cel&&inRealm())){if(o.tag&&!o.tag.hidden)o.tag.hidden=true;return}   // ☁️ 구름 위끼리만 서로 보여요
     const gap=Math.hypot(o.tx-o.x,o.ty-o.y);
     if(gap>64){o.x=o.tx;o.y=o.ty}else{o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k}
     const mv=o.m||gap>.6;if(mv)o.anim+=dt;lookFx(o.x,o.y,o.look,mv);
@@ -12356,15 +12552,16 @@ function celDarkRender(dt){const D=CEL.dark,cX=Math.max(0,Math.min(660-VW,D.x-VW
 /* ---------- 서버 메시지 ---------- */
 function celOnMsg(m){
   if(m.t==='cel'){CEL.info=m;CEL.celd=m.celd||{};if(m.celc!=null)CEL.celc=m.celc;if(m.pk)CEL.pk=m.pk;if(m.ready!==undefined)PLAZA.ready=m.ready;if(PLAZA.talkOpen&&uiOpen&&/나그네/.test(($('sheethead')||{}).textContent||''))nagneTalk();return true}
+  if(m.t==='cel_ok'&&REALM.want){if(m.celc!=null)CEL.celc=m.celc;if(m.pk)CEL.pk=m.pk;realmArrive(m);return true}
   if(m.t==='cel_ok'){if(m.celc!=null)CEL.celc=m.celc;if(m.pk)CEL.pk=m.pk;celEnter(m);return true}
   if(m.t==='celc'){CEL.celc=m.n|0;if(m.note){toast(m.note);Snd.sfx('buy');if(uiOpen&&/구름 상점/.test(($('sheethead')||{}).textContent||''))celShop()}return true}
   if(m.t==='pk'){const was=CEL.pk&&CEL.pk.op;CEL.pk=m.pk;if(uiOpen&&/가장 높은 곳/.test(($('sheethead')||{}).textContent||''))pkBook();if(!was&&m.pk&&m.pk.op&&CEL.on)showBanner('⛰️ 가장 높은 곳의 문이 열렸어요!',2600);return true}
   if(m.t==='pkj'){CEL.toff=(m.now||Date.now())-Date.now();CEL.pk=m.pk;return true}
   if(m.t==='pkh'){if(CEL.pk){CEL.pk.hp=m.hp;if(Net.me&&m.by!==Net.me.id){const bx=PKB[0]+Math.sin((Date.now()+CEL.toff)/2000)*24;CEL.pops.push({x:bx+(Math.random()-.5)*20,y:PKB[1]-44,t:.6,s:''+m.d,c:'#c8d8ff'})}}return true}
   if(m.t==='pkd'){if(CEL.pk){CEL.pk.hp=0;CEL.pk.clr=1}Snd.sfx('sparkle');CEL.flash=1.2;for(let i=0;i<40;i++)CEL.parts.push({x:PKB[0],y:PKB[1]-30,vx:(Math.random()-.5)*160,vy:-60-Math.random()*80,t:1.2,c:i%2?'#fff0b0':'#d8b8ff'});showBanner('⛰️ 수호자가 고요해졌어요 · 빛과 그림자가 함께 해냈어요',3200);return true}
-  if(m.t==='cel_no'){toast(m.msg);Snd.sfx('no');return true}
+  if(m.t==='cel_no'){REALM.want=0;toast(m.msg);Snd.sfx('no');return true}
   if(m.t==='cel_left'){CEL.left=m.left;if(CEL.left<=10&&CEL.left>0&&!CEL.warned){CEL.warned=1;toast('☁️ 구름 숨결이 '+CEL.left+'분 남았어요')}return true}
-  if(m.t==='cel_out'){celLeave(m.msg);return true}
+  if(m.t==='cel_out'){if(inRealm()){realmLeave(m.msg);return true}celLeave(m.msg);return true}
   if(m.t==='celd'){CEL.celd=m.celd||{};if(m.celc!=null)CEL.celc=m.celc;return true}
   if(m.t==='cf'){CEL.toff=(m.now||Date.now())-Date.now();CFM[m.f]=m.list.map(a=>({id:a[0],k:a[1],s:a[2],b:a[3],hp:a[4],mhp:a[5]}));return true}
   if(m.t==='cfn'){const a=m.m;CFM[m.f].push({id:a[0],k:a[1],s:a[2],b:a[3],hp:a[4],mhp:a[5]});return true}
