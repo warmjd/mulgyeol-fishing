@@ -11582,13 +11582,13 @@ function celCatchDone(f){F.mode='idle';F.t=0;try{showReel(false)}catch(e){}Snd.s
 function realmDown(){const I=RISL.find(i=>i[0]==='hub');forceTp(I[1]*TS+8,(RY0+I[2]+3)*TS+12,'');showBanner('💫 쓰러져서 구름 항구에서 깨어났어요',2200)}
 function realmFieldTick(dt){if(!inRealm()){if(CEL.fieldF&&!CEL.on){Net.send({t:'cf_leave'});CEL.fieldF=''}return}
   const pk=RISL.find(i=>i[0]==='peak');PKB[0]=pk[1]*TS+8;PKB[1]=(RY0+pk[2]+3)*TS;CEL.x=P.x;CEL.y=P.y;CEL.dir=P.dir;CEL.atkCd=Math.max(0,(CEL.atkCd||0)-dt);CEL.swing=Math.max(0,(CEL.swing||0)-dt);
-  const tx=P.x/TS|0,ty=P.y/TS|0,I=W.T[ty]&&W.T[ty][tx]!=='q'?rIslAt(tx,ty):null,k=I?I[0]:'',fF=k==='dawn'?'l':k==='shadow'?'d':k==='peak'&&realmPkOpen()?'p':'';
+  const tx=P.x/TS|0,ty=P.y/TS|0,I=W.T[ty]&&W.T[ty][tx]!=='q'?rIslAt(tx,ty):null,k=I?I[0]:'',fF=k==='dawn'?'l':k==='shadow'?'d':k==='crys'?'x':k==='ice'?'i':k==='star'?'s':k==='peak'&&realmPkOpen()?'p':'';
   if(k&&k!==REALM.isl){REALM.isl=k;const NB={crys:'💎 크리스탈 골짜기 · 수정들이 노래해요',ice:'❄️ 얼음 성 · 누군가 잠들어 있어요',star:'🌌 별바다 · 밤보다 깊은 곳',altar:'🕊️ 마지막 조각의 자리'};if(NB[k])showBanner(NB[k],2600)}
-  if(fF!==CEL.fieldF){if(CEL.fieldF)Net.send({t:'cf_leave'});CEL.fieldF=fF;if(fF==='p'){Net.send({t:'pk_join'});showBanner(CEL.pk&&CEL.pk.clr?'⛰️ 가장 높은 곳 · 이번 주 수호자는 고요해요':'⛰️ 「새벽과 밤의 수호자」 · 빛과 그림자가 함께 싸워요',2800)}else if(fF){Net.send({t:'cf_join',f:fF});showBanner(fF==='l'?'✨ 새벽빛 들판 · 모두 같은 몬스터를 함께 잡아요':'🌑 그림자 숲 · 모두 같은 몬스터를 함께 잡아요',2400)}}
+  if(fF!==CEL.fieldF){if(CEL.fieldF)Net.send({t:'cf_leave'});CEL.fieldF=fF;if(fF==='p'){Net.send({t:'pk_join'});showBanner(CEL.pk&&CEL.pk.clr?'⛰️ 가장 높은 곳 · 이번 주 수호자는 고요해요':'⛰️ 「새벽과 밤의 수호자」 · 빛과 그림자가 함께 싸워요',2800)}else if(fF){Net.send({t:'cf_join',f:fF});if(fF==='l'||fF==='d')showBanner(fF==='l'?'✨ 새벽빛 들판 · 모두 같은 몬스터를 함께 잡아요':'🌑 그림자 숲 · 모두 같은 몬스터를 함께 잡아요',2400)}}
   if(CEL.fieldF)celFieldUpdate(dt);else CEL.hp=Math.min(huMaxHp(),(CEL.hp||huMaxHp())+dt*8);
   CEL.parts=CEL.parts.filter(q=>(q.t-=dt)>0);CEL.parts.forEach(q=>{q.x+=q.vx*dt;q.y+=q.vy*dt});CEL.pops=CEL.pops.filter(q=>(q.t-=dt)>0)}
 function realmFieldDraws(list){const f=CEL.fieldF;
-  if(f&&f!=='p'&&CFM[f])CFM[f].forEach(mo=>{if(mo.x==null)return;list.push({y:mo.y,fn:()=>{const al=mo.dead?Math.max(0,mo.dead/.8):1;cx.globalAlpha=al;celMonDraw(f,mo.k,mo.x,mo.y,wt+mo.s%7,mo.hit||0);cx.globalAlpha=1;
+  if(f&&f!=='p'&&CFM[f])CFM[f].forEach(mo=>{if(mo.x==null)return;list.push({y:mo.y,fn:()=>{const al=mo.dead?Math.max(0,mo.dead/.8):1;cx.globalAlpha=al;if(f==='l'||f==='d')celMonDraw(f,mo.k,mo.x,mo.y,wt+mo.s%7,mo.hit||0);else rMonDraw(f,mo.k,mo.x,mo.y,wt+mo.s%7,mo.hit||0);cx.globalAlpha=1;
     if(!mo.dead&&mo.hp<mo.mhp){const w=mo.k===4?40:16,yy=mo.y-(mo.k===4?52:22);cx.fillStyle='rgba(30,20,50,.6)';cx.fillRect(mo.x-w/2,yy,w,2);cx.fillStyle=mo.k===4?'#ff6a9a':'#ff9ab8';cx.fillRect(mo.x-w/2,yy,w*mo.hp/mo.mhp,2)}
     if(mo.k>=3&&!mo.dead)worldTag([[CF_K[f][mo.k][0],mo.k===4?'#d0407a':'#4a3d6b',mo.k===4]],Math.round(mo.x),Math.round(mo.y-(mo.k===4?56:26)))}})});
   if(f==='p'||(P&&Math.hypot(P.x-PKB[0],P.y-PKB[1])<TS*14)){pkDraw(list);const Pk=CEL.pk;if(f==='p'&&Pk&&Pk.op&&!Pk.clr&&Pk.hp>0)list.push({y:PKB[1]+3,fn:()=>{const now=Date.now()+CEL.toff,fm=pkForm(now),left=20-Math.floor((now/1000)%20),pick=CEL.info&&CEL.info.al&&CEL.info.al.pick,good=(pick==='l'&&fm===1)||(pick==='d'&&fm===0),w=90,x=PKB[0]-45,y=PKB[1]-82;
@@ -11596,6 +11596,14 @@ function realmFieldDraws(list){const f=CEL.fieldF;
   if(CEL.swing>0&&P)list.push({y:P.y+1,fn:()=>{const v=DIRV[P.dir]||[0,1],k=1-CEL.swing/.18;cx.strokeStyle='rgba(255,255,255,'+(1-k)+')';cx.lineWidth=2;cx.beginPath();cx.arc(P.x+v[0]*10,P.y-10+v[1]*8,10+k*4,-1.2+k,0.6+k);cx.stroke()}});
   list.push({y:9e9,fn:()=>{CEL.parts.forEach(q=>{if(q.c==='ring')return;cx.fillStyle=q.c;cx.globalAlpha=Math.min(1,q.t*2);cx.fillRect(Math.round(q.x),Math.round(q.y),1,1)});cx.globalAlpha=1;
     CEL.pops.forEach(q=>{cx.font='bold 8px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='rgba(40,30,80,.8)';cx.strokeText(q.s,q.x,q.y-(.9-q.t)*14);cx.fillStyle=q.c;cx.fillText(q.s,q.x,q.y-(.9-q.t)*14)})}})}
+/* 이야기 땅 몬스터: 땅마다 색과 모양 (수정 · 눈 · 별) */
+function rMonDraw(f,k,x,y,t,hurt){const X=Math.round(x),Y=Math.round(y),b=Math.sin(t*4)*1.5,sc=k===4?2.6:k===3?1.5:1,C={x:['#a8f0ff','#ff9ad8'],i:['#e8f4ff','#7ab0e8'],s:['#8a80e0','#ffe890']}[f];
+  cx.fillStyle='rgba(40,30,80,.2)';cx.beginPath();cx.ellipse(X,Y+1,9*sc,3*sc,0,0,6.283);cx.fill();if(hurt>0)cx.globalAlpha=.6+.4*Math.sin(t*60);
+  const by=Y-8*sc+b;cx.fillStyle=C[0];if(f==='x'){cx.beginPath();cx.moveTo(X,by-9*sc);cx.lineTo(X+7*sc,by);cx.lineTo(X,by+7*sc);cx.lineTo(X-7*sc,by);cx.closePath();cx.fill();cx.fillStyle=C[1];cx.fillRect(X-1,by-6*sc,2,10*sc)}
+  else if(f==='i'){cx.beginPath();cx.arc(X,by,7*sc,0,6.283);cx.fill();cx.fillStyle=C[1];for(let i=0;i<6;i++){const a=t*.5+i*1.047;cx.fillRect(Math.round(X+Math.cos(a)*8*sc)-1,Math.round(by+Math.sin(a)*8*sc)-1,2,2)}}
+  else{cx.beginPath();cx.ellipse(X,by,8*sc,6*sc,0,0,6.283);cx.fill();cx.fillStyle=C[1];for(let i=0;i<5;i++){const a=-1.57+i*1.257;cx.fillRect(Math.round(X+Math.cos(a)*3*sc),Math.round(by+Math.sin(a)*3*sc),2,2)}}
+  cx.fillStyle='#2a2440';cx.fillRect(X-3*sc,by-1,2,2);cx.fillRect(X+2*sc,by-1,2,2);cx.fillStyle='rgba(255,150,180,.5)';cx.fillRect(X-4*sc,by+2,2,1);cx.fillRect(X+3*sc,by+2,2,1);cx.globalAlpha=1;
+  const gl=.4+.4*Math.sin(t*3);cx.fillStyle='rgba(255,255,255,'+gl+')';cx.fillRect(X-2*sc,by-5*sc,2,2)}
 function realmHoldDraw(list){const H=REALM.hold;if(!H||!P)return;const t=(performance.now()-H.at)/1000;if(t>2.6){REALM.hold=null;return}list.push({y:P.y+2,fn:()=>{const c=celFishCan(H.i),bob=Math.sin(t*6)*1.5;cx.drawImage(c,Math.round(P.x-c.width/2),Math.round(P.y-40+bob));cx.fillStyle='rgba(255,255,255,'+(.5+.5*Math.sin(t*10))+')';cx.fillRect(Math.round(P.x+c.width/2-2),Math.round(P.y-42+bob),2,2)}})}
 
 /* ❄️ 나간 자리 얼음 (2026-11-17): 친구가 접속을 끊은 자리에 그 모습 그대로 얼음 동상 · 얼음 결정 · 3일 동안 서서히 녹아요
@@ -12335,7 +12343,7 @@ const CEL_FISH=[
  ['수정 송사리',0,'x',['#e0f8ff','#80d8f0']],['프리즘 피라미',1,'x',['#ffe0f8','#a0c8ff']],['자수정 붕어',1,'x',['#d8b8ff','#9a70e0']],['빛결 메기',2,'x',['#f0ffff','#60c0d8']],['무지개 수정어',3,'x',['#ffffff','#ff9ad8']],['노래하는 수정고래',4,'x',['#e8fbff','#70a0f0']],
  ['눈꽃 송사리',0,'i',['#ffffff','#c8e0ff']],['얼음 빙어',0,'i',['#e8f4ff','#a0c0e8']],['서리 열목어',1,'i',['#d0e8ff','#7090c0']],['만년설 연어',2,'i',['#fff0f0','#e08a8a']],['오로라 송어',3,'i',['#c8fff0','#a080ff']],['잠든 얼음 왕',4,'i',['#f0f8ff','#5a8ad0']],
  ['별빛 송사리',0,'s',['#fff8d0','#8a80d0']],['은하 피라미',1,'s',['#c8c0ff','#4a40a0']],['초승달 붕어',1,'s',['#fff2b0','#6a60b0']],['혜성 꼬리고기',2,'s',['#ffffff','#80d0ff']],['성운 해파리',3,'s',['#ffc8f0','#8a60d0']],['별바다의 마지막 조각',4,'s',['#fffbe8','#ffd860']]];
-const CF_K={l:[['솜털 양구름',2600,70],['햇살 나비',2200,60],['무지개 달팽이',4200,95],['금빛 종달새',15000,160],['새벽 구름고래',320000,260]],d:[['그림자 박쥐',2400,80],['안개 여우',2800,75],['번개 해파리',4400,110],['보랏빛 도깨비불',16000,175],['천둥 거북',340000,280]]};
+const CF_K={x:[['수정 반딧불',5200,120],['프리즘 토끼',5600,125],['노래하는 종',8000,160],['자수정 골렘',30000,240],['수정 용',600000,380]],i:[['눈송이 정령',7000,150],['서리 여우',7600,160],['얼음 펭귄 기사',11000,200],['눈보라 늑대',42000,300],['잠든 얼음 왕의 그림자',900000,460]],s:[['별똥 해파리',9500,190],['은하 고양이',10000,200],['초승달 나방',15000,250],['성운 거북',60000,380],['별바다의 고래',1300000,560]],l:[['솜털 양구름',2600,70],['햇살 나비',2200,60],['무지개 달팽이',4200,95],['금빛 종달새',15000,160],['새벽 구름고래',320000,260]],d:[['그림자 박쥐',2400,80],['안개 여우',2800,75],['번개 해파리',4400,110],['보랏빛 도깨비불',16000,175],['천둥 거북',340000,280]]};
 /* 섬: 가운데 구름 항구 · 위 가장 높은 곳 · 동쪽(빛) · 서쪽(그림자) */
 const CISL=[
  {k:'hub',x:550,y:430,rx:120,ry:72,n:'☁️ 구름 항구'},
@@ -12447,8 +12455,8 @@ function celUpdate(dt){CEL.t+=dt;CEL.flash=Math.max(0,CEL.flash-dt*1.2);
   CEL.parts=CEL.parts.filter(p=>(p.t-=dt)>0);CEL.parts.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt});CEL.pops=CEL.pops.filter(p=>(p.t-=dt)>0);
   CEL.atkCd=Math.max(0,CEL.atkCd-dt);celActLabel()}
 /* ---------- 함께 쓰는 필드 ---------- */
-const CFM={l:[],d:[]};
-function cfPos(f,mo,now){let I=CISL.find(i=>i.field===f);const RL=inRealm();if(RL){const Q=RISL.find(i=>i[0]===(f==='l'?'dawn':'shadow'));I={x:Q[1]*TS+8,y:(RY0+Q[2])*TS+8,rx:Q[3]*TS,ry:Q[4]*TS}}const r=celRand(mo.s),cxp=I.x+(r()-.5)*I.rx*1.1,cyp=I.y+(r()-.5)*I.ry*1.0,w1=.12+r()*.18,w2=.2+r()*.25,p1=r()*6.28,p2=r()*6.28,ax=(mo.k===4?40:18+r()*24)*(RL?2.4:1),ay=(mo.k===4?24:12+r()*16)*(RL?2.4:1),t=(now-mo.b)/1000;
+const CFM={l:[],d:[],x:[],i:[],s:[]};
+function cfPos(f,mo,now){let I=CISL.find(i=>i.field===f);const RL=inRealm();if(RL){const Q=RISL.find(i=>i[0]===({l:'dawn',d:'shadow',x:'crys',i:'ice',s:'star'})[f]);I={x:Q[1]*TS+8,y:(RY0+Q[2])*TS+8,rx:Q[3]*TS,ry:Q[4]*TS}}const r=celRand(mo.s),cxp=I.x+(r()-.5)*I.rx*1.1,cyp=I.y+(r()-.5)*I.ry*1.0,w1=.12+r()*.18,w2=.2+r()*.25,p1=r()*6.28,p2=r()*6.28,ax=(mo.k===4?40:18+r()*24)*(RL?2.4:1),ay=(mo.k===4?24:12+r()*16)*(RL?2.4:1),t=(now-mo.b)/1000;
   let x=cxp+Math.sin(t*w1+p1)*ax+Math.sin(t*w2*1.7+p2)*ax*.35,y=cyp+Math.cos(t*w1*1.3+p2)*ay;const d=((x-I.x)/(I.rx*.78))**2+((y-I.y)/(I.ry*.74))**2;if(d>1){const s=1/Math.sqrt(d);x=I.x+(x-I.x)*s;y=I.y+(y-I.y)*s}return[x,y,Math.cos(t*w1+p1)]}
 function celFieldUpdate(dt){const f=CEL.fieldF;if(!f)return;const now=Date.now()+CEL.toff;
   CEL.hurtCd=Math.max(0,CEL.hurtCd-dt);CEL.hurtT=Math.max(0,CEL.hurtT-dt);

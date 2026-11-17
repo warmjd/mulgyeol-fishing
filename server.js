@@ -3016,20 +3016,23 @@ const CEL_FISH = [   // [이름, 등급 0~4, 낚시터 r 무지개 호수 · c �
  ['별빛 송사리', 0, 's'], ['은하 피라미', 1, 's'], ['초승달 붕어', 1, 's'], ['혜성 꼬리고기', 2, 's'], ['성운 해파리', 3, 's'], ['별바다의 마지막 조각', 4, 's']];   // 2026-11-17 이야기 땅 (index.html CEL_FISH와 같은 순서)
 const CF_KINDS = {   // 필드 몬스터: [이름, 체력, 공격, 칩, 정수 확률, 장비 확률]
   l: [['솜털 양구름', 2600, 70, 22000, .01, .05], ['햇살 나비', 2200, 60, 20000, .01, .05], ['무지개 달팽이', 4200, 95, 30000, .015, .07], ['금빛 종달새', 15000, 160, 90000, .08, .3], ['새벽 구름고래', 320000, 260, 900000, 1, 1]],
+  x: [['수정 반딧불', 5200, 120, 40000, .02, .07], ['프리즘 토끼', 5600, 125, 42000, .02, .07], ['노래하는 종', 8000, 160, 60000, .03, .09], ['자수정 골렘', 30000, 240, 160000, .1, .35], ['수정 용', 600000, 380, 1600000, 1, 1]],
+  i: [['눈송이 정령', 7000, 150, 55000, .02, .08], ['서리 여우', 7600, 160, 58000, .02, .08], ['얼음 펭귄 기사', 11000, 200, 80000, .03, .1], ['눈보라 늑대', 42000, 300, 220000, .12, .4], ['잠든 얼음 왕의 그림자', 900000, 460, 2400000, 1, 1]],
+  s: [['별똥 해파리', 9500, 190, 75000, .03, .09], ['은하 고양이', 10000, 200, 78000, .03, .09], ['초승달 나방', 15000, 250, 110000, .04, .12], ['성운 거북', 60000, 380, 320000, .15, .45], ['별바다의 고래', 1300000, 560, 3500000, 1, 1]],
   d: [['그림자 박쥐', 2400, 80, 22000, .01, .05], ['안개 여우', 2800, 75, 24000, .01, .05], ['번개 해파리', 4400, 110, 32000, .015, .07], ['보랏빛 도깨비불', 16000, 175, 95000, .08, .3], ['천둥 거북', 340000, 280, 950000, 1, 1]] };
 const CF_N = 14, CF_RESPAWN = 25e3, CF_BOSS_RESPAWN = 10 * 60e3;
-const CF = { l: null, d: null };
+const CF = { l: null, d: null, x: null, i: null, s: null };
 let cfSeq = 1;
 function cfMon(f, k) { const K = CF_KINDS[f][k]; return { id: cfSeq++, k, s: (Math.random() * 1e9) | 0, b: Date.now(), hp: K[1], mhp: K[1], dm: new Map() }; }
 function cfKind() { const r = Math.random(); return r < .34 ? 0 : r < .68 ? 1 : r < .93 ? 2 : 3; }
 function cfField(f) { if (!CF[f]) { CF[f] = { mons: [], boss: 0, bossAt: Date.now() + 60e3 }; for (let i = 0; i < CF_N; i++) CF[f].mons.push(cfMon(f, cfKind())); } const F = CF[f];
-  if (!F.boss && Date.now() >= F.bossAt) { const m = cfMon(f, 4); F.mons.push(m); F.boss = m.id; cfCast(f, { t: 'cfn', f, m: cfPub(m) }); cfCast(f, { t: 'news', text: (f === 'l' ? '🐋 새벽빛 들판에 「새벽 구름고래」가 나타났어요!' : '🐢 그림자 숲에 「천둥 거북」이 나타났어요!') + ' 함께 쓰러뜨려요' }); }
+  if (!F.boss && Date.now() >= F.bossAt) { const m = cfMon(f, 4); F.mons.push(m); F.boss = m.id; cfCast(f, { t: 'cfn', f, m: cfPub(m) }); cfCast(f, { t: 'news', text: ({ l: '🐋 새벽빛 들판에 「새벽 구름고래」', d: '🐢 그림자 숲에 「천둥 거북」', x: '🐉 크리스탈 골짜기에 「수정 용」', i: '👑 얼음 성에 「잠든 얼음 왕의 그림자」', s: '🐳 별바다에 「별바다의 고래」' })[f] + '가 나타났어요! 함께 쓰러뜨려요' }); }
   return F; }
 const cfPub = m => [m.id, m.k, m.s, m.b, m.hp, m.mhp];
 function cfMembers(f) { const L = []; for (const [w, p] of players) if (p.cf === f) L.push([w, p]); return L; }
 function cfCast(f, msg) { for (const [w] of cfMembers(f)) send(w, msg); }
 function cfLeave(p) { if (p && p.cf) { const f = p.cf; p.cf = null; cfCast(f, { t: 'cfp', f, n: cfMembers(f).length }); } }
-setInterval(() => { for (const f of ['l', 'd']) if (CF[f] && !cfMembers(f).length && CF[f].mons.length < CF_N) { while (CF[f].mons.filter(m => m.k < 4).length < CF_N) CF[f].mons.push(cfMon(f, cfKind())); } }, 60e3);
+setInterval(() => { for (const f of ['l', 'd', 'x', 'i', 's']) if (CF[f] && !cfMembers(f).length && CF[f].mons.length < CF_N) { while (CF[f].mons.filter(m => m.k < 4).length < CF_N) CF[f].mons.push(cfMon(f, cfKind())); } }, 60e3);
 function celDay(s) { const d = kstDay(); if (!s.cel || typeof s.cel !== 'object' || s.cel.d !== d) s.cel = { d, m: 0, eat: 0 }; return s.cel; }
 function alOf(s) { if (!s.al || typeof s.al !== 'object') s.al = { ch: 0, l: 0, d: 0, pick: '', sw: 0 }; return s.al; }
 const alReady = (s, me) => me.admin || (((s.hu && s.hu.lv) | 0) >= 99 && !!(s.hu && s.hu.clr && s.hu.clr[13]));
@@ -3078,7 +3081,7 @@ function celMsg(ws, me, m) { const s = me.save; if (!s) return; const now = Date
     out.unshift('☁️ ' + F[0] + (first ? ' · 🆕 구름 도감!' : '') + ' · 골드 +' + g.toLocaleString() + ' · 강화권 +' + tk + (es ? ' · 💠 +' + es : '') + ' · 💧 +' + cc);
     sendEnh(ws, me, { dgold: g, rev: s.rev, note: out }); send(ws, { t: 'celd', celd: s.celd, celc: s.celc });
     if (rar >= 4) broadcast({ t: 'news', text: '☁️✨ ' + me.name + ' 님이 구름 위에서 전설 「' + F[0] + '」을(를) 낚았어요!' }); });
-  if (m.t === 'cf_join') { const f = m.f === 'd' ? 'd' : 'l'; if (!me.celAt) return; cfLeave(me); me.cf = f; const F = cfField(f); send(ws, { t: 'cf', f, now, list: F.mons.map(cfPub) }); return cfCast(f, { t: 'cfp', f, n: cfMembers(f).length }); }
+  if (m.t === 'cf_join') { const f = ['l', 'd', 'x', 'i', 's'].includes(m.f) ? m.f : 'l'; if ('xis'.includes(f) && (alOf(s).sg | 0) < { x: 1, i: 2, s: 3 }[f] && !me.admin) return; if (!me.celAt) return; cfLeave(me); me.cf = f; const F = cfField(f); send(ws, { t: 'cf', f, now, list: F.mons.map(cfPub) }); return cfCast(f, { t: 'cfp', f, n: cfMembers(f).length }); }
   if (m.t === 'cf_leave') return cfLeave(me);
   if (m.t === 'pk_join') { if (!me.celAt) return; const p = pkOf(); if (!p) return; if (!p.op && !me.admin) return send(ws, { t: 'news', text: '⛰️ 아직 문이 닫혀 있어요' }); cfLeave(me); me.cf = 'p'; return send(ws, { t: 'pkj', now, pk: pkPub() }); }
   if (m.t === 'pk_hit') { if (me.cf !== 'p') return; const p = pkOf(); if (!p || !p.op || p.clr || p.hp <= 0) return; if (now - (me.cfhT || 0) < 280) return; me.cfhT = now;
