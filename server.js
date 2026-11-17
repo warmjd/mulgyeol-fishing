@@ -654,7 +654,7 @@ wss.on('connection', (ws) => {
       if (!Number.isFinite(x) || !Number.isFinite(y)) return;
       me.x = Math.round(x); me.y = Math.round(y);
       me.d = ['up', 'down', 'left', 'right'].includes(m.d) ? m.d : 'down';
-      me.m = (m.m | 0) & 7;   // +4 구름 위 나라 (2026-11-17)   // 1 걷는 중 · +2 꽃배 위 (2026-11-16) me.here = true; me.dirty = true;
+      me.m = (m.m | 0) & 7; me.here = true; me.dirty = true;   // 1 걷는 중 · +2 꽃배 위 (2026-11-16) · +4 구름 위 나라 (2026-11-17)   ⚠️ 11-16에 이 두 줄이 주석에 묻혀서 친구 위치가 안 갔어요 (서로 안 보이던 원인)
       me.b = Number.isInteger(m.b) && m.b >= 0 && m.b < 100000 ? m.b : 0; me.f = (m.f | 0) >= 0 && (m.f | 0) <= 4 ? m.f | 0 : 0;   // 낚시 단계 (친구 화면에 입질 · 줄다리기 · 낚아채기) // 낚시 중인 찌 위치 (친구 화면에 낚싯대 · 찌 스킨)
     } else if (m.t === 'save' && m.data && typeof m.data === 'object') {
       withLock(me.key, () => {
