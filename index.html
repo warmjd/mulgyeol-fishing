@@ -4821,7 +4821,7 @@ const parseG=t=>{t=String(t||'').replace(/[, ]/g,'');let m=/^([\d.]+)억$/.exec(
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-whc],[data-aucb],[data-aucq],[data-esschip]');if(!t)return;Snd.sfx('tap');
   if(t.dataset.whc){Net.flushSave(true);Net.send({t:'wh_claim'});return}
   if(t.dataset.aucq){const i=$('aucG');if(i)i.value=fmt(+t.dataset.aucq);return}
-  if(t.dataset.esschip){askConfirm('💠 칩으로 꿈의 정수','칩 1천만 개로 꿈의 정수 1개를 바꿔요 (한 주 10개까지).','바꾸기',()=>Net.send({t:'ess_chip'}));return}
+  if(t.dataset.esschip){const v=t.dataset.esschip,all=v==='all',n=all?0:+v,c=EBS.data?EBS.data.c|0:0,mx=Math.floor(c/1e7);askConfirm('💠 칩으로 꿈의 정수',all?'가진 칩으로 꿈의 정수를 모두 바꿔요 · 약 💠 '+fmt(mx)+'개 (칩 '+fmt(mx*1e7)+')':'칩 '+fmt(n*1e7)+'개로 꿈의 정수 '+n+'개를 바꿔요','바꾸기',()=>Net.send(all?{t:'ess_chip',all:1}:{t:'ess_chip',n}));return}
   if(t.dataset.aucb){const g=parseG(($('aucG')||{}).value);if(!AUC||g<AUC.min){toast(fmtShort(AUC?AUC.min:1e8)+' 골드 이상 불러요');return}if(S.gold<g){toast('골드가 모자라요');return}askConfirm('🔨 입찰',fmt(g)+' 골드를 걸어요. 밀리면 바로 돌려받아요.','입찰',()=>{Net.flushSave(true);setTimeout(()=>Net.send({t:'auc_bid',g}),400)})}});
 /* 💍 프러포즈 연출 (2026-11-16): 무릎 꿇기 · 반지 상자 · 꽃길 · 승낙하면 온 마을 불꽃놀이 · 온 세상의 반지는 하늘에 오로라 */
 let AURORA=0;
@@ -5340,8 +5340,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1117q',UPD_LOG=[
- ['11/17 저녁','🎲',[['☁️ 하늘 도감 고침','하늘낚시로 낚은 물고기가 하늘 도감에 남지 않고 되돌아가던 것을 고쳤어요 · 이제 서버가 함께 적어요 (이미 사라진 기록은 되돌리지 못했어요 · 미안해요)'],['🎲 칩 원하는 만큼','은비랜드 칩 바꾸기에서 원하는 칩 수를 적어 바꿀 수 있어요 · 「💰 가진 골드 모두 바꾸기」 버튼도 생겼어요']]],
+const UPD_VER='1117r',UPD_LOG=[
+ ['11/17 저녁','🎲',[['💠 꿈의 정수 제한 풀기','칩 → 꿈의 정수 바꾸기의 「한 주 10개」 제한이 없어졌어요 · 1개 · 10개 · 칩 모두 바꾸기 · 가질 수 있는 정수도 99,999개 제한이 없어졌어요'],['☁️ 하늘 도감 고침','하늘낚시로 낚은 물고기가 하늘 도감에 남지 않고 되돌아가던 것을 고쳤어요 · 이제 서버가 함께 적어요 (이미 사라진 기록은 되돌리지 못했어요 · 미안해요)'],['🎲 칩 원하는 만큼','은비랜드 칩 바꾸기에서 원하는 칩 수를 적어 바꿀 수 있어요 · 「💰 가진 골드 모두 바꾸기」 버튼도 생겼어요']]],
  ['11/17 ❄️ 음비의 겨울옷','❄️',[['❄️ 음비의 겨울옷','치장 상점 「옷」 · 뽀글뽀글 크림색 털 재킷에 남색 땡땡이 · 남색 테두리'],['🚩 깃발 미리보기','치장 상점 「🚩 깃발」에서 낮 · 밤 물가에 펄럭이는 모습을 크게 볼 수 있어요 (등불은 밤에 빛나요)'],['⚡ 치장 상점이 빨라졌어요','카드를 눌러 입어 볼 때 위 미리보기만 바뀌어요 (예전엔 카드를 전부 다시 그려서 느렸어요)'],['📱 메뉴 버튼','좁은 화면에서 오른쪽 위 「메뉴」가 잘리던 것 고쳤어요 · 대신 시계 칸이 조금 줄어요']]],
  ['11/17 🚩 깃발 치장','🎨',[['🎨 깃발 치장 24종','치장 상점 「🚩 깃발」 · 내가 차지한 낚시터 깃발이 그 모양으로 펄럭여요 · 별 · 하트 · 물고기 · 무지개 · 초승달 · 고양이 · 잉어 바람자루 · 불꽃 · 등불(밤에 빛나요) · 은하 · 왕관 · 용 · 오로라 …'],['🚩 모양도 여러 가지','삼각 · 제비꼬리 · 네모 · 바람자루 · 고르지 않으면 내 색 기본 깃발']]],
  ['11/17 🎫 강화 보상','🎫',[['🎫 보상이 강화로','모두 골드보다 낚시 강화를 원해서 보상을 바꿨어요 · 행사 · 레이드 · 마을 목표 · 돌아온 날 보상의 강화권이 5배 + 💠 꿈의 정수도 함께'],['📦 강화 상자','주간 낚시 대회 우승 (강화권 300 · 정수 60 · 별 120) · 하루 낚시왕 · 월척 대회 1등 · 수호자 (강화권 120 · 정수 25 · 별 40) · 깃발 · 월척 대회 2~3등 (강화권 40 · 정수 8 · 별 12) · 골드 상금은 그대로'],['💪 성실 보상 크게','주간 마릿수 단계마다 강화권 30 → 400 · 정수 5 → 90'],['📅 출석 강화권','하루 출석 강화권 3장 → 10장'],['🎰 은비랜드 고침','어제 밤부터 은비랜드에서 칩 바꾸기 · 슬롯 · 하이로우 · 룰렛 · 알 부화가 안 되던 문제를 고쳤어요']]],
@@ -9890,7 +9890,7 @@ function renderForge(){
   const e=S.enh,L=e.lv,max=L>=ENH.MAX,p=ENH.P[L]||0,need=ENH.S[L]||1,cost=enhCost(L),safe=forgeMode==='safe',sl=sureLeft(e),nx=ENH_MILE.find(a=>a[0]>L);
   const left=Math.max(0,need-(e.star|0)),pe=Math.min(.999,p+((e.cat|0)?.15+.1*(e.catk|0):0)),avg=max?0:Math.max(1,Math.round(safe?left/Math.max(pe,1/ENH.K[L]):left/(pe*3.3)));
   let h=rankStrip('enh','🔨 강화 순위')+'<div class="fg-top"><div class="tk"><small>강화권</small><b>'+e.tk+'</b><span>장</span></div><div class="gd"><small>골드</small><b>'+fmtK(S.gold)+'</b></div>'+(L>=ENH.ESS_FROM-2?'<div class="gd ess"><small>💠 꿈의 정수</small><b>'+(e.es|0)+'</b></div>':'')+'</div>';
-  if(L>=ENH.ESS_FROM-2&&ONLINE)h+='<button class="btn xs ghost" style="width:100%;margin:-2px 0 8px" data-esschip="1">💠 칩 1천만 → 꿈의 정수 1개 (한 주 10개)</button>';
+  if(L>=ENH.ESS_FROM-2&&ONLINE)h+='<div style="display:flex;gap:4px;margin:-2px 0 8px">'+[['1','💠 1개'],['10','💠 10개'],['all','💠 칩 모두']].map(q=>'<button class="btn xs ghost" style="flex:1" data-esschip="'+q[0]+'">'+q[1]+'</button>').join('')+'</div><div class="muted" style="font-size:11px;margin:-6px 0 8px;text-align:center">칩 1천만 → 꿈의 정수 1개 · 제한 없어요</div>';
   if(!max&&L>=ENH.ESS_FROM)h+='<div class="fg-ess">💠 +'+ENH.ESS_FROM+'부터는 강화 한 번에 <b>꿈의 정수 1개</b>가 들어요 · 사냥터 우두머리(어려움일수록 많이) · 바다 보스 · 레이드에서 얻어요</div>';
   else if(!max&&L>=ENH.ESS_FROM-2)h+='<div class="fg-ess soon">💠 +'+ENH.ESS_FROM+'부터는 꿈의 정수가 필요해요 · 사냥터 우두머리에게서 미리 모아 두세요</div>';
   h+='<div class="fg-card"><div class="fg-lv"><span>+'+L+'</span>'+(max?'':'<em>→ +'+(L+1)+'</em>')+'</div>'+(max?'<div class="fg-max">최고 단계 달성!</div>':starRow(e.star|0,need)+'<div class="fg-left">다음 단계까지 <b>별 '+left+'개</b> · 지금 방식으로 평균 <b>약 '+avg+'번</b></div>')+

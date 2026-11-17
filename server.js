@@ -341,7 +341,8 @@ const catchDisc = lv => { const g = champ ? (champ.lv | 0) - (lv | 0) : 0; retur
 const BAG_STARS = 40;   // 🌰 강화 별 주머니: 별 +40 (넘치면 다음 단계로 이어져요)   // 따라잡기: 광장 동상 주인보다 5단계 이상 낮으면 출석 강화권 +2
 const kstDay = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
 function enhOf(save) { if (!save) return null; save.enh = Object.assign(enhDefault(), save.enh && typeof save.enh === 'object' ? save.enh : {}); const E = save.enh; if (!E.esg && E.lv >= ENH.ESS_FROM) { E.esg = 1; E.es = (E.es | 0) + 20; } return save.enh; }   // 이미 +20인 분께는 꿈의 정수 20개를 먼저 드려요
-const essAdd = (save, n) => { const E = enhOf(save); E.es = Math.min(99999, (E.es | 0) + n); return E.es; };
+const ES_MAX = 1e9;   /* 2026-11-17 꿈의 정수 가질 수 있는 수 제한 풀기 (예전 99,999) */
+const essAdd = (save, n) => { const E = enhOf(save); E.es = Math.min(ES_MAX, (E.es | 0) + n); return E.es; };
 function enhDaily(e, out) {
   const d = kstDay(); if (e.day === d) return;
   const y = new Date(Date.now() + 9 * 3600e3 - 864e5).toISOString().slice(0, 10);
@@ -1160,7 +1161,7 @@ function onMsg(ws, me, m) {
     case 'wh_claim': whClaim(ws, me).catch(() => { }); break;
     case 'auc_get': aucSettle(); send(ws, aucPub()); break;
     case 'auc_bid': aucBid(ws, me, m).catch(e => console.error('auc', e.message)); break;
-    case 'ess_chip': essChip(ws, me).catch(() => { }); break;
+    case 'ess_chip': essChip(ws, me, m).catch(() => { }); break;
     case 'kt_get': case 'tax': case 'kt_req': case 'kt_rate': case 'kt_note': case 'kt_fest': case 'kt_prop': case 'kt_ok': ktMsg(ws, me, m); break;
     case 'raid_get': case 'raid_q': case 'raid_qx': raidLobby(ws, me, m); break;
     case 'rrec_get': case 'rrec_new': case 'rrec_join': case 'rrec_leave': rrecMsg(ws, me, m); break;
@@ -1619,14 +1620,14 @@ const aucNext = l => l.bid ? Math.max(l.bid + 100, Math.ceil(l.bid * 1.1 / 10) *
 /* 서버가 주는 강화권 · 옷 (잠금 안에서 부르기) */
 /* 🎫 강화 보상 (2026-11-17): 모두 골드보다 낚시 강화를 원해요 → 강화권은 5배 · 💠 꿈의 정수도 함께 · 큰 상은 「강화 상자」 (강화권 · 정수 · 별) */
 const TK_X = 5, PACK = { S: { tk: 300, es: 60, st: 120 }, A: { tk: 120, es: 25, st: 40 }, B: { tk: 40, es: 8, st: 12 }, C: { tk: 12, es: 2, st: 3 } };
-function enhApply(s, tk, es, st) { const E = enhOf(s); if (tk) E.tk = Math.min(ENH.TK_MAX, (E.tk | 0) + tk); if (es) E.es = Math.min(99999, (E.es | 0) + es); let up = 0; if (st) { E.star = (E.star | 0) + st; while (E.lv < ENH.MAX && E.star >= ENH.S[E.lv]) { E.star -= ENH.S[E.lv]; E.lv++; up++; } E.max = Math.max(E.max | 0, E.lv); } return up; }
+function enhApply(s, tk, es, st) { const E = enhOf(s); if (tk) E.tk = Math.min(ENH.TK_MAX, (E.tk | 0) + tk); if (es) E.es = Math.min(ES_MAX, (E.es | 0) + es); let up = 0; if (st) { E.star = (E.star | 0) + st; while (E.lv < ENH.MAX && E.star >= ENH.S[E.lv]) { E.star -= ENH.S[E.lv]; E.lv++; up++; } E.max = Math.max(E.max | 0, E.lv); } return up; }
 const packTxt = (P, up) => '🎫 강화권 +' + P.tk + ' · 💠 정수 +' + P.es + ' · ⭐ 별 +' + P.st + (up ? ' · 낚싯대 +' + up + '단계!' : '');
 async function enhPack(key, tier, why, n) { const P0 = PACK[tier]; if (!P0) return; n = n || 1; const P = { tk: P0.tk * n, es: P0.es * n, st: P0.st * n };
   return withLock(key, async () => { const s = await loadSave(key); if (!s) return; const up = enhApply(s, P.tk, P.es, P.st); s.rev = (s.rev | 0) + 1; queueSave(key, s); const txt = '📦 ' + why + ' · ' + packTxt(P, up);
     const l = liveByKey(key); if (l && l[1].save === s) sendEnh(l[0], l[1], { rev: s.rev, note: [txt] }); else addMail(key, txt); }).catch(e => console.error('pack', e.message)); }
 async function giveTk(key, n, note) {
   n = Math.round(n * TK_X); const es = Math.max(1, Math.round(n / 5)); if (note) note = note.replace(/강화권 \+\d+/, '강화권 +' + n + ' · 💠 +' + es);
-  const s = await loadSave(key); if (!s) return; const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + n); e.es = Math.min(99999, (e.es | 0) + es); if (note) out.push(note); queueSave(key, s);
+  const s = await loadSave(key); if (!s) return; const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + n); e.es = Math.min(ES_MAX, (e.es | 0) + es); if (note) out.push(note); queueSave(key, s);
   const l = liveByKey(key); if (l && l[1].save === s) sendEnh(l[0], l[1], { note: out }); else if (note) addMail(key, note);
 }
 async function giveCosTo(key, ids) {
@@ -3257,9 +3258,10 @@ async function aucBid(ws, me, m) { if (!V || !me.save) return; aucSettle(); cons
     if (prev) { withLock(prev.key, () => changeBag(prev.key, { g: prev.bid }, '🔨 경매에서 밀렸어요 · ' + (prev.bid / 1e8).toFixed(2) + '억 돌려받았어요')).catch(() => { }); const l = liveByKey(prev.key); if (l) send(l[0], { t: 'news', text: '🔨 ' + me.name + ' 님이 더 높게 불렀어요! (' + (g / 1e8).toFixed(2) + '억)' }); }
     broadcast(aucPub()); broadcast({ t: 'news', text: '🔨 경매 · ' + me.name + ' 님 ' + (g / 1e8).toFixed(2) + '억 골드!' }); }); }
 const ESS_CHIP = 1e7, ESS_CHIP_WK = 10;   // 💠 칩 1천만 → 꿈의 정수 1개 · 한 주 10개까지
-function essChip(ws, me) { return withLock(me.key, async () => { const s = me.save; if (!s) return; const e = ebOf(s), w = wfWeek(), q = objOf(s, 'esc'); if (q.w !== w) { q.w = w; q.n = 0; }
-  if ((q.n | 0) >= ESS_CHIP_WK) return send(ws, { t: 'news', text: '이번 주 칩 교환은 다 했어요 (' + ESS_CHIP_WK + '개)' }); if ((e.c | 0) < ESS_CHIP) return send(ws, { t: 'news', text: '칩이 모자라요 (1천만 칩)' });
-  e.c -= ESS_CHIP; q.n++; essAdd(s, 1); queueSave(me.key, s); send(ws, { t: 'enh', enh: s.enh, note: ['💠 칩 1천만 → 꿈의 정수 +1 (이번 주 ' + q.n + '/' + ESS_CHIP_WK + ')'] }); send(ws, ebPub(s, me)); }); }
+/* 2026-11-17: 한 주 10개 제한을 풀었어요 · 원하는 만큼 (1 · 10 · 칩 모두) */
+function essChip(ws, me, m) { return withLock(me.key, async () => { const s = me.save; if (!s) return; const e = ebOf(s), q = objOf(s, 'esc'), have = Math.floor((e.c || 0) / ESS_CHIP);
+  const n = m && m.all ? have : Math.max(1, Math.min(100000, (m && m.n) | 0 || 1)); if (n < 1 || have < n) return send(ws, { t: 'news', text: '칩이 모자라요 (정수 1개 = 1천만 칩)' });
+  e.c -= ESS_CHIP * n; q.n = (q.n | 0) + n; essAdd(s, n); queueSave(me.key, s); send(ws, { t: 'enh', enh: s.enh, note: ['💠 칩 ' + (ESS_CHIP * n).toLocaleString() + ' → 꿈의 정수 +' + n] }); send(ws, ebPub(s, me)); }); }
 /* 🌊 월척 왕 (거대 개체 종 수) · ✨ 반짝 왕 (반짝 종 수) (2026-11-09): 손맛 왕처럼 1등만, 같으면 지금 왕이 지켜요 */
 const xKing = { gt: null, sh: null, hl: null }, XK_NAME = { gt: ['🌊 월척 왕', '종 월척'], sh: ['✨ 반짝 왕', '종 반짝'], hl: ['⚔️ 용사 왕', '전투력'] };
 function xKingCheck(f, init) {

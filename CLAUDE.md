@@ -93,3 +93,4 @@
 - ❄️ 음비의 겨울옷 o_umbi (drawOutfit · server LOOK_IDS.o).
 - ⚠️ 하늘낚시 골드를 화면이 더해서 저장 거절('판 것보다 골드가 많이 늘었어요') → sync로 하늘 도감까지 되돌아갔어요 (11-16~17) → 고침: server 'sky_got' (SKY_GOLD · s.skyd/skyn · rev+1 · dgold). skyd/skyn은 서버에 있으면 서버 것 유지. **화면에서 골드를 직접 더하는 새 기능은 만들지 말기 (서버가 주기).**
 - 🎲 은비칩: 원하는 수 입력 · eb_buy all:1 (가진 골드 모두).
+- 💠 꿈의 정수: 가질 수 있는 수 ES_MAX 1e9 · 칩→정수 한 주 10개 제한 없앰 (ess_chip n · all).
