@@ -9417,7 +9417,7 @@ function openAdmin(){
    h+='<div class="sec">☁️ 구름 위 나라 바로 가기 <span class="cnt">숨결 제한 없어요</span></div><div class="warps">'+C2('hub','☁️ 구름 항구')+C2('cotton','🍭 솜사탕섬')+C2('rlake','🌈 무지개 호수')+C2('dawn','✨ 새벽빛 들판')+C2('thunder','⚡ 번개 협곡')+C2('mlake','🌫️ 안개 호수')+C2('shadow','🌑 그림자 숲')+C2('peak','⛰️ 가장 높은 곳')+'</div>'+
      '<div class="warps"><button data-adm="celdark">🌑 어둠의 길 다시 보기</button><button data-adm="rift">🌀 하늘 틈 바로 열기</button>'+(ONLINE&&Net.me?'<button data-adm="celfill">⏳ 내 구름 숨결 다시 채우기</button>':'')+'</div>';
    h+='<div class="sec">⚔️ 사냥터 바로 가기 <span class="cnt">운영자 모드면 잠금 없이</span></div><div class="warps">'+HFIELDS.map((f,i)=>'<button data-adm="hfgo" data-v="'+i+'"><b>'+(i+1)+'</b> '+esc(f.n)+'</button>').join('')+'</div>';
-   h+='<div class="sec">🧑 내 용사</div><div style="display:flex;gap:6px;margin:4px 0"><input class="tin" id="admHu" type="number" min="1" max="99" value="'+huS().lv+'" style="flex:1 1 30%"><button class="btn sm" data-adm="hulv" style="flex:1 1 60%">용사 레벨 맞추기</button></div><div class="warps"><button data-adm="huclr">🌟 사냥터 모두 정화 (심연 · 악몽 포함)</button></div>';
+   h+='<div class="sec">🧑 내 용사</div><div style="display:flex;gap:6px;margin:4px 0"><input class="tin" id="admHu" type="number" min="1" max="99" value="'+huS().lv+'" style="flex:1 1 30%"><button class="btn sm" data-adm="hulv" style="flex:1 1 60%">용사 레벨 맞추기</button></div><div class="warps"><button data-adm="huclr">🌟 사냥터 모두 정화 (심연 · 악몽 포함)</button>'+(S.admBak?'<button data-adm="hurest">↩️ 시험 전으로 되돌리기 (Lv'+S.admBak.lv+')</button>':'')+'</div><div class="muted" style="font-size:12px">레벨 · 정화를 처음 바꿀 때 지금 용사를 기억해 둬요 · 되돌리기 한 번이면 원래대로</div>';
    if(ONLINE&&Net.me){const al=CEL.info&&CEL.info.al||{},A=(v,t)=>'<button data-adm="alset" data-v="'+v+'"'+((v===String(al.ch|0)&&!al.pick)||(v==='4'+al.pick)?' disabled':'')+'>'+t+'</button>';
      h+='<div class="sec">🕯️ 나그네 이야기 단계 <span class="cnt">지금 '+(al.pick?(al.pick==='l'?'🌅 빛':'🌒 그림자'):(al.ch|0)+'장')+'</span></div><div class="warps">'+A('0','처음으로')+A('1','1장 등불 찾기')+A('2','2장 별 조각')+A('3','3장 갈림길')+A('4l','🌅 빛 고름')+A('4d','🌒 그림자 고름')+'</div>';
      h+='<div class="sec">🎁 나에게 바로</div><div class="warps"><button data-adm="gold" data-v="100000000">💰 1억 골드</button><button data-adm="tk" data-v="100">🎫 강화권 100</button><button data-adm="esme" data-v="50">💠 꿈의 정수 50</button><button data-adm="chipme" data-v="1000000">🎰 칩 100만</button><button data-adm="ccme" data-v="1000">💧 구름 방울 1000</button></div>';
@@ -9478,8 +9478,11 @@ function admClick(t){
   if(a==='rift'){if(F.mode!=='sky'){toast('하늘 끝에서 하늘낚시를 먼저 시작해요 (📍 하늘 끝)');return true}RIFT.t=99;closeSheet();return true}
   if(a==='celfill'){Net.send({t:'adm',op:'cel_reset',to:Net.me.name.toLowerCase()});return true}
   if(a==='hfgo'){if(!admOn()){toast('운영자 모드를 먼저 켜 주세요 (잠금 없이 들어가려면)');return true}closeSheet();if(CEL.on)celLeave('');if(HUNT.on)huExit('');HUNT.cdUntil=0;setTimeout(()=>huEnter(+v,true),300);return true}
+  const admBak=()=>{if(!S.admBak){const u=huS();S.admBak={lv:u.lv|0,xp:u.xp|0,clr:JSON.parse(JSON.stringify(u.clr||{})),nclr:JSON.parse(JSON.stringify(S.hunt.nclr||{}))}}};   // 시험 전 용사 기억 (처음 한 번)
+  if(a==='hurest'){const B=S.admBak;if(!B){toast('되돌릴 시험 기록이 없어요');return true}const u=huS();u.lv=B.lv||1;u.xp=B.xp|0;u.clr=B.clr||{};S.hunt.nclr=B.nclr||{};delete S.admBak;saveState(true);toast('↩️ 시험 전 용사로 되돌렸어요 (Lv'+u.lv+' · 정화 기록)');openAdmin();return true}
+  if(a==='hulv'||a==='huclr')admBak();
   if(a==='hulv'){const L=Math.max(1,Math.min(99,+$('admHu').value|0));huS().lv=L;huS().xp=0;saveState(true);toast('⚔️ 용사 Lv'+L+'(으)로 맞췄어요');openAdmin();return true}
-  if(a==='huclr'){const u=huS();u.clr=u.clr||{};S.hunt.nclr=S.hunt.nclr||{};HFIELDS.forEach((f,i)=>{if(!f.raid){u.clr[i]=1;S.hunt.nclr[i]=1}});saveState(true);toast('🌟 모든 사냥터를 정화한 걸로 맞췄어요');return true}
+  if(a==='huclr'){const u=huS();u.clr=u.clr||{};S.hunt.nclr=S.hunt.nclr||{};HFIELDS.forEach((f,i)=>{if(!f.raid){u.clr[i]=1;S.hunt.nclr[i]=1}});saveState(true);toast('🌟 모든 사냥터를 정화한 걸로 맞췄어요');openAdmin();return true}
   if(a==='alset'){Net.send({t:'adm',op:'al_set',to:Net.me.name.toLowerCase(),v});return true}
   if(a==='esme'){Net.flushSave(true);Net.send({t:'adm',op:'give',to:Net.me.name.toLowerCase(),k:'es',n:+v});return true}
   if(a==='ccme'){Net.send({t:'adm',op:'give',to:Net.me.name.toLowerCase(),k:'cc',n:+v});return true}
