@@ -29,6 +29,7 @@
 - 강화(enh) · 칩(eb) · 사냥(hunt) · 운세(fort) · 주간 기록(wh) 등은 서버 것만 믿어요. 새 서버 전용 필드를 만들면 `server.js`의 save 처리에서 **보존 목록(`for (const k of [...]) m.data[k] = me.save[k]`)에 꼭 추가**해요 (안 하면 화면 저장 때 지워져요).
 - 새 아이템 id는 client `ITEMS` + server `ITEM_IDS`(+ITEM_NAME/MAKER) 둘 다. 새 치장은 server `LOOK_IDS`에도.
 - 데이터 절약: 저장은 queueSave(45초 모아서), 같은 내용이면 안 써요.
+- **Render 무료 · 한 달 5GB** (넘으면 멈추거나 초과 요금). 첫 화면은 br/gzip 압축 + ETag 304 (`pageBuf`), 웹소켓은 perMessageDeflate. 새 실시간 기능은 데이터 양을 먼저 계산하고 시간 제한 · 변화만 보내기.
 
 ## 지금까지 만든 큰 것들 (2026-11-16 기준)
 - 실제 시간 하늘: 서울 해돋이 · 해넘이(sunCalc), 진짜 달 모양(moonAge), 맵 **북쪽 끝 = 지평선**(산 · 구름 · 별 · 은하수 · 보름달 토끼), 물에 비친 구름 · 달빛. 북쪽 끝에선 카메라가 올라가고 위쪽 알림 · 미니맵을 숨겨요(body.skyview).

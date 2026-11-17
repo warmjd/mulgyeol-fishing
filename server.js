@@ -94,14 +94,23 @@ function checkCode(code, stored) {
 /* ---------- HTTP: 게임 파일 + 상태 확인 ---------- */
 const app = express();
 const BUILD = (() => { try { return require('crypto').createHash('md5').update(require('fs').readFileSync(path.join(__dirname, 'index.html'))).digest('hex').slice(0, 10); } catch (e) { return String(Date.now()); } })();
-app.get('/', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.setHeader('Content-Type', 'text/html; charset=utf-8'); require('fs').readFile(path.join(__dirname, 'index.html'), 'utf8', (err, html) => { if (err) { res.statusCode = 500; return res.end(); } res.end(html.replace('__BUILD__', BUILD)); }); });
-for (const f of ['manifest.webmanifest', 'sw.js', 'icon-192.png', 'icon-512.png', 'icon-mask.png', 'apple-touch-icon.png']) app.get('/' + f, (req, res) => { if (f === 'sw.js') res.setHeader('Service-Worker-Allowed', '/'); res.setHeader('Content-Type', f.endsWith('.webmanifest') ? 'application/manifest+json' : f.endsWith('.js') ? 'text/javascript; charset=utf-8' : 'image/png'); res.setHeader('Cache-Control', f === 'sw.js' ? 'no-cache' : 'public, max-age=86400'); require('fs').readFile(path.join(__dirname, f), (err, buf) => { if (err) { res.statusCode = 404; return res.end(); } res.end(buf); }); });   // 📲 홈 화면에 추가하면 앱처럼 (주소창 없이)
+/* 📦 데이터 아끼기 (2026-11-17): 첫 화면(약 1.7MB)을 압축해서 보내고 (br ≈ 0.4MB), 바뀐 게 없으면 304로 아무것도 안 보내요.
+   예전엔 열 때마다 1.7MB를 통째로 보내서 Render 무료 데이터(5GB)가 금방 찼어요 */
+let PAGE = null;
+function pageBuf() { if (PAGE) return PAGE; const zlib = require('zlib'), html = Buffer.from(require('fs').readFileSync(path.join(__dirname, 'index.html'), 'utf8').replace('__BUILD__', BUILD), 'utf8');
+  PAGE = { raw: html, gz: zlib.gzipSync(html, { level: 9 }), br: zlib.brotliCompressSync(html, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: html.length } }), etag: '"' + BUILD + '"' };
+  console.log('첫 화면 크기', html.length, '→ gzip', PAGE.gz.length, '· br', PAGE.br.length); return PAGE; }
+app.get('/', (req, res) => { let P; try { P = pageBuf(); } catch (e) { res.statusCode = 500; return res.end(); }
+  res.setHeader('Cache-Control', 'no-cache'); res.setHeader('ETag', P.etag); res.setHeader('Vary', 'Accept-Encoding'); res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  if (req.headers['if-none-match'] === P.etag) { res.statusCode = 304; return res.end(); }
+  const ae = String(req.headers['accept-encoding'] || ''); if (/\bbr\b/.test(ae)) { res.setHeader('Content-Encoding', 'br'); return res.end(P.br); } if (/gzip/.test(ae)) { res.setHeader('Content-Encoding', 'gzip'); return res.end(P.gz); } res.end(P.raw); });
+for (const f of ['manifest.webmanifest', 'sw.js', 'icon-192.png', 'icon-512.png', 'icon-mask.png', 'apple-touch-icon.png']) app.get('/' + f, (req, res) => { if (f === 'sw.js') res.setHeader('Service-Worker-Allowed', '/'); res.setHeader('Content-Type', f.endsWith('.webmanifest') ? 'application/manifest+json' : f.endsWith('.js') ? 'text/javascript; charset=utf-8' : 'image/png'); res.setHeader('Cache-Control', f === 'sw.js' ? 'no-cache' : 'public, max-age=2592000'); require('fs').readFile(path.join(__dirname, f), (err, buf) => { if (err) { res.statusCode = 404; return res.end(); } res.end(buf); }); });   // 📲 홈 화면에 추가하면 앱처럼 (주소창 없이)
 app.get('/version', (req, res) => { res.setHeader('Cache-Control', 'no-store'); res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ v: BUILD })); });   // 🔄 새 버전 알림
 app.get('/health', (req, res) => res.json({ ok: true, online: players.size }));
 const server = http.createServer(app);
 
 /* ---------- 웹소켓 ---------- */
-const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 512 * 1024 });
+const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 512 * 1024, perMessageDeflate: { threshold: 600, zlibDeflateOptions: { level: 6 }, serverNoContextTakeover: false, clientNoContextTakeover: true } });   // 📦 큰 메시지(도감 · 순위 · 저장)는 압축해서
 const players = new Map();   // ws -> {id,key,name,color,x,y,d,m,dirty}
 let nextId = 1;
 const send = (ws, o) => { if (ws.readyState === 1) ws.send(JSON.stringify(o)); };
