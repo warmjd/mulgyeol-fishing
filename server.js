@@ -152,12 +152,16 @@ const isIsy = id => id >= ISY_FIRST && id < ISY_FIRST + ISY_ZR.length;
 /* 🌌 초월 물고기 6종 (853~858): 태초 3 · 무한 2 · 창세 1 — 어느 낚시터에서든 직접 낚을 때 아주 아주 가끔 (index.html ULT_RAW와 같은 순서) */
 const ULT_FIRST = ISY_FIRST + ISY_ZR.length, ULT_G = [6, 6, 6, 7, 7, 8], ULT_PRICE = [5e7, 5e7, 5e7, 2e8, 2e8, 5e8], ULT_GN = { 6: '태초', 7: '무한', 8: '창세' };
 const isUlt = id => id >= ULT_FIRST && id < ULT_FIRST + ULT_G.length;
-const FISH_MAX = ULT_FIRST + ULT_G.length;
-const ZONE_PRICE = [8, 30, 90, 280, 950, 2000, 400, 100, 1200, 1500, 2600, 400, 3000, 3400, 4200, 7000, 8000, 10000, 12000, 3000, 9000], RAR_MULT = [1, 2.2, 5, 20, 120];   // 2026-11-09: 영웅 · 전설 값 올림 (index.html RARITY와 같아요)
+/* 🌳 정원 연못 20종 (859~878 · index.html GDN_RAW와 같은 순서): 흔함 8 · 보통 6 · 희귀 4 · 영웅 1 · 전설 1 */
+const GDN_FIRST = ULT_FIRST + ULT_G.length, GDN_R = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4];
+const isGdn = id => id >= GDN_FIRST && id < GDN_FIRST + GDN_R.length;
+const FISH_MAX = GDN_FIRST + GDN_R.length;
+const ZONE_PRICE = [8, 30, 90, 280, 950, 2000, 400, 100, 1200, 1500, 2600, 400, 3000, 3400, 4200, 7000, 8000, 10000, 12000, 3000, 9000, 2600], RAR_MULT = [1, 2.2, 5, 20, 120];   // 2026-11-09: 영웅 · 전설 값 올림 (index.html RARITY와 같아요)
 const rarOf = i => i < 8 ? 0 : i < 14 ? 1 : i < 18 ? 2 : i < 19 ? 3 : 4;
 function fishPrice(id) {
   let z, r;
   if (isUlt(id)) return ULT_PRICE[id - ULT_FIRST];
+  if (isGdn(id)) { z = 21; r = GDN_R[id - GDN_FIRST]; return Math.round(ZONE_PRICE[z] * RAR_MULT[r]); }
   if (id < 100) { z = Math.floor(id / 20); r = rarOf(id % 20); }
   else if (id < FISH_N) { z = Math.floor((id - 100) / 20); r = rarOf((id - 100) % 20); }
   else if (isGet(id)) { z = GET_ZR[id - GET_FIRST][0] - 1; r = GET_ZR[id - GET_FIRST][1]; }
@@ -326,7 +330,7 @@ const ENH = {
   ESS_FROM: 20   /* 2026-11-16 💠 꿈의 정수: +20부터는 강화 한 번에 정수 1개 (사냥터 우두머리 · 바다 보스 · 레이드에서 얻어요) */
 };
 ENH.K = ENH.P.map(p => Math.max(2, Math.round(1.8 / p)));   // 안전: 이만큼 연속 실패하면 다음은 확정
-const fishRar = id => isIsy(id) ? ISY_ZR[id - ISY_FIRST][1] : isGet(id) ? GET_ZR[id - GET_FIRST][1] : isV2(id) || isIsx(id) ? rar2(id) : isBoss(id) ? 4 : isPty2(id) ? PTY2_RAR[id - PTY2_FIRST] : id < 100 ? rarOf(id % 20) : id < FISH_N ? rarOf((id - 100) % 20) : id === BOSS_ID || isMyth(id) ? 4 : id >= MK_FIRST ? MK_RAR[id - MK_FIRST] | 0 : id >= PTY_FIRST ? PTY_RAR[id - PTY_FIRST] | 0 : id >= ISLE_FIRST ? rarOf(id - ISLE_FIRST) : (SEASON_FISH[id - FISH_N] || [0])[0];
+const fishRar = id => isGdn(id) ? GDN_R[id - GDN_FIRST] : isIsy(id) ? ISY_ZR[id - ISY_FIRST][1] : isGet(id) ? GET_ZR[id - GET_FIRST][1] : isV2(id) || isIsx(id) ? rar2(id) : isBoss(id) ? 4 : isPty2(id) ? PTY2_RAR[id - PTY2_FIRST] : id < 100 ? rarOf(id % 20) : id < FISH_N ? rarOf((id - 100) % 20) : id === BOSS_ID || isMyth(id) ? 4 : id >= MK_FIRST ? MK_RAR[id - MK_FIRST] | 0 : id >= PTY_FIRST ? PTY_RAR[id - PTY_FIRST] | 0 : id >= ISLE_FIRST ? rarOf(id - ISLE_FIRST) : (SEASON_FISH[id - FISH_N] || [0])[0];
 /* 전설을 잡은 낚시터 (길잡이 보너스) */
 function legZones(save) { const d = (save && save.dex) || {}, out = []; for (const k in d) { const id = +k; if (!(d[k] && d[k].n > 0) || fishRar(id) !== 4) continue; const z = id < FISH_N ? (id < 100 ? Math.floor(id / 20) : Math.floor((id - 100) / 20)) + 1 : id >= ISLE_FIRST && id < PTY_FIRST ? 6 : 0; if (z && out.indexOf(z) < 0) out.push(z); } return out; }
 const enhDefault = () => ({ lv: 0, max: 0, tk: 0, star: 0, fl: 0, sure: 0, day: '', fp: 0, ft: 0, it: 0, idle: 0, pc: 0, pcd: 0, lit: 0, st: 0 });
@@ -394,7 +398,7 @@ const fetchMax = L => L >= 70 ? 3 : L >= 30 ? 2 : L >= 20 ? 1 : 0;
 const WISH_RW = [{ tk: 1, g: 200 }, { tk: 2, g: 500 }, { tk: 3, g: 1200 }, { tk: 4, g: 3000 }, { tk: 5, g: 8000 }];
 const fishZone = id => id < 100 ? Math.floor(id / 20) + 1 : Math.floor((id - 100) / 20) + 1;
 /* 물고기가 사는 낚시터 (index.html FISH의 zone과 같아요): 1~5 · 6 안개 섬 · 7 배낚시 · 8 물결 시장 */
-const placeOf = id => isIsy(id) ? ISY_ZR[id - ISY_FIRST][0] : isGet(id) ? GET_ZR[id - GET_FIRST][0] : isV2(id) || isIsx(id) ? zone2(id) : isBoss(id) || isPty2(id) ? 7 : isMyth(id) ? MYTH_Z[id - MYTH_FIRST] : id < FISH_N ? fishZone(id) : id < ISLE_FIRST ? (SEASON_FISH[id - FISH_N] || [0, 0])[1] : id < PTY_FIRST ? 6 : id < MK_FIRST ? 7 : 8;
+const placeOf = id => isGdn(id) ? 22 : isIsy(id) ? ISY_ZR[id - ISY_FIRST][0] : isGet(id) ? GET_ZR[id - GET_FIRST][0] : isV2(id) || isIsx(id) ? zone2(id) : isBoss(id) || isPty2(id) ? 7 : isMyth(id) ? MYTH_Z[id - MYTH_FIRST] : id < FISH_N ? fishZone(id) : id < ISLE_FIRST ? (SEASON_FISH[id - FISH_N] || [0, 0])[1] : id < PTY_FIRST ? 6 : id < MK_FIRST ? 7 : 8;
 /* 교환 규칙 (2026-11-04): 자유롭게. 물고기 · 아이템 · 골드를 섞어도, 한쪽만 줘도(선물) 돼요.
    안개 조각만 못 주고받아요 (섬은 모두 같이 시작). 손맛 도감 · 낚시터 문은 직접 낚아야만 올라서 주고받아도 대신 해 줄 수 없어요 */
 function tradeRule(a, b) {
