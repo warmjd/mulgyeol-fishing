@@ -96,3 +96,10 @@
 - 💠 꿈의 정수: 가질 수 있는 수 ES_MAX 1e9 · 칩→정수 한 주 10개 제한 없앰 (ess_chip n · all).
 - 🐾 반려동물 기분 (2026-11-18 · 업데이트 소식에 안 씀): S.cp.md 0~100 · 켜 둔 4분마다 -1 · 0이면 경험치 없음 · 80 이상 1.5배 · 쓰다듬기 +25 (20분) · 간식 하루 2번 가득 (cpPlay). 레벨 선물 CP_RW(10~99) = server cp_rw (cpLvS · CP_RWS · s.cprw 보존 목록) · 강화 상자 + 골드.
 - 로컬 서버 시험: scratchpad/stub/node_modules(express · supabase 가짜) + /opt/npm-tools/node_modules(ws)로 NODE_PATH 잡고 `PORT=8790 node server.js` → 메모리 저장 · localhost:8790 온라인 모드로 Playwright 가능.
+
+## 🎉 2026-11-18 구름 위 나라 그랜드 오픈 (조돌맹과 정함 · 이제 비밀 아님)
+- server GO_AT0 2026-11-21 21:00 KST (운영자 시험 탭에서 바꾸기 · V.go.at) · goOpen/goLand(x 3 · i 7 · p 14 · s 21일) · goWeek1(드랍 · 숨결 2배) · 늦은 개척자(14일 뒤 첫 입장 s.gin) 구름 경험치 2배.
+- 조건: 용사 Lv30 (alReady) · 나그네 1~4장은 미리 · cel_in은 오픈 뒤 · 오픈 전 길 고름 = s.gpre → 칭호 t_glamp · 1시간 안 t_gday · 첫 3명 t_gfoot (V.gf.foot).
+- ☁️ 구름 Lv: s.clv(경험치) · CLV_NEED 30+8L^1.6 · client cLv/hLv/hRealm · 구름 위 힘: 공격 8+Lv×3+장비 · 방어 · 체력은 용사 공식에 구름 Lv · 구름 장비 rq = CEL_RQ[g] · 첫 장비 1등급 rq1.
+- 몬스터 CF_SC로 줄였어요 (서버 CF_KINDS · client CF_K 같이) · 수호자 40만 · 빛구슬 120.
+- 최초 기록 V.gf (foot · lv30 · x · i · pk · s) · 시즌 4주 V.gr 순위 → V.gse 1~3등 강화 상자(특) + t_gking1~3. 'go' 메시지 · 'go_get'(순위) · 팻말 goSigns(마을 광장 · 별빛 광장) · goSheet.
