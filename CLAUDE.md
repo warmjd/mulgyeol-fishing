@@ -117,3 +117,12 @@
 ## ✨ 반짝 챕터 (2026-11-18 · 숨김 · 잠수함: 업데이트 소식 · 안내서 · 진행도 표시 없음, 완성한 쪽만 도감에 표시 · 마을 알림은 이름 없이 「새 별자리」)
 - 도감 한 쪽(PAGE_IDS[p]) 반짝을 다 모으면 client shchScan → 'shch' → server shchMsg (모두 반짝인지 확인) · s.shc[p] · s.shcx(그 물고기 반짝 ×2, shinyP) · 보존 목록 shc/shcx · 강화 상자(특) ×3 · 칭호 SHCH_TI (t_shch1/3/5) · V.shcf(챕터 최초 완성) · V.shcl · 마을 30분 반짝 축제(V.shf) · 'big'/'shch' 알림 · 'shch_ok' 축하 창.
 - 밤하늘에 「이름자리」 별자리 (skyDraw · 이름 씨앗) · 도감 쪽마다 .shch 줄 (최초 완성 이름).
+
+## 🎁 숨은 기쁨들 (2026-11-18 · 조돌맹 · 전부 잠수함: 업데이트 소식 · 안내서에 안 써요)
+- 🏰 깃발이 자라요: server F.o[z].t (꽂은 때) · 주가 바뀌어도 같은 사람이 다시 꽂으면 F.pv로 이어져요 · 'flags'/'flagc'에 ft · client FLAGT · flagStage(1일 풀 · 3일 꽃 · 5일 돌담 · 7일 작은 성 · 14일 빛나는 성) · drawFlagGrow · 이름표 「n일째」 · 3일 넘은 깃발을 뺏으면 'flag' wd → 무너짐 배너.
+- ⚡ 깃발 라이벌(F.sw 한 주 5번 주고받기 → rv · 이름표 ⚡) · 🚩 모든 물가의 주인(s.fall · FLAG_ZN 19곳 · t_fall) · 🪨 물결마을의 기억 비석(동상 옆 MM_P [13,21] · V.hof 주간 깃발 왕 + wfHist · 3주 연속 금빛 · 'hof_get'). ⚠️ hofDraw는 예전 명예의 전당(트로피) 이름이라 비석은 mm*.
+- 👑 1위 바뀌는 순간 폭죽 kingTake/skyFw · 1위 발자취 kingFoot(월척 물방울 · 용사 불꽃 · 강화 불티 · 기부 분홍 · 처치 수 상위 3명 KINGS.hk 그림자) · 두 왕관/물결의 군주(crownCheck · t_crown2/3).
+- ⚔️ 사냥: S.hu.kf/kb(사냥터별 처치 · 우두머리) · huFame(한 곳 5천 또는 모두 5만) → 약한 몬스터 도망 · 발자국 HUNT.fp · huBossMem(30 · 100번 · 용사 1위에겐 절) · 무기 it.kc(server) → rpName 앞말(손에 익은 · 천 번 벤 · 백전의 · 전설이 된).
+- 🔨 대장장이 위로: server e.cf 연속 실패 10번부터 50%로 +35%p (rolls sm).
+- 🐟 꽃배 +28 물고기 떼 · +30 별빛 발자국 (boatFx) · ✨ 도감 다 채운 낚시터 물 반짝(zoneDoneSet) · 🌼 켜 둔 시간 S.stats.pm 20시간마다 발밑 꽃(가만히 3초) · 🐾 펫 Lv50 물고기 물어 오기(CPFE · PFISH) · Lv99는 얼음 동상 곁 · 🌿 정원 일기 100일 빛 · 🪧 같은 자리 손맛 1,000마리 팻말(server spotCatch · s.spc · V.plq) · ⭐ 하늘 도감 59종 별(V.skyc · SKYD9) · 🌠 흔들의자 둘이 30분 → sw_wish · 🛍️ 경매 단골(KINGS.auc) · 🌸 7일 넘게 떠났다 오면 꽃(s.lo · 'wb').
+- 보존 목록에 fall · spc · lo 추가했어요.
