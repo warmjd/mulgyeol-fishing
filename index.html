@@ -179,7 +179,7 @@ body.photo>*:not(#cv):not(#tags):not(#photoBar):not(#sheetwrap):not(#askwrap):no
 canvas.isl{width:100%;height:auto;image-rendering:pixelated;border-radius:12px;border:3px solid #a8dcf0;display:block;touch-action:manipulation}canvas.isl.ed{touch-action:none}canvas.hm{width:100%;height:auto;image-rendering:pixelated;border-radius:12px;border:3px solid #e8d8c0;display:block;touch-action:manipulation}.hm-pick{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.hmic{width:48px;height:48px;image-rendering:pixelated;display:block;margin:0 auto 2px}
 .cell .hidz{position:absolute;left:1px;right:1px;bottom:1px;font-size:8.5px;line-height:1.1;color:#7a6aa0;background:rgba(255,255,255,.8);border-radius:4px;text-align:center;white-space:nowrap;overflow:hidden}
 body.swingview .hud,body.swingview #region,body.swingview #ticker,body.swingview #socbox,body.swingview #mmap,body.swingview #mmTog,body.swingview #walkbar,body.swingview #itpill,body.swingview #wallet,body.swingview #ptbar,body.swingview #trapbtn,body.swingview #bossbtn,body.swingview #seaev,body.swingview #pthome,body.swingview #eco,body.swingview #hint,body.swingview #bTalk,body.swingview #bAfk,body.swingview #bSlow,body.swingview #slowHud,body.swingview #bEco,body.swingview #skb,body.swingview #qpanel,body.swingview #banner,body.swingview #riftBtn,body.swingview #toast,body.swingview #tags>:not(.bub){opacity:0!important;pointer-events:none!important;transition:opacity 1s}
-body.swingview #stick{opacity:.18;transition:opacity 1s}body.swingview #act{opacity:.6;transition:opacity 1s}
+body.swingview>*:not(#cv):not(#tcv){opacity:0!important;pointer-events:none!important;transition:opacity 1.2s}body.swingview #tags{display:none!important}
 body.skyview #qpanel,body.skyview #dkpill,body.skyview #wfpill,body.skyview #mmap,body.skyview #mmTog,body.skyview #region,body.skyview #ticker,body.skyview #wallet,body.skyview #itpill,body.skyview .curb{opacity:0!important;pointer-events:none!important;transition:opacity .6s}
 #dkpill,#wfpill,#mmap,#region,#ticker,#wallet,#itpill{transition:opacity .6s}
 .fg-ess{text-align:center;margin:-2px 0 8px;font-size:12.5px;color:#6a4fc0;background:#f1ecff;border-radius:10px;padding:6px 8px}.fg-ess.soon{color:#8a7ab8;background:#f7f4ff}.fg-top .ess{background:#f1ecff}.fg-top .ess b{color:#6a4fc0}
@@ -3432,7 +3432,7 @@ const Snd=(()=>{
     horn(){const t=ctx.currentTime;[98,147].forEach(f=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=f;
       g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.15);g.gain.setValueAtTime(.05,t+1.1);g.gain.exponentialRampToValueAtTime(.0001,t+1.6);o.connect(g);g.connect(sfxBus);o.start(t);o.stop(t+1.7)})}
   };
-  function sfx(n,a){if(!ctx||vol.mute)return;try{S[n](a)}catch(e){}}
+  function sfx(n,a){if(!ctx||vol.mute||(typeof SWV!=='undefined'&&SWV))return;try{S[n](a)}catch(e){}}
   /* 오르골 음 하나 (2026-11-09): 배낚시 리듬 · 레비아 발판에 써요. 펜타토닉이라 어떤 순서로 쳐도 어울려요 */
   function chime(m,v){if(!ctx||vol.mute)return;try{bell(sfxBus,mtof(m),ctx.currentTime+.005,1.1,v||.32)}catch(e){}}
   function hfx(k){if(!ctx||vol.mute)return;const t=ctx.currentTime+.005;try{
@@ -13577,6 +13577,8 @@ function swMsg(m){if(m.t==='sw_no'){toast('🪑 자리가 다 찼어요');P.swin
 function swSit(i,k){const w=SWS[i],[cx0,cy0]=SWG[i];P.swing=[i,k];P.x=cx0*TS+8+(k?7:-7);P.y=cy0*TS+15;P.dir='up';P.moving=false;Snd.sfx('tap');
   if(ONLINE&&Net.me)Net.send({t:'sw_sit',i,k});else{w.s[k]=-1}
   if(!S.swTip){S.swTip=1;toast('🪑 박자에 맞춰 「밀기」 · 끝에 닿을 때 누르면 더 높이 올라가요 · 둘이 맞추면 그네처럼!')}}
+/* 🪑 흔들의자: 아무것도 안 보이니 화면을 두 번 톡톡 누르면 일어나요 */
+addEventListener('pointerdown',e=>{if(!SWV||!P.swing)return;e.preventDefault();e.stopPropagation();const t=performance.now();if(t-(swTap.t||0)<450){swTap.t=0;swUp()}else swTap.t=t},true);function swTap(){}
 function swUp(){if(!P.swing)return;const[i,k]=P.swing;P.swing=null;P.y+=12;if(blockedAt(P.x,P.y))P.y-=12;if(ONLINE&&Net.me)Net.send({t:'sw_up'});else SWS[i].s[k]=0}
 function swPush(){if(!P.swing)return;const i=P.swing[0],w=SWS[i],g=swGood(w);if(ONLINE&&Net.me){if(performance.now()-(swPush.t||0)<300)return;swPush.t=performance.now();Net.send({t:'sw_push',i})}else{const a=swAmp(w);w.A0=Math.min(SW_MAX,a+(g?.16:.03)*(1-a/SW_MAX*.6));w.tA=swNow();if(a<.05)w.t0=swNow()-800}
   Snd.sfx(g?'sparkle':'tap');const[sx,sy]=swSeat(i);for(let j=0;j<(g?8:3);j++)parts.push({x:sx+(Math.random()-.5)*20,y:sy+4,vx:(Math.random()-.5)*20,vy:8+Math.random()*10,life:.6,t:0,c:g?'#fff6c0':'rgba(255,255,255,.8)',g:0,s:1})}
