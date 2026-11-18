@@ -151,3 +151,8 @@
 - server 'flags'는 이제 flagsMsg() 하나로 (ft · rv · cs 빠지지 않게). client는 ft/cs가 있을 때만 갈아끼워요.
 - ✨ 명품관 2.0 (같은 밤): 테마 효과는 모두 새로 — rodSig k 'T_<t>'(테마 낚싯대) · 'T_<t>2'(각성 낚싯대 thr2_ 15억) → RFX → rfxDraw default thRfx · 찌 'Tb_<t>' → thBobSig · 낚싯대 끝 tip 'th:<t>' → thTip(TH_TIP). 발자국 ftt_(FOOT_FX/FX_COL th<t>) · 이름표 tft_(FRAME_COL + 주입 CSS .ntag.tft_). lux2 블록은 FX_COL 정의 바로 뒤 (TDZ). TH_SLOT 10칸 · 칭호는 7칸 이상.
 - 🏰 성 전시장: CSTX 6 (pg 누각 · cd 사탕 · ic 얼음 · mu 버섯 · co 산호 · tr 나무 위) · xCastle · server cstOf 정규식에 같이.
+
+## 🌊 따라잡기 (2026-11-18 밤 · 조돌맹 · 잠수함: 업데이트 소식 · 안내서 · 화면 표시 없음)
+- 그 분야 1~3등이 아니면: server cuTop(key, f) (rosterCache 30초 캐시 · sd 손맛 · sh 반짝 · gt 월척 · hl 전투력) → 반짝 shinyP ×3 (sh) · giveTk 강화권 ×2 (sd) · clvAdd 구름 경험치 ×2 (hl) · checkSave 골드 검사 ×2 (sd).
+- client CU3 (roster list로 같은 기준 · list에 hl 추가) · cuX(f,m) → 행운 · 판매가 ×2 (sd) · 월척 확률 ×2 (gt) · 사냥 경험치 ×2 (hl). 오프라인은 ×1.
+- 반려동물 경험치는 조돌맹이 「늘 같게」라고 해서 안 넣었어요.

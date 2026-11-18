@@ -285,7 +285,7 @@ function navCost(o, n) {
   const la = o.lamp | 0, lb = n.lamp | 0; if (lb < la || lb > 5) return -1; for (let L = la; L < lb; L++) c += LAMP_SH[L];
   return c;
 }
-function checkSave(old, neu, elapsedMs, extra) {
+function checkSave(old, neu, elapsedMs, extra, gx) {
   if (!neu || typeof neu !== 'object') return '저장 형식이 이상해요';
   old = old || { inv: {}, dex: {}, gold: 60, rev: 0 };
   if ((neu.rev | 0) < (old.rev | 0)) return 'stale';
@@ -313,7 +313,7 @@ function checkSave(old, neu, elapsedMs, extra) {
   if (!Number.isFinite(g1) || g1 < 0) return '골드가 이상해요';
   // 판매가 보너스(도감 · 단골 2배 · 상인 · 요리 · 정복 · 시세)를 다 겹쳐도 넘지 않게 넉넉히 4배
   // (예전엔 return이 주석 안에 들어가 있어서 이 검사가 꺼져 있었어요)
-  if (g1 - g0 + gateCost > soldValue * 8 * enhSell(old.enh && old.enh.lv) + 50) return gateCost ? '문 값을 내지 않고 낚시터가 열렸어요' : '판 것보다 골드가 많이 늘었어요';
+  if (g1 - g0 + gateCost > soldValue * 8 * (gx || 1) * enhSell(old.enh && old.enh.lv) + 50) return gateCost ? '문 값을 내지 않고 낚시터가 열렸어요' : '판 것보다 골드가 많이 늘었어요';
   const nav = navCost(old.nav, neu.nav); if (nav < 0) return '섬 장비 기록이 이상해요';
   const sh0 = itemsOf(old).shard | 0, sh1 = itemsOf(neu).shard | 0;
   if (sh1 > sh0 - nav) return nav ? '안개 조각이 모자란데 섬 장비가 올랐어요' : '안개 조각이 저절로 늘었어요';
@@ -679,7 +679,7 @@ wss.on('connection', (ws) => {
       me.b = Number.isInteger(m.b) && m.b >= 0 && m.b < 100000 ? m.b : 0; me.f = (m.f | 0) >= 0 && (m.f | 0) <= 4 ? m.f | 0 : 0;   // 낚시 단계 (친구 화면에 입질 · 줄다리기 · 낚아채기) // 낚시 중인 찌 위치 (친구 화면에 낚싯대 · 찌 스킨)
     } else if (m.t === 'save' && m.data && typeof m.data === 'object') {
       withLock(me.key, () => {
-        const now = Date.now(), tc = me.trapCred && now - me.trapCred.t < 120000 ? me.trapCred.n : 0, err = checkSave(me.save, m.data, now - (lastSaveAt.get(me.key) || 0), tc);   /* 🪤 통발로 한 번에 많이 걷은 만큼은 봐줘요 (2026-11-18 고침) */
+        const now = Date.now(), tc = me.trapCred && now - me.trapCred.t < 120000 ? me.trapCred.n : 0, err = checkSave(me.save, m.data, now - (lastSaveAt.get(me.key) || 0), tc, cuTop(me.key, 'sd') ? 1 : 2);   /* 🪤 통발로 한 번에 많이 걷은 만큼은 봐줘요 (2026-11-18 고침) */
         if (err === 'stale') return;                    // 교환 전 옛 가방: 무시 (곧 새 가방이 다시 와요)
         if (err) {
           console.warn('저장 거절', me.name, err);
@@ -1727,8 +1727,10 @@ const packTxt = (P, up) => '🎫 강화권 +' + P.tk + ' · 💠 정수 +' + P.e
 async function enhPack(key, tier, why, n) { const P0 = PACK[tier]; if (!P0) return; n = n || 1; const P = { tk: P0.tk * n, es: P0.es * n, st: P0.st * n };
   return withLock(key, async () => { const s = await loadSave(key); if (!s) return; const up = enhApply(s, P.tk, P.es, P.st); s.rev = (s.rev | 0) + 1; queueSave(key, s); const txt = '📦 ' + why + ' · ' + packTxt(P, up);
     const l = liveByKey(key); if (l && l[1].save === s) sendEnh(l[0], l[1], { rev: s.rev, note: [txt] }); else addMail(key, txt); }).catch(e => console.error('pack', e.message)); }
+/* 🌊 따라잡기 (2026-11-18 · 잠수함 · 말 안 해요): 그 분야 1~3등이 아니면 반짝 ×3 · 강화권 ×2 · 구름 경험치 ×2 · 판매 골드 검사 ×2 (화면: 행운 · 판매가 · 월척 · 사냥 경험치 ×2) */
+let CU_T = 0, CU_S = {}; function cuTop(key, f) { const now = Date.now(); if (now - CU_T > 30000) { CU_T = now; CU_S = {}; for (const k of ['sd', 'sh', 'gt', 'hl']) CU_S[k] = new Set([...rosterCache.entries()].filter(([, r]) => (r[k] | 0) > 0).sort((a, b) => (b[1][k] | 0) - (a[1][k] | 0)).slice(0, 3).map(([q]) => q)); } return !!(CU_S[f] && CU_S[f].has(key)); }
 async function giveTk(key, n, note) {
-  n = Math.round(n * TK_X); const es = Math.max(1, Math.round(n / 5)); if (note) note = note.replace(/강화권 \+\d+/, '강화권 +' + n + ' · 💠 +' + es);
+  n = Math.round(n * TK_X * (cuTop(key, 'sd') ? 1 : 2)); const es = Math.max(1, Math.round(n / 5)); if (note) note = note.replace(/강화권 \+\d+/, '강화권 +' + n + ' · 💠 +' + es);
   const s = await loadSave(key); if (!s) return; const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + n); e.es = Math.min(ES_MAX, (e.es | 0) + es); if (note) out.push(note); queueSave(key, s);
   const l = liveByKey(key); if (l && l[1].save === s) sendEnh(l[0], l[1], { note: out }); else if (note) addMail(key, note);
 }
@@ -2573,7 +2575,7 @@ const SHX_PRICE = 1e6, BAIT_SHOP = { b_legend_s: 4e5, b_myth: 5e5, b_shx: 1e6, b
 const baitUsed = (o, nw, k) => Math.max(0, (((o && o.items) || {})[k] | 0) - (((nw && nw.items) || {})[k] | 0));   // 💎 반짝 3배 미끼 (2026-11-11): 상점 1개 100만 · 던질 때 1개 · 그 판에 낚은 물고기 반짝 확률 3배
 /* ✨ 반짝 (2026-11-12): 입질 순간 서버가 반짝을 정하고, 반짝이면 무조건 어려운 줄다리기 · 끝까지 감아야 반짝으로 남아요 */
 const SH_X = +process.env.SH_X || 1;   // 시험용 배율 (평소 1)
-const shinyP = (me, s, id, bx) => SH_X * (shKingKey() === me.key ? 1.15 : 1) * (s && s.shcx && s.shcx[id] ? 2 : 1) * /* ✨ 내가 완성한 반짝 챕터 물고기 ×2 */   /* 반짝 1위 +15% (말 안 해요) */ ((isMyth(id) || isUlt(id)) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1) * (fireOn() ? 1.5 : 1) * (shfOn() ? 1.5 : 1) * (bx ? 3 : 1);
+const shinyP = (me, s, id, bx) => SH_X * (shKingKey() === me.key ? 1.15 : 1) * (cuTop(me.key, 'sh') ? 1 : 3) * (s && s.shcx && s.shcx[id] ? 2 : 1) * /* ✨ 내가 완성한 반짝 챕터 물고기 ×2 */   /* 반짝 1위 +15% (말 안 해요) */ ((isMyth(id) || isUlt(id)) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1) * (fireOn() ? 1.5 : 1) * (shfOn() ? 1.5 : 1) * (bx ? 3 : 1);
 function shinyAsk(ws, me, m) { const s = me.save, id = m.f | 0; if (!s || !validFish(id) || isGet(id)) return; const now = Date.now(); if (now - (me.shqT || 0) < 1200) return send(ws, { t: 'shq', f: id, sh: false }); me.shqT = now;
   const bx = m.bx && (((s.items || {}).b_shx) | 0) > 0, sh = Math.random() < shinyP(me, s, id, bx); me.shP = { f: id, t: now, sh }; send(ws, { t: 'shq', f: id, sh }); }
 /* ✨ 반짝 챕터 완성 (2026-11-18 · 조돌맹): 반짝 도감 한 페이지를 다 모으면 · 마을 전체 소식 + 30분 반짝 축제 · 강화 상자(특) ×3 · 그 챕터 반짝 ×2 · 밤하늘에 내 별자리 · 최초 완성자 기록 */
@@ -3215,7 +3217,7 @@ function goFirst(k, name, text) { if (!V) return; const F = V.gf = V.gf || {};
 /* ☁️ 구름 Lv: 구름 위에서 사냥 · 낚시하면 올라요 · 마을 용사 레벨과 따로 (구름 위 힘은 이걸로) */
 const CLV_NEED = L => Math.round(30 + 8 * Math.pow(L, 1.6)), CLV_CUM = [0, 0]; for (let L = 1; L < 99; L++) CLV_CUM[L + 1] = CLV_CUM[L] + CLV_NEED(L);
 const clvOf = s => { const x = Math.max(0, +(s && s.clv) || 0); let L = 1; while (L < 99 && x >= CLV_CUM[L + 1]) L++; return L; };
-function clvAdd(ws, p, s, n) { if (!(n > 0) || !s) return; if (s.gin && s.gin > goAt() + GO_LATE * 864e5) n *= 2;   /* 늦은 개척자 2배 */
+function clvAdd(ws, p, s, n) { if (!(n > 0) || !s) return; if (p && p.key && !cuTop(p.key, 'hl')) n *= 2; if (s.gin && s.gin > goAt() + GO_LATE * 864e5) n *= 2;   /* 늦은 개척자 2배 */
   const b = clvOf(s); s.clv = Math.round((+s.clv || 0) + n); const L = clvOf(s);
   if (p && !p.admin && V && goOpen() && !V.gse) { V.gr = V.gr || {}; V.gr[p.key] = [p.name, s.clv, L]; vMark(); }
   if (ws) send(ws, { t: 'clv', xp: s.clv, up: L > b ? L : 0 });
@@ -3480,7 +3482,7 @@ setInterval(() => { if (V && V.dk && V.dk.d !== kstDay() && !V.dk.paid) { dayClo
 function rosterSoon() { clearTimeout(rosterT); rosterT = setTimeout(rosterSend, 500); }
 function rosterSend(force) {
   const live = new Set([...players.values()].map(p => p.key));
-  const list = [...rosterCache.entries()].map(([k, r]) => ({ name: r.name, job: r.job, lv: r.lv, on: live.has(k), sit: r.sit && live.has(k), sd: r.sd | 0, gt: r.gt | 0, sh: r.sh | 0, help: r.help | 0, jr: r.jr | 0 }));
+  const list = [...rosterCache.entries()].map(([k, r]) => ({ name: r.name, job: r.job, lv: r.lv, on: live.has(k), sit: r.sit && live.has(k), sd: r.sd | 0, gt: r.gt | 0, sh: r.sh | 0, hl: r.hl | 0, help: r.help | 0, jr: r.jr | 0 }));
   const vdex = [...new Set([...rosterCache.values()].flatMap(r => r.dex || []))].sort((a, b) => a - b);   // 마을 도감: 모두가 만난 물고기
   const note = vNote && vNote.d === kstDay() ? vNote : null, paths = [...new Set([...rosterCache.values()].flatMap(r => r.legs || []))].sort();
   // 누릉이가 따라다니는 '오늘의 주인공': 오늘 직접 제일 많이 낚은 친구. 아직 아무도 안 낚았으면 30분마다 접속한 친구를 돌아가며
