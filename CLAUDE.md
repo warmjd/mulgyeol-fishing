@@ -149,3 +149,5 @@
 - 세트: thMine() · server thCountS → look.th 'dr5'(3칸부터) → thAura 오라 · 7칸이면 client 'thset' → server 확인 후 t_th_* 칭호 + big 소식.
 - 명품관 openLux/renderLux (테마 카드 → 7칸만 그림 · luxIcon 캐시) · 메뉴 성장 「명품관」 · 치장 상점 맨 위 버튼 · 일반 치장 상점에선 c.lux 숨김. tidySheet가 .muted 긴 글을 지워서 TIDY_SKIP에 .luxi/.luxh/.luxc.
 - server 'flags'는 이제 flagsMsg() 하나로 (ft · rv · cs 빠지지 않게). client는 ft/cs가 있을 때만 갈아끼워요.
+- ✨ 명품관 2.0 (같은 밤): 테마 효과는 모두 새로 — rodSig k 'T_<t>'(테마 낚싯대) · 'T_<t>2'(각성 낚싯대 thr2_ 15억) → RFX → rfxDraw default thRfx · 찌 'Tb_<t>' → thBobSig · 낚싯대 끝 tip 'th:<t>' → thTip(TH_TIP). 발자국 ftt_(FOOT_FX/FX_COL th<t>) · 이름표 tft_(FRAME_COL + 주입 CSS .ntag.tft_). lux2 블록은 FX_COL 정의 바로 뒤 (TDZ). TH_SLOT 10칸 · 칭호는 7칸 이상.
+- 🏰 성 전시장: CSTX 6 (pg 누각 · cd 사탕 · ic 얼음 · mu 버섯 · co 산호 · tr 나무 위) · xCastle · server cstOf 정규식에 같이.
