@@ -338,6 +338,8 @@ const enhDefault = () => ({ lv: 0, max: 0, tk: 0, star: 0, fl: 0, sure: 0, day: 
 const streakBonus = st => st >= 7 ? 3 : st >= 3 ? 1 : 0;   // 연속 출석: 3일째부터 +1, 7일째부터 +3
 const CATCH_GAP = 5, CATCH_TK = 3;
 /* 2026-11-13 따라잡기 할인: 강화 1위보다 2단계 낮으면 안전 강화 골드 -40%, 3단계 이상이면 -60% (index.html catchDisc와 같아요) */
+/* 🌊 강화 1위의 지원 (2026-11-18 · 조돌맹): 강화 1위(광장 동상 주인)보다 낮을수록 · 1단계마다 성공 +5%p (최대 +25%p) · 성공하면 별 ×(1 + 0.6×차이, 최대 ×4) · 2단계 이상 낮으면 실패해도 별 · 정수를 안 잃어요 (index.html enhCU와 같아요) */
+const enhCU = L => { const g = champ ? (champ.lv | 0) - (L | 0) : 0; return g >= 1 ? { g, p: Math.min(.25, .05 * g), sx: Math.min(4, 1 + .6 * g), safe: g >= 2 } : null; };
 const catchDisc = lv => { const g = champ ? (champ.lv | 0) - (lv | 0) : 0; return g >= 3 ? .6 : g >= 2 ? .4 : 0; };
 const BAG_STARS = 40;   // 🌰 강화 별 주머니: 별 +40 (넘치면 다음 단계로 이어져요)   // 따라잡기: 광장 동상 주인보다 5단계 이상 낮으면 출석 강화권 +2
 const kstDay = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
@@ -351,7 +353,7 @@ function enhDaily(e, out) {
   e.day = d; e.ft = 0; e.it = 0; e.idle = 0; e.pcd = 0;
   const gap = champ ? (champ.lv | 0) - (e.lv | 0) : 0, cu = gap >= 10 ? 6 : gap >= CATCH_GAP ? CATCH_TK : 0;   // 따라잡기: 5단계 뒤 +3 · 10단계 뒤 +6
   const n = ENH.DAILY + streakBonus(e.st) + cu; e.tk = Math.min(ENH.TK_MAX, e.tk + n);
-  out.push('오늘의 출석 강화권 ' + n + '장!' + (e.st > 1 ? ' (연속 ' + e.st + '일째)' : '') + (cu ? ' · 따라잡기 +' + cu : ''));
+  out.push('오늘의 출석 강화권 ' + n + '장!' + (e.st > 1 ? ' (연속 ' + e.st + '일째)' : '') + (cu ? ' · 강화 1위 ' + champ.name + ' 님의 지원 +' + cu : ''));
 }
 function enhAddPoints(e, pts, out) {
   if (e.ft >= ENH.FISH_CAP) { e.fp = 0; return; }
@@ -378,11 +380,11 @@ function enhRoll(e, mode, gold, disc) {
   e.tk--; e.star = e.star | 0; e.fl = e.fl | 0; if (L >= ENH.ESS_FROM) e.es--;
   const ticket = (e.sure | 0) > 0; if (ticket) e.sure--;   // 도토리 확정권
   const cat = (e.cat | 0) > 0 ? .15 + .1 * (e.catk | 0) : 0; if (cat) e.cat--;   // 공방 장인 강화 촉매
-  const sure = ticket || (mode === 'safe' && e.fl >= ENH.K[L]), ok = sure || Math.random() < ENH.P[L] + cat;
+  const cu = enhCU(L), sure = ticket || (mode === 'safe' && e.fl >= ENH.K[L]), ok = sure || Math.random() < ENH.P[L] + cat + (cu ? cu.p : 0);
   let k, ds = 0;
   if (ticket) { ds = Math.max(1, ENH.S[L] - (e.star | 0)); k = 'sure'; e.fl = 0; }   // 도토리 확정권: 별을 다 채워서 바로 다음 단계
-  else if (ok) { ds = mode === 'safe' ? 1 : (Math.random() < .1 ? 6 : 3); k = ds >= 6 ? 'jack' : 'up'; e.fl = 0; }
-  else { k = 'keep'; if (mode === 'safe') e.fl++; else if (L >= 5 && e.star > 0) { ds = -1; k = 'down'; } }
+  else if (ok) { ds = mode === 'safe' ? 1 : (Math.random() < .1 ? 6 : 3); k = ds >= 6 ? 'jack' : 'up'; e.fl = 0; if (cu) ds = Math.round(ds * cu.sx); }
+  else { k = 'keep'; if (mode === 'safe') e.fl++; else if (L >= 5 && e.star > 0 && !(cu && cu.safe)) { ds = -1; k = 'down'; } if (cu && cu.safe && L >= ENH.ESS_FROM) e.es = (e.es | 0) + 1; }
   e.star = Math.max(0, e.star + ds);
   while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; e.fl = 0; if (e.lv < ENH.MAX) e.star = Math.min(e.star, ENH.S[e.lv] - 1); else e.star = 0; }
   e.max = Math.max(e.max, e.lv);
@@ -641,7 +643,7 @@ wss.on('connection', (ws) => {
         broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
         send(ws, { t: 'ice', list: icePub().filter(e => e.n !== p.name) }); iceOff(p);   // ❄️ 나간 자리 얼음
         send(ws, { t: 'trc', list: trcPub() });   // 🎣 낚시 자리의 흔적
-        send(ws, { t: 'flags', o: flagPub(), f: flagSf(), gz: (flagOf() || {}).gz || 0 }); flagPay(ws, p); send(ws, goPub()); for (let i = 0; i < SW_N; i++) if (SW[i].s[0] || SW[i].s[1] || SW[i].A0) send(ws, swPub(i));   /* 🎉 그랜드 오픈 */   /* 🚩 낚시터 깃발 */
+        send(ws, { t: 'flags', o: flagPub(), f: flagSf(), gz: (flagOf() || {}).gz || 0 }); flagPay(ws, p); try { supBox(ws, p); } catch (e) { } send(ws, goPub()); for (let i = 0; i < SW_N; i++) if (SW[i].s[0] || SW[i].s[1] || SW[i].A0) send(ws, swPub(i));   /* 🎉 그랜드 오픈 */   /* 🚩 낚시터 깃발 */
         if (p.save) curMigrate(p.save);
         if (p.save) { const e = enhOf(p.save), out = []; enhDaily(e, out); enhSession(e, out); { const l0 = e.lv | 0; e.star = e.star | 0; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv); if (e.lv > l0) out.push('🎉 강화 3.0! 모아 둔 별로 +' + l0 + ' → +' + e.lv); } rankSet(key, p.name, e, p.look); sendEnh(ws, p, { note: out }); if (out.length) queueSave(key, p.save); }
         send(ws, { t: 'champ', c: champPub() });
@@ -700,7 +702,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw', 'clv', 'gin', 'gpre']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw', 'clv', 'gin', 'gpre', 'wsp']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         for (const k of ['skyd', 'skyn']) if (me.save && me.save[k] != null) m.data[k] = me.save[k];   /* ☁️ 하늘 도감은 서버가 적어요 (서버에 아직 없으면 화면 것을 받아요) */
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
@@ -798,6 +800,9 @@ const flagPub = () => { const F = flagOf(), o = {}; if (F) for (const z in F.o) 
 const flagSf = () => { const F = flagOf(), o = {}; if (F) for (const z in F.o) if (F.o[z].sf) o[z] = F.o[z].sf; return o; };
 function flagCatch(me, f, sh) { const F = flagOf(); if (!F || !me.here) return; const z = placeOf(f); if (!z || z === 7 || z > 30) return; const Z = F.z[z] = F.z[z] || {}; const e = Z[me.key] = Z[me.key] || { n: me.name, c: 0 }; e.c += sh ? 3 : 1; /* 반짝은 3마리로 (안내엔 안 써요) */ e.n = me.name; vMark();
   const cur = F.o[z]; if (!cur || (cur.k !== me.key && e.c > ((Z[cur.k] && Z[cur.k].c) | 0))) { const was = cur && cur.n, sf = sfOf(me.save); F.o[z] = { k: me.key, n: me.name, sf }; broadcast({ t: 'flag', z, n: me.name, was: was || '', sf }); } }
+/* 🌊 이번 주 응원 상자 (2026-11-18): 월요일부터 첫 접속 때 · 전투력 1위의 절반이 안 되면 강화 상자(대) · 3/4이 안 되면 (중) · 1위 이름으로 */
+function supBox(ws, p) { const s = p.save; if (!s || p.admin) return; const w = wkId(); if (s.wsp === w) return; const K = xKing.hl, top = K ? K.n | 0 : 0; if (!top || K.key === p.key) return; s.wsp = w; queueSave(p.key, s);
+  const r = cpOf(s) / top; if (r >= .75) return; enhPack(p.key, r < .5 ? 'A' : 'B', '⚔️ 전투력 1위 ' + K.name + ' 님의 응원 상자 (이번 주)'); }
 function flagPay(ws, me) { if (V && V.fgpend && V.fgpend[me.key]) { delete V.fgpend[me.key]; vMark(); enhPack(me.key, 'S', '🌟 지난주 황금 깃발 강화 상자'); changeBag(me.key, { g: FLAG_GG }, '🌟 지난주 황금 깃발 · 골드 ' + FLAG_GG.toLocaleString()).catch(() => { }); }
   if (!V || !V.fpend || !V.fpend[me.key]) return; const n = V.fpend[me.key] | 0; delete V.fpend[me.key]; vMark();
   withLock(me.key, () => { const s = me.save; if (!s) return; const E = enhOf(s); E.tk = Math.min(ENH.TK_MAX, E.tk + FLAG_TK * n); s.gold = (Number(s.gold) || 0) + FLAG_G * n; s.rev = (s.rev | 0) + 1; queueSave(me.key, s);

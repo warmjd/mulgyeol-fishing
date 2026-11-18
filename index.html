@@ -4466,7 +4466,8 @@ function huProps(fi){const f=HFIELDS[fi],W_=HUNT.W,H_=HUNT.H,r=RNG(fi*977+31),T_
 const HREQ=[0,2,5,8,12,16,21,27,34,42,10,55,70,90],HATK=[4,9,15,22,30,40,52,66,82,100,40,160,240,340];
 /* 🎚️ 사냥 난이도 (2026-11-12): 쉬움 · 보통 · 악몽 — 같은 사냥터를 내 실력에 맞게. 악몽 보상은 힘이 아니라 치장 · 칭호 · 기록 (server.js hunt_kill df와 같아요) */
 /* 🏹 따라잡기 경험치 (2026-11-12): 마을 최고 용사 레벨보다 낮을수록 경험치를 더 (10렙 ×1.5 · 20렙 ×2 · 30렙 ×3) */
-let HUTOP=0;const huCatch=()=>{const d=HUTOP-huS().lv;return d>=30?3:d>=20?2:d>=10?1.5:1};
+/* 2026-11-18 더 세게: 1위와 5레벨 이상 차이부터 · 1레벨마다 +5% (최대 ×4) · 「용사 1위 ○○의 격려」 */
+let HUTOP=0,HUTOPN='';const huCatch=()=>{const d=HUTOP-huS().lv;return d>=5?Math.round(Math.min(4,1+.05*d)*100)/100:1};
 const HDF=[{n:'쉬움',c:'#5ab06a',hp:.45,atk:.45,xp:.7,req:.5},{n:'보통',c:'#5a8ae0',hp:1,atk:1,xp:1,req:1},{n:'악몽',c:'#7a3ac0',hp:3,atk:2.2,xp:2,req:1}];
 const hdf=()=>Math.max(0,Math.min(2,S.hdf==null?1:S.hdf|0));
 /* 🔐 사냥터 순서: 앞 사냥터 우두머리를 쓰러뜨려야 다음이 열려요 + 권장 방어력 미만이면 못 들어가요 */
@@ -4964,7 +4965,7 @@ function openHunt(){Snd.sfx('ui');huS();if(ONLINE&&Net.me&&!HUTOP)Net.send({t:'v
     ['w','a'].map(k=>'<div class="sec">'+(k==='w'?'⚔️ 무기 주문서':'🛡️ 방어구 주문서')+'</div>'+[100,60,10].map(p=>{const id=k+p;return'<div class="row"><div class="nm"><div><b>'+p+'%</b> · 성공하면 +'+SCR_G[p]+' <span class="muted" style="font-size:12px">가진 것 '+scrN(id)+'장</span></div></div></div>'}).join('')).join('')}
   else if(RPG_TAB==='field')b+='<div class="wishc" style="background:#f3ecff;border-color:#c8b4f0;font-size:12.5px;line-height:1.6">🌀 <b>꿈의 세계</b> · 꿈의 문 너머엔 물고기들의 꿈이 모인 숲들이 있어요. 가장 깊은 곳 <b>악몽 숲</b>(용사 Lv15)엔 안개 요정 <b>모르페</b>가 산대요. 모든 꿈방울은 모르페의 장난이래요…</div><div class="muted" style="font-size:12px;line-height:1.6">🫧 <b>한 판</b> = 갇힌 친구들을 모두 구하고(물결 3번) → <b>꿈의 주인</b>을 깨우면 정화 완료 · ⭐별점(4분 안에 · 피해 적게)<br>몬스터는 <b>무리</b>로 와요 · 몸에 닿기만 해도 아파요 · 빨간 표시엔 <b>구르기</b>(2번 충전) · 도감에 없는 종은 1/4 피해 · 쓰러지면 경험치 30%와 칩 3%를 잃어요</div>'+
       '<div class="sec">난이도</div><div class="hdfrow">'+HDF.map((d,i)=>'<button class="hdfb'+(hdf()===i?' on':'')+'" data-hdf="'+i+'" style="--c:'+d.c+'"><b>'+d.n+'</b><small>'+['몬스터가 약해요 · 보상 적게','지금 그대로','몬스터 체력 3배 · 칩 2.2배 · 악몽 치장 · 칭호'][i]+'</small></button>').join('')+'</div>'+
-      (huCatch()>1?'<div class="hcatch">🏹 따라잡기 경험치 <b>×'+huCatch()+'</b> <small>마을 최고 용사 Lv'+HUTOP+' · 차이가 줄면 배율도 줄어요</small></div>':'')+
+      (huCatch()>1?'<div class="hcatch">⚔️ 용사 1위 <b>'+esc(HUTOPN||'용사')+'</b> 님의 격려 · 경험치 <b>×'+huCatch()+'</b> <small>1위 Lv'+HUTOP+'와 '+(HUTOP-huS().lv)+'레벨 차이 · 가까워지면 배율도 줄어요</small></div>':'')+
       '<div class="muted" style="font-size:11.5px;margin:4px 0 8px;line-height:1.6">우두머리 <b>큰 보상</b>은 사냥터 · 난이도마다 <b>주 1번</b> · 가까이서 같이 싸운 친구도 받아요'+(hdf()===2?' · 악몽은 보통으로 정화한 곳만 · 악몽 정화 '+Object.keys(S.hunt.nclr||{}).length+'/10':'')+'</div>'+
       '<div class="sec">사냥터 고르기 <span class="cnt">친구와 가까이서 함께 싸우면 경험치 +30% · 칩·드랍 +20% (1명당, 3명까지)</span></div><div class="menu">'+HFIELDS.map((f,i)=>{const fr=Object.keys(HOTH).filter(n=>HOTH[n].f===i&&Date.now()-HOTH[n].at<4000),lk=hfLock(i),cl=(huS().clr||{})[i];return'<button class="mbtn" data-hf="'+i+'"'+(lk?' disabled':'')+'>'+(lk?'🔒 ':cl?'✅ ':'⚔️ ')+f.n+'<small>'+(lk?lk+(f.abyss?' · ☁️ 천상계의 하늘빛이 있어야 깊이 닿아요':''):'위험도 '+'★'.repeat(Math.min(5,1+(f.t>>1)))+' · 권장 공격 '+HATK[i]+' · 방어 '+HREQ[i]+(f.abyss?' · <b style="color:#4a7ad0">☁️ 하늘빛 ×'+abyssSky().toFixed(1)+'</b> (구름 Lv'+cLv()+')'+(abyssMiss(i)?' · <b style="color:#d0407a">도감 빈 종 '+abyssMiss(i)+' → 우두머리 ×'+abyssBossX(i).toFixed(1)+'</b>':' · 도감 완성 ✓'):'')+(cl?' · '+'⭐'.repeat((S.hunt.star||{})[i]|0)+'☆'.repeat(3-((S.hunt.star||{})[i]|0)):'')+(fr.length?' · ⚔️ '+fr.join(', '):''))+'</small></button>'}).join('')+'</div>';
   else{const buy=(k,names)=>{const n=(h[k]|0)+1,P=HUNT_PRICE[k];return'<div class="row"><div class="nm"><div><b>'+names[h[k]|0]+'</b>'+(n<P.length?' → '+names[n]:' (최고)')+'</div><div class="muted" style="font-size:12px">'+(k==='w'?'단계마다 공격 +2 · 전체 공격력 +8% (무기 종류 상관없이)':k==='a'?'단계마다 방어 +2 · 체력 +5':'단계마다 걸음 +8%')+'</div></div><div class="go">'+(n<P.length?'<button class="btn sm pink" data-hb="'+k+'"'+(c>=P[n]?'':' disabled')+'>칩 '+fmtShort(P[n])+'</button>':'')+'</div></div>'};
@@ -5354,7 +5355,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1118d',UPD_LOG=[
+const UPD_VER='1118e',UPD_LOG=[
+ ['11/18 오후 🌊 1위의 응원','🌊',[['🎣 낚시 강화 1위의 지원','강화 1위보다 낮으면 1단계마다 성공 +5%p (최대 +25%p) · 성공하면 별이 차이만큼 더 (최대 ×4) · 2단계 이상 낮으면 실패해도 별 · 꿈의 정수를 안 잃어요 · 강화소에 1위 이름으로 보여요'],['⚔️ 용사 1위의 격려','용사 1위보다 5레벨 이상 낮으면 사냥 경험치 1레벨 차이마다 +5% (최대 ×4) · 예전 따라잡기 경험치(×1.5~3)보다 세졌어요'],['⚔️ 이번 주 응원 상자','월요일부터 첫 접속 때 · 전투력이 1위의 절반이 안 되면 강화 상자(대), 3/4이 안 되면 강화 상자(중)']]],
  ['11/18 🌟 황금 깃발','🌟',[['🌟 이번 주 황금 깃발','매주 월요일 낚시터 한 곳에 반짝이는 황금 깃발이 서요 · 그 주 주인은 다음 주에 👑 강화 상자(특) + 💰 2억을 더 받아요 · 깃발 창 맨 위에서 어디인지 볼 수 있어요']]],
  ['11/18 🪑 하늘 보는 흔들의자','🪑',[['🪑 흔들의자 둘','마을 북쪽 끝(하늘이 보이는 곳)에 둘이 나란히 앉는 흔들의자가 생겼어요 · 친구와 같이 앉으면 하트가 퐁퐁'],['🌬️ 밀기','의자가 끝에 닿을 때 「밀기」를 누르면 더 높이 · 둘이 박자를 맞추면 그네처럼 하늘까지! · 가만두면 천천히 잦아들어요']]],
  ['11/18 ⛵ 꽃배','⛵',[['⛵ 물 위에선 천천히','+25 꽃배로 물 위를 지날 때 땅의 절반 빠르기로 바뀌었어요 (예전엔 땅과 같았어요) · 물에 들어가고 나올 때 부드럽게 빨라지고 느려져요']]],
@@ -6735,6 +6737,7 @@ const afkCap=()=>AFK_CAP+10*rk('fish','afk')+(typeof cpAfk==='function'?cpAfk():
 const walkSpeed=()=>(1+.05*rk('com','speed'))*(typeof coldMul==='function'?coldMul():1);
 const petCdMs=()=>(10-2*rk('com','hand'))*60000;
 const gearGold=g=>Math.round(g*(1-.06*rk('mer','disc')));
+const enhCU=L=>{const g=ONLINE&&CHAMP?(CHAMP.lv|0)-(L|0):0;return g>=1?{g,p:Math.min(.25,.05*g),sx:Math.min(4,1+.6*g),safe:g>=2}:null};   /* 🌊 강화 1위의 지원 (server.js enhCU와 같아요) */
 const catchDisc=lv=>{const c=ONLINE&&CHAMP?CHAMP.lv|0:0,g=c-(lv|0);return g>=3?.6:g>=2?.4:0};   // 2026-11-13 따라잡기 할인 (server.js catchDisc와 같아요)
 const enhCost=L=>Math.round(ENH.cost(L)*(1-.1*rk('mer','enh'))*zoneDiscOf(S.zones)*(1-catchDisc(L)));
 
@@ -9921,7 +9924,7 @@ function renderForge(){
   h+='<div class="fg-pow"><div><small>판매가</small><b>×'+enhSell(L).toFixed(2).replace(/0$/,'')+'</b>'+(max?'':'<em>→ ×'+enhSell(L+1).toFixed(2).replace(/0$/,'')+'</em>')+'</div><div><small>행운</small><b>+'+Math.round((enhFx(L).luck-1)*100)+'%</b>'+(max?'':'<em>→ +'+Math.round((enhFx(L+1).luck-1)*100)+'%</em>')+'</div><div><small>거대 개체</small><b>'+Math.round(giantP(L)*100)+'%</b>'+(max?'':'<em>→ '+Math.round(giantP(L+1)*100)+'%</em>')+'</div></div>';
   if((S.enh.cat|0)>0)h+='<div style="text-align:center;margin:-2px 0 8px;font-size:13px;color:#e07a2c">⚗️ 강화 촉매 '+S.enh.cat+'개 · 다음 강화 성공률 +'+Math.round((.15+.1*(S.enh.catk|0))*100)+'%</div>';
   if(zoneDiscOf(S.zones)<1)h+='<div style="text-align:center;margin:-2px 0 8px;font-size:12px;color:#2f7a63">🌱 아직 먼 낚시터에 안 가 봐서 안전 강화 골드가 '+Math.round((1-zoneDiscOf(S.zones))*100)+'% 싸요</div>';
-  {const cd=catchDisc(L);if(cd&&!max)h+='<div style="text-align:center;margin:-2px 0 8px;font-size:12.5px;color:#c0407a;font-weight:700">🤝 따라잡기 할인 · 1위(+'+CHAMP.lv+')보다 '+(CHAMP.lv-L)+'단계 낮아서 안전 강화 골드 -'+Math.round(cd*100)+'%</div>'}
+  {const cd=catchDisc(L),cu=enhCU(L);if(cu&&!max)h+='<div style="text-align:center;margin:-2px 0 8px;font-size:12.5px;line-height:1.6;color:#c0407a;font-weight:700;background:#fff0f6;border-radius:12px;padding:6px 8px">🎣 낚시 강화 1위 '+esc(CHAMP.name)+' 님의 지원 (+'+CHAMP.lv+'보다 '+cu.g+'단계 아래)<br><span style="font-weight:600">성공 +'+Math.round(cu.p*100)+'%p · 성공하면 별 ×'+cu.sx.toFixed(1)+(cu.safe?' · 실패해도 별 · 정수를 안 잃어요':'')+(cd?' · 안전 강화 골드 -'+Math.round(cd*100)+'%':'')+'</span></div>'}
   if(!max){
     h+='<div class="seg"><button class="'+(safe?'on':'')+'" data-fm="safe"><b>안전 강화</b><small>골드 '+fmtK(cost)+' · 성공하면 별 +1 · 안 잃어요</small></button><button class="'+(!safe?'on':'')+'" data-fm="gamble"><b>도전 강화</b><small>무료 · 성공하면 별 +3'+(L>=5?' · 실패하면 별 -1':'')+'</small></button></div>';
     if(e.sure|0)h+='<div class="fg-next sure"><span class="ic">🎯</span><div><small>도토리 확정권 '+e.sure+'장</small><div>다음 강화 한 번이면 <b>바로 +'+(L+1)+'</b> (별을 다 채워 줘요)</div></div></div>';
@@ -12254,7 +12257,7 @@ const vSt=()=>VIL&&VIL.fund?VIL.fund.st|0:0;
 function onVilMsg(m){
   if(m.t==='ships'||m.t==='ship_ok'||m.t==='ship_sail'){if(m.ships){const was=myShip();SHIPS=m.ships;if(was<0&&myShip()>=0)shipGot()}if(m.t==='ship_sail'&&m.at)shipSailed(m.at);if(!$('sheetwrap').hidden&&$('sheettitle').textContent.indexOf('꽃밭')>=0)renderGarden();return true}
   if(m.t==='vday'){VDAY.b=m.b|0;if(m.ok)vdayDone(m.b|0);else if(m.msg)toast(m.msg);else setTimeout(vdayTry,800);return true}
-  if(m.t==='vil'&&m.hutop!=null)HUTOP=m.hutop|0;
+  if(m.t==='vil'&&m.hutop!=null){HUTOP=m.hutop|0;HUTOPN=m.hutopN||''}
   if(m.t==='vil'){if(Array.isArray(m.ships))SHIPS=m.ships;if(m.ark){const pa=ARKV.st;ARKV=m.ark;if(pa&&m.ark.st>pa)recalc();if(!$('sheetwrap').hidden&&/물결호|꽃밭/.test($('sheettitle').textContent)){if($('sheettitle').textContent.indexOf('꽃밭')>=0)renderGarden();else openBoat()}}const was=vSt(),tg=VIL&&VIL.tog&&VIL.tog.on;VIL=m;if(m.kt){KT=m.kt;try{ktApply()}catch(e){}}if(vSt()!==was)vfApply();if(!!(VIL.tog&&VIL.tog.on)!==!!tg)recalc();vilHud();if(evOpenNow())renderEv();return true}
   if(m.t==='med'){MED=Object.assign(MED,m.med||{});if(m.wkc!==undefined)S.wkc=m.wkc;if(m.medw!==undefined)S.medw=m.medw;if(m.why)toast(m.why);vilHud();if(evOpenNow())renderEv();return true}
   if(m.t==='ev_mega'){showBanner('📣 '+m.host+' 님의 「'+EV_KIND[m.kind].name+'」! 지금 함께해요');Snd.sfx('page');return true}

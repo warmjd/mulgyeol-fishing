@@ -111,3 +111,4 @@
 - ☁️ 구름 문 (2026-11-18): 마을 광장 (goSigns()[0] · 시작점 왼쪽 아래) · skyGateDraw · skyGateSheet 「천상계 가는 길」 4단계(Lv30 · 나그네 3부탁 · 빛/그림자 · 오픈) · 📍 나그네 길 안내(GUIDE) · 다 되면 바로 celAsk. 접속 때 skyHint(내 말풍선 · 단계별 한 줄 · S.gin 있으면 안 나와요). 예전 꿈의 문 「포탈이 생겼어!」 말풍선(DISC portal)은 없앴어요.
 - 🌟 황금 깃발 (2026-11-18): V.flag.gz (월요일마다 지난주 낚은 곳 중 한 곳 · flagGzPick) · 주인은 다음 주 강화 상자(특) + 2억 (V.fgpend → flagPay) · 'flags'/'flagc'에 gz · client FLAG_GZ · 금빛 깃대 · 별 · 이름표 늘 보임 · 깃발 창 맨 위.
 - 잠수함 (말 안 해요): 깃발 점수 반짝 = 3마리 (flagCatch sh · 안내 글에 안 써요) · 반짝 1위(shinyTop · shKingKey 1분 캐시) 반짝 확률 ×1.15.
+- 🌊 1위의 응원 (2026-11-18 · 조돌맹 · 1등 이름으로 보여요): 🎣 낚시 강화 1위의 지원 enhCU (server enhRoll · client 강화소 줄) 1단계마다 성공 +5%p(최대 25) · 별 ×(1+0.6g, 최대 4) · g≥2 실패해도 별 · 정수 안 잃음 / ⚔️ 용사 1위의 격려 huCatch (5레벨부터 1레벨마다 +5%, 최대 ×4 · HUTOPN) / ⚔️ 이번 주 응원 상자 supBox (전투력 1위 xKing.hl 대비 <50% A · <75% B · s.wsp 보존 목록).
