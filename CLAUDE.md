@@ -109,3 +109,5 @@
 - ☁️ 구름의 축복 (2026-11-18 · 업데이트 소식 안 씀): 구름 Lv마다 마을 사냥 공격 · 체력 +1.5% (client cBless · huCP · server cBlessS · cpOf · raidAtk). 구름 위 안에선 안 붙어요.
 - 🕳️ 심연 = 천상계를 다녀와야 세지는 구조 (2026-11-18 · 조돌맹 · 업데이트 소식 안 씀): ABY_HP {11:3.3, 12:10, 13:30} · ABY_AT · 심연에서만 ☁️ 하늘빛 abyssSky() = 1 + (구름 Lv-1)×10% 피해 (huHitMon) · 구름 Lv10 아래로 심연 들어가면 안내 배너.
 - ☁️ 구름 문 (2026-11-18): 마을 광장 (goSigns()[0] · 시작점 왼쪽 아래) · skyGateDraw · skyGateSheet 「천상계 가는 길」 4단계(Lv30 · 나그네 3부탁 · 빛/그림자 · 오픈) · 📍 나그네 길 안내(GUIDE) · 다 되면 바로 celAsk. 접속 때 skyHint(내 말풍선 · 단계별 한 줄 · S.gin 있으면 안 나와요). 예전 꿈의 문 「포탈이 생겼어!」 말풍선(DISC portal)은 없앴어요.
+- 🌟 황금 깃발 (2026-11-18): V.flag.gz (월요일마다 지난주 낚은 곳 중 한 곳 · flagGzPick) · 주인은 다음 주 강화 상자(특) + 2억 (V.fgpend → flagPay) · 'flags'/'flagc'에 gz · client FLAG_GZ · 금빛 깃대 · 별 · 이름표 늘 보임 · 깃발 창 맨 위.
+- 잠수함 (말 안 해요): 깃발 점수 반짝 = 3마리 (flagCatch sh · 안내 글에 안 써요) · 반짝 1위(shinyTop · shKingKey 1분 캐시) 반짝 확률 ×1.15.

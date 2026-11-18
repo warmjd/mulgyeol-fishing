@@ -641,7 +641,7 @@ wss.on('connection', (ws) => {
         broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
         send(ws, { t: 'ice', list: icePub().filter(e => e.n !== p.name) }); iceOff(p);   // ❄️ 나간 자리 얼음
         send(ws, { t: 'trc', list: trcPub() });   // 🎣 낚시 자리의 흔적
-        send(ws, { t: 'flags', o: flagPub(), f: flagSf() }); flagPay(ws, p); send(ws, goPub()); for (let i = 0; i < SW_N; i++) if (SW[i].s[0] || SW[i].s[1] || SW[i].A0) send(ws, swPub(i));   /* 🎉 그랜드 오픈 */   /* 🚩 낚시터 깃발 */
+        send(ws, { t: 'flags', o: flagPub(), f: flagSf(), gz: (flagOf() || {}).gz || 0 }); flagPay(ws, p); send(ws, goPub()); for (let i = 0; i < SW_N; i++) if (SW[i].s[0] || SW[i].s[1] || SW[i].A0) send(ws, swPub(i));   /* 🎉 그랜드 오픈 */   /* 🚩 낚시터 깃발 */
         if (p.save) curMigrate(p.save);
         if (p.save) { const e = enhOf(p.save), out = []; enhDaily(e, out); enhSession(e, out); { const l0 = e.lv | 0; e.star = e.star | 0; while (e.lv < ENH.MAX && e.star >= ENH.S[e.lv]) { e.star -= ENH.S[e.lv]; e.lv++; } e.max = Math.max(e.max | 0, e.lv); if (e.lv > l0) out.push('🎉 강화 3.0! 모아 둔 별로 +' + l0 + ' → +' + e.lv); } rankSet(key, p.name, e, p.look); sendEnh(ws, p, { note: out }); if (out.length) queueSave(key, p.save); }
         send(ws, { t: 'champ', c: champPub() });
@@ -787,14 +787,19 @@ function swLeave(p) { SW.forEach((w, i) => { const k = w.s.indexOf(p.id); if (k 
 const SKY_GOLD = [3e4, 8e4, 3e5, 1.5e6, 8e6, 4e7];   /* index.html SKY_PRICE와 같아요 */
 const FLAG_TK = 3, FLAG_G = 5e6, SFLAGS = ["sf_star", "sf_heart", "sf_fish", "sf_wave", "sf_rainbow", "sf_moon", "sf_sun", "sf_flower", "sf_clover", "sf_check", "sf_straw", "sf_anchor", "sf_cat", "sf_paw", "sf_snow", "sf_leaf", "sf_cloud", "sf_carp", "sf_fire", "sf_lantern", "sf_galaxy", "sf_crown", "sf_dragon", "sf_aurora"];   /* 🎨 깃발 치장 (index.html SFLAG와 같아요) */
 const sfOf = s => s && SFLAGS.includes(s.sflag) && ownsCos(s, s.sflag) ? s.sflag : '';
-function flagOf() { if (!V) return null; const w = wkId(); if (!V.flag || V.flag.w !== w) { const old = V.flag; V.flag = { w, z: {}, o: {} }; vMark();
-    if (old && old.o) { V.fpend = V.fpend || {}; for (const z in old.o) { const k = old.o[z].k; V.fpend[k] = (V.fpend[k] | 0) + 1; } broadcast({ t: 'flags', o: {} }); for (const k of Object.keys(V.fpend)) { const l = liveByKey(k); if (l) flagPay(l[0], l[1]); } } }
+/* 🌟 황금 깃발 (2026-11-18): 매주 낚시터 한 곳 · 그 주 깃발 주인은 강화 상자(특) + 2억 더 (지난주 사람들이 낚은 곳 중에서 뽑아요) */
+const FLAG_GZ0 = [1, 2, 3, 4, 5, 6, 8, 9, 10], FLAG_GG = 2e8;
+const flagGzPick = zs => { const L = (zs || []).map(Number).filter(z => z && z !== 7 && z <= 30); const A = L.length >= 3 ? L : FLAG_GZ0; return A[Math.floor(Math.random() * A.length)]; };
+function flagOf() { if (!V) return null; const w = wkId(); if (!V.flag || V.flag.w !== w) { const old = V.flag; V.flag = { w, z: {}, o: {}, gz: flagGzPick(old && old.z ? Object.keys(old.z) : []) }; vMark();
+    if (old && old.o) { V.fpend = V.fpend || {}; for (const z in old.o) { const k = old.o[z].k; V.fpend[k] = (V.fpend[k] | 0) + 1; } if (old.gz && old.o[old.gz]) { V.fgpend = V.fgpend || {}; V.fgpend[old.o[old.gz].k] = 1; } broadcast({ t: 'flags', o: {}, gz: V.flag.gz }); for (const k of Object.keys(V.fpend)) { const l = liveByKey(k); if (l) flagPay(l[0], l[1]); } } }
+  if (!V.flag.gz) { V.flag.gz = flagGzPick(Object.keys(V.flag.z)); vMark(); }
   return V.flag; }
 const flagPub = () => { const F = flagOf(), o = {}; if (F) for (const z in F.o) o[z] = F.o[z].n; return o; };
 const flagSf = () => { const F = flagOf(), o = {}; if (F) for (const z in F.o) if (F.o[z].sf) o[z] = F.o[z].sf; return o; };
-function flagCatch(me, f) { const F = flagOf(); if (!F || !me.here) return; const z = placeOf(f); if (!z || z === 7 || z > 30) return; const Z = F.z[z] = F.z[z] || {}; const e = Z[me.key] = Z[me.key] || { n: me.name, c: 0 }; e.c++; e.n = me.name; vMark();
+function flagCatch(me, f, sh) { const F = flagOf(); if (!F || !me.here) return; const z = placeOf(f); if (!z || z === 7 || z > 30) return; const Z = F.z[z] = F.z[z] || {}; const e = Z[me.key] = Z[me.key] || { n: me.name, c: 0 }; e.c += sh ? 3 : 1; /* 반짝은 3마리로 (안내엔 안 써요) */ e.n = me.name; vMark();
   const cur = F.o[z]; if (!cur || (cur.k !== me.key && e.c > ((Z[cur.k] && Z[cur.k].c) | 0))) { const was = cur && cur.n, sf = sfOf(me.save); F.o[z] = { k: me.key, n: me.name, sf }; broadcast({ t: 'flag', z, n: me.name, was: was || '', sf }); } }
-function flagPay(ws, me) { if (!V || !V.fpend || !V.fpend[me.key]) return; const n = V.fpend[me.key] | 0; delete V.fpend[me.key]; vMark();
+function flagPay(ws, me) { if (V && V.fgpend && V.fgpend[me.key]) { delete V.fgpend[me.key]; vMark(); enhPack(me.key, 'S', '🌟 지난주 황금 깃발 강화 상자'); changeBag(me.key, { g: FLAG_GG }, '🌟 지난주 황금 깃발 · 골드 ' + FLAG_GG.toLocaleString()).catch(() => { }); }
+  if (!V || !V.fpend || !V.fpend[me.key]) return; const n = V.fpend[me.key] | 0; delete V.fpend[me.key]; vMark();
   withLock(me.key, () => { const s = me.save; if (!s) return; const E = enhOf(s); E.tk = Math.min(ENH.TK_MAX, E.tk + FLAG_TK * n); s.gold = (Number(s.gold) || 0) + FLAG_G * n; s.rev = (s.rev | 0) + 1; queueSave(me.key, s);
     sendEnh(ws, me, { dgold: FLAG_G * n, rev: s.rev, note: ['🚩 지난주 낚시터 깃발 ' + n + '개! 골드 +' + (FLAG_G * n).toLocaleString()] }); }).catch(() => { }); enhPack(me.key, 'B', '🚩 낚시터 깃발 ' + n + '개 강화 상자', n); }
 function flagBoard() { const F = flagOf(), out = {}; if (!F) return out; for (const z in F.z) out[z] = Object.values(F.z[z]).sort((a, b) => b.c - a.c).slice(0, 3).map(e => [e.n, e.c]); return out; }
@@ -913,14 +918,14 @@ function onMsg(ws, me, m) {
       b[id]--; const g = Math.round(fishPrice(id) * 25 * enhSell(s.enh && s.enh.lv));   // 반짝은 25배
       await changeBag(me.key, { g }, null); send(ws, { t: 'shb', shb: b, sold: id, g });
     }).catch(e => console.error('sh_sell', e.message)); break;
-    case 'flag_get': { const now = Date.now(); if (now - (me.fgT || 0) < 1500) return; me.fgT = now; send(ws, { t: 'flagc', b: flagBoard(), o: flagPub(), f: flagSf() }); break; }
+    case 'flag_get': { const now = Date.now(); if (now - (me.fgT || 0) < 1500) return; me.fgT = now; send(ws, { t: 'flagc', b: flagBoard(), o: flagPub(), f: flagSf(), gz: (flagOf() || {}).gz || 0 }); break; }
     case 'sflag': { const s = me.save; if (!s) return; const id = String(m.id || ''); if (id && !(SFLAGS.includes(id) && ownsCos(s, id))) return; s.sflag = id; queueSave(me.key, s); const F = flagOf(); let ch = 0; if (F) for (const z in F.o) if (F.o[z].k === me.key && F.o[z].sf !== id) { F.o[z].sf = id; ch = 1; } if (ch) { vMark(); broadcast({ t: 'flags', o: flagPub(), f: flagSf() }); } break; }
     case 'hold': {   // 잡은 물고기를 머리 위로 번쩍 (친구들 화면에도) · 놓치면 털썩
       const now = Date.now(); if (now - (me.holdT || 0) < 700) return; me.holdT = now;
       if (m.miss) { broadcast({ t: 'hold', id: me.id, miss: 1 }, ws); break; }
       const f = m.f | 0; if (!validFish(f)) return; const c = ['small', 'mid', 'big', 'giant'].includes(m.c) ? m.c : 'mid';
       try { trcCatch(me, f, c, !!m.sh); } catch (e) { }   // 🎣 낚시 자리의 흔적
-      if (m.fc === 1) try { flagCatch(me, f); } catch (e) { }   /* 🚩 손으로 낚은 것만 */
+      if (m.fc === 1) try { flagCatch(me, f, !!m.sh); } catch (e) { }   /* 🚩 손으로 낚은 것만 */
       broadcast({ t: 'hold', id: me.id, f, len: Math.max(1, Math.min(9999, m.len | 0)), c, sh: !!m.sh, nw: !!m.nw, pf: !!m.pf, bt: !!m.bt, x2: Math.min(3, m.x2 | 0), wl: !!m.wl, vr: Array.isArray(m.vr) ? [m.vr[0] | 0, String(m.vr[1] || '').slice(0, 12)] : null, ln: String(m.ln || '').replace(/[<>]/g, '').slice(0, 40) }, ws); break;
     }
     case 'wow': {   // 친구가 든 물고기에 '우와!'
@@ -2490,7 +2495,7 @@ const SHX_PRICE = 1e6, BAIT_SHOP = { b_legend_s: 4e5, b_myth: 5e5, b_shx: 1e6, b
 const baitUsed = (o, nw, k) => Math.max(0, (((o && o.items) || {})[k] | 0) - (((nw && nw.items) || {})[k] | 0));   // 💎 반짝 3배 미끼 (2026-11-11): 상점 1개 100만 · 던질 때 1개 · 그 판에 낚은 물고기 반짝 확률 3배
 /* ✨ 반짝 (2026-11-12): 입질 순간 서버가 반짝을 정하고, 반짝이면 무조건 어려운 줄다리기 · 끝까지 감아야 반짝으로 남아요 */
 const SH_X = +process.env.SH_X || 1;   // 시험용 배율 (평소 1)
-const shinyP = (me, s, id, bx) => SH_X * ((isMyth(id) || isUlt(id)) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1) * (fireOn() ? 1.5 : 1) * (shfOn() ? 1.5 : 1) * (bx ? 3 : 1);
+const shinyP = (me, s, id, bx) => SH_X * (shKingKey() === me.key ? 1.15 : 1) *   /* 반짝 1위 +15% (말 안 해요) */ ((isMyth(id) || isUlt(id)) ? 1 / 60 : SHINY_P(fishRar(id))) * (((s.enh && s.enh.lv) | 0) >= 18 ? 2 : 1) * (((s.enh && s.enh.lv) | 0) >= 28 ? 1.5 : 1) * (me.shx && Date.now() < me.shx ? 3 : 1) * (hsBoost(me, 'shiny') ? 2 : 1) * (fireOn() ? 1.5 : 1) * (shfOn() ? 1.5 : 1) * (bx ? 3 : 1);
 function shinyAsk(ws, me, m) { const s = me.save, id = m.f | 0; if (!s || !validFish(id) || isGet(id)) return; const now = Date.now(); if (now - (me.shqT || 0) < 1200) return send(ws, { t: 'shq', f: id, sh: false }); me.shqT = now;
   const bx = m.bx && (((s.items || {}).b_shx) | 0) > 0, sh = Math.random() < shinyP(me, s, id, bx); me.shP = { f: id, t: now, sh }; send(ws, { t: 'shq', f: id, sh }); }
 function shinyOk(ws, me, m) { const p = me.shP, id = m.f | 0; me.shP = null; if (!p || !p.sh || p.f !== id || Date.now() - p.t > 120000) return; const s = me.save; if (!s) return; shinyGive(ws, me, s, [id]); queueSave(me.key, s); }
@@ -3240,6 +3245,7 @@ function ebnMsg(ws, me, m) { if (!V) return; ebnRoll(); const N = ebnOf();
   send(ws, ebnPub(me)); }
 /* ---------- ✨ 반짝 축제 (2026-11-16): 반짝 1위가 하루 한 번 · 30분 동안 마을 모두 반짝 확률 1.5배 ---------- */
 const shfOn = () => !!(V && V.shf && V.shf.until > Date.now());
+let SHK_C = { t: 0, k: '' }; const shKingKey = () => { const now = Date.now(); if (now - SHK_C.t > 60e3) { const b = shinyTop(); SHK_C = { t: now, k: b ? b.key : '' }; } return SHK_C.k; };
 function shinyTop() { let best = null; for (const [key, r] of rosterCache) if ((r.sh | 0) > 0 && (!best || (r.sh | 0) > best.sh)) best = { key, name: r.name, sh: r.sh | 0 }; return best; }
 function shfMsg(ws, me) { if (!V || !me.save) return; const top = shinyTop(); if (!top || top.key !== me.key) return send(ws, { t: 'news', text: '✨ 반짝 1위만 열 수 있어요' }); const d = kstDay(); if (V.shf && V.shf.d === d) return send(ws, { t: 'news', text: '✨ 반짝 축제는 하루에 한 번이에요' });
   V.shf = { d, until: Date.now() + 30 * 60e3, by: me.name }; vMark(); broadcast({ t: 'news', text: '✨🎉 반짝 1위 ' + me.name + ' 님이 「반짝 축제」를 열었어요! 30분 동안 모두 반짝 확률 1.5배' }); broadcast({ t: 'shf', until: V.shf.until, by: me.name }); }
