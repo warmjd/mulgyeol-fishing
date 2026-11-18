@@ -2514,7 +2514,7 @@ function shchMsg(ws, me, m) { const s = me.save; if (!s || !V) return; const p =
   V.shcf = V.shcf || {}; const first = !V.shcf[p]; if (first) V.shcf[p] = [me.name, now]; V.shcl = V.shcl || []; if (!V.shcl.some(e => e[0] === me.name)) V.shcl.push([me.name, now]); if (V.shcl.length > 40) V.shcl.shift();
   V.shf = { d: V.shf ? V.shf.d : 0, until: Math.max(now, V.shf && V.shf.until || 0) + 30 * 60e3, by: me.name }; vMark();
   const nm = String(m.t || '').replace(/[<>]/g, '').slice(0, 20);
-  broadcast({ t: 'big', g: 4, text: '✨🌌 ' + me.name + ' 님이 반짝 도감 「' + nm + '」 챕터를 ' + (first ? '처음으로 ' : '') + '완성했어요! 30분 동안 마을 모두 반짝 축제 ✨' });
+  broadcast({ t: 'big', g: 4, text: '✨🌌 밤하늘에 새 별자리가 떴어요… 30분 동안 마을에 반짝 축제 ✨' });
   broadcast({ t: 'shf', until: V.shf.until, by: me.name }); broadcast({ t: 'shch', n: me.name, p, first: first ? 1 : 0, l: V.shcl, f: V.shcf });
   send(ws, { t: 'shch_ok', p, cos, shc: C, n }); }
 function shinyOk(ws, me, m) { const p = me.shP, id = m.f | 0; me.shP = null; if (!p || !p.sh || p.f !== id || Date.now() - p.t > 120000) return; const s = me.save; if (!s) return; shinyGive(ws, me, s, [id]); queueSave(me.key, s); }
