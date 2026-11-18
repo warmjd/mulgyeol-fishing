@@ -133,3 +133,8 @@
 - 재능 CP_TAL: 레벨 되면 저절로 (누를 것 없음) · 15 입질 「!」 · 25/55 조절 바 · 30/60 통발 · 35/70 탐험 코스 · 40 판매 · 45/80 행운 · 90 탐험 골드 ×1.5 · jobMods/trapMax는 cpLvQ (TDZ 안전).
 - 🎒 탐험 CPX a 30분 · b 1시간(Lv10) · c 3시간(Lv35) · d 6시간(Lv70): server s.cpx {c,need,got,on} · 접속할 때 on · 끊을 때 got에 더해요 (켜 둔 동안만) · cpx_go/get/stop · 강화권 하루 CPX_TK_DAY 8 (s.cpxd) · 보존 목록 cpx · cpxd · cpst.
 - 🐾 반려 1위: roster cpl → KINGS.cpk · 펫 머리 왕관 · 이름표 🐾.
+
+## 🛠️ 2026-11-18 저녁 고침
+- 📜 의뢰 납품 · 해결하기 안 눌림: raidClick도 data-rq를 써서 의뢰 버튼을 먹었어요 → raidClick은 in/out/enter/board만. **data-* 이름 겹치지 않게 조심.**
+- 🪤 통발: 칸 큰 통발(+27 · 펫 재능)을 걷으면 checkSave '너무 빨리 많이 잡혔어요' → sync로 물고기 사라짐 → trap_claim 때 me.trapCred(걷은 수+4, 2분)만큼 봐줘요.
+- 고장 보상은 server COMP (이름 → [id, 상자, 골드, 글]) · 접속 때 한 번 (s.cmp 보존 목록). 치킨 · 꼬북린 지급.

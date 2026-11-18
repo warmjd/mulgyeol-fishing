@@ -284,7 +284,7 @@ function navCost(o, n) {
   const la = o.lamp | 0, lb = n.lamp | 0; if (lb < la || lb > 5) return -1; for (let L = la; L < lb; L++) c += LAMP_SH[L];
   return c;
 }
-function checkSave(old, neu, elapsedMs) {
+function checkSave(old, neu, elapsedMs, extra) {
   if (!neu || typeof neu !== 'object') return '저장 형식이 이상해요';
   old = old || { inv: {}, dex: {}, gold: 60, rev: 0 };
   if ((neu.rev | 0) < (old.rev | 0)) return 'stale';
@@ -302,7 +302,7 @@ function checkSave(old, neu, elapsedMs) {
     if (b - a > dn - da) return '잡지 않은 물고기가 가방에 늘었어요';
     if (b < a) soldValue += (a - b) * fishPrice(+k);
   }
-  if (caught > 32 + elapsedMs / 1000) return '너무 빨리 많이 잡혔어요'; // 빠른 낚시 · 두 마리 · 통발(한 번에 최대 30마리) 기준
+  if (caught > 32 + elapsedMs / 1000 + (extra | 0)) return '너무 빨리 많이 잡혔어요'; // 빠른 낚시 · 두 마리 · 통발(한 번에 최대 30마리) 기준
   const oz = zonesOf(old), nz = zonesOf(neu);
   if (nz.length > 6 || nz.some(z => !Number.isInteger(z) || z < 1 || z > 6) || new Set(nz).size !== nz.length) return '낚시터 기록이 이상해요';
   if (oz.some(z => nz.indexOf(z) < 0)) return '열었던 낚시터가 사라졌어요';
@@ -648,6 +648,8 @@ wss.on('connection', (ws) => {
         send(ws, { t: 'ice', list: icePub().filter(e => e.n !== p.name) }); iceOff(p);   // ❄️ 나간 자리 얼음
         send(ws, { t: 'trc', list: trcPub() });   // 🎣 낚시 자리의 흔적
         if (p.save && p.save.cpx) { p.save.cpx.on = Date.now(); send(ws, cpxPub(p.save)); }
+        { const C = COMP[p.name], s0 = p.save; if (C && s0) { s0.cmp = Array.isArray(s0.cmp) ? s0.cmp : []; if (!s0.cmp.includes(C[0])) { s0.cmp.push(C[0]); queueSave(p.key, s0);
+          setTimeout(() => { enhPack(p.key, C[1], C[3]); changeBag(p.key, { g: C[2] }, C[3] + ' · 골드 ' + C[2].toLocaleString()).catch(() => { }); }, 4000); } } }
         if (V && V.plq) send(ws, { t: 'plq', l: Object.values(V.plq) }); if (V && V.skyc && V.skyc.length) send(ws, { t: 'skyc', l: V.skyc });
         { const s0 = p.save; if (s0 && s0.lo && Date.now() - s0.lo > 7 * 864e5 && !p.admin) { const n = Math.max(3, Math.min(40, rosterCache.size - 1)); send(ws, { t: 'wb', n, d: Math.floor((Date.now() - s0.lo) / 864e5) }); broadcast({ t: 'news', text: '🌸 ' + p.name + ' 님이 오랜만에 마을에 돌아왔어요!' }, ws); } }
         send(ws, { t: 'flags', o: flagPub(), f: flagSf(), ft: flagTs(), rv: flagRv(), gz: (flagOf() || {}).gz || 0 }); flagPay(ws, p); try { supBox(ws, p); } catch (e) { } send(ws, goPub()); if (V && V.shcl && V.shcl.length) send(ws, { t: 'shch', l: V.shcl, f: V.shcf || {} }); for (let i = 0; i < SW_N; i++) if (SW[i].s[0] || SW[i].s[1] || SW[i].A0) send(ws, swPub(i));   /* 🎉 그랜드 오픈 */   /* 🚩 낚시터 깃발 */
@@ -676,7 +678,7 @@ wss.on('connection', (ws) => {
       me.b = Number.isInteger(m.b) && m.b >= 0 && m.b < 100000 ? m.b : 0; me.f = (m.f | 0) >= 0 && (m.f | 0) <= 4 ? m.f | 0 : 0;   // 낚시 단계 (친구 화면에 입질 · 줄다리기 · 낚아채기) // 낚시 중인 찌 위치 (친구 화면에 낚싯대 · 찌 스킨)
     } else if (m.t === 'save' && m.data && typeof m.data === 'object') {
       withLock(me.key, () => {
-        const now = Date.now(), err = checkSave(me.save, m.data, now - (lastSaveAt.get(me.key) || 0));
+        const now = Date.now(), tc = me.trapCred && now - me.trapCred.t < 120000 ? me.trapCred.n : 0, err = checkSave(me.save, m.data, now - (lastSaveAt.get(me.key) || 0), tc);   /* 🪤 통발로 한 번에 많이 걷은 만큼은 봐줘요 (2026-11-18 고침) */
         if (err === 'stale') return;                    // 교환 전 옛 가방: 무시 (곧 새 가방이 다시 와요)
         if (err) {
           console.warn('저장 거절', me.name, err);
@@ -709,7 +711,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw', 'clv', 'gin', 'gpre', 'wsp', 'shc', 'shcx', 'fall', 'spc', 'lo', 'cpx', 'cpxd', 'cpst']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw', 'clv', 'gin', 'gpre', 'wsp', 'shc', 'shcx', 'fall', 'spc', 'lo', 'cpx', 'cpxd', 'cpst', 'cmp']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         for (const k of ['skyd', 'skyn']) if (me.save && me.save[k] != null) m.data[k] = me.save[k];   /* ☁️ 하늘 도감은 서버가 적어요 (서버에 아직 없으면 화면 것을 받아요) */
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
@@ -722,7 +724,7 @@ wss.on('connection', (ws) => {
         const e = enhOf(m.data), out = [];
         enhDaily(e, out);
         if (!first) { let pts = 0, cnt = 0; const nsdP = m.data.sdex || {}; for (const k in newDex) { const dn = (newDex[k].n | 0) - (oldDex[k] ? oldDex[k].n | 0 : 0); if (dn > 0) cnt += dn; } for (const k in nsdP) { const dn = (nsdP[k] | 0) - (oldSd[k] | 0); if (dn > 0) pts += dn * ENH.PTS[Math.min(4, fishRar(+k) | 0)]; } if (pts) enhAddPoints(e, pts, out); if (cnt) wkAdd('fish', cnt); handBonus(ws, me, m.data, oldSd, e); honCheck(ws, me, m.data); }   // 강화 포인트 · 손맛 보너스는 직접 낚은 것만 (자동 낚시는 손맛 도감에 안 올라가요)
-        foldItems(m.data); me.save = m.data; lastSaveAt.set(me.key, now); rosterSet(me.key, me.name, m.data); shipSnap(me, m.data);
+        foldItems(m.data); me.save = m.data; lastSaveAt.set(me.key, now); if (tc) me.trapCred = null; rosterSet(me.key, me.name, m.data); shipSnap(me, m.data);
         if (first) togCheck();
         if (sFixed) send(ws, { t: 'sdex', sdex: m.data.sdex });   // 손맛 도감을 서버 기록에 맞춰요
         if (!first) { mythCheck(me, m.data, oldSd); luxFish(ws, me, m.data, oldSd, luxUsed); dayStar(me, m.data, oldSd); mentorCheck(me, m.data, oldSd); starCatch(ws, m.data, oldSd); stampCheck(ws, m.data, oldSd); recCheck(ws, me, oldDex, m.data, oldSd); }
@@ -796,6 +798,8 @@ const cpLvS = xp => { let L = 1; while (L < 99 && xp >= CP_CUM_S[L + 1]) L++; re
 const CPX = { a: { n: '마을 한 바퀴', m: 30, lv: 1, g: [5e5, 1.5e6], tk: [.25, 1] }, b: { n: '숲속 산책', m: 60, lv: 10, g: [1.5e6, 4e6], tk: [.6, 1] }, c: { n: '먼 바닷가', m: 180, lv: 35, g: [6e6, 1.5e7], tk: [1, 2], es: .3 }, d: { n: '긴 여행', m: 360, lv: 70, g: [1.5e7, 4e7], tk: [1, 3], es: .6 } }, CPX_TK_DAY = 8;
 const cpxEl = (x, now) => (x.got | 0) + (x.on ? Math.max(0, now - x.on) : 0);
 const cpxPub = s => { const x = s && s.cpx; return { t: 'cpx', x: x ? { c: x.c, need: x.need, el: cpxEl(x, Date.now()) } : null }; };
+/* 🛠️ 고장 보상 (한 번만 · s.cmp): [id, 상자 등급, 골드, 글] */
+const COMP = { '치킨': ['c1118trap', 'A', 2e7, '🛠️ 통발이 안 걷히던 걸 고쳤어요 · 기다려 줘서 고마워요'], '꼬북린': ['c1118rq', 'A', 1e7, '🛠️ 의뢰 납품 버튼을 고쳤어요 · 기다려 줘서 고마워요'] };
 const CP_STG_S = [[1, '🍼 아기'], [10, '🐾 꼬마'], [20, '💛 단짝'], [35, '🛡️ 듬직이'], [50, '✨ 수호'], [70, '🌟 전설'], [90, '🌌 별빛']];
 const CP_RWS = [[10, 'C', 1e7], [20, 'C', 3e7], [30, 'B', 5e7], [40, 'B', 1e8], [50, 'A', 2e8], [60, 'B', 3e8], [70, 'A', 5e8], [80, 'A', 7e8], [90, 'A', 1e9], [99, 'S', 3e9]];   /* 🐾 반려동물 레벨 선물 */
 /* 🪑 하늘 보는 흔들의자 (2026-11-18): 마을 북쪽 끝 둘 · 둘이 나란히 앉아 박자 맞춰 밀면 그네처럼 높이 · 메모리에만 (저장 안 해요)
@@ -2460,6 +2464,7 @@ function trapMsg(ws, me, m) {
     const snap = JSON.parse(JSON.stringify(mine));
     if (m.t === 'trap_take') delete T[me.key];
     else Object.assign(mine, { t0: now, seed: crypto.randomBytes(4).readUInt32LE(0), vis: {}, notes: [] }, trapParams(m));
+    { const n0 = Math.max(0, Math.min(snap.cap, Math.floor((now - snap.t0) / (snap.min * 60000)))); me.trapCred = { n: n0 + 4, t: now }; }
     vMark(); trapSoon(); send(ws, { t: 'trap_got', tr: snap, at: now, take: m.t === 'trap_take' });
     /* 🪤 2026-11-17 통발 개편: 직접 걷어 올리면 칸 수만큼 덤 (강화권 · 💤 꿈조각 · 가끔 주문서) — 화면과 같은 식(trapN)으로 셈해요 */
     const n = Math.max(0, Math.min(snap.cap, Math.floor((now - snap.t0) / (snap.min * 60000)))); if (n >= 3 && s) withLock(me.key, () => {

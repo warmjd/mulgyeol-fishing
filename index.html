@@ -4410,7 +4410,7 @@ function renderRaid(){const L=RLOB,lv=huS().lv,cd=L.go?Math.max(0,Math.ceil((L.g
   $('sheetbody').innerHTML=h}
 setInterval(()=>{if(raidOpenNow()&&RLOB.go)renderRaid()},1000);
 function onRaidLobby(m){RLOB=m;if(raidOpenNow())renderRaid()}
-function raidClick(t){const k=t.dataset.rq;if(!k)return false;Snd.sfx('tap');
+function raidClick(t){const k=t.dataset.rq;if(!k||['in','out','enter','board'].indexOf(k)<0)return false;   /* 의뢰 버튼(data-rq)과 이름이 겹쳐서 납품 · 해결하기가 안 눌렸어요 (2026-11-18 고침) */Snd.sfx('tap');
   if(k==='in')Net.send({t:'raid_q'});else if(k==='out')Net.send({t:'raid_qx'});else if(k==='enter'){closeSheet();huEnter(RAID_FI,true)}else if(k==='board'){openEvents(null,'raid')}return true}
 function onRaidGo(m){toast('🌑 '+(m.names||[]).join(' · ')+' · 레이드 출발!');const wasHunt=HUNT.on;if(HUNT.on&&!HFIELDS[HUNT.fi].raid)huExit();setTimeout(()=>{closeSheet();HUNT.cdUntil=0;if(F.mode!=='idle'){if(F.afk)try{stopAfk()}catch(e){}F.mode='idle'}huEnter(RAID_FI,true)},wasHunt?600:200)}
 function onRaidRes(m){if(m.ok)showBanner(m.note,4200);else{toast(m.note);if(HUNT.on&&HFIELDS[HUNT.fi].raid)huExit()}}
@@ -5376,7 +5376,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1118f',UPD_LOG=[
+const UPD_VER='1118h',UPD_LOG=[
+ ['11/18 저녁 🛠️ 고침','🛠️',[['📜 의뢰 납품 · 해결하기','버튼이 눌리지 않던 걸 고쳤어요 · 마을 의뢰 · 친구 의뢰 모두 다시 돼요'],['🪤 통발 걷기','칸이 큰 통발을 한 번에 걷으면 가방이 되돌아가 물고기가 사라지던 걸 고쳤어요']]],
  ['11/18 📖 안내서','📖',[['📖 게임 안내서','메뉴 → 추억 → 📖 안내서 · 낚시 · 재화 · 아이템 · 강화 · 사냥 · 천상계 · 마을을 한눈에 · 헷갈릴 때 열어 봐요']]],
  ['11/18 오후 🌊 1위의 응원','🌊',[['🎣 낚시 강화 1위의 지원','강화 1위보다 낮으면 1단계마다 성공 +5%p (최대 +25%p) · 성공하면 별이 차이만큼 더 (최대 ×4) · 2단계 이상 낮으면 실패해도 별 · 꿈의 정수를 안 잃어요 · 강화소에 1위 이름으로 보여요'],['⚔️ 용사 1위의 격려','용사 1위보다 5레벨 이상 낮으면 사냥 경험치 1레벨 차이마다 +5% (최대 ×4) · 예전 따라잡기 경험치(×1.5~3)보다 세졌어요'],['⚔️ 이번 주 응원 상자','월요일부터 첫 접속 때 · 전투력이 1위의 절반이 안 되면 강화 상자(대), 3/4이 안 되면 강화 상자(중)']]],
  ['11/18 🌟 황금 깃발','🌟',[['🌟 이번 주 황금 깃발','매주 월요일 낚시터 한 곳에 반짝이는 황금 깃발이 서요 · 그 주 주인은 다음 주에 👑 강화 상자(특) + 💰 2억을 더 받아요 · 깃발 창 맨 위에서 어디인지 볼 수 있어요']]],
