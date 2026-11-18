@@ -142,3 +142,10 @@
 - ⛵ 꽃배 물 위 P.boatK .5 → .85.
 - 🪑 흔들의자 하늘 보기: P.swing이면 body.swingview (UI · #tags 이름표 숨김, 말풍선 .bub만) · SWV면 worldTag 안 그림 · 카메라 render.swk로 VH×.2 더 올림 · 음악 tracks.swing 「하늘 그네」 · 앉아 있을 땐 업데이트 소식 자동 열기 안 해요.
 - ❎ 확인 창(askConfirm) 취소: 거래 요청 #ask의 askNo와 id가 겹쳐 32곳 모두 취소가 안 됐어요 → cfNo. **id 겹치지 않게.**
+
+## ✨ 명품관 · 테마 치장 2.0 (2026-11-18 밤)
+- TH 7 테마(dr 용 · pi 해적 · kn 기사 · st 폭풍 · sa 벚꽃 · cr 크리스탈 · ga 은하수) × TH_SLOT 7칸: thr_ 낚싯대(3억 · ROD3 · ROD_PERK + 큰 효과 rs) · thb_ 찌(5천만 · BOB3) · tpt_ 통발(1억 · thTrap · 3배 가격 안 붙게 !c.lux) · cpt_ 펫(1천만 · thPetAcc · CP_ACC) · trs_ 낚시 자리(1억 · thTrcSeat/thTrcSign · server s.trs · trc 항목 sk) · sft_ 깃발(10억 · SFLAG em 'th_' · thFlagEm/thFlagFx) · cst_ 성 양식(50억 · thCastle · server s.cst · F.o[z].cs · flagsMsg cs).
+- 성 단계 flagStage: 21일 6(해자 castleMoat) · 28일 7(전설 · 👑 이름표) · 7일 넘은 성 뺏기면 thCollapse(테마 연출, 'flag' wcs).
+- 세트: thMine() · server thCountS → look.th 'dr5'(3칸부터) → thAura 오라 · 7칸이면 client 'thset' → server 확인 후 t_th_* 칭호 + big 소식.
+- 명품관 openLux/renderLux (테마 카드 → 7칸만 그림 · luxIcon 캐시) · 메뉴 성장 「명품관」 · 치장 상점 맨 위 버튼 · 일반 치장 상점에선 c.lux 숨김. tidySheet가 .muted 긴 글을 지워서 TIDY_SKIP에 .luxi/.luxh/.luxc.
+- server 'flags'는 이제 flagsMsg() 하나로 (ft · rv · cs 빠지지 않게). client는 ft/cs가 있을 때만 갈아끼워요.
