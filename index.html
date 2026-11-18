@@ -4346,7 +4346,11 @@ const HFIELDS=[{n:'연못가 숲',z:[1],t:0,g:'#a8d896',th:'forest'},{n:'시냇�
   {n:'🕳️ 꿈의 심연 3 · 마지막 악몽',z:[1,2,3,4,5,6,9,10,11,13,14,15,16,17,18,19],t:16,g:'#2a1c3a',th:'moon',night:1,abyss:1}];
 const hfAbyss=fi=>!!(HFIELDS[fi]&&HFIELDS[fi].abyss);
 const abyssMiss=fi=>hPool(fi).filter(f=>!f.myth&&!S.dex[f.id]).length;   // 도감에 없는 일반 물고기 수 (0이면 우두머리도 보통)
-const ABY_BASE={11:.5,12:.75,13:1},abyssBossX=fi=>Math.min(6,1+.4*abyssMiss(fi)),abyssMul=(fi,red,bo)=>(ABY_BASE[fi]||1)*(red?4:1)*(bo?abyssBossX(fi):1);
+/* 🕳️ 심연 = 천상계에 다녀와야 깊이 닿는 곳 (2026-11-18 · 조돌맹): 체력은 단단하게, 대신 ☁️ 하늘빛(구름 Lv마다 심연 피해 +10%)으로 뚫어요
+   마을 힘만으로는 심연 1도 오래 걸리고 2 · 3은 사실상 어려워요 · 도감 빈 종은 우두머리 +40%(최대 ×6) */
+const ABY_HP={11:3.3,12:10,13:30},ABY_AT={11:1.2,12:1.6,13:2.2};
+const abyssBossX=fi=>Math.min(6,1+.4*abyssMiss(fi)),abyssMul=(fi,red,bo)=>(ABY_HP[fi]||1)*(red?4:1)*(bo?abyssBossX(fi):1);
+const abyssAtkMul=(fi,red,bo)=>(ABY_AT[fi]||1)*(red?2:1)*(bo?Math.min(3,1+.2*abyssMiss(fi)):1),abyssSky=()=>1+Math.max(0,cLv()-1)*.1;
 const hfOpen=f=>f.raid?huS().lv>=10:f.night?huS().lv>=15:f.z[0]>=16?!!S.dwStory:f.z[0]>=6?hasZone(6):hasZone(f.z[0]);
 const HPOOL={};const hPool=fi=>HPOOL[fi]||(HPOOL[fi]=FISH.filter(f=>HFIELDS[fi].z.indexOf(f.zone)>=0&&!f.boss&&!f.pty&&!f.get&&!f.season&&!f.mk));
 const huS=()=>{if(!S.hu||typeof S.hu!=='object')S.hu={lv:1,xp:0,kills:0};if(!S.hunt||typeof S.hunt!=='object')S.hunt={w:0,a:0,b:0,sw:0,pot:0};return S.hu};
@@ -4364,7 +4368,7 @@ function huMon(f,opt){const t=HFIELDS[HUNT.fi].t,red=!S.dex[f.id],el=!!(opt&&opt
   const ab=hfAbyss(HUNT.fi),ab100=ab?abyssMul(HUNT.fi,red,bo):1;   /* 🕳️ 심연 (2026-11-18 다시 맞춤): 예전 100배 벽 → 도감에 없는 물고기 ×4 · 우두머리는 빈 종마다 +40% (최대 ×6) */
   const hp=Math.round((5+f.rar*6)*(1+t*1.3)*2.5*(red&&!ab?4:1)*(f.myth?6:1)*(el?2.5:1)*(bo?5:1)*ab100);
   const ak=bo?'boss':el?pick(['slam','shoot','dash']):f.rar>=3?pick(['slam','shoot','dash','melee']):f.rar===2?pick(['dash','shoot','melee']):f.rar===1||t>=4?pick(['shoot','melee','melee']):'melee';
-  const D=HFIELDS[HUNT.fi].raid?HDF[1]:HDF[HUNT.df|0];return{f,x,y,hp:Math.round(hp*D.hp),mhp:Math.round(hp*D.hp),ak,bi:0,atk:Math.round((3+t*4+f.rar*(1.2+t*.3))*(red&&!ab?1.6:1)*(f.myth?2:1)*(el?1.5:1)*(bo?1.5:1)*D.atk*ab100),ab100,red,el,boss:bo,sc:bo?2.4:el?1.5:1.25,st:'idle',t:0,vx:0,vy:0,kx:0,ky:0,an:Math.random()*6,hit:0,die:0,id:Math.random()}}
+  const D=HFIELDS[HUNT.fi].raid?HDF[1]:HDF[HUNT.df|0];return{f,x,y,hp:Math.round(hp*D.hp),mhp:Math.round(hp*D.hp),ak,bi:0,atk:Math.round((3+t*4+f.rar*(1.2+t*.3))*(red&&!ab?1.6:1)*(f.myth?2:1)*(el?1.5:1)*(bo?1.5:1)*D.atk*(ab?abyssAtkMul(HUNT.fi,red,bo):1)),ab100,red,el,boss:bo,sc:bo?2.4:el?1.5:1.25,st:'idle',t:0,vx:0,vy:0,kx:0,ky:0,an:Math.random()*6,hit:0,die:0,id:Math.random()}}
 function huSpawn(){return huPack()}
 function huSpawn0(){const pool=hPool(HUNT.fi);if(!pool.length)return;const w=[50,28,14,5,2];let r=Math.random()*99,rr=0;for(;rr<4;rr++){r-=w[rr];if(r<=0)break}
   let c=pool.filter(f=>!f.myth&&f.rar===rr);if(huS().lv>=10&&Math.random()<.003){const my=pool.filter(f=>f.myth);if(my.length)c=my}if(!c.length)c=pool;HUNT.mons.push(huMon(c[(Math.random()*c.length)|0],{el:Math.random()<.08}))}
@@ -4468,7 +4472,7 @@ const hdf=()=>Math.max(0,Math.min(2,S.hdf==null?1:S.hdf|0));
 /* 🔐 사냥터 순서: 앞 사냥터 우두머리를 쓰러뜨려야 다음이 열려요 + 권장 방어력 미만이면 못 들어가요 */
 function hfLock(i){if(admOn())return'';const u=huS(),clr=u.clr||{},f=HFIELDS[i];if(f.raid){if(huS().lv<10)return'용사 Lv10부터 함께해요';return''}if(f.abyss){if(u.lv<40)return'용사 Lv40부터';if(i===11?!((S.hunt.nclr||{})[9]):!clr[i-1])return i===11?'「꿈의 끝 · 악몽 숲」을 악몽 난이도로 먼저 정화해요':'「'+HFIELDS[i-1].n+'」 우두머리를 먼저 쓰러뜨려요';const rq=Math.floor(HREQ[i]*HDF[hdf()].req);if(huDef()<rq)return'방어력 '+rq+' 필요 (지금 '+huDef()+')';return''}if(hdf()===2&&!clr[i]&&hfOpen(f))return'보통 난이도로 먼저 정화해요';if(!hfOpen(f))return f.night?'용사 Lv15부터':'아직 못 가 본 곳';if(i>0&&!clr[i-1])return'「'+HFIELDS[i-1].n+'」 우두머리를 먼저 쓰러뜨려요';{const rq=Math.floor(HREQ[i]*HDF[hdf()].req);if(huDef()<rq)return'방어력 '+rq+' 필요 (지금 '+huDef()+')'}return''}
 function huHurt(raw){if(HUNT.down>0)return;if(HUNT.roll>0){huPop(HUNT.x,HUNT.y-30,'구르기!','blue');return}if(HUNT.ifr>0)return;HUNT.ifr=.5;const dm=Math.max(1,Math.round(raw*100/(100+huDef()*6)));HUNT.hp-=dm;HUNT.hurt=.35;SHK={t:.25,a:3};Snd.hfx('hurt');huPop(HUNT.x,HUNT.y-30,'-'+dm,'red');for(let i=0;i<8;i++)parts.push({x:HUNT.x,y:HUNT.y-10,vx:(Math.random()-.5)*60,vy:-30,life:.5,t:0,c:'#ff6a7a',g:100,s:2});if(HUNT.run)HUNT.run.hurt+=dm;if(HUNT.hp<=0)huDie()}
-function huEnter(fi,go){if(HFIELDS[fi]&&HFIELDS[fi].raid&&!go){openRaid();return}if(ONLINE&&Net.me&&isXKing('hl',Net.me.name))setTimeout(()=>{if(HUNT.on){HUNT.scare=performance.now()+2600;showBanner('⚔️ 몬스터들이 용사 왕을 알아봤어요… ❗❓',2200)}},900);if(F.mode!=='idle'){toast('낚시를 마치고 들어가요');return}const lk=hfLock(fi);if(lk){toast('🔒 '+lk);Snd.sfx('no');return}const cd=Math.ceil(((HUNT.cdUntil||0)-Date.now())/1000);if(cd>0){toast('😮‍💨 숨 고르는 중… '+cd+'초 뒤에 다시 들어갈 수 있어요');return}
+function huEnter(fi,go){if(hfAbyss(fi)&&cLv()<10)setTimeout(()=>{if(HUNT.on)showBanner('🕳️ 심연이 너무 깊어요… ☁️ 천상계에서 하늘빛(구름 Lv)을 모아 오면 훨씬 세져요',3600)},1200);if(HFIELDS[fi]&&HFIELDS[fi].raid&&!go){openRaid();return}if(ONLINE&&Net.me&&isXKing('hl',Net.me.name))setTimeout(()=>{if(HUNT.on){HUNT.scare=performance.now()+2600;showBanner('⚔️ 몬스터들이 용사 왕을 알아봤어요… ❗❓',2200)}},900);if(F.mode!=='idle'){toast('낚시를 마치고 들어가요');return}const lk=hfLock(fi);if(lk){toast('🔒 '+lk);Snd.sfx('no');return}const cd=Math.ceil(((HUNT.cdUntil||0)-Date.now())/1000);if(cd>0){toast('😮‍💨 숨 고르는 중… '+cd+'초 뒤에 다시 들어갈 수 있어요');return}
   huS();closeSheet();const goal=24+HFIELDS[fi].t*2;Object.assign(HUNT,{on:true,fi,df:HFIELDS[fi].raid?1:hdf(),mons:[],ep:[],pkA:{},rollN:2,rollR:0,ifr:0,dim:0,run:{t0:Date.now(),k:0,xp:0,c:0,dr:0,items:[],scr:[],hurt:0,boss:0,lv0:huS().lv,goal,wave:1},x:HUNT.W*TS/2,y:(HUNT.H-3)*TS,hp:huMaxHp(),spawnT:0,kc:0,boss:null,combo:0,roll:0});HUNT.props=huProps(fi);
   if(HFIELDS[fi].raid){HUNT.run.raid=1;HUNT.run.rd=0;$('huhud').hidden=false;CUR_ACT=null;document.body.classList.add('hunting');huBtns(true);Snd.hfx('boss');showBanner('🌑 악몽의 왕좌… 팀이 함께 10분 안에 쓰러뜨려요!',3600);setTimeout(huRaidBoss,1200);huHud();return}
   for(let i=0;i<2;i++)huPack();$('huhud').hidden=false;CUR_ACT=null;document.body.classList.add('hunting');huBtns(true);Snd.hfx('lv');showBanner('🫧 '+HFIELDS[fi].n+'에 친구 '+goal+'마리가 악몽에 갇혀 있어요… 꿈방울을 터뜨려 구해 줘요!',3200);huHud()}
@@ -4485,7 +4489,7 @@ function huLabels(){const L=$('huL');let i=0;HUNT.mons.forEach(m=>{if(m.die)retu
 /* 공격 · 구르기 · 힐링포션 */
 function huShoot(kind){if(kind==='bow'||kind==='bomb'){const tg0=HUNT.mons.filter(m=>!m.die).sort((a,b)=>Math.hypot(a.x-HUNT.x,a.y-HUNT.y)-Math.hypot(b.x-HUNT.x,b.y-HUNT.y))[0];let vx=HUNT.face,vy=0;if(tg0){const d=Math.max(1,Math.hypot(tg0.x-HUNT.x,tg0.y-HUNT.y));vx=(tg0.x-HUNT.x)/d;vy=(tg0.y-HUNT.y)/d;HUNT.face=vx<0?-1:1}HUNT.pr.push({k:kind,x:HUNT.x,y:HUNT.y-12,vx:vx*(kind==='bow'?230:120),vy:vy*(kind==='bow'?230:120),t:kind==='bow'?.8:1,hitL:[]});HUNT.cd=kind==='bow'?.45:.8;HUNT.sw=.15;Snd.hfx('swing');return}const tg=HUNT.mons.filter(m=>!m.die).sort((a,b)=>Math.hypot(a.x-HUNT.x,a.y-HUNT.y)-Math.hypot(b.x-HUNT.x,b.y-HUNT.y))[0];let vx=HUNT.face,vy=0;if(tg&&Math.hypot(tg.x-HUNT.x,tg.y-HUNT.y)<170){const d=Math.hypot(tg.x-HUNT.x,tg.y-HUNT.y);vx=(tg.x-HUNT.x)/d;vy=(tg.y-HUNT.y)/d;HUNT.face=vx<0?-1:1}
   HUNT.pr.push({k:kind,x:HUNT.x+vx*8,y:HUNT.y-12,vx:vx*(kind==='gun'?200:110),vy:vy*(kind==='gun'?200:110),t:kind==='gun'?.75:1.6,tg:kind==='wand'?tg:null});HUNT.cd=kind==='gun'?.32:.6;HUNT.sw=.15;Snd.hfx('swing')}
-function huHitMon(m,mul,big){if(m.die)return;const mult=m.raid||m.raidM?1:huMult(m.f),crit=Math.random()<huCrit(),dmg=mult<=0?0:Math.max(1,Math.round(huAtk()*mult*mul*(crit?2:1)));m.hp-=dmg;m.hit=.18;const d=Math.max(1,Math.hypot(m.x-HUNT.x,m.y-HUNT.y));if(!m.boss&&!m.el){const kb=huWT()==='ham'?(big?150:28):(big?100:12);m.kx=(m.x-HUNT.x)/d*kb;m.ky=(m.y-HUNT.y)/d*kb}m.ag=1;if(m.pk)HUNT.pkA[m.pk]=1;
+function huHitMon(m,mul,big){if(m.die)return;const mult=m.raid||m.raidM?1:huMult(m.f),crit=Math.random()<huCrit(),dmg=mult<=0?0:Math.max(1,Math.round(huAtk()*mult*mul*(crit?2:1)*(hfAbyss(HUNT.fi)?abyssSky():1)));m.hp-=dmg;m.hit=.18;const d=Math.max(1,Math.hypot(m.x-HUNT.x,m.y-HUNT.y));if(!m.boss&&!m.el){const kb=huWT()==='ham'?(big?150:28):(big?100:12);m.kx=(m.x-HUNT.x)/d*kb;m.ky=(m.y-HUNT.y)/d*kb}m.ag=1;if(m.pk)HUNT.pkA[m.pk]=1;
   if(m.raid){RAID_PEND+=dmg;if(HUNT.run)HUNT.run.rd=(HUNT.run.rd||0)+dmg;m.hp=Math.max(1,m.hp)}
   if(m.boss&&!m.rage&&m.hp>0&&m.hp<m.mhp*.5)huRage(m);
   if(m.st==='wind'&&big){m.st='chase';huPop(m.x,m.y-30,'끊었다!','blue')}HUNT.stop=dmg?(big||crit?.08:.04):0;SHK={t:big||crit?.16:.07,a:big||crit?2.2:1};Snd.hfx(dmg?(crit||big?'crit':'hit'):'hurt');if(dmg&&huWT()==='ham')Snd.chime(88+((Math.random()*3)|0)*2,.18);
@@ -4880,11 +4884,11 @@ function wedNear(){if(!P)return null;const n=(p,r)=>Math.abs(P.x-(p[0]*TS+8))<(r
   if(n([VEN_PIANO[0]+.5,VEN_PIANO[1]],22))return{type:'x',fn:()=>{wedSong();toast('🎹 딩동댕~ 결혼 행진곡을 쳤어요')},label:'피아노<br>치기'};if(n(HOF_AT))return{type:'x',fn:openHof,label:'명예의 전당'};return null}
 
 /* ----- 길에서 만나는 이야기: 처음 보는 곳에 다가가면 깜짝! ----- */
-const DISC=[['portal',[17,20],'뭐야, 마을 한가운데 포탈이 생겼어!? 반짝반짝 빨려 들어갈 것 같아…','🌀 꿈의 문을 발견했어요! 물고기들의 꿈이 갇힌 세계래요'],
+const DISC=[   /* 2026-11-18: 꿈의 문 말풍선은 없앴어요 (접속마다 떴어요) · 대신 구름 문 이야기 (skyHint) */
   ['hof',HOF_AT,'우와 황금 트로피다! 누가 1등이지?','🏆 명예의 전당을 발견했어요'],
   ['ven',[62,9],'여기 왜 이렇게 예쁘게 꾸며져 있지? 결혼식장인가 봐!','💒 물결 예식장을 발견했어요! 꽃 아치 옆 요정에게 말을 걸어 봐요'],
   ['fairy',VEN_FAIRY,'저기 작은 요정이 날개를 파닥파닥…!','🧚 혼인 신고 요정 「리본」을 만났어요']];
-let DISC_T=0;function discTick(dt){DISC_T-=dt;if(DISC_T>0||!P||HUNT.on)return;DISC_T=.5;S.seen=S.seen||{};for(const d of DISC){if(S.seen[d[0]])continue;if(Math.hypot(P.x-(d[1][0]*TS+8),P.y-(d[1][1]*TS+12))<64){S.seen[d[0]]=1;saveState(true);showSay(ME,d[2]);setTimeout(()=>{showBanner(d[3]);Snd.sfx('page')},900);break}}}
+let DISC_T=0;function discTick(dt){DISC_T-=dt;if(DISC_T>0||!P||HUNT.on||(ONLINE&&!(Net.me&&CEL.info)))return;DISC_T=.5;S.seen=S.seen||{};for(const d of DISC){if(S.seen[d[0]])continue;if(Math.hypot(P.x-(d[1][0]*TS+8),P.y-(d[1][1]*TS+12))<64){S.seen[d[0]]=1;saveState(true);showSay(ME,d[2]);setTimeout(()=>{showBanner(d[3]);Snd.sfx('page')},900);break}}}
 function discAdd(list){list.forEach(d=>{if(!DISC.find(x=>x[0]===d[0]))DISC.push(d)})}
 
 /* ===================== 🗡️ 물결 RPG 장비 (2026-11-09) · 8부위 · 7등급 · 랜덤 옵션 · 주문서 강화 · 재료 제작 · 낚시 드랍 ===================== */
@@ -4962,7 +4966,7 @@ function openHunt(){Snd.sfx('ui');huS();if(ONLINE&&Net.me&&!HUTOP)Net.send({t:'v
       '<div class="sec">난이도</div><div class="hdfrow">'+HDF.map((d,i)=>'<button class="hdfb'+(hdf()===i?' on':'')+'" data-hdf="'+i+'" style="--c:'+d.c+'"><b>'+d.n+'</b><small>'+['몬스터가 약해요 · 보상 적게','지금 그대로','몬스터 체력 3배 · 칩 2.2배 · 악몽 치장 · 칭호'][i]+'</small></button>').join('')+'</div>'+
       (huCatch()>1?'<div class="hcatch">🏹 따라잡기 경험치 <b>×'+huCatch()+'</b> <small>마을 최고 용사 Lv'+HUTOP+' · 차이가 줄면 배율도 줄어요</small></div>':'')+
       '<div class="muted" style="font-size:11.5px;margin:4px 0 8px;line-height:1.6">우두머리 <b>큰 보상</b>은 사냥터 · 난이도마다 <b>주 1번</b> · 가까이서 같이 싸운 친구도 받아요'+(hdf()===2?' · 악몽은 보통으로 정화한 곳만 · 악몽 정화 '+Object.keys(S.hunt.nclr||{}).length+'/10':'')+'</div>'+
-      '<div class="sec">사냥터 고르기 <span class="cnt">친구와 가까이서 함께 싸우면 경험치 +30% · 칩·드랍 +20% (1명당, 3명까지)</span></div><div class="menu">'+HFIELDS.map((f,i)=>{const fr=Object.keys(HOTH).filter(n=>HOTH[n].f===i&&Date.now()-HOTH[n].at<4000),lk=hfLock(i),cl=(huS().clr||{})[i];return'<button class="mbtn" data-hf="'+i+'"'+(lk?' disabled':'')+'>'+(lk?'🔒 ':cl?'✅ ':'⚔️ ')+f.n+'<small>'+(lk?lk+(f.abyss?' · 도감에 없는 물고기는 ×4 · 우두머리는 빈 종마다 +40% (최대 ×6)':''):'위험도 '+'★'.repeat(Math.min(5,1+(f.t>>1)))+' · 권장 공격 '+HATK[i]+' · 방어 '+HREQ[i]+(f.abyss?(abyssMiss(i)?' · <b style="color:#d0407a">도감 빈 종 '+abyssMiss(i)+' → 우두머리 ×'+abyssBossX(i).toFixed(1)+'</b>':' · 도감 완성 ✓'):'')+(cl?' · '+'⭐'.repeat((S.hunt.star||{})[i]|0)+'☆'.repeat(3-((S.hunt.star||{})[i]|0)):'')+(fr.length?' · ⚔️ '+fr.join(', '):''))+'</small></button>'}).join('')+'</div>';
+      '<div class="sec">사냥터 고르기 <span class="cnt">친구와 가까이서 함께 싸우면 경험치 +30% · 칩·드랍 +20% (1명당, 3명까지)</span></div><div class="menu">'+HFIELDS.map((f,i)=>{const fr=Object.keys(HOTH).filter(n=>HOTH[n].f===i&&Date.now()-HOTH[n].at<4000),lk=hfLock(i),cl=(huS().clr||{})[i];return'<button class="mbtn" data-hf="'+i+'"'+(lk?' disabled':'')+'>'+(lk?'🔒 ':cl?'✅ ':'⚔️ ')+f.n+'<small>'+(lk?lk+(f.abyss?' · ☁️ 천상계의 하늘빛이 있어야 깊이 닿아요':''):'위험도 '+'★'.repeat(Math.min(5,1+(f.t>>1)))+' · 권장 공격 '+HATK[i]+' · 방어 '+HREQ[i]+(f.abyss?' · <b style="color:#4a7ad0">☁️ 하늘빛 ×'+abyssSky().toFixed(1)+'</b> (구름 Lv'+cLv()+')'+(abyssMiss(i)?' · <b style="color:#d0407a">도감 빈 종 '+abyssMiss(i)+' → 우두머리 ×'+abyssBossX(i).toFixed(1)+'</b>':' · 도감 완성 ✓'):'')+(cl?' · '+'⭐'.repeat((S.hunt.star||{})[i]|0)+'☆'.repeat(3-((S.hunt.star||{})[i]|0)):'')+(fr.length?' · ⚔️ '+fr.join(', '):''))+'</small></button>'}).join('')+'</div>';
   else{const buy=(k,names)=>{const n=(h[k]|0)+1,P=HUNT_PRICE[k];return'<div class="row"><div class="nm"><div><b>'+names[h[k]|0]+'</b>'+(n<P.length?' → '+names[n]:' (최고)')+'</div><div class="muted" style="font-size:12px">'+(k==='w'?'단계마다 공격 +2 · 전체 공격력 +8% (무기 종류 상관없이)':k==='a'?'단계마다 방어 +2 · 체력 +5':'단계마다 걸음 +8%')+'</div></div><div class="go">'+(n<P.length?'<button class="btn sm pink" data-hb="'+k+'"'+(c>=P[n]?'':' disabled')+'>칩 '+fmtShort(P[n])+'</button>':'')+'</div></div>'};
     b+=drExHtml(h)+
       '<div class="sec">💪 전투력 <b style="color:#c0407a">'+fmt(huCP())+'</b> <span class="cnt">레벨 + 장비로 정해져요 · 1위는 ⚔️ 용사 왕</span></div>'+(cBless()>1?'<div class="muted" style="font-size:12.5px">☁️ 구름의 축복 (구름 Lv'+cLv()+') · 공격 · 체력 +'+Math.round((cBless()-1)*100)+'%</div>':'')+'<div class="sec">기본 능력치 <span class="cnt">용사 레벨이 오를수록 올라요</span></div><div class="muted" style="font-size:12.5px;line-height:1.7">공격 <b>'+huAtk()+'</b> · 방어 <b>'+huDef()+'</b> · 체력 <b>'+huMaxHp()+'</b> · 걸음 <b>'+Math.round(huSpd())+'</b><br>더 강해지려면 <b>장비</b>를 끼고 <b>주문서</b>를 발라요. 다음 사냥터는 <b>방어력</b>이 모자라면 못 들어가요!</div><div class="sec">물약</div>'+'<div class="row"><div class="nm"><div><b>힐링포션 ×10</b></div><div class="muted" style="font-size:12px">체력 절반 회복</div></div><div class="go"><button class="btn sm mint" data-hb="pot"'+(c>=HPOT_PRICE?'':' disabled')+'>칩 '+fmtShort(HPOT_PRICE)+'</button></div></div>'}
@@ -12905,7 +12909,7 @@ function celOnMsg(m){
   if(m.t==='sw'||m.t==='sw_no'){swMsg(m);return true}
   if(m.t==='go'){goMsg(m);return true}
   if(m.t==='clv'){S.clv=m.xp;if(m.up){showBanner('☁️ 구름 Lv'+m.up+'!',2600);Snd.sfx('page');if(P)sparkFx(P.x,P.y-14,20,['#bfe8ff','#ffffff','#ffd6f0'])}realmHud();return true}
-  if(m.t==='cel'){CEL.info=m;CEL.celd=m.celd||{};if(m.celc!=null)CEL.celc=m.celc;if(m.pk)CEL.pk=m.pk;if(m.ready!==undefined)PLAZA.ready=m.ready;if(m.at)GO.at=m.at;if(m.clv!=null)S.clv=m.clv;if(PLAZA.talkOpen&&uiOpen&&/나그네/.test(($('sheethead')||{}).textContent||''))nagneTalk();return true}
+  if(m.t==='cel'){CEL.info=m;CEL.celd=m.celd||{};if(m.celc!=null)CEL.celc=m.celc;if(m.pk)CEL.pk=m.pk;if(m.ready!==undefined)PLAZA.ready=m.ready;if(m.at)GO.at=m.at;if(m.clv!=null)S.clv=m.clv;if(PLAZA.talkOpen&&uiOpen&&/나그네/.test(($('sheethead')||{}).textContent||''))nagneTalk();skyHint();if(!$('sheetwrap').hidden&&/구름 문/.test($('sheettitle').textContent))skyGateSheet();return true}
   if(m.t==='cel_ok'&&REALM.want){if(m.celc!=null)CEL.celc=m.celc;if(m.pk)CEL.pk=m.pk;realmArrive(m);return true}
   if(m.t==='cel_ok'){if(m.celc!=null)CEL.celc=m.celc;if(m.pk)CEL.pk=m.pk;celEnter(m);return true}
   if(m.t==='celc'){CEL.celc=m.n|0;if(m.note){toast(m.note);Snd.sfx('buy');if(uiOpen&&/구름 상점/.test(($('sheethead')||{}).textContent||''))celShop()}return true}
@@ -12941,12 +12945,12 @@ const goLeft=t=>{const ms=Math.max(0,t-goNow()),D=Math.floor(ms/864e5),h=Math.fl
 const goLeftTxt=()=>goOpenC()?'열렸어요!':'오픈까지 '+goLeft(GO.at);
 const goLandWhen=k=>{const t=GO.at+(GO.land[k]||0)*864e5;return goNow()>=t?'열렸어요':goFmt(t)+'에 열려요 ('+goLeft(t)+')'};
 function goMsg(m){if(m.now)GO.off=m.now-Date.now();if(m.at)GO.at=m.at;if(m.land)GO.land=m.land;if(m.season)GO.season=m.season;if(m.gf)GO.gf=m.gf;if(m.rank)GO.rank=m.rank;GO.gse=m.gse|0;
-  if(!GO.ann){GO.ann=1;setTimeout(()=>{if(!goOpenC())showBanner('☁️ 구름 위 나라 그랜드 오픈 · '+goWhen()+' · 용사 Lv30이면 누구나 · 모두 0부터!',4200)},4000)}
+  if(!GO.ann){GO.ann=1;if(S.gin)setTimeout(()=>{if(!goOpenC())showBanner('☁️ 구름 위 나라 그랜드 오픈 · '+goWhen(),3600)},4000)}   /* 아직 안 가 본 사람은 skyHint가 알려 줘요 */
   if(!$('sheetwrap').hidden&&/그랜드 오픈/.test($('sheettitle').textContent))goSheet()}
 function goSigns(){if(goSigns.c)return goSigns.c;const out=[],pick=(bx,by,cands)=>{for(const[dx,dy]of cands){const x=bx+dx,y=by+dy;if(W.inb(x,y)&&!W.SOL[y][x]&&W.T[y][x]!=='w'){out.push([x,y]);return}}};
-  pick((W.spawn.x/TS)|0,(W.spawn.y/TS)|0,[[2,-1],[3,-1],[-2,-1],[2,1],[-3,0],[3,1]]);pick(PLAZA.nagne[0],PLAZA.nagne[1],[[2,1],[-2,1],[2,0],[0,2],[3,2]]);return goSigns.c=out}
-function goSignDraw(list,x0,x1,y0,y1){if(inRealm()||HUNT.on||CEL.on)return;if(GO.gse&&goDayC()>GO.season+7)return;
-  goSigns().forEach(([tx,ty])=>{if(tx<x0-3||tx>x1+3||ty<y0-3||ty>y1+3)return;const X=tx*TS+8,Y=ty*TS+14;list.push({y:Y,fn:()=>{const c=cx,op=goOpenC(),t=wt;
+  pick((W.spawn.x/TS)|0,(W.spawn.y/TS)|0,[[-2,1],[2,-1],[3,-1],[-2,-1],[2,1]]);pick(PLAZA.nagne[0],PLAZA.nagne[1],[[2,1],[-2,1],[2,0],[0,2],[3,2]]);return goSigns.c=out}
+function goSignDraw(list,x0,x1,y0,y1){if(inRealm()||HUNT.on||CEL.on)return;
+  goSigns().forEach(([tx,ty],gi)=>{if(tx<x0-3||tx>x1+3||ty<y0-3||ty>y1+3)return;const X=tx*TS+8,Y=ty*TS+14;if(gi===0){list.push({y:Y,fn:()=>skyGateDraw(X,Y)});return}if(GO.gse&&goDayC()>GO.season+7)return;list.push({y:Y,fn:()=>{const c=cx,op=goOpenC(),t=wt;
     c.fillStyle='rgba(40,30,60,.2)';c.beginPath();c.ellipse(X,Y,11,2.4,0,0,6.283);c.fill();
     c.fillStyle='#8a6040';c.fillRect(X-9,Y-14,2,14);c.fillRect(X+7,Y-14,2,14);
     c.fillStyle='#fff8ec';c.fillRect(X-12,Y-28,24,15);c.fillStyle='#c8a0e8';c.fillRect(X-12,Y-28,24,2);c.fillRect(X-12,Y-15,24,2);c.fillRect(X-12,Y-28,2,15);c.fillRect(X+10,Y-28,2,15);
@@ -12954,7 +12958,42 @@ function goSignDraw(list,x0,x1,y0,y1){if(inRealm()||HUNT.on||CEL.on)return;if(GO
     if(!op){c.fillStyle='#ff8ab0';c.fillRect(X-7,Y-17,1,1);c.fillRect(X+6,Y-25,1,1)}else for(let i=0;i<3;i++){const a=t*2+i*2.1;c.fillStyle=['#ffd34d','#ff8ab0','#8ad0ff'][i];c.fillRect(Math.round(X+Math.cos(a)*14),Math.round(Y-21+Math.sin(a)*8),2,2)}
     if((t*2|0)%2===0&&!op){c.fillStyle='rgba(255,220,140,.5)';c.fillRect(X-12,Y-30,24,1)}
     worldTag(op?[['☁️ 구름 위 나라 ','#4a3d6b'],['열렸어요!','#d0407a',true]]:[['☁️ 그랜드 오픈 ','#4a3d6b'],[goLeft(GO.at),'#d0407a',true]],X,Y-32)}})})}
-function goNear(){if(inRealm()||HUNT.on||CEL.on||!P)return null;for(const[tx,ty]of goSigns())if(Math.hypot(tx*TS+8-P.x,ty*TS+12-P.y)<22)return{type:'x',label:'☁️<br>오픈',fn:()=>{goSheet();if(ONLINE&&Net.me)Net.send({t:'go_get'})}};return null}
+function goNear(){if(inRealm()||HUNT.on||CEL.on||!P)return null;const G=goSigns();for(let gi=0;gi<G.length;gi++){const[tx,ty]=G[gi];if(Math.hypot(tx*TS+8-P.x,ty*TS+12-P.y)<(gi?22:26))return gi===0?{type:'x',label:'☁️<br>구름 문',fn:skyGateSheet}:{type:'x',label:'☁️<br>오픈',fn:()=>{goSheet();if(ONLINE&&Net.me)Net.send({t:'go_get'})}}}return null}
+/* ☁️ 구름 문 (2026-11-18): 마을 광장 · 천상계로 가는 문 · 누르면 「가는 길」 4단계를 쉽게 알려 주고, 다 되면 바로 들어가요 */
+function skyGateDraw(X,Y){const c=cx,t=wt,op=goOpenC(),a=(CEL.info&&CEL.info.al)||{},mine=op&&a.pick;
+  c.fillStyle='rgba(60,50,110,.22)';c.beginPath();c.ellipse(X,Y,15,3.5,0,0,6.283);c.fill();
+  const g=c.createRadialGradient(X,Y-16,2,X,Y-16,14);g.addColorStop(0,op?'rgba(255,250,220,.95)':'rgba(220,210,255,.55)');g.addColorStop(.6,op?'rgba(190,170,255,.7)':'rgba(170,160,220,.35)');g.addColorStop(1,'rgba(170,160,255,0)');
+  c.fillStyle=g;c.beginPath();c.ellipse(X,Y-16,9,13,0,0,6.283);c.fill();
+  for(let i=0;i<5;i++){const k=((t*(op?.8:.3)+i/5)%1),r=2+k*8;c.strokeStyle='rgba(255,255,255,'+(.5*(1-k))+')';c.lineWidth=1;c.beginPath();c.ellipse(X,Y-16,r*.75,r,0,0,6.283);c.stroke()}
+  const puff=(px,py,r,cl)=>{c.fillStyle=cl;c.beginPath();c.arc(px,py,r,0,6.283);c.fill()};
+  [[-11,-2,4],[-12,-8,4.5],[-12,-15,4.5],[-11,-22,4.5],[-8,-28,4.5],[-3,-31,5],[3,-31,5],[8,-28,4.5],[11,-22,4.5],[12,-15,4.5],[12,-8,4.5],[11,-2,4]].forEach(([dx,dy,r],i)=>{const b=Math.sin(t*1.5+i)*.5;puff(X+dx,Y+dy+b,r+.8,'#c8c0f0');puff(X+dx,Y+dy+b-.6,r,'#ffffff')});
+  c.fillStyle='#ffd34d';c.fillRect(X+14,Y-12,2,12);c.fillStyle=(t*3|0)%2?'#ffe9a0':'#ffd34d';c.fillRect(X+13,Y-15,4,4);
+  if(op)for(let i=0;i<4;i++){const an=t*1.6+i*1.57;c.fillStyle=['#ffd34d','#ff8ab0','#8ad0ff','#ffffff'][i];c.fillRect(Math.round(X+Math.cos(an)*16),Math.round(Y-16+Math.sin(an)*18),2,2)}
+  worldTag(op?[['☁️ 구름 문 ','#4a3d6b'],[mine?'천상계로!':'열렸어요','#d0407a',true]]:[['☁️ 구름 문 ','#4a3d6b'],[goLeft(GO.at),'#d0407a',true]],X,Y-40)}
+function skyGateSheet(){const I=CEL.info||{},a=I.al||{},lv=huS().lv,op=goOpenC(),ok1=lv>=GO.lv,ch=Math.min(3,a.ch|0),ok2=ch>=3||!!a.pick,ok3=!!a.pick,all=ok1&&ok3&&op;
+  const st=(n,ok,t,sub,btn)=>'<div class="row" style="padding:8px 4px;align-items:flex-start'+(ok?'':';background:#fff6e0;border-radius:10px')+'"><span style="width:26px;font-size:18px">'+(ok?'✅':n)+'</span><div class="nm"><b>'+t+'</b><div class="muted" style="font-size:12.5px;line-height:1.6">'+sub+'</div>'+(btn||'')+'</div></div>';
+  const cur=!ok1?1:!ok3?2:!op?4:0;
+  let h='<div class="wishc" style="font-size:13px;line-height:1.75">하늘이 갈라진 밤, 마을 광장에 <b>구름 문</b>이 내려앉았어요.<br>문 너머는 구름 위 나라 <b>천상계</b> · 그곳에서 모은 <b>하늘빛(구름 Lv)</b>이 있어야 꿈의 심연 깊은 곳까지 닿을 수 있대요.</div>'+
+    '<div class="sec">☁️ 천상계 가는 길 <span class="cnt">'+[ok1,ok2,ok3,op].filter(Boolean).length+' / 4</span></div>'+
+    st('①',ok1,'용사 Lv'+GO.lv+' 되기',ok1?'지금 Lv'+lv:'지금 Lv'+lv+' · 바로 옆 🌀 꿈의 문에서 사냥하면 올라요')+
+    st('②',ok2,'🕯️ 나그네의 부탁 3가지',ok2?'다 들어줬어요':(cur===2?'별빛 광장에 있는 나그네에게 말을 걸어요 · 지금 '+ch+' / 3':'①을 먼저 해요'),!ok2&&ok1?'<button class="btn xs pink" style="margin-top:6px" data-skyg="nag">📍 나그네에게 길 안내</button>':'')+
+    st('③',ok3,'빛 ☀️ 또는 그림자 🌙 고르기',ok3?(a.pick==='l'?'☀️ 빛의 길':'🌙 그림자의 길')+(op?'':' · 🕯️ 개척자의 등불 예약 완료'):'부탁을 다 들어주면 나그네가 물어봐요',ok2&&!ok3?'<button class="btn xs pink" style="margin-top:6px" data-skyg="nag">📍 나그네에게 길 안내</button>':'')+
+    st('④',op,'구름 문이 열리는 날',op?'열렸어요!':goWhen()+' · <b style="color:#d0407a">'+goLeft(GO.at)+'</b>');
+  h+=all?'<button class="btn big mint" style="width:100%;margin-top:10px" data-skyg="go">☁️ 구름 문으로 들어가기</button><div class="muted" style="font-size:12px;text-align:center;margin-top:4px">하루 구름 숨결 '+(I.admin?'∞':(I.left|0)+'분')+' · 하늘낚시 중 「틈」으로도 갈 수 있어요</div>'
+    :'<div class="muted" style="font-size:12.5px;text-align:center;margin-top:10px">'+(op?'남은 단계를 마치면 이 문으로 바로 들어갈 수 있어요':'오픈 전에 ①~③을 마쳐 두면 열리는 순간 바로 들어갈 수 있어요')+'</div>';
+  h+='<button class="btn xs ghost" style="width:100%;margin-top:8px" data-skyg="info">🗓️ 오픈 일정 · 명예의 구름판 · 순위</button>';
+  openSheet('☁️ 구름 문',h);if(ONLINE&&Net.me&&!skyGateSheet.q){skyGateSheet.q=1;Net.send({t:'cel_get'});setTimeout(()=>skyGateSheet.q=0,3000)}}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-skyg]');if(!t)return;e.stopPropagation();Snd.sfx('tap');const k=t.dataset.skyg;
+  if(k==='nag'){closeSheet();const[nx,ny]=PLAZA.nagne;GUIDE={x:nx*TS+8,y:(ny+1)*TS+8,ic:'🕯️',n:'나그네'};S.mmOff=false;toast('🕯️ 화살표를 따라 별빛 광장 나그네에게 가요');return}
+  if(k==='go'){closeSheet();celAsk();return}
+  if(k==='info'){goSheet();if(ONLINE&&Net.me)Net.send({t:'go_get'})}},true);
+/* 접속하면 한 번: 내 단계에 맞는 구름 문 이야기 (내 말풍선) · 천상계에 들어가 본 뒤엔 안 나와요 */
+function skyHint(){if(skyHint.done||!P||HUNT.on||inRealm()||S.gin)return;const I=CEL.info;if(!I)return;skyHint.done=1;const a=I.al||{},lv=huS().lv,op=goOpenC();
+  const line=lv<GO.lv?['광장에 구름 문이 내려앉았대… 용사 Lv'+GO.lv+'이 되면 지나갈 수 있대!','☁️ 마을 광장 「구름 문」을 눌러 보세요 · 천상계 가는 길을 알려 줘요']
+    :!a.pick?['구름 문 옆에서 등불 냄새가 나… 별빛 광장 나그네를 찾아가 볼까?','🕯️ 마을 광장 「구름 문」을 누르면 나그네에게 길 안내를 해 줘요']
+    :!op?['구름 문이 '+goWhen()+'에 열린대! 두근두근…','☁️ 준비 끝! 구름 문이 열리면 바로 들어갈 수 있어요']
+    :['구름 문이 열렸어! 천상계로 가 보자!','☁️ 마을 광장 「구름 문」을 눌러 천상계로 들어가요'];
+  setTimeout(()=>{if(!P||HUNT.on)return;showSay(ME,line[0]);setTimeout(()=>{showBanner(line[1],3800);Snd.sfx('page')},1100)},2500)}
 function goSheet(){const op=goOpenC(),F=GO.gf||{},me=Net.me&&Net.me.name,row=(ic,nm,k)=>{const t=GO.at+(GO.land[k]||0)*864e5,on=goNow()>=t;return'<div class="row" style="padding:6px 2px"><span style="width:22px">'+ic+'</span><div class="nm"><b>'+nm+'</b><div class="muted" style="font-size:12px">'+(k==='0'?goFmt(GO.at):goFmt(t))+' · '+(on?'✅ 열렸어요':'⏳ '+goLeft(t))+'</div></div></div>'};
   const rec=(ic,nm,v)=>'<div style="font-size:13px;line-height:1.9">'+ic+' '+nm+' · '+(v?'<b>'+esc(Array.isArray(v[0])?v.map(x=>x[0]).join(' · '):v[0])+'</b>':'<span class="muted">아직 아무도</span>')+'</div>';
   let h='<div class="wishc" style="font-size:13px;line-height:1.75;text-align:center">'+(op?'☁️ <b>구름 위 나라가 열렸어요!</b><br>나그네(별빛 광장)에게 이야기를 듣고 하늘낚시에서 「틈」으로':'☁️ <b>'+goWhen()+'</b> 모두에게 한꺼번에 열려요<br><b style="font-size:20px;color:#d0407a">'+goLeft(GO.at)+'</b>')+'</div>'+
