@@ -5384,8 +5384,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1118i',UPD_LOG=[
- ['11/18 저녁 🛠️ 고침','🛠️',[['🪑 흔들의자 하늘 보기','앉으면 화면의 글자 · 버튼 · 이름표가 사라지고 하늘만 크게 보여요 · 새 음악 「하늘 그네」 · 스틱을 움직이면 내려와요'],['⛵ 꽃배 속도','물 위에서 너무 느리던 걸 다시 빠르게 했어요 (땅의 85%)'],['💰 직업 기술 버튼','가운데로 옮겨져 있던 버튼을 제자리로 돌려놨어요 · 이제 1초쯤 꾹 눌러야 옮겨져요'],['📜 의뢰 납품 · 해결하기','버튼이 눌리지 않던 걸 고쳤어요 · 마을 의뢰 · 친구 의뢰 모두 다시 돼요'],['🪤 통발 걷기','칸이 큰 통발을 한 번에 걷으면 가방이 되돌아가 물고기가 사라지던 걸 고쳤어요']]],
+const UPD_VER='1118j',UPD_LOG=[
+ ['11/18 저녁 🛠️ 고침','🛠️',[['❎ 확인 창 「취소」','구름 문 · 비싼 물건 사기 등 「정말 할까요?」 창의 취소 버튼이 안 눌리던 걸 고쳤어요'],['🪑 흔들의자 하늘 보기','앉으면 화면의 글자 · 버튼 · 이름표가 사라지고 하늘만 크게 보여요 · 새 음악 「하늘 그네」 · 스틱을 움직이면 내려와요'],['⛵ 꽃배 속도','물 위에서 너무 느리던 걸 다시 빠르게 했어요 (땅의 85%)'],['💰 직업 기술 버튼','가운데로 옮겨져 있던 버튼을 제자리로 돌려놨어요 · 이제 1초쯤 꾹 눌러야 옮겨져요'],['📜 의뢰 납품 · 해결하기','버튼이 눌리지 않던 걸 고쳤어요 · 마을 의뢰 · 친구 의뢰 모두 다시 돼요'],['🪤 통발 걷기','칸이 큰 통발을 한 번에 걷으면 가방이 되돌아가 물고기가 사라지던 걸 고쳤어요']]],
  ['11/18 📖 안내서','📖',[['📖 게임 안내서','메뉴 → 추억 → 📖 안내서 · 낚시 · 재화 · 아이템 · 강화 · 사냥 · 천상계 · 마을을 한눈에 · 헷갈릴 때 열어 봐요']]],
  ['11/18 오후 🌊 1위의 응원','🌊',[['🎣 낚시 강화 1위의 지원','강화 1위보다 낮으면 1단계마다 성공 +5%p (최대 +25%p) · 성공하면 별이 차이만큼 더 (최대 ×4) · 2단계 이상 낮으면 실패해도 별 · 꿈의 정수를 안 잃어요 · 강화소에 1위 이름으로 보여요'],['⚔️ 용사 1위의 격려','용사 1위보다 5레벨 이상 낮으면 사냥 경험치 1레벨 차이마다 +5% (최대 ×4) · 예전 따라잡기 경험치(×1.5~3)보다 세졌어요'],['⚔️ 이번 주 응원 상자','월요일부터 첫 접속 때 · 전투력이 1위의 절반이 안 되면 강화 상자(대), 3/4이 안 되면 강화 상자(중)']]],
  ['11/18 🌟 황금 깃발','🌟',[['🌟 이번 주 황금 깃발','매주 월요일 낚시터 한 곳에 반짝이는 황금 깃발이 서요 · 그 주 주인은 다음 주에 👑 강화 상자(특) + 💰 2억을 더 받아요 · 깃발 창 맨 위에서 어디인지 볼 수 있어요']]],
@@ -9414,8 +9414,8 @@ const fmtK=n=>n>=1e8?(Math.round(n/1e7)/10)+'억':n>=10000?(Math.round(n/1000)/1
 /* ===== 구매 확인 (2026-11-09): 10만 골드 넘는 건 한 번 더 물어봐요 ===== */
 const ASK_MIN=100000;
 function askConfirm(title,body,ok,fn){let w=$('askwrap');if(!w){w=document.createElement('div');w.id='askwrap';document.body.appendChild(w)}
-  w.innerHTML='<div class="askbox" role="dialog" aria-modal="true"><div class="askt">'+title+'</div><div class="askb">'+body+'</div><div class="askbtn"><button class="btn ghost" id="askNo">취소</button><button class="btn pink" id="askOk">'+ok+'</button></div></div>';
-  w.hidden=false;Snd.sfx('ui');$('askNo').onclick=()=>{w.hidden=true;Snd.sfx('tap')};$('askOk').onclick=()=>{w.hidden=true;fn()};w.onclick=e=>{if(e.target===w)w.hidden=true}}
+  w.innerHTML='<div class="askbox" role="dialog" aria-modal="true"><div class="askt">'+title+'</div><div class="askb">'+body+'</div><div class="askbtn"><button class="btn ghost" id="cfNo">취소</button><button class="btn pink" id="askOk">'+ok+'</button></div></div>';
+  w.hidden=false;Snd.sfx('ui');$('cfNo').onclick=()=>{w.hidden=true;Snd.sfx('tap')};   /* 거래 요청 창(#ask)의 askNo와 id가 겹쳐 취소가 안 눌렸어요 (2026-11-18 고침) */$('askOk').onclick=()=>{w.hidden=true;fn()};w.onclick=e=>{if(e.target===w)w.hidden=true}}
 const askPrice=(g,extra)=>'<div class="askp"><span class="coin"></span> <b>'+fmt(g)+'</b> 골드'+(extra||'')+'</div><div class="muted" style="font-size:12px">지금 '+fmt(S.gold)+' → 산 뒤 '+fmt(Math.max(0,S.gold-g))+'</div>';
 function buyCos(id,sure){
   const c=COS_BY[id];if(!c||owns(id)||c.price===undefined)return;

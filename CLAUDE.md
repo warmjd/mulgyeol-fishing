@@ -141,3 +141,4 @@
 - 💰 직업 기술 버튼(#skb) 위치: 실수로 길게 눌려 가운데로 옮겨진 사람 → 저장 키 skbpos2로 바꿔 모두 제자리 · 0.9초 꾹 + 움직이면 취소 · 화면 가운데(30~70%)면 무시.
 - ⛵ 꽃배 물 위 P.boatK .5 → .85.
 - 🪑 흔들의자 하늘 보기: P.swing이면 body.swingview (UI · #tags 이름표 숨김, 말풍선 .bub만) · SWV면 worldTag 안 그림 · 카메라 render.swk로 VH×.2 더 올림 · 음악 tracks.swing 「하늘 그네」 · 앉아 있을 땐 업데이트 소식 자동 열기 안 해요.
+- ❎ 확인 창(askConfirm) 취소: 거래 요청 #ask의 askNo와 id가 겹쳐 32곳 모두 취소가 안 됐어요 → cfNo. **id 겹치지 않게.**
