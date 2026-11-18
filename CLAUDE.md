@@ -138,3 +138,6 @@
 - 📜 의뢰 납품 · 해결하기 안 눌림: raidClick도 data-rq를 써서 의뢰 버튼을 먹었어요 → raidClick은 in/out/enter/board만. **data-* 이름 겹치지 않게 조심.**
 - 🪤 통발: 칸 큰 통발(+27 · 펫 재능)을 걷으면 checkSave '너무 빨리 많이 잡혔어요' → sync로 물고기 사라짐 → trap_claim 때 me.trapCred(걷은 수+4, 2분)만큼 봐줘요.
 - 고장 보상은 server COMP (이름 → [id, 상자, 골드, 글]) · 접속 때 한 번 (s.cmp 보존 목록). 치킨 · 꼬북린 지급.
+- 💰 직업 기술 버튼(#skb) 위치: 실수로 길게 눌려 가운데로 옮겨진 사람 → 저장 키 skbpos2로 바꿔 모두 제자리 · 0.9초 꾹 + 움직이면 취소 · 화면 가운데(30~70%)면 무시.
+- ⛵ 꽃배 물 위 P.boatK .5 → .85.
+- 🪑 흔들의자 하늘 보기: P.swing이면 body.swingview (UI · #tags 이름표 숨김, 말풍선 .bub만) · SWV면 worldTag 안 그림 · 카메라 render.swk로 VH×.2 더 올림 · 음악 tracks.swing 「하늘 그네」 · 앉아 있을 땐 업데이트 소식 자동 열기 안 해요.
