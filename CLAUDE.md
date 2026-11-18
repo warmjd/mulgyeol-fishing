@@ -126,3 +126,10 @@
 - 🔨 대장장이 위로: server e.cf 연속 실패 10번부터 50%로 +35%p (rolls sm).
 - 🐟 꽃배 +28 물고기 떼 · +30 별빛 발자국 (boatFx) · ✨ 도감 다 채운 낚시터 물 반짝(zoneDoneSet) · 🌼 켜 둔 시간 S.stats.pm 20시간마다 발밑 꽃(가만히 3초) · 🐾 펫 Lv50 물고기 물어 오기(CPFE · PFISH) · Lv99는 얼음 동상 곁 · 🌿 정원 일기 100일 빛 · 🪧 같은 자리 손맛 1,000마리 팻말(server spotCatch · s.spc · V.plq) · ⭐ 하늘 도감 59종 별(V.skyc · SKYD9) · 🌠 흔들의자 둘이 30분 → sw_wish · 🛍️ 경매 단골(KINGS.auc) · 🌸 7일 넘게 떠났다 오면 꽃(s.lo · 'wb').
 - 보존 목록에 fall · spc · lo 추가했어요.
+
+## 🐾 반려동물 2.0 (2026-11-18 · 조돌맹 · 업데이트 소식 · 안내서 안 씀)
+- 경험치는 늘 같아요 (1분 1 · 기분만) · 배율 · 새벽 보너스 · 놀이터 · 각성 · 사냥 동행 없음 (조돌맹이 뺐어요).
+- 단계 CP_STG (아기 1 · 꼬마 10 · 단짝 20 · 듬직이 35 · 수호 50 · 전설 70 · 별빛 90) · cpStageFx/cpWings (반짝 · 하트 · 목도리 · 발자국 · 날개 · 별가루) · 단계 오르면 'cp_stg' → server s.cpst 한 번만 마을 소식.
+- 재능 CP_TAL: 레벨 되면 저절로 (누를 것 없음) · 15 입질 「!」 · 25/55 조절 바 · 30/60 통발 · 35/70 탐험 코스 · 40 판매 · 45/80 행운 · 90 탐험 골드 ×1.5 · jobMods/trapMax는 cpLvQ (TDZ 안전).
+- 🎒 탐험 CPX a 30분 · b 1시간(Lv10) · c 3시간(Lv35) · d 6시간(Lv70): server s.cpx {c,need,got,on} · 접속할 때 on · 끊을 때 got에 더해요 (켜 둔 동안만) · cpx_go/get/stop · 강화권 하루 CPX_TK_DAY 8 (s.cpxd) · 보존 목록 cpx · cpxd · cpst.
+- 🐾 반려 1위: roster cpl → KINGS.cpk · 펫 머리 왕관 · 이름표 🐾.

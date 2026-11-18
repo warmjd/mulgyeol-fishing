@@ -647,6 +647,7 @@ wss.on('connection', (ws) => {
         broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
         send(ws, { t: 'ice', list: icePub().filter(e => e.n !== p.name) }); iceOff(p);   // ❄️ 나간 자리 얼음
         send(ws, { t: 'trc', list: trcPub() });   // 🎣 낚시 자리의 흔적
+        if (p.save && p.save.cpx) { p.save.cpx.on = Date.now(); send(ws, cpxPub(p.save)); }
         if (V && V.plq) send(ws, { t: 'plq', l: Object.values(V.plq) }); if (V && V.skyc && V.skyc.length) send(ws, { t: 'skyc', l: V.skyc });
         { const s0 = p.save; if (s0 && s0.lo && Date.now() - s0.lo > 7 * 864e5 && !p.admin) { const n = Math.max(3, Math.min(40, rosterCache.size - 1)); send(ws, { t: 'wb', n, d: Math.floor((Date.now() - s0.lo) / 864e5) }); broadcast({ t: 'news', text: '🌸 ' + p.name + ' 님이 오랜만에 마을에 돌아왔어요!' }, ws); } }
         send(ws, { t: 'flags', o: flagPub(), f: flagSf(), ft: flagTs(), rv: flagRv(), gz: (flagOf() || {}).gz || 0 }); flagPay(ws, p); try { supBox(ws, p); } catch (e) { } send(ws, goPub()); if (V && V.shcl && V.shcl.length) send(ws, { t: 'shch', l: V.shcl, f: V.shcf || {} }); for (let i = 0; i < SW_N; i++) if (SW[i].s[0] || SW[i].s[1] || SW[i].A0) send(ws, swPub(i));   /* 🎉 그랜드 오픈 */   /* 🚩 낚시터 깃발 */
@@ -708,7 +709,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw', 'clv', 'gin', 'gpre', 'wsp', 'shc', 'shcx', 'fall', 'spc', 'lo']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw', 'clv', 'gin', 'gpre', 'wsp', 'shc', 'shcx', 'fall', 'spc', 'lo', 'cpx', 'cpxd', 'cpst']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         for (const k of ['skyd', 'skyn']) if (me.save && me.save[k] != null) m.data[k] = me.save[k];   /* ☁️ 하늘 도감은 서버가 적어요 (서버에 아직 없으면 화면 것을 받아요) */
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
@@ -747,7 +748,8 @@ wss.on('connection', (ws) => {
   ws.on('close', () => {
     const p = players.get(ws); if (!p) return;
     try { iceSet(p); } catch (e) { }
-    if (p.save && !p.admin) { p.save.lo = Date.now(); queueSave(p.key, p.save); }   /* 🌸 오래 떠났다 돌아오면 (숨김) */
+    if (p.save && !p.admin) { p.save.lo = Date.now(); queueSave(p.key, p.save); }
+    if (p.save && p.save.cpx && p.save.cpx.on) { const x = p.save.cpx; x.got = (x.got | 0) + Math.max(0, Date.now() - x.on); x.on = 0; queueSave(p.key, p.save); }   /* 🎒 펫 탐험: 끄면 멈춰요 */   /* 🌸 오래 떠났다 돌아오면 (숨김) */
     endTrade(p, p.name + ' 님이 마을을 떠났어요');
     try { cfLeave(p); } catch (e) { }
     try { swLeave(p); } catch (e) { }
@@ -790,6 +792,11 @@ function trcCatch(me, f, c, sh) { if (!V || !me.here || (me.m & 4) || !(me.x > 0
    지난주 깃발마다 강화권 3장 · 골드 500만 (다음 접속 때) · 주인이 바뀔 때만 작은 메시지 ---------- */
 const CP_NEED_S = L => Math.round(10 + .12 * L * L), CP_CUM_S = [0, 0]; for (let L = 1; L < 99; L++) CP_CUM_S[L + 1] = CP_CUM_S[L] + CP_NEED_S(L);
 const cpLvS = xp => { let L = 1; while (L < 99 && xp >= CP_CUM_S[L + 1]) L++; return L; };
+/* 🎒 펫 탐험 (2026-11-18 · 숨김 · index.html CPX와 같아요): 켜 둔 동안만 시간이 가요 · 접속 시간은 서버가 세요 (메시지는 시작 · 받기 · 접속 때만) */
+const CPX = { a: { n: '마을 한 바퀴', m: 30, lv: 1, g: [5e5, 1.5e6], tk: [.25, 1] }, b: { n: '숲속 산책', m: 60, lv: 10, g: [1.5e6, 4e6], tk: [.6, 1] }, c: { n: '먼 바닷가', m: 180, lv: 35, g: [6e6, 1.5e7], tk: [1, 2], es: .3 }, d: { n: '긴 여행', m: 360, lv: 70, g: [1.5e7, 4e7], tk: [1, 3], es: .6 } }, CPX_TK_DAY = 8;
+const cpxEl = (x, now) => (x.got | 0) + (x.on ? Math.max(0, now - x.on) : 0);
+const cpxPub = s => { const x = s && s.cpx; return { t: 'cpx', x: x ? { c: x.c, need: x.need, el: cpxEl(x, Date.now()) } : null }; };
+const CP_STG_S = [[1, '🍼 아기'], [10, '🐾 꼬마'], [20, '💛 단짝'], [35, '🛡️ 듬직이'], [50, '✨ 수호'], [70, '🌟 전설'], [90, '🌌 별빛']];
 const CP_RWS = [[10, 'C', 1e7], [20, 'C', 3e7], [30, 'B', 5e7], [40, 'B', 1e8], [50, 'A', 2e8], [60, 'B', 3e8], [70, 'A', 5e8], [80, 'A', 7e8], [90, 'A', 1e9], [99, 'S', 3e9]];   /* 🐾 반려동물 레벨 선물 */
 /* 🪑 하늘 보는 흔들의자 (2026-11-18): 마을 북쪽 끝 둘 · 둘이 나란히 앉아 박자 맞춰 밀면 그네처럼 높이 · 메모리에만 (저장 안 해요)
    흔들림 = A · sin(ω(t - t0)) · A는 tA부터 천천히 줄어요 (SW_TAU) · index.html SW_와 같아요 */
@@ -1207,6 +1214,18 @@ function onMsg(ws, me, m) {
     case 'ring_news': ringNews(ws, me, m); break;
     case 'go_get': { const now = Date.now(); if (now - (me.goT || 0) < 1500) break; me.goT = now; send(ws, Object.assign(goPub(), { rank: goRank() })); break; }
     case 'shch': shchMsg(ws, me, m); break;
+    case 'cpx_go': case 'cpx_get': case 'cpx_stop': case 'cp_stg': { const now = Date.now(); if (now - (me.cpxT || 0) < 1500) break; me.cpxT = now; const s = me.save; if (!s || !s.cp || !s.cp.k) break;
+      const L = cpLvS(Math.max(0, Math.min(1e7, s.cp.xp | 0))), nm = String(s.cp.name || '반려동물').replace(/[<>]/g, '').slice(0, 8);
+      if (m.t === 'cp_stg') { const i = Math.max(1, Math.min(CP_STG_S.length - 1, m.i | 0)); if (L < CP_STG_S[i][0] || (s.cpst | 0) >= i) break; s.cpst = i; queueSave(me.key, s); broadcast({ t: 'news', text: '🐾 ' + me.name + ' 님의 ' + nm + '(이)가 ' + CP_STG_S[i][1] + ' 단계가 됐어요!' }); break; }
+      if (m.t === 'cpx_go') { const C = CPX[m.c]; if (!C || s.cpx || L < C.lv) break; s.cpx = { c: m.c, need: C.m * 60e3, got: 0, on: now }; queueSave(me.key, s); send(ws, cpxPub(s)); break; }
+      if (m.t === 'cpx_stop') { if (s.cpx) { delete s.cpx; queueSave(me.key, s); } send(ws, cpxPub(s)); break; }
+      const x = s.cpx; if (!x || !CPX[x.c] || cpxEl(x, now) < x.need) { send(ws, cpxPub(s)); break; } const C = CPX[x.c], R = (a, b) => a + Math.random() * (b - a), bx = L >= 90 ? 1.5 : 1;
+      delete s.cpx; const d = kstDay(); if (!s.cpxd || s.cpxd.d !== d) s.cpxd = { d, tk: 0 }; queueSave(me.key, s);
+      const g = Math.round(R(C.g[0], C.g[1]) * bx / 1e4) * 1e4, tk = Math.min(CPX_TK_DAY - s.cpxd.tk, Math.random() < C.tk[0] ? Math.round(R(1, C.tk[1])) : 0);
+      const why = '🎒 ' + nm + '(이)가 ' + C.n + '에서 돌아왔어요 · 골드 ' + g.toLocaleString(); changeBag(me.key, { g }, why).catch(() => { });
+      if (tk > 0) { s.cpxd.tk += tk; giveTk(me.key, tk, '🎒 ' + nm + '의 탐험 선물 · 🎫 강화권 +' + tk).catch(() => { }); }
+      if (C.es && Math.random() < C.es) { essAdd(s, 1); sendEnh(ws, me, { note: ['🎒 탐험 선물 · 💠 꿈의 정수 +1'] }); }
+      send(ws, cpxPub(s)); break; }
     case 'cp_rw': {   /* 🐾 반려동물 레벨 선물 (2026-11-18 · index.html CP_RW와 같아요) */
       const now = Date.now(); if (now - (me.cprT || 0) < 3000) break; me.cprT = now; const s = me.save; if (!s || !s.cp || !s.cp.k) break;
       const L = cpLvS(Math.max(0, Math.min(1e7, s.cp.xp | 0))), got = Array.isArray(s.cprw) ? s.cprw : (s.cprw = []), nw = [];
@@ -3103,7 +3122,7 @@ const rosterCache = new Map();   // key -> {name, job, lv, sit}
 let vNote = null, rosterSig = '', rosterT = 0, vBoat = null;
 function rosterSet(key, name, save) {
   const j = save && save.job, job = j && ['fish', 'sch', 'cra', 'tam', 'mer'].includes(j.id) ? j.id : '';
-  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), gt: gtN(save), sh: shN(save), dex: dexIds(save && save.dex), help: save && save.help ? save.help.n | 0 : 0, hl: cpOf(save), hlv: (save && save.hu && save.hu.lv) | 0, hk: (save && save.hu && save.hu.kills) | 0, mar: (save && save.mar && save.mar.p) || '', jr: jrOf(save, job), jx: (save && save.job && save.job.xp && save.job.xp[job]) | 0 });
+  rosterCache.set(key, { name, job, lv: vlOf(save && save.vl), sit: jobRank(save, 'tam', 'sit') > 0, legs: legZones(save), sd: sdN(save), gt: gtN(save), sh: shN(save), dex: dexIds(save && save.dex), help: save && save.help ? save.help.n | 0 : 0, hl: cpOf(save), hlv: (save && save.hu && save.hu.lv) | 0, hk: (save && save.hu && save.hu.kills) | 0, cpl: save && save.cp && save.cp.k ? cpLvS(Math.max(0, Math.min(1e7, save.cp.xp | 0))) : 0, mar: (save && save.mar && save.mar.p) || '', jr: jrOf(save, job), jx: (save && save.job && save.job.xp && save.job.xp[job]) | 0 });
   if (save && save.boat && !vBoat) vBoat = { by: name };
   rosterSoon();
 }
@@ -3395,6 +3414,7 @@ const xKingPub = () => { const o = {}; { const eb = Object.entries((V && V.ebTop
   { const y = new Date(Date.now() + 9 * 3600e3 - 864e5).toISOString().slice(0, 10), L = V && V.dkLast; o.dk = L && L.d === y ? { name: L.name, n: L.n } : null; }
   { const H = V && Array.isArray(V.wfHist) ? V.wfHist[0] : null; o.wf = H && H.w === wfWeek() - 1 ? { name: H.n, n: H.len, id: H.id } : null; }
   /* 숨은 것 (안내 안 해요): ⚔️ 오래 사냥한 3명 (처치 수) · 🔨 경매 단골 (낙찰 합계 1위) */
+  { const t = [...rosterCache.values()].filter(r => (r.cpl | 0) >= 10).sort((a, b) => b.cpl - a.cpl)[0]; o.cpk = t ? { name: t.name, n: t.cpl } : null; }   /* 🐾 반려 1위 */
   o.hk = [...rosterCache.values()].filter(r => (r.hk | 0) >= 3000).sort((a, b) => b.hk - a.hk).slice(0, 3).map(r => r.name);
   { const A = {}; for (const h of (V && V.auc && V.auc.hist) || []) A[h.name] = (A[h.name] || 0) + (h.bid || 0); const t = Object.entries(A).sort((a, b) => b[1] - a[1])[0]; o.auc = t ? t[0] : ''; }
   return o; };

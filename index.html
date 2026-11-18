@@ -6751,9 +6751,9 @@ function rqClick(t){
 /* ----- 능력치에 반영 (recalc 끝에서) ----- */
 function jobMods(){
   ST.wait*=1-(typeof cpWait==='function'&&!(typeof autoOn==='function'&&autoOn())?cpWait():0)-.06*rk('fish','quick')-(buffOn('orange')?.05:0)-(buffOn('charm')?.1:0)-(buffOn('charm_p')?.15:0);ST.biteX=.1*rk('fish','quick');
-  ST.bar*=1+.06*rk('fish','net');
-  ST.luck*=1+(()=>{try{const L=petLv(partnerId());return L>=99?.05:L>=40?.03:0}catch(e){return 0}})()+(typeof starSum==='function'?starSum()*.01:0)+(typeof cpLuck==='function'?cpLuck():0)+(typeof groupLuck==='function'?groupLuck():0)+.08*rk('fish','luck')+(buffOn('soup')?.1:0)+(buffOn('apple')?.05:0)+(buffOn('cherry')?.08:0)+(buffOn('pie')?.1:0)+(arkSt()>=5?.1:0)+(arkSt()>=2&&typeof onIsle==='function'&&onIsle()?.05:0)+(buffOn('charm')?.15:0)+(buffOn('charm_p')?.25:0);
-  ST.sell*=1+(typeof starSum==='function'?starSum()*.005:0)+(typeof cpSell==='function'?cpSell():0)+.1*rk('mer','price')+(buffOn('grill')?.1:0)+(buffOn('peach')?.05:0)+(buffOn('pie')?.1:0)+(arkSt()>=5?.1:0);
+  ST.bar*=1+.06*rk('fish','net')+(cpLvQ()>=25?.05:0)+(cpLvQ()>=55?.05:0);
+  ST.luck*=1+(()=>{try{const L=petLv(partnerId());return L>=99?.05:L>=40?.03:0}catch(e){return 0}})()+(typeof starSum==='function'?starSum()*.01:0)+(typeof cpLuck==='function'?cpLuck():0)+(cpLvQ()>=45?.05:0)+(cpLvQ()>=80?.1:0)+(typeof groupLuck==='function'?groupLuck():0)+.08*rk('fish','luck')+(buffOn('soup')?.1:0)+(buffOn('apple')?.05:0)+(buffOn('cherry')?.08:0)+(buffOn('pie')?.1:0)+(arkSt()>=5?.1:0)+(arkSt()>=2&&typeof onIsle==='function'&&onIsle()?.05:0)+(buffOn('charm')?.15:0)+(buffOn('charm_p')?.25:0);
+  ST.sell*=1+(typeof starSum==='function'?starSum()*.005:0)+(typeof cpSell==='function'?cpSell():0)+(cpLvQ()>=40?.05:0)+.1*rk('mer','price')+(buffOn('grill')?.1:0)+(buffOn('peach')?.05:0)+(buffOn('pie')?.1:0)+(arkSt()>=5?.1:0);
 }
 const afkCap=()=>AFK_CAP+10*rk('fish','afk')+(typeof cpAfk==='function'?cpAfk():0);
 const walkSpeed=()=>(1+.05*rk('com','speed'))*(typeof coldMul==='function'?coldMul():1);
@@ -9999,7 +9999,7 @@ function forgeShow(rolls,from,to){
 
 /* ----- 가볍게: 메뉴 · 통발 (순간이동은 없어요. 어디든 직접 걸어가요) ----- */
 /* 통발: 접속하지 않은 동안 40분에 1마리씩, 최대 10마리. 열린 낚시터의 흔함 · 보통 물고기(조건 없는 종)만 */
-const trapMin=()=>gearEff.trapMin(S.gear.trap||1),trapMax=()=>gearEff.trapCap(S.gear.trap||1)+2*rk('com','trap')+(ENH_LV()>=27?10:0);
+const trapMin=()=>gearEff.trapMin(S.gear.trap||1),trapMax=()=>gearEff.trapCap(S.gear.trap||1)+2*rk('com','trap')+(ENH_LV()>=27?10:0)+(cpLvQ()>=30?2:0)+(cpLvQ()>=60?3:0);
 const trapCount=()=>{if(!S.trap)return 0;return Math.min(trapMax(),Math.floor((Date.now()-S.trap)/(trapMin()*60000)))};
 /* ===== 통발 2.0 (2026-11-05): 낚시터를 골라 놓고 · 희귀 · 영웅까지 · 미끼를 넣으면 더 귀하게 · 가끔 재료 · 반짝 조각 =====
    만남 도감만 채워요 (손맛은 직접 낚아야 해요). 전설 · 신화 · 보스는 안 들어와요 */
@@ -10059,10 +10059,10 @@ function cpSyncLook(){const v=cpLookStr();if(S.cos.look.cp!==v){S.cos.look.cp=v;
 const CPA={me:null};
 function cpFollow(a,tx,ty,dt,moving){if(!a.x){a.x=tx;a.y=ty}const dx=tx-a.x,dy=ty-a.y,d=Math.hypot(dx,dy);if(d>140){a.x=tx;a.y=ty}
   if(d>16){const sp=Math.min(d*3,140);a.x+=dx/d*sp*dt;a.y+=dy/d*sp*dt;a.walk=true;a.face=dx<0?-1:1;a.anim=(a.anim||0)+dt}else a.walk=false}
-function cpDraw(a,k,c,L,acc,nm){const sp=cpSprites(k,c),img=a.walk?(a.face<0?sp.walkL:sp.walk)[((a.anim*6)|0)%2]:sp.sit,sc=.7+.3*Math.min(1,L/30)+.18*Math.max(0,Math.min(1,(L-30)/69)),w=Math.round(img.width*sc),h=Math.round(img.height*sc),X=Math.round(a.x-w/2),Y=Math.round(a.y-h);
+function cpDraw(a,k,c,L,acc,nm,own,ex){const sp=cpSprites(k,c),img=a.walk?(a.face<0?sp.walkL:sp.walk)[((a.anim*6)|0)%2]:sp.sit,sc=.7+.3*Math.min(1,L/30)+.18*Math.max(0,Math.min(1,(L-30)/69)),w=Math.round(img.width*sc),h=Math.round(img.height*sc),X=Math.round(a.x-w/2),Y=Math.round(a.y-h);
   cx.fillStyle='rgba(60,50,100,.14)';cx.beginPath();cx.ellipse(Math.round(a.x),Math.round(a.y)-1,w*.38,2,0,0,6.28);cx.fill();
   if(L>=80){const g=cx.createRadialGradient(a.x,a.y-h/2,1,a.x,a.y-h/2,h);g.addColorStop(0,'rgba(255,240,180,.35)');g.addColorStop(1,'rgba(255,240,180,0)');cx.fillStyle=g;cx.fillRect(a.x-h,a.y-h*1.5,h*2,h*2)}
-  cx.drawImage(img,X,Y,w,h);
+  cpWings(a,L,X,Y,w,h);cx.drawImage(img,X,Y,w,h);
   const hx=a.face<0?X+3:X+w-5,hy=Y+1;
   if(acc==='cp_ribbon'){cx.fillStyle='#ff5a7a';cx.fillRect(hx-2,hy-1,2,2);cx.fillRect(hx+1,hy-1,2,2);cx.fillStyle='#ffd0dc';cx.fillRect(hx,hy-1,1,1)}
   else if(acc==='cp_bell'){cx.fillStyle='#e04a4a';cx.fillRect(hx-2,hy+4,5,1);cx.fillStyle='#ffd34d';cx.fillRect(hx,hy+5,2,2)}
@@ -10070,13 +10070,27 @@ function cpDraw(a,k,c,L,acc,nm){const sp=cpSprites(k,c),img=a.walk?(a.face<0?sp.
   else if(acc==='cp_flower'){['#ff8ab0','#ffd34d','#a0e0ff'].forEach((col,i)=>{cx.fillStyle=col;cx.fillRect(hx-3+i*2,hy-2,2,2)})}
   else if(acc==='cp_crown'){cx.fillStyle='#ffd34d';cx.fillRect(hx-2,hy-2,5,2);cx.fillRect(hx-2,hy-4,1,2);cx.fillRect(hx,hy-4,1,2);cx.fillRect(hx+2,hy-4,1,2)}
   if(L>=50&&Math.random()<.04)parts.push({x:a.x-w/2+Math.random()*w,y:Y+Math.random()*h,vx:0,vy:-6,life:.8,t:0,c:L>=99?'#ffd34d':'#fff6c8',g:0,s:1});
-  if(nm)worldTag([[nm+' ','#4a3d6b'],['Lv'+L,L>=80?'#c07800':L>=50?'#d0407a':'#e07a2c',true]],Math.round(a.x),Y-2)}   // 2026-11-16 반려동물 이름 · 레벨 (모두에게)
+  cpStageFx(a,L,X,Y,w,h,hx,hy,acc,own,ex);
+  if(nm)worldTag([[nm+' ','#4a3d6b'],['Lv'+L,L>=80?'#c07800':L>=50?'#d0407a':'#e07a2c',true]].concat(L>=90?[[' 🌌','#7a5ad0']]:[]),Math.round(a.x),Y-2)}
+/* 🐾 반려동물 단계 (2026-11-18 · 업데이트 소식 안 씀): 단계마다 모습이 달라져요 · 다른 친구에게도 보여요 */
+const CP_STG=[[1,'🍼 아기'],[10,'🐾 꼬마'],[20,'💛 단짝'],[35,'🛡️ 듬직이'],[50,'✨ 수호'],[70,'🌟 전설'],[90,'🌌 별빛']];
+const cpStg=L=>{let i=0;CP_STG.forEach((s,j)=>{if(L>=s[0])i=j});return i};
+function cpStageFx(a,L,X,Y,w,h,hx,hy,acc,own,ex){const R=(x,y,ww,hh,cl)=>{cx.fillStyle=cl;cx.fillRect(Math.round(x),Math.round(y),ww,hh)},st=cpStg(L);
+  if(st>=1&&a.walk&&Math.random()<.02)parts.push({x:a.x+(Math.random()-.5)*6,y:Y+2,vx:0,vy:-14,life:.6,t:0,c:'#ffffff',g:0,s:1});
+  if(st>=2&&a.walk&&Math.random()<.025)parts.push({x:a.x,y:Y,vx:(Math.random()-.5)*8,vy:-12,life:1,t:0,heart:true,g:-2});
+  if(st>=3&&!acc){const nx=a.walk?hx:Math.round(a.x),ny=a.walk?hy+4:Math.round(Y+h*.46);R(nx-4,ny,8,2,'#ff7a8a');R(nx-3,ny,1,2,'#ffd0d8');R(nx,ny,1,2,'#ffd0d8');R(nx+2,ny,1,2,'#ffd0d8');R(nx+1,ny+2,2,2+(Math.sin(wt*6)>0?1:0),'#ff7a8a')}
+  if(st>=4&&a.walk){a._pw=(a._pw||0)+FXDT;if(a._pw>.32){a._pw=0;parts.push({x:a.x+(Math.random()-.5)*3,y:a.y-1,vx:0,vy:0,life:1.6,t:0,c:'rgba(120,90,70,.45)',g:0,s:2})}}
+
+  if(st>=6&&Math.random()<.05){const k=Math.random();parts.push({x:a.x-w/2+Math.random()*w,y:Y+Math.random()*h*.8,vx:0,vy:-5,life:1.1,t:0,c:k<.33?'#c8b0ff':k<.66?'#fff6c0':'#a8e0ff',g:0,s:1})}
+  if(own&&KINGS&&KINGS.cpk&&KINGS.cpk.name===own){const cy=Y-4+Math.sin(wt*3)*.6,cxp=Math.round(a.x)-3;R(cxp,cy,7,2,'#ffd34d');R(cxp,cy-2,1,2,'#ffd34d');R(cxp+3,cy-3,1,3,'#ffd34d');R(cxp+6,cy-2,1,2,'#ffd34d');R(cxp+3,cy,1,1,'#ff6a8a');if(Math.random()<.04)parts.push({x:a.x,y:cy-2,vx:(Math.random()-.5)*10,vy:-8,life:.6,t:0,c:'#fff6c0',g:0,s:1})}
+  if(ex){cx.font='8px sans-serif';cx.textAlign='center';cx.fillText('🎒',a.x+w*.45,Y+2+Math.sin(wt*3)*1)}}
+function cpWings(a,L,X,Y,w,h){if(L<70)return;const fl=Math.sin(wt*(a.walk?14:3))*1.6,y=Y+h*.42;[[-1,X+1],[1,X+w-1]].forEach(([d,x])=>{cx.save();cx.translate(x,y);cx.rotate(d*(.35+fl*.08));cx.fillStyle='rgba(255,255,255,.92)';cx.beginPath();cx.ellipse(d*4,-2,5,2.6,0,0,6.283);cx.fill();cx.fillStyle='rgba(200,216,255,.9)';cx.beginPath();cx.ellipse(d*5,-1,3,1.3,0,0,6.283);cx.fill();cx.restore()})}   // 2026-11-16 반려동물 이름 · 레벨 (모두에게)
 function cpDrawables(list,dt){const c=cpS();if(c&&P&&!(P.aboard!=null)){const a=CPA.me||(CPA.me={});const v=DIRV[P.dir]||[0,1];
     if(CPFE.st){CPFE.t+=dt;if(CPFE.st===1){cpFollow(a,CPFE.tx,CPFE.ty,dt,true);if(CPFE.t>2.4){CPFE.st=2;CPFE.t=0}}else{cpFollow(a,P.x-v[0]*14-6,P.y-v[1]*8+2,dt,true);if(CPFE.t>2.2||Math.hypot(a.x-P.x,a.y-P.y)<16){CPFE.st=0;PFISH={x:a.x+4,y:a.y+2,id:CPFE.id,t:performance.now()};toast('🐾 '+c.name+'(이)가 물고기를 물어 왔어요!');Snd.sfx('pop')}}}
-    else cpFollow(a,P.x-v[0]*14-6,P.y-v[1]*8+2,dt,P.moving);const L=cpLv();const nm=(cpLookStr().split('|')[1]||'');list.push({y:a.y,fn:()=>{cpDraw(a,c.k,c.c|0,L,c.acc,nm);if(CPFE.st===2&&CPFE.id!=null){const fc=fishCan(CPFE.id);cx.drawImage(fc,Math.round(a.x+(a.face<0?-10:2)),Math.round(a.y-12),12,Math.max(4,Math.round(12*fc.height/fc.width)))}}})}
-  others.forEach(o=>{if(!o.seen||!o.look||!o.look.cp)return;const q=o.look.cp.split('|'),k=q[0].slice(0,3),cc=+q[0].slice(3)|0,L=+q[2]|0,acc=q[3]||'';const a=o.cpa||(o.cpa={});cpFollow(a,o.x-10,o.y+2,dt,true);list.push({y:a.y,fn:()=>cpDraw(a,k,cc,L,acc,q[1]||'')})})}
+    else cpFollow(a,P.x-v[0]*14-6,P.y-v[1]*8+2,dt,P.moving);const L=cpLv();const nm=(cpLookStr().split('|')[1]||'');const exo=!!(CPXS.x&&cpxEl()<CPXS.x.need),exr=!!(CPXS.x&&cpxEl()>=CPXS.x.need);list.push({y:a.y,fn:()=>{cpDraw(a,c.k,c.c|0,L,c.acc,nm,Net.me&&Net.me.name,exo);if(exr){const by=a.y-30+Math.sin(wt*4)*1.5;cx.font='10px sans-serif';cx.textAlign='center';cx.fillText('🎁',a.x,by)}if(L>=15&&['bite','pull'].indexOf(F.mode)>=0&&!(typeof autoOn==='function'&&autoOn())){const by=a.y-28-Math.abs(Math.sin(wt*10))*2;cx.fillStyle='#ff4a6a';cx.fillRect(Math.round(a.x)-1,Math.round(by),3,6);cx.fillRect(Math.round(a.x)-1,Math.round(by)+8,3,2)}if(CPFE.st===2&&CPFE.id!=null){const fc=fishCan(CPFE.id);cx.drawImage(fc,Math.round(a.x+(a.face<0?-10:2)),Math.round(a.y-12),12,Math.max(4,Math.round(12*fc.height/fc.width)))}}})}
+  others.forEach(o=>{if(!o.seen||!o.look||!o.look.cp)return;const q=o.look.cp.split('|'),k=q[0].slice(0,3),cc=+q[0].slice(3)|0,L=+q[2]|0,acc=q[3]||'';const a=o.cpa||(o.cpa={});cpFollow(a,o.x-10,o.y+2,dt,true);list.push({y:a.y,fn:()=>cpDraw(a,k,cc,L,acc,q[1]||'',o.name)})})}
 /* 켜 둔 시간: 1분마다 경험치 1 (절전 중에도) */
-setInterval(()=>{const c=cpS();if(!c||!P||!$('title').hidden)return;cpRwCheck();const md=cpMood(c);if(md<=0){if(!c.bz){c.bz=1;showBanner('🐾 '+c.name+'(이)가 심심해해요 · 쓰다듬어 주면 다시 자라요 (메뉴 → 반려동물)',3600)}return}c.md=Math.max(0,md-1/CPM.DEC);const b=cpLvOf(c.xp|0);c.xp=(c.xp|0)+1+(md>=80&&Math.random()<.5?1:0)+(jobId()==='tam'&&Math.random()<.5?1:0);const L=cpLvOf(c.xp);if(L>b){cpRwCheck.t=0;setTimeout(cpRwCheck,500);recalc();cpSyncLook();showBanner('🐾 '+c.name+' Lv'+L+'!'+(L%10===0?' 몸이 한 뼘 자랐어요':''));Snd.sfx('page');if(CPA.me)for(let i=0;i<10;i++)parts.push({x:CPA.me.x,y:CPA.me.y-10,vx:(Math.random()-.5)*30,vy:-20,life:1,t:0,heart:true,g:10})}if(c.xp%5===0)saveState()},60000);
+setInterval(()=>{const c=cpS();if(!c||!P||!$('title').hidden)return;cpRwCheck();const md=cpMood(c);if(md<=0){if(!c.bz){c.bz=1;showBanner('🐾 '+c.name+'(이)가 심심해해요 · 쓰다듬어 주면 다시 자라요 (메뉴 → 반려동물)',3600)}return}c.md=Math.max(0,md-1/CPM.DEC);const b=cpLvOf(c.xp|0);c.xp=(c.xp|0)+1+(md>=80&&Math.random()<.5?1:0)+(jobId()==='tam'&&Math.random()<.5?1:0);const L=cpLvOf(c.xp);if(L>b){cpRwCheck.t=0;setTimeout(cpRwCheck,500);recalc();cpSyncLook();const si=cpStg(L),tl=CP_TAL.find(t=>t[0]===L);if(si>cpStg(b)){setTimeout(()=>{showBanner('🐾 '+c.name+'(이)가 '+CP_STG[si][1]+' 단계가 됐어요! 모습이 달라졌어요');Snd.sfx('meteor')},2500);if(ONLINE&&Net.me){Net.flushSave(true);setTimeout(()=>Net.send({t:'cp_stg',i:si}),2500)}}else if(tl)setTimeout(()=>showBanner('🐾 '+c.name+'의 새 재능 '+tl[1]+' '+tl[2]+' · '+tl[3]),2500);Snd.sfx('page');if(CPA.me)for(let i=0;i<10;i++)parts.push({x:CPA.me.x,y:CPA.me.y-10,vx:(Math.random()-.5)*30,vy:-20,life:1,t:0,heart:true,g:10})}if(c.xp%5===0)saveState()},60000);
 function cpSheet(){const c=cpS();
   if(!c){const old=petLv(partnerId()),st=Math.min(40,Math.floor(old/2));return'<div class="cpbox"><div style="font-size:16px">🏠 물결 분양센터</div><div class="muted" style="font-size:12.5px;margin:6px 0 10px">평생 함께할 반려동물을 데려와요. 늘 곁을 따라다니고, 켜 둔 시간만큼 자라요 (1 ~ 99레벨).<br>예전 짝꿍 레벨(Lv'+old+')의 절반 <b>Lv'+Math.max(1,st)+'</b>에서 시작해요.</div>'+
     ['cat','dog'].map(k=>'<div class="sec">'+(k==='cat'?'고양이':'강아지')+'</div><div class="cpgrid">'+CP_COAT[k].map((co,i)=>'<button class="cpc'+(CPF.k===k&&CPF.c===i?' on':'')+'" data-cpp="'+k+':'+i+'"><img src="'+cpSprites(k,i).sit.toDataURL()+'" alt=""><small>'+co[0]+'</small></button>').join('')+'</div>').join('')+
@@ -10087,6 +10101,7 @@ function cpSheet(){const c=cpS();
     (()=>{const md=cpMood(c),w=Math.max(0,(c.patT||0)+CPM.PAT_CD-Date.now()),tn=c.tr&&c.tr.d===kstDay()?c.tr.n|0:0;return'<div class="sec" style="margin-top:8px">기분 <span class="cnt">'+(md>=80?'😆 신나요 · 경험치 1.5배':md>0?'🙂 좋아요':'😢 심심해요 · 안 자라요')+'</span></div><div class="trbar"><i style="width:'+md+'%;background:'+(md>=80?'#ff8ab0':md>0?'#ffc0d0':'#c8c0d0')+'"></i><span>'+Math.round(md)+' / 100</span></div>'+
       '<div style="display:flex;gap:6px;margin:8px 0"><button class="btn pink" style="flex:1" data-cpplay="pat"'+(w>0?' disabled':'')+'>🐾 쓰다듬기'+(w>0?' ('+Math.ceil(w/60000)+'분)':' +25')+'</button><button class="btn mint" style="flex:1" data-cpplay="treat"'+(tn>=CPM.TREAT?' disabled':'')+'>🍖 간식 ('+(CPM.TREAT-tn)+'/'+CPM.TREAT+')</button></div>'})()+
     '<div class="muted" style="font-size:12.5px;margin:8px 0">기분이 있을 때 켜 둔 1분 = 경험치 1 (기분 80 이상이면 1.5배) · 기분은 4분마다 1씩 줄어요 · 다음 레벨까지 약 '+(L>=99?0:fmtMin(need-cur))+'</div>'+
+    cpSheetMore(c,L)+
     '<details class="more"><summary>🎁 레벨 선물</summary><div style="font-size:12.5px;line-height:1.9">'+CP_RW.map(r=>(L>=r[0]&&(S.cprw||[]).indexOf(r[0])>=0?'✅':L>=r[0]?'📦':'⬜')+' <b>Lv'+r[0]+'</b> '+r[1]).join('<br>')+'</div></details>'+
     '<details class="more"><summary>🐾 반려동물 · 짝꿍 · 동물 친구가 뭐가 달라요?</summary><div style="font-size:12.5px;line-height:1.8">· <b>반려동물</b>: 분양센터에서 데려온 나만의 고양이 · 강아지 · 늘 따라다니고 행운 · 판매가 · 입질 · 자동 낚시 · 대물(Lv50부터)<br>· <b>짝꿍</b>: 마을 동물(루비 · 쫑이 · 누릉이 · 깜콩이 · 츄리)과 쌓는 사이 · 선물 물어오기 · 특기<br>· <b>동물 친구</b>: 직업이에요 · 반려동물 효과와 크는 속도가 1.5배</div></details>'+
     '<div class="sec">함께여서 좋은 점</div><div style="font-size:13px;line-height:1.7">행운 +'+(cpLuck()*100).toFixed(1)+'% · 판매가 +'+(cpSell()*100).toFixed(1)+'% · 손맛 입질 '+(cpWait()*100).toFixed(1)+'% 빨리 · 자동 낚시 +'+cpAfk()+'마리'+(cpBig()?' · 대물 +'+(cpBig()*100).toFixed(1)+'%':'')+(L>=50?' · 몸에서 반짝임':'')+(L>=80?' · 은은한 빛':'')+'</div>'+
@@ -10094,9 +10109,22 @@ function cpSheet(){const c=cpS();
     '<div class="sec">장식 <span class="cnt">다른 친구에게도 보여요</span></div><div class="cpgrid">'+Object.keys(CP_ACC).map(id=>{const own=(c.own||[]).indexOf(id)>=0,on=c.acc===id;return'<button class="cpc'+(on?' on':'')+'" data-cpacc="'+id+'"><b>'+CP_ACC[id][0]+'</b><small>'+(on?'하는 중':own?'하기':fmtShort(CP_ACC[id][1])+' 골드')+'</small></button>'}).join('')+'</div>'+(c.acc?'<button class="btn ghost sm" data-cpacc="">장식 빼기</button>':'')+'</div>';
   return h}
 let CPF={k:'cat',c:0};
+function cpLvQ(){try{return cpLv()}catch(e){return 0}}
+/* 🎒 펫 탐험 (server CPX와 같아요) · 🌿 재능은 레벨이 되면 저절로 (누를 것 없어요) */
+const CPX={a:['🏡 마을 한 바퀴',30,1,'골드 50만~150만 · 가끔 강화권'],b:['🌲 숲속 산책',60,10,'골드 150만~400만 · 강화권'],c:['🏖️ 먼 바닷가',180,35,'골드 600만~1,500만 · 강화권 1~2 · 가끔 꿈의 정수'],d:['🌄 긴 여행',360,70,'골드 1,500만~4,000만 · 강화권 1~3 · 꿈의 정수']};
+const CPXS={x:null,at:0,told:0};const cpxEl=()=>CPXS.x?CPXS.x.el+(performance.now()-CPXS.at):0;
+const CP_TAL=[[15,'🔔','입질 알림','입질이 오면 펫이 「!」 하고 알려 줘요'],[25,'🎣','손재주','조절 바 +5%'],[30,'🧺','큰 바구니','통발 +2칸'],[35,'🎒','먼 산책','탐험 「먼 바닷가」 (3시간)'],[40,'💰','흥정 솜씨','판매가 +5%'],[45,'🍀','네잎 찾기','행운 +5%'],[55,'🎣','능숙한 손','조절 바 +5% 더'],[60,'🧺','더 큰 바구니','통발 +3칸 더'],[70,'🌄','긴 여행','탐험 「긴 여행」 (6시간)'],[80,'🍀','행운의 꼬리','행운 +10% 더'],[90,'🌌','별빛 선물','탐험 선물 골드 ×1.5']];
+function cpSheetMore(c,L){const si=cpStg(L),nx=CP_STG[si+1],x=CPXS.x;let h='<div class="sec" style="margin-top:8px">단계 <span class="cnt">'+CP_STG[si][1]+(nx?' → '+nx[1]+' (Lv'+nx[0]+')':' · 마지막 단계')+'</span></div><div style="display:flex;gap:3px;margin:2px 0 6px">'+CP_STG.map((s,i)=>'<span title="'+s[1]+'" style="flex:1;text-align:center;font-size:11px;padding:3px 0;border-radius:8px;background:'+(i<=si?'#ffe6f0':'#f2eef6')+';opacity:'+(i<=si?1:.55)+'">'+s[1].split(' ')[0]+'<br><small>Lv'+s[0]+'</small></span>').join('')+'</div>';
+  h+='<div class="sec">🎒 탐험 <span class="cnt">켜 둔 동안만 시간이 가요</span></div>';
+  if(x){const el=cpxEl(),k=Math.min(1,el/x.need),C=CPX[x.c]||['탐험'],done=el>=x.need;h+='<div class="wishc" style="font-size:13px">'+esc(c.name)+'(이)가 <b>'+C[0]+'</b> '+(done?'에서 돌아왔어요! 🎁':'중이에요')+'<div class="trbar" style="margin-top:6px"><i style="width:'+(k*100)+'%"></i><span>'+(done?'다녀왔어요':'남은 시간 약 '+fmtMin(Math.ceil((x.need-el)/60000)))+'</span></div>'+(done?'<button class="btn pink" style="width:100%;margin-top:6px" data-cpx="get">🎁 선물 받기</button>':'<button class="btn ghost sm" style="margin-top:6px" data-cpx="stop">그만 돌아오기</button>')+'</div>'}
+  else h+=Object.keys(CPX).map(k=>{const C=CPX[k],ok=L>=C[2];return'<button class="row" style="width:100%;text-align:left;padding:6px 4px;border:0;background:none;opacity:'+(ok?1:.5)+'" data-cpx="go:'+k+'"'+(ok?'':' disabled')+'><div class="nm"><b>'+C[0]+'</b> · '+(C[1]>=60?C[1]/60+'시간':C[1]+'분')+(ok?'':' <span class="muted">🔒 Lv'+C[2]+'</span>')+'<div class="muted" style="font-size:12px">'+C[3]+'</div></div></button>'}).join('');
+  h+='<details class="more"><summary>🌿 함께 자라는 재능 <span class="cnt">'+CP_TAL.filter(t=>L>=t[0]).length+' / '+CP_TAL.length+'</span></summary><div style="font-size:12.5px;line-height:1.9">'+CP_TAL.map(t=>(L>=t[0]?'✅':'⬜')+' <b>Lv'+t[0]+'</b> '+t[1]+' '+t[2]+' <span class="muted">· '+t[3]+'</span>').join('<br>')+'<div class="muted" style="margin-top:4px">레벨이 되면 저절로 생겨요 · 누를 것 없어요</div></div></details>';
+  return h}
+setInterval(()=>{const x=CPXS.x;if(x&&!CPXS.told&&cpxEl()>=x.need){CPXS.told=1;const c=cpS();if(c){toast('🎒 '+c.name+'(이)가 탐험에서 돌아왔어요! 반려동물 창에서 선물을 받아요');Snd.sfx('page')}}},15000);
 function openCp(){Snd.sfx('ui');openSheet('반려동물',cpSheet())}
-document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-cpp],[data-cpa],[data-cpacc],[data-cpplay]');if(!t)return;e.stopPropagation();Snd.sfx('tap');
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-cpp],[data-cpa],[data-cpacc],[data-cpplay],[data-cpx]');if(!t)return;e.stopPropagation();Snd.sfx('tap');
   if(t.dataset.cpplay){cpPlay(t.dataset.cpplay);return}
+  if(t.dataset.cpx){if(!ONLINE||!Net.me){toast('탐험은 온라인에서만 갈 수 있어요');return}const v=t.dataset.cpx;t.disabled=true;if(v==='get')Net.send({t:'cpx_get'});else if(v==='stop')Net.send({t:'cpx_stop'});else Net.send({t:'cpx_go',c:v.split(':')[1]});return}
   if(t.dataset.cpp){const [k,c]=t.dataset.cpp.split(':');CPF={k,c:+c};const nm=$('cpName')?$('cpName').value:'';body().innerHTML=cpSheet();if($('cpName'))$('cpName').value=nm;return}
   if(t.dataset.cpa==='adopt'){const nm=($('cpName').value||'').replace(/[|<>]/g,'').trim().slice(0,8);if(!nm){toast('이름을 지어 주세요');return}const st=Math.max(1,Math.min(40,Math.floor(petLv(partnerId())/2)));
     S.cp={k:CPF.k,c:CPF.c,name:nm,xp:CP_CUM[st],born:Date.now(),acc:'',own:[]};recalc();cpSyncLook();saveState(true);showBanner('🐾 '+nm+'(이)가 가족이 됐어요! Lv'+st);Snd.sfx('gate');if(P)sparkFx(P.x,P.y-10,24,['#ffd6e6','#ffffff','#ffe08a']);body().innerHTML=cpSheet();return}
@@ -11242,7 +11270,7 @@ function setTag(a,name,ti,e){
   const kg=isKingName(a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name);
   const nmK=a===ME?(ONLINE&&Net.me?Net.me.name:''):a.name,wk=isXKing('gt',nmK),sk=isXKing('sh',nmK);
   {const tf=a===ME?S.cos.look.tf:(a.look&&a.look.tf);const kc=a===ME?S.cos.look.kc:(a.look&&a.look.kc);a.tag.className='ntag'+(tf?' '+tf:'')+(kg&&kc!=='plain'?' king'+(kc&&kc!=='gold'?' kc-'+kc:''):sk?' sking':wk?' wking':'')}
-  const hic=(FLAGRV.some(q=>q&&q.includes(nmK))?'<span class="hic" title="깃발 라이벌">⚡</span>':'')+(isXKing('wf',nmK)?'<span class="hic" title="주간 챔피언">🏅</span>':'')+(isXKing('dk',nmK)?'<span class="hic" title="어제의 낚시왕">🎣</span>':'')+(isXKing('enh',nmK)?'<span class="hic" title="강화 1위">⚒️</span>':'');
+  const hic=(isXKing('cpk',nmK)?'<span class="hic" title="반려 1위">🐾</span>':'')+(FLAGRV.some(q=>q&&q.includes(nmK))?'<span class="hic" title="깃발 라이벌">⚡</span>':'')+(isXKing('wf',nmK)?'<span class="hic" title="주간 챔피언">🏅</span>':'')+(isXKing('dk',nmK)?'<span class="hic" title="어제의 낚시왕">🎣</span>':'')+(isXKing('enh',nmK)?'<span class="hic" title="강화 1위">⚒️</span>':'');
   a.tag.innerHTML=(kg?'<span class="kg crown">👑 물결마을 손맛 왕 · '+KING.n+'종</span>':'')+(sk?'<span class="kg sk">✨ 반짝 1위 · '+KINGS.sh.n+'종</span>':'')+(wk?'<span class="kg wk">🌊 월척 1위 · '+KINGS.gt.n+'종</span>':'')+(isXKing('hl',nmK)?'<span class="kg hk">⚔️ 용사 1위 · 💪'+fmt(KINGS.hl.n)+'</span>':'')+(KINGS.eb&&KINGS.eb.name===nmK?'<span class="kg ek">🎰 777 은비랜드 1위</span>':'')+(t?titleHtml(t):'')+jb+hic+esc(name||'')+(e>0?'<span class="en'+(e>=30?' e30':e>=21?' e21':'')+'">+'+e+'</span>':'')+(st?'<span class="st">'+esc(st)+'</span>':'');a.tagOn=!!(name||t||e>0||jb||st);a.tagH=0;
 }
 function showSay(a,text){
@@ -11529,6 +11557,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='kicked'){this.kicked=true;netBanner()}
     else if(m.t==='join')addOther(m);
     else if(m.t==='ice'||m.t==='ice_add'||m.t==='ice_off')iceMsg(m);
+    else if(m.t==='cpx'){CPXS.x=m.x||null;CPXS.at=performance.now();CPXS.told=0;if(!$('sheetwrap').hidden&&/반려동물/.test($('sheettitle').textContent))body().innerHTML=cpSheet()}
     else if(m.t==='cprw'){S.cprw=Array.isArray(m.l)?m.l:[];if(!$('sheetwrap').hidden&&/반려동물/.test($('sheettitle').textContent))body().innerHTML=cpSheet()}
     else if(m.t==='plq'){if(Array.isArray(m.l))PLQ=m.l;if(m.a){PLQ.push(m.a);if(Net.me&&m.a.n===Net.me.name){showBanner('🪧 이 자리에서 1,000마리! 내 이름 팻말이 생겼어요');Snd.sfx('page')}}}
     else if(m.t==='skyc'){SKYD9=Array.isArray(m.l)?m.l:[]}
@@ -11913,7 +11942,7 @@ function iceSprite(e){const k=e.n+'|'+e.d+'|'+e.t;if(ICESP[k])return ICESP[k];co
   g.drawImage(sp,0,0);g.globalCompositeOperation='source-atop';g.fillStyle='rgba(150,205,255,.5)';g.fillRect(0,0,c.width,c.height);g.fillStyle='rgba(255,255,255,.22)';g.fillRect(0,0,c.width,Math.ceil(c.height*.35));ICESP[k]=c;return c}
 function drawIce(list,x0,x1,y0,y1){if(!ICE.size||HUNT.on||CEL.on)return;const now=Date.now();
   ICE.forEach(e=>{const tx=e.x/TS,ty=e.y/TS;if(tx<x0-3||tx>x1+3||ty<y0-3||ty>y1+4)return;
-    {const cp=e.lk&&e.lk.cp?String(e.lk.cp).split('|'):null;if(cp&&(+cp[2]|0)>=99){const pa=e._pa||(e._pa={x:e.x+17,y:e.y+3,walk:0,face:-1,anim:0});list.push({y:pa.y,fn:()=>cpDraw(pa,cp[0].slice(0,3),+cp[0].slice(3)|0,99,cp[3]||'',cp[1]||'')})}}   /* 🐾 Lv99 친구는 얼음 곁을 지켜요 (숨김) */const age=Math.max(0,now-e.t),m=Math.min(1,age/ICE_MS),X=Math.round(e.x),Y=Math.round(e.y),R=RNG((e.t%100000)+7);
+    {const cp=e.lk&&e.lk.cp?String(e.lk.cp).split('|'):null;if(cp&&(+cp[2]|0)>=99){const pa=e._pa||(e._pa={x:e.x+17,y:e.y+3,walk:0,face:-1,anim:0});list.push({y:pa.y,fn:()=>cpDraw(pa,cp[0].slice(0,3),+cp[0].slice(3)|0,99,cp[3]||'',cp[1]||'',e.n)})}}   /* 🐾 Lv99 친구는 얼음 곁을 지켜요 (숨김) */const age=Math.max(0,now-e.t),m=Math.min(1,age/ICE_MS),X=Math.round(e.x),Y=Math.round(e.y),R=RNG((e.t%100000)+7);
     const shards=[];for(let i=0;i<7;i++){const a=-2.9+i*.48+R()*.2;shards.push([Math.cos(a)*(9+R()*5),Math.sin(a)*3+2,5+R()*9,R()*.6-.3])}
     list.push({y:e.y+1,fn:()=>{const c=cx,melt=m,solid=1-Math.min(1,melt*1.25),pud=Math.min(1,melt*1.6);
       /* 물웅덩이 */
@@ -12286,6 +12315,7 @@ function fxGuideHtml(L,name,e,gs){const rows=[],row=(ic,src,what)=>rows.push('<d
   if(isXKing('wf',name))row('🏅','주간 챔피언 · '+KINGS.wf.n+'cm','머리 위 대회 물고기 풍선 (일주일)');
   if(isXKing('dk',name))row('🎣','어제의 낚시왕 · '+KINGS.dk.n+'마리','반짝 리본 (하루)');
   if(isXKing('enh',name))row('⚒️','강화 1위 · +'+KINGS.enh.n,'손끝 불꽃 스파크');
+  if(isXKing('cpk',name))row('🐾','반려 1위 · 반려동물 Lv'+KINGS.cpk.n,'반려동물 머리 위 작은 왕관');
   if(KINGS.don&&KINGS.don.name===name)row('💗','마을 기부 1위','젤리 하트 · 서 있으면 꽃이 피어나요');
   {const own=name===(ONLINE&&Net.me?Net.me.name:'');const hn=HON_SD.filter(h=>own?owns(h[1]):false).pop();if(hn)row('❦','손맛 명예 칭호 「'+hn[2]+'」','손맛 도감 '+hn[0]+'종 · 돈으로 못 사요')}
   return'<div class="sec" style="margin-top:10px">✨ 보이는 효과는 어디서?</div>'+(rows.length?rows.join(''):'<div class="muted" style="font-size:12px;padding:6px">아직 특별한 효과가 없어요</div>')}
