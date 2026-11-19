@@ -567,8 +567,7 @@ function applyInv(save, delta) {
   save.inv = save.inv || {}; save.dex = save.dex || {};
   for (const k of Object.keys(delta)) { const nk = mkKey(k); if (nk !== k) { delta[nk] = (delta[nk] | 0) + (delta[k] | 0); delete delta[k]; } }   // 옛 재료 이름 → 새 이름 (화면에도 새 이름으로 가요)
   for (const k in delta) {
-    const n = delta[k] | 0; if (!n) continue;
-    const t = keyKind(k);
+    const t = keyKind(k); const n = t === 'g' ? Math.round(Number(delta[k]) || 0) : delta[k] | 0; if (!n) continue;   /* 골드는 21억을 넘을 수 있어요 */
     if (t === 'g') { save.gold = Math.max(0, (Number(save.gold) || 0) + n); continue; }
     if (t === 'i') { const it = save.items && typeof save.items === 'object' ? save.items : (save.items = {}); const id = k.slice(2); it[id] = Math.max(0, (it[id] | 0) + n); if (!it[id]) delete it[id]; continue; }
     save.inv[k] = Math.max(0, (save.inv[k] | 0) + n);
@@ -663,6 +662,7 @@ wss.on('connection', (ws) => {
         if (p.save && p.save.cpx) { p.save.cpx.on = Date.now(); send(ws, cpxPub(p.save)); }
         try { mvpGift(ws, p, 'day'); } catch (e) { }
         try { const e0 = p.save && p.save.enh; if (e0 && (e0.lv | 0) >= 30 && V && !V.e30) setTimeout(() => enhFirst(p, 29, 30), 3000); } catch (e) { }   /* 이미 +30인 사람이 있으면 문 열기 */
+        try { topCGive(ws, p); } catch (e) { }
         { const C = COMP[p.name], s0 = p.save; if (C && s0) { s0.cmp = Array.isArray(s0.cmp) ? s0.cmp : []; if (!s0.cmp.includes(C[0])) { s0.cmp.push(C[0]); queueSave(p.key, s0);
           setTimeout(() => { enhPack(p.key, C[1], C[3]); changeBag(p.key, { g: C[2] }, C[3] + ' · 골드 ' + C[2].toLocaleString()).catch(() => { }); }, 4000); } } }
         if (V && V.plq) send(ws, { t: 'plq', l: Object.values(V.plq) }); send(ws, e30Pub()); if (V && V.skyc && V.skyc.length) send(ws, { t: 'skyc', l: V.skyc });
@@ -821,12 +821,18 @@ function top4(key) { const now = Date.now(); if (now - T4_T > 30000) { T4_T = no
 const MVP_DAY = { g: 3e8, tk: 150, es: 50, sf: 3 }, MVP_HOUR = { g: 5e7, tk: 10, es: 5 };
 function mvpGift(ws, p, kind) { const s = p && p.save; if (!s || p.admin || top4(p.key)) return; const now = Date.now(); if (s.lo && now - s.lo > 7 * 864e5 && kind === 'day') return;
   if (kind === 'day') { const d = kstDay(); if (s.dg === d) return; s.dg = d; queueSave(p.key, s);
-    setTimeout(() => { changeBag(p.key, { g: MVP_DAY.g }, '🎁 오늘의 물결마을 선물 · 골드 ' + MVP_DAY.g.toLocaleString()).catch(() => { }); giveTk(p.key, MVP_DAY.tk, '🎁 오늘의 선물 · 🎫 강화권 +' + MVP_DAY.tk).catch(() => { }); enhPack(p.key, 'A', '🎁 오늘의 선물 · 강화 상자').catch(() => { });
-      const l = liveByKey(p.key); if (l) { const e = enhOf(l[1].save); e.es = Math.min(ES_MAX, (e.es | 0) + MVP_DAY.es); e.sf = (e.sf | 0) + MVP_DAY.sf; queueSave(p.key, l[1].save); sendEnh(l[0], l[1], { note: ['🎁 오늘의 선물 · 💠 꿈의 정수 +' + MVP_DAY.es + ' · 🌠 별의 조각 +' + MVP_DAY.sf] }); } }, 6000); return; }
-  changeBag(p.key, { g: MVP_HOUR.g }, '🎁 함께해 줘서 고마워요 · 골드 ' + MVP_HOUR.g.toLocaleString()).catch(() => { }); giveTk(p.key, MVP_HOUR.tk, '🎁 1시간 선물 · 🎫 강화권 +' + MVP_HOUR.tk).catch(() => { });
-  const e = enhOf(s); e.es = Math.min(ES_MAX, (e.es | 0) + MVP_HOUR.es); queueSave(p.key, s); sendEnh(ws, p, { note: ['🎁 1시간 선물 · 💠 +' + MVP_HOUR.es] }); }
+    setTimeout(() => { changeBag(p.key, { g: MVP_DAY.g }, '🎁 오늘의 물결마을 선물 · 골드 ' + MVP_DAY.g.toLocaleString()).catch(() => { }); enhPack(p.key, 'B', '🎁 오늘의 선물 · 강화 상자').catch(() => { });
+      const l = liveByKey(p.key); if (l) { const e = enhOf(l[1].save); e.tk = Math.min(ENH.TK_MAX, (e.tk | 0) + MVP_DAY.tk); e.es = Math.min(ES_MAX, (e.es | 0) + MVP_DAY.es); e.sf = (e.sf | 0) + MVP_DAY.sf; queueSave(p.key, l[1].save); sendEnh(l[0], l[1], { note: ['🎁 오늘의 선물 · 🎫 강화권 +' + MVP_DAY.tk + ' · 💠 꿈의 정수 +' + MVP_DAY.es + ' · 🌠 별의 조각 +' + MVP_DAY.sf] }); } }, 6000); return; }
+  changeBag(p.key, { g: MVP_HOUR.g }, '🎁 함께해 줘서 고마워요 · 골드 ' + MVP_HOUR.g.toLocaleString()).catch(() => { }); 
+  const e = enhOf(s); e.tk = Math.min(ENH.TK_MAX, (e.tk | 0) + MVP_HOUR.tk); e.es = Math.min(ES_MAX, (e.es | 0) + MVP_HOUR.es); queueSave(p.key, s); sendEnh(ws, p, { note: ['🎁 1시간 선물 · 🎫 강화권 +' + MVP_HOUR.tk + ' · 💠 +' + MVP_HOUR.es] }); }
 setInterval(() => { for (const [ws, p] of players) { if (!p.save || p.admin) continue; p.ogm = (p.ogm | 0) + 1; if (p.ogm >= 60) { p.ogm = 0; try { mvpGift(ws, p, 'hour'); } catch (e) { } } } }, 60000);
 /* 🛠️ 고장 보상 (한 번만 · s.cmp): [id, 상자 등급, 골드, 글] */
+/* 🏆 강화 1위 위로 (2026-11-19 · 한 번만): 치킨을 뺀 가장 높은 단계(max) 사람을 V.cmpTop에 한 번 정해 두고, 접속하면 선물 */
+const TOPC = { id: 'c1119top', g: 5e11, tk: 300, es: 500, sf: 30, pack: 3, txt: '🏆 물결마을 강화소 · 가장 먼 길을 먼저 걸어 준 대장장이께 드리는 감사 선물' };
+function topCPick() { if (!V || V.cmpTop || !rankCache.size) return; let b = null; for (const [k, r] of rankCache) { if (r.name === '치킨') continue; if (!b || (r.max | 0) > (b.r.max | 0) || ((r.max | 0) === (b.r.max | 0) && (r.lv | 0) > (b.r.lv | 0))) b = { k, r }; } if (b) { V.cmpTop = b.k; vMark(); console.log('cmpTop', b.r.name, b.r.max); } }
+function topCGive(ws, p) { topCPick(); const s0 = p.save; if (!s0 || !V || p.key !== V.cmpTop) return; s0.cmp = Array.isArray(s0.cmp) ? s0.cmp : []; if (s0.cmp.includes(TOPC.id)) return; s0.cmp.push(TOPC.id); queueSave(p.key, s0);
+  setTimeout(() => { changeBag(p.key, { g: TOPC.g }, TOPC.txt + ' · 골드 ' + TOPC.g.toLocaleString()).catch(() => { }); enhPack(p.key, 'S', TOPC.txt, TOPC.pack).catch(() => { });
+    const l = liveByKey(p.key); if (l) { const e = enhOf(l[1].save); e.tk = Math.min(ENH.TK_MAX, (e.tk | 0) + TOPC.tk); e.es = Math.min(ES_MAX, (e.es | 0) + TOPC.es); e.sf = (e.sf | 0) + TOPC.sf; queueSave(p.key, l[1].save); sendEnh(l[0], l[1], { note: ['🏆 감사 선물 · 🎫 강화권 +' + TOPC.tk + ' · 💠 꿈의 정수 +' + TOPC.es + ' · 🌠 별의 조각 +' + TOPC.sf] }); } }, 5000); }
 const COMP = { '치킨': ['c1118trap', 'A', 2e7, '🛠️ 통발이 안 걷히던 걸 고쳤어요 · 기다려 줘서 고마워요'], '꼬북린': ['c1118rq', 'A', 1e7, '🛠️ 의뢰 납품 버튼을 고쳤어요 · 기다려 줘서 고마워요'] };
 const CP_STG_S = [[1, '🍼 아기'], [10, '🐾 꼬마'], [20, '💛 단짝'], [35, '🛡️ 듬직이'], [50, '✨ 수호'], [70, '🌟 전설'], [90, '🌌 별빛']];
 const CP_RWS = [[10, 'C', 1e7], [20, 'C', 3e7], [30, 'B', 5e7], [40, 'B', 1e8], [50, 'A', 2e8], [60, 'B', 3e8], [70, 'A', 5e8], [80, 'A', 7e8], [90, 'A', 1e9], [99, 'S', 3e9]];   /* 🐾 반려동물 레벨 선물 */

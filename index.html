@@ -11843,7 +11843,7 @@ $('askYes').onclick=()=>answerAsk(true);$('askNo').onclick=()=>answerAsk(false);
 /* 서버가 보낸 가방 변화(교환 결과)를 그대로 반영. 받은 물고기는 도감에도 올라요 */
 function applyDelta(d,rev,why){
   const got=[];
-  Object.keys(d||{}).forEach(k=>{const n=d[k]|0;if(!n)return;
+  Object.keys(d||{}).forEach(k=>{const n=k==='g'?Math.round(Number(d[k])||0):d[k]|0;if(!n)return;
     if(k==='g'){S.gold=Math.max(0,S.gold+n);if(n>0)got.push('골드 '+fmt(n));return}
     if(k.indexOf('i:')===0){const id=k.slice(2);if(!ITEMS[id])return;itAdd(id,n);if(n>0)got.push(itName(id)+' ×'+n);return}
     const id=+k;if(!FISH[id])return;S.inv[id]=Math.max(0,(S.inv[id]||0)+n);
