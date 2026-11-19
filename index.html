@@ -179,7 +179,7 @@ body.photo>*:not(#cv):not(#tags):not(#photoBar):not(#sheetwrap):not(#askwrap):no
 canvas.isl{width:100%;height:auto;image-rendering:pixelated;border-radius:12px;border:3px solid #a8dcf0;display:block;touch-action:manipulation}canvas.isl.ed{touch-action:none}canvas.hm{width:100%;height:auto;image-rendering:pixelated;border-radius:12px;border:3px solid #e8d8c0;display:block;touch-action:manipulation}.hm-pick{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.hmic{width:48px;height:48px;image-rendering:pixelated;display:block;margin:0 auto 2px}
 .cell .hidz{position:absolute;left:1px;right:1px;bottom:1px;font-size:8.5px;line-height:1.1;color:#7a6aa0;background:rgba(255,255,255,.8);border-radius:4px;text-align:center;white-space:nowrap;overflow:hidden}
 body.swingview .hud,body.swingview #region,body.swingview #ticker,body.swingview #socbox,body.swingview #mmap,body.swingview #mmTog,body.swingview #walkbar,body.swingview #itpill,body.swingview #wallet,body.swingview #ptbar,body.swingview #trapbtn,body.swingview #bossbtn,body.swingview #seaev,body.swingview #pthome,body.swingview #eco,body.swingview #hint,body.swingview #bTalk,body.swingview #bAfk,body.swingview #bSlow,body.swingview #slowHud,body.swingview #bEco,body.swingview #skb,body.swingview #qpanel,body.swingview #banner,body.swingview #riftBtn,body.swingview #toast,body.swingview #tags>:not(.bub){opacity:0!important;pointer-events:none!important;transition:opacity 1s}
-body.swingview>*:not(#cv):not(#tcv){opacity:0!important;pointer-events:none!important;transition:opacity 1.2s}body.swingview #tags{display:none!important}
+body.rwow>*:not(#cv):not(#tcv),body.swingview>*:not(#cv):not(#tcv){opacity:0!important;pointer-events:none!important;transition:opacity 1.2s}body.swingview #tags{display:none!important}
 body.skyview #qpanel,body.skyview #dkpill,body.skyview #wfpill,body.skyview #mmap,body.skyview #mmTog,body.skyview #region,body.skyview #ticker,body.skyview #wallet,body.skyview #itpill,body.skyview .curb{opacity:0!important;pointer-events:none!important;transition:opacity .6s}
 #dkpill,#wfpill,#mmap,#region,#ticker,#wallet,#itpill{transition:opacity .6s}
 .fg-ess{text-align:center;margin:-2px 0 8px;font-size:12.5px;color:#6a4fc0;background:#f1ecff;border-radius:10px;padding:6px 8px}.fg-ess.soon{color:#8a7ab8;background:#f7f4ff}.fg-top .ess{background:#f1ecff}.fg-top .ess b{color:#6a4fc0}
@@ -8322,7 +8322,7 @@ function render(dt){
   petals.forEach(p=>{p.ph+=dt;p.y+=p.s*dt;p.x+=Math.sin(p.ph*1.3)*10*dt+4*dt;if(p.y>14.6*TS){p.y=Math.random()*3*TS;p.x=Math.random()*MW*TS}
     if(p.x<cX-4||p.x>cX+VW+4||p.y<cY-4||p.y>cY+VH+4)return;cx.fillStyle='rgba(255,196,214,.9)';cx.fillRect(Math.round(p.x),Math.round(p.y),2,1)});
   cx.restore();
-  if(!RLM){drawWeather(dt);mistFog()}else rcScreen();dwFx(dt);
+  if(!RLM){drawWeather(dt);mistFog()}else{rcScreen();realmWow()}dwFx(dt);
   shFoot();honFoot();kingFoot();thAura();enhStarFx();placeTags(cX,cY);shipTags(cX,cY);trapTags(cX,cY);smTags(cX,cY);npcTags(cX,cY);critTags(cX,cY);
   // 하루 색조
   const c=RLM?dtn.c.map(v=>Math.round(v+(255-v)*.65)):dtn.c;if(c[0]<255||c[1]<255||c[2]<255){cx.globalCompositeOperation='multiply';cx.fillStyle='rgb('+c[0]+','+c[1]+','+c[2]+')';cx.fillRect(0,0,VW,VH);cx.globalCompositeOperation='source-over'}
@@ -12061,11 +12061,47 @@ function realmGround(x0,x1,y0,y1){const ci0=Math.floor(x0/RCS),ci1=Math.floor(x1
     if((vL||vR)&&y%4===0){cx.fillStyle='#b89a80';cx.fillRect(px+(vL?-1:TS-1),py+3,2,8);const gl=.6+.4*Math.sin(wt*2+y);cx.fillStyle='rgba(255,236,160,'+gl+')';cx.fillRect(px+(vL?-2:TS-2),py+1,4,3)}}}
 
 /* 하늘 배경: 시간 따라 색 · 밤엔 별 · 아주 먼 구름이 천천히 흘러요 (화면 고정 + 살짝 따라오기) */
-function realmSky(cX,cY){const ph=dayTint().ph,night=isNight(ph)||(P&&P.y>=(RY0+146)*TS),dusk=ph>.7&&!night,dawn=ph<.12&&!night,g=cx.createLinearGradient(0,0,0,VH);
-  if(night){g.addColorStop(0,'#1c1a44');g.addColorStop(.6,'#3a2e6a');g.addColorStop(1,'#6a5090')}else if(dusk){g.addColorStop(0,'#6a70c8');g.addColorStop(.55,'#f0a0b8');g.addColorStop(1,'#ffd0a0')}else if(dawn){g.addColorStop(0,'#8ab0f0');g.addColorStop(.6,'#ffc8d8');g.addColorStop(1,'#fff0c8')}else{g.addColorStop(0,'#8ec4f8');g.addColorStop(.6,'#c8e2ff');g.addColorStop(1,'#f4eaff')}
-  cx.fillStyle=g;cx.fillRect(0,0,VW,VH);
-  if(night)for(let i=0;i<70;i++){const sx=((i*97+((cX*.05)|0))%(VW+40))-20,sy=(i*53)%VH,tw=.4+.6*Math.abs(Math.sin(wt*.8+i));cx.fillStyle='rgba(255,255,240,'+tw+')';cx.fillRect(sx,sy,i%7?1:2,i%7?1:2)}
-  for(let L=0;L<3;L++){const sp=[4,9,16][L],al=night?[.08,.12,.16][L]:[.35,.5,.7][L],sz=[18,26,36][L];cx.fillStyle=(night?'rgba(180,170,230,':'rgba(255,255,255,')+al+')';
+/* 🌌 천상계 하늘 (2026-11-19): 구름 위는 대기 밖 · 언제나 은하수가 쏟아져요 (한 번 그려 두고 SKYG 캐시) */
+let SKYG=null,RWOW=0,RWOWF=false;
+function skyGalaxy(){if(SKYG)return SKYG;const W=2048,H=1000,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  let sd=7;const R=()=>{sd=(sd*16807)%2147483647;return sd/2147483647},G=()=>(R()+R()+R()+R()-2)/2;
+  const band=X=>H*.46+Math.sin(X/W*6.283)*H*.17+Math.sin(X/W*18.85+1)*H*.04;
+  const blob=(X,Y,r,col,a)=>{for(const ox of [0,-W,W]){const g=x.createRadialGradient(X+ox,Y,0,X+ox,Y,r);g.addColorStop(0,col.replace('A',a));g.addColorStop(1,col.replace('A',0));x.fillStyle=g;x.fillRect(X+ox-r,Y-r,r*2,r*2)}};
+  /* 성운 빛 */
+  for(let i=0;i<420;i++){const X=R()*W,Y=band(X)+G()*H*.2,r=60+R()*160,k=R();blob(X,Y,r,k<.45?'rgba(210,120,60,A)':k<.65?'rgba(230,90,150,A)':k<.85?'rgba(110,80,210,A)':'rgba(60,140,210,A)',.025+R()*.045)}
+  for(let i=0;i<70;i++){const X=R()*W,Y=band(X)+G()*H*.05;blob(X,Y,30+R()*60,'rgba(255,210,150,A)',.05+R()*.06)}
+  /* 반짝이 먼지 (화성 하늘처럼 빽빽하게) */
+  const dot=(X,Y,s,col)=>{x.fillStyle=col;x.fillRect(X|0,Y|0,s,s);if(X<4)x.fillRect((X+W)|0,Y|0,s,s);if(X>W-4)x.fillRect((X-W)|0,Y|0,s,s)};
+  for(let i=0;i<110000;i++){const X=R()*W,Y=band(X)+G()*H*(R()<.7?.2:.4),k=R(),a=(.35+R()*.65).toFixed(2);dot(X,Y,R()<.06?2:1,k<.45?'rgba(255,200,130,'+a+')':k<.7?'rgba(255,235,200,'+a+')':k<.85?'rgba(255,160,90,'+a+')':'rgba(255,255,255,'+a+')')}
+  /* 어두운 먼지 줄기 */
+  x.globalCompositeOperation='destination-out';for(let i=0;i<190;i++){const X=R()*W,Y=band(X)+G()*H*.06+Math.sin(X*.01)*20;blob(X,Y,10+R()*40,'rgba(0,0,0,A)',.35+R()*.35)}x.globalCompositeOperation='source-over';
+  /* 하늘 전체 별 */
+  for(let i=0;i<7000;i++){const a=(.2+R()*.7).toFixed(2);dot(R()*W,R()*H,R()<.08?2:1,R()<.3?'rgba(200,220,255,'+a+')':'rgba(255,250,235,'+a+')')}
+  /* 푸른 큰 별 (빛 번짐 + 십자 빛살) */
+  const big=(X,Y,r,col)=>{blob(X,Y,r*6,col,.45);blob(X,Y,r*2,'rgba(230,240,255,A)',.8);x.fillStyle='#fff';x.fillRect(X-1,Y-1,3,3);x.fillStyle=col.replace('A',.9);x.fillRect(X-r*3,Y,r*6,2);x.fillRect(X,Y-r*3,2,r*6);x.fillStyle=col.replace('A',.4);x.fillRect(X-r*5,Y,r*10,1);x.fillRect(X,Y-r*5,1,r*10)};
+  for(let i=0;i<40;i++){const cxp=R()*W,cyp=band(cxp)+G()*H*.25,n=6+((R()*12)|0);for(let j=0;j<n;j++)big(cxp+G()*90,cyp+G()*80,1.6+R()*3.4,R()<.8?'rgba(140,180,255,A)':'rgba(255,220,170,A)')}
+  for(let i=0;i<120;i++)big(R()*W,R()*H,1.2+R()*2,R()<.75?'rgba(150,190,255,A)':'rgba(255,200,150,A)');
+  const tw=[];for(let i=0;i<70;i++){const X=R()*W;tw.push([X,R()<.6?band(X)+G()*H*.15:R()*H,R()*6.28,R()<.7?'180,210,255':'255,225,180'])}
+  SKYG={c,W,H,tw};return SKYG}
+/* 처음 들어온 순간: 온 화면이 은하수 → 천천히 구름 위 나라가 드러나요 (글자 · 버튼도 잠깐 숨겨요) */
+function realmWow(){if(!RWOW)return;const k=(performance.now()-RWOW)/1000;if(k>6){RWOW=0;document.body.classList.remove('rwow');return}if(!RWOWF)return;
+  if(k<5.6)document.body.classList.add('rwow');const a=k<2.2?1:Math.max(0,1-(k-2.2)/3);if(a<=0)return;
+  cx.save();realmSky(camX,camY,Math.min(a,.999));const ta=Math.min(1,k/1.2)*(k<3.4?1:Math.max(0,1-(k-3.4)/1.2));if(ta>0){cx.globalAlpha=ta;cx.textAlign='center';cx.fillStyle='rgba(255,246,220,.95)';cx.font='bold 13px sans-serif';cx.fillText('천 상 계',VW/2,VH*.42);cx.font='7px sans-serif';cx.fillStyle='rgba(220,230,255,.85)';cx.fillText('구름 위, 별이 쏟아지는 나라',VW/2,VH*.42+13);cx.textAlign='left'}cx.restore()}
+function realmSky(cX,cY,A){A=A==null?1:A;const ph=dayTint().ph,night=isNight(ph)||(P&&P.y>=(RY0+146)*TS),dusk=ph>.7&&!night,dawn=ph<.12&&!night,g=cx.createLinearGradient(0,0,0,VH);
+  if(night){g.addColorStop(0,'#020310');g.addColorStop(.55,'#070818');g.addColorStop(1,'#180e2c')}else if(dusk){g.addColorStop(0,'#05061c');g.addColorStop(.55,'#1e1238');g.addColorStop(1,'#6a3048')}else if(dawn){g.addColorStop(0,'#050a20');g.addColorStop(.6,'#1c1c48');g.addColorStop(1,'#704860')}else{g.addColorStop(0,'#04071c');g.addColorStop(.55,'#0c1440');g.addColorStop(1,'#26346e')}
+  cx.globalAlpha=A;cx.fillStyle=g;cx.fillRect(0,0,VW,VH);cx.globalAlpha=1;
+  const K=skyGalaxy(),sc=Math.max(VH*2.2/K.H,VW*1.2/K.W),ox=-((((cX*.04+wt*.6)*sc)%(K.W*sc)+K.W*sc)%(K.W*sc)),oy=-((K.H*sc-VH)*.5)+Math.sin(((cX*.04+wt*.6)*sc)/(K.W*sc)*6.283)*K.H*sc*.17-((cY*.015)%40);
+  const wow=RWOW?Math.max(0,1-(performance.now()-RWOW)/7000):0;
+  cx.save();cx.globalAlpha=(night?1:.92)*A;cx.globalCompositeOperation='lighter';cx.imageSmoothingEnabled=true;for(let x0=ox;x0<VW;x0+=K.W*sc)cx.drawImage(K.c,x0,oy,K.W*sc,K.H*sc);
+  /* 반짝반짝 */
+  for(const t of K.tw){let X=t[0]*sc+ox;X=((X%(K.W*sc))+K.W*sc)%(K.W*sc);if(X>VW)continue;const Y=t[1]*sc+oy,a=Math.max(0,Math.sin(wt*1.7+t[2]));if(a<.2)continue;cx.fillStyle='rgba('+t[3]+','+a+')';cx.fillRect(X-1,Y,2.5,.6);cx.fillRect(X-.05,Y-1,.6,2.5);if(a>.85){cx.fillStyle='rgba('+t[3]+','+(a-.6)+')';cx.fillRect(X-2.5,Y,5.5,.5);cx.fillRect(X,Y-2.5,.5,5.5)}}
+  cx.restore();
+  if(A>=1&&RWOW&&RWOWF&&performance.now()-RWOW<5200){cx.globalAlpha=1;return}   /* 첫 장면 땐 위 덮개가 별똥별을 그려요 */
+  /* 별똥별: 늘 가끔 · 처음 들어온 7초는 소나기 */
+  const rate=wow>0?.25:.008;if(Math.random()<rate){const m=realmSky.m||(realmSky.m=[]);m.push({x:Math.random()*VW*1.2,y:Math.random()*VH*.5,t:0,l:.5+Math.random()*.5,v:120+Math.random()*120})}
+  if(realmSky.m){const dt=1/60;realmSky.m=realmSky.m.filter(o=>{o.t+=dt;if(o.t>o.l)return false;const k=o.t/o.l,x=o.x-o.v*o.t,y=o.y+o.v*.55*o.t,a=Math.sin(k*3.14);for(let i=0;i<14;i++){cx.fillStyle='rgba(255,250,230,'+(a*(1-i/14))+')';cx.fillRect(x+i*2,y-i*1.1,i?.7:1.4,i?.7:1.4)}return true})}
+  /* 은은한 구름 띠 (별을 가리지 않게) */
+  for(let L=0;L<3;L++){const sp=[4,9,16][L],al=night?[.02,.03,.04][L]:[.03,.045,.06][L],sz=[18,26,36][L];cx.fillStyle=(night?'rgba(180,170,230,':'rgba(220,230,255,')+al+')';
     for(let i=0;i<7;i++){const bx=((i*173+wt*sp-cX*(.05+L*.08))%(VW+160)+VW+160)%(VW+160)-80,by=((i*61+L*97)%(VH-40))+20-(cY%400)*(.02+L*.03);for(let j=0;j<4;j++){cx.beginPath();cx.ellipse(bx+j*sz*.45,by+Math.sin(j*1.7)*sz*.12,sz*.42,sz*.24,0,0,6.283);cx.fill()}}}}
 /* 꾸밈 그리기 */
 const RD={
@@ -12141,7 +12177,7 @@ function realmRegion(tx,ty){const I=rIslAt(tx,ty);if(I&&W.T[ty]&&W.T[ty][tx]!=='
 const REALM={want:0,back:null,hb:60};
 function rSafe(x,y){for(let r=0;r<14;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;const X=x+dx,Y=y+dy;if(W.inb(X,Y)&&!W.SOL[Y][X]&&W.T[Y][X]!=='v'&&!blockedAt(X*TS+8,Y*TS+12))return[X*TS+8,Y*TS+12]}return[x*TS+8,y*TS+12]}   // 막힌 자리면 가까운 빈자리
 function realmGo(){if(ONLINE&&Net.me){REALM.want=1;Net.send({t:'cel_in'});return}realmArrive({left:999})}
-function realmArrive(m){REALM.want=0;CEL.hp=CEL.hp||huMaxHp();if(CEL.on){CEL.on=false;CEL.mode='';document.body.classList.remove('celv')}if(m&&m.left!=null)CEL.left=m.left;REALM.hb=60;
+function realmArrive(m){REALM.want=0;RWOW=performance.now();{const d=kstDay();RWOWF=S.rwd!==d;if(RWOWF){S.rwd=d;try{saveState()}catch(e){}}}CEL.hp=CEL.hp||huMaxHp();if(CEL.on){CEL.on=false;CEL.mode='';document.body.classList.remove('celv')}if(m&&m.left!=null)CEL.left=m.left;REALM.hb=60;
   const I=RISL.find(i=>i[0]===(REALM.to||'gate'))||RISL[0],sp=rSafe(I[1],RY0+I[2]+(I[0]==='gate'?-2:I[0]==='peak'?3:2));forceTp(sp[0],sp[1],'');REALM.to='';realmGateSync();Snd.sfx('gate');showBanner('☁️ 구름 위 나라 · 구름 나루에 내려왔어요',2600);realmHud()}
 function realmLeave(msg){if(!inRealm())return;if(ONLINE&&Net.me)Net.send({t:'cel_out'});if(F.mode!=='idle'){F.mode='idle';try{showReel(false)}catch(e){}Snd.setIntense(false)}
   forceTp(PLAZA.gate[0]*TS+8,(PLAZA.gate[1]+2)*TS+12,'');showBanner(msg||'🌟 별빛 광장으로 돌아왔어요',2400);realmHud()}
