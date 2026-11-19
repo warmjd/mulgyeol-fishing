@@ -167,3 +167,5 @@
 - 🏆 강화 1위 위로 TOPC (2026-11-19 · 한 번만 · s.cmp 'c1119top'): V.cmpTop = 치킨 뺀 가장 높은 max · 골드 5,000억 · 강화 상자(특) ×3 · 강화권 300 · 정수 500 · 🌠 30. applyInv · client applyDelta의 골드는 이제 |0 안 해요 (21억 넘는 골드 선물 가능).
 - 🪑 흔들의자 고요 모드 (2026-11-18 · 잠수함): swingview면 body의 cv · tcv 말고 모두 숨김(조이스틱 · 앉기/밀기 버튼 · 알림 · 말풍선 · #tags) · 효과음(Snd.sfx) 꺼짐 · 음악만 · 일어나기는 화면 두 번 톡톡(swTap · 키보드 이동도 그대로).
 - 🌌 천상계 하늘 (2026-11-19 · 깜짝이라 업데이트 소식 안 씀): realmSky = 깊은 남색 바탕 + skyGalaxy() 캐시(2048×1000 · 은하수 띠 · 먼지 11만 점 · 성운 · 어두운 먼지 줄기 · 푸른 큰 별 빛살)를 'lighter'로 · 반짝이 70개 · 별똥별 · 구름 띠는 아주 옅게. 하루 첫 입장(S.rwd)은 realmWow: 온 화면 은하수 + 「천 상 계」 글자 + 별똥별 소나기 → 5초에 걸쳐 드러남 (body.rwow로 UI 숨김).
+- 👑 1등의 응원 권한 (2026-11-19 · 조돌맹 · 업데이트 소식 · 안내서 씀): server V.cus {v 0~3, d} · cusOf · CUS_M [0,.35,.65,1] → enhCU 세기 (safe는 v≥2) · 'cus_set'(1위만 · 하루 한 번) · 응원으로 성공하면 champThank → V.cth (하루 CTH_DAY 120 · 「크게」 ×2 · 60초마다 1위 save에 별 enhApply) · 마을 소식 「👑 ○○ 님의 응원으로」 · 'cbl' 축복 V.cbl {n,k,u,d} 1시간 (shinyP ×1.3 · client cblOn → 행운 ×1.2 · 월척 ×1.3 · 1위 본인 제외) · 칭호 t_bking · 'cus' 메시지 cusPub (접속 때 · 바뀔 때) · client CUS · 강화소 .cusbox (1위에게만).
+- ⚒️ 안전 강화 1번 골드 최대 1억 (server ENH_GCAP · client ENH.cost Math.min 1e8).
