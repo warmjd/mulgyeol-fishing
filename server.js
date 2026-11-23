@@ -673,6 +673,7 @@ wss.on('connection', (ws) => {
         try { mvpGift(ws, p, 'day'); } catch (e) { }
         try { const e0 = p.save && p.save.enh; if (e0 && (e0.lv | 0) >= 30 && V && !V.e30) setTimeout(() => enhFirst(p, 29, 30), 3000); } catch (e) { }   /* 이미 +30인 사람이 있으면 문 열기 */
         try { topCGive(ws, p); } catch (e) { }
+        try { const s0 = p.save; if (s0 && (s0.arkd | 0) > 0) { s0.cmp = Array.isArray(s0.cmp) ? s0.cmp : []; if (!s0.cmp.includes('ark_ref')) { s0.cmp.push('ark_ref'); const g = (s0.arkd | 0) * ARK_REF; const got = giveCos(s0, ['t_ark']); queueSave(p.key, s0); setTimeout(() => { changeBag(p.key, { g }, '⛵ 물결호에 실었던 재료 ' + (s0.arkd | 0).toLocaleString() + '개를 골드로 돌려드려요 · ' + g.toLocaleString() + ' 골드').catch(() => { }); if (got.length) send(ws, { t: 'cos_got', ids: got }); }, 6000); } } } catch (e) { }
         { const C = COMP[p.name], s0 = p.save; if (C && s0) { s0.cmp = Array.isArray(s0.cmp) ? s0.cmp : []; if (!s0.cmp.includes(C[0])) { s0.cmp.push(C[0]); queueSave(p.key, s0);
           setTimeout(() => { enhPack(p.key, C[1], C[3]); changeBag(p.key, { g: C[2] }, C[3] + ' · 골드 ' + C[2].toLocaleString()).catch(() => { }); }, 4000); } } }
         if (V && V.plq) send(ws, { t: 'plq', l: Object.values(V.plq) }); send(ws, e30Pub()); send(ws, cusPub()); { const h = hideOf(p.name); if (h.length) send(ws, { t: 'hide', n: h }); } if (V && V.skyc && V.skyc.length) send(ws, { t: 'skyc', l: V.skyc });
@@ -945,7 +946,8 @@ function onMsg(ws, me, m) {
           if (tgt[1] !== me && (fk === 'dg' || fk === 'dh')) broadcast({ t: 'news', text: (fk === 'dg' ? '🌟 ' : '⛈️ ') + me.name + ' 님이 ' + tgt[1].name + ' 님의 운세를 봤더니… 【' + FORT_NM[fk] + '】!' }); } }
       queueSave(me.key, s); send(ws, out);
     }).catch(e => console.error('skill', e.message)); break;
-    case 'ark_put': withLocks([me.key, '__ark'], async () => {
+    case 'ark_put': send(ws, { t: 'news', text: '⛵ 물결호 키우기는 끝났어요 · 방주 효과는 이제 모두에게 늘 있어요' }); break;
+    case 'ark_put_old': withLocks([me.key, '__ark'], async () => {
       const s = me.save; if (!s || !V) return; if (!vBoat) return send(ws, { t: 'news', text: '먼저 물결호를 만들어야 해요' });
       const A = arkOf(), need = ARK_NEED[A.st + 1], g = String(m.g || ''); if (!need || !need[g]) return;
       const allowed = ARK_GROUP[g] || [g], left = need[g] - (A.got[g] | 0); if (left <= 0) return send(ws, { t: 'news', text: '그 재료는 다 모였어요' });
@@ -2438,7 +2440,8 @@ const ARK_NEED = [null, null, { plank: 300, log: 200 }, { cloth: 30, plank: 200 
 const ARK_GROUP = { fruit: ['apple', 'peach', 'orange', 'cherry'], flower: ['fl_tulip', 'fl_sun', 'fl_cosmos', 'fl_lav', 'fl_rose', 'fl_hydr', 'fl_lily', 'fl_rb'] };
 const ARK_NAME = ['', '물결호', '튼튼한 물결호', '돛단 물결호', '물결 범선', '물결 방주'];
 const arkOf = () => { if (!V) return { st: 1, got: {}, dn: {} }; const a = V.ark && typeof V.ark === 'object' ? V.ark : (V.ark = { st: 1, got: {}, dn: {} }); a.st = Math.max(1, Math.min(5, a.st | 0)); a.got = a.got || {}; a.dn = a.dn || {}; for (const k in a.got) if (MERGE[k]) { a.got[MERGE[k]] = (a.got[MERGE[k]] | 0) + a.got[k]; delete a.got[k]; } return a; };
-const arkSt = () => arkOf().st;
+const arkSt = () => 5;   /* 2026-11-24: 물결호 키우기 없앰 · 방주 효과는 모두에게 늘 · 실었던 사람은 ARK_REF로 골드 돌려받아요 */
+const ARK_REF = 500000;
 /* 🌷⛵ 꽃배 (2026-11-05): 한 사람에 한 척 · 8척 · 마을 꽃배 부두 ↔ 안개 섬 부두 (index.html SHIP_N과 같아요)
    7일 넘게 안 온 사람의 배는 빈 배가 돼요 (그 사람 꽃은 저장에 그대로) */
 const SHIP_N = 8,   /* 화면에선 2026-11-17부터 정원 마당 대신 별빛 광장 (index.html SHIP_N 0) */ SHIP_IDLE = 7 * 864e5, SHIP_SAIL_MS = 5 * 60e3;

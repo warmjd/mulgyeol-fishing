@@ -5558,7 +5558,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1119a',UPD_LOG=[
+const UPD_VER='1124a',UPD_LOG=[
+ ['11/24 ⛵ 물결호가 다 지어졌어요','⛵',[['⛵ 물결호 키우기는 끝','이제 재료를 싣지 않아도 돼요 · 정원과 배 이야기 화면의 「물결호」 칸은 없어졌어요'],['🎁 방주 효과는 모두에게 늘','안개 섬 행운 +5% · 안개 조각 하루 +20 · 배낚시 한 주 +4번 · 행운 · 판매가 +10%가 모두에게 늘 붙어요'],['💰 실었던 재료는 돌려드려요','물결호에 재료를 실었던 사람은 접속하면 실은 개수 × 50만 골드와 칭호 「방주를 지은 사람」을 받아요']]],
  ['11/19 👑 1등의 응원 권한','👑',[['👑 응원 세기는 1등이 정해요','낚싯대 강화 1위는 강화소에서 「1위의 지원」 세기를 꺼짐 · 약하게 · 보통 · 크게 중에 하루 한 번 고를 수 있어요 · 예전엔 늘 「크게」로 자동이었어요'],['⭐ 감사의 별','누가 1위의 응원으로 강화에 성공하면 1위에게 감사의 별이 쌓여요 (하루 120개까지 · 「크게」면 2배) · 마을 소식에도 1위 이름이 떠요'],['✨ 1등의 축복','1위는 하루 한 번 마을에 1시간 축복을 내릴 수 있어요 · 1위를 뺀 모두에게 반짝 ×1.3 · 월척 ×1.3 · 행운 +20% · 처음 내리면 칭호 「👑 베푼 왕」'],['⚒️ 안전 강화 골드','안전 강화 골드는 이제 한 번에 최대 1억이에요 (높은 단계가 너무 비쌌어요)']]],
  ['11/18 밤 🚪 봉인된 문','🚪',[['🚪 강화소 옆 오래된 문','강화소 오른쪽에 처음 보는 돌문이 생겼어요 · +25부터는 문틈으로 빛이 새어 나와요 · 가까이 가서 눌러 보세요'],['⚒️ +30 그다음','마을에서 누군가 처음 +30에 닿으면 문이 열린대요… 그 뒤는 열어 본 사람만 알아요 ✨']]],
  ['11/18 밤 ✨ 명품관 2.0','✨',[['🎣 테마 낚싯대 새 효과','예전 낚싯대 효과를 빌려 쓰던 걸 모두 새로 바꿨어요 · 🐉 용이 내려와 불 · 🏴‍☠️ 해적선 대포와 금화 · ⚔️ 성검 낙하 · ⚡ 연속 번개 · 🌸 벚나무가 자라 활짝 · 💎 수정 기둥과 무지개 빛줄기 · 🌌 별자리가 그려지고 별똥별'],['🌈 각성 낚싯대 (15억)','테마마다 하나 더 · 무지개빛 몸통 · 쌍룡 회오리 · 황금 소용돌이 · 천 개의 검 · 폭풍의 눈 · 벚꽃 회오리 · 다이아 비 · 은하 초신성'],['🎈 찌 · 낚싯대 끝','찌가 떨어질 때 효과도 테마마다 새로 · 낚싯대 끝 모양도 용 머리 · 닻 · 검 · 번개 · 벚꽃 · 수정 · 별 지팡이'],['👣 발자국 · 🏷️ 이름표','테마마다 발자국과 반짝이는 이름표 테두리가 생겼어요'],['🏰 성 전시장','명품관 맨 위 · 테마 성 7 + 새 성 6 🏯 구름 누각 · 🍭 사탕 궁전 · ❄️ 얼음 궁전 · 🍄 버섯 성 · 🐚 산호 궁전 · 🌳 나무 위 요새'],['📌 세트 칭호','이제 한 테마에 10칸 · 같은 테마를 7칸 넘게 끼면 칭호예요']]],
@@ -7004,7 +7005,7 @@ ITEMS.knack={n:'솜씨 재료',ic:'✨',d:'다섯 직업 누구나 자기 일을
 /* ===== 자연 1.0 (2026-11-05): 꽃 · 나무 · 열매 · 벌꿀 · 석청 · 곤충 · 물결호 키우기 (server.js ITEM_IDS와 같아요) ===== */
 Object.assign(ITEMS,{
  log:{n:'통나무',ic:'🪵',d:'나무를 베면 나와요 · 판자로 다듬어요',npc:300},
- plank:{n:'판자',ic:'🟫',d:'통나무를 다듬은 것 · 물결호를 키우는 재료',npc:400},
+ plank:{n:'판자',ic:'🟫',d:'통나무를 다듬은 것 · 공방 재료',npc:400},
  wplank:{n:'방수 판자',ic:'🛶',d:'판자에 석청을 발라 물이 안 스며요',npc:2500},
  dye:{n:'꽃 염료',ic:'🎨',d:'꽃잎을 찧어 만든 물감',npc:1200},
  cloth:{n:'꽃잎 돛천',ic:'🏳️',d:'꽃잎 두 송이로 짠 튼튼한 천 · 돛이 돼요',npc:4000},
@@ -7012,10 +7013,10 @@ Object.assign(ITEMS,{
  honey_lav:{n:'라벤더꿀',ic:'💜',d:'라벤더가 핀 화단의 벌집에서',npc:2000},
  honey_rb:{n:'무지개꿀',ic:'🌈',d:'무지개꽃이 핀 화단에서만 아주 가끔',npc:20000},
  wildhoney:{n:'석청',ic:'🪨',d:'안개 섬 바위틈의 야생 벌꿀 · 배에 바르면 물이 안 스며요',npc:6000},
- apple:{n:'사과',ic:'🍎',d:'새콤달콤 사과. 물결호 재료 · 상점에서 팔아요',npc:3000},
- peach:{n:'복숭아',ic:'🍑',d:'말랑한 복숭아. 물결호 재료 · 상점에서 팔아요',npc:4000},
- orange:{n:'귤',ic:'🍊',d:'상큼한 귤. 물결호 재료 · 상점에서 팔아요',npc:3500},
- cherry:{n:'체리',ic:'🍒',d:'반짝이는 체리. 물결호 재료 · 상점에서 팔아요',npc:8000},
+ apple:{n:'사과',ic:'🍎',d:'새콤달콤 사과. 상점에서 팔아요',npc:3000},
+ peach:{n:'복숭아',ic:'🍑',d:'말랑한 복숭아. 상점에서 팔아요',npc:4000},
+ orange:{n:'귤',ic:'🍊',d:'상큼한 귤. 상점에서 팔아요',npc:3500},
+ cherry:{n:'체리',ic:'🍒',d:'반짝이는 체리. 상점에서 팔아요',npc:8000},
  pie:{n:'과일 꿀파이',ic:'🥧',d:'과일 꿀파이. 상점에서 좋은 값에 팔려요',npc:12000},
  snow:{n:'눈뭉치',ic:'⛄',d:'소복섬 눈더미에서 뭉쳐요 · 눈사람 재료',npc:100},flake:{n:'반짝 눈송이',ic:'❄️',d:'소복섬에서 가끔 · 스키복 재료',npc:30000},
  fl_tulip:{n:'튤립',ic:'🌷',d:'내 정원 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:140000},fl_sun:{n:'해바라기',ic:'🌻',d:'내 정원 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:270000},fl_cosmos:{n:'코스모스',ic:'🌸',d:'내 정원 화단에서 딴 꽃 · 꽃 시장에서 좋은 값에 팔려요',npc:180000},
@@ -7124,7 +7125,7 @@ BOB3.b_bfly={rows:["y.y.y","yyyyy",".yky.","yyyyy","y...y"],pal:{y:'#ffe040',k:'
 [['t_bug1','title','곤충 친구'],['t_bug2','title','곤충 박사'],['b_bfly','bob','나비 찌'],['t_ark','title','방주를 지은 사람']].forEach(r=>COS.push({id:r[0],k:r[1],name:r[2],ev:r[0],tier:r[1]==='bob'?1:undefined,nw:NEW_DAY}));
 COS.push({id:'t_wed',k:'title',name:'💞 물결마을 부부'},{id:'t_wfchamp',k:'title',name:'🏅 주간 낚시 챔피언'});COS_BY.t_wed=COS[COS.length-2];COS_BY.t_wfchamp=COS[COS.length-1];
 COS.push({id:'t_fs1',k:'title',name:'첫눈을 기다린 사람'},{id:'t_fs2',k:'title',name:'복 많이 받는 사람'},{id:'t_fs3',k:'title',name:'달콤한 고백'},{id:'t_fs4',k:'title',name:'벚꽃 아래 낚시꾼'},{id:'t_fs5',k:'title',name:'바다의 친구'},{id:'t_npc1',k:'title',name:'바다 할멈의 손주',egg:1},{id:'t_npc2',k:'title',name:'슈가의 단골',egg:1},{id:'t_npc3',k:'title',name:'소복옹의 눈사람 친구',egg:1});['t_fs1','t_fs2','t_fs3','t_fs4','t_fs5','t_npc1','t_npc2','t_npc3'].forEach(id=>COS_BY[id]=COS.find(c=>c.id===id));COS.push({id:'t_ruby30',k:'title',name:'루비의 영원한 산책 친구',price:undefined,egg:1},{id:'t_litter30',k:'title',name:'고양이 화장실의 수호자',price:undefined,egg:1});COS_BY.t_ruby30=COS[COS.length-2];COS_BY.t_litter30=COS[COS.length-1];
-Object.assign(EV_HOW,{t_bug1:'곤충 도감 8종',t_bug2:'곤충 도감 전부',b_bfly:'곤충 도감 전부',t_ark:'물결 방주에 재료를 실은 사람'});
+Object.assign(EV_HOW,{t_bug1:'곤충 도감 8종',t_bug2:'곤충 도감 전부',b_bfly:'곤충 도감 전부',t_ark:'물결호를 함께 지은 사람 (지금은 받을 수 없어요)'});
 COS.forEach(c=>COS_BY[c.id]=c);
 /* 2026-11-05 재료 정리: 제작법의 옛 재료 이름을 솜씨 재료로 (같은 양을 더해요) */
 REC.forEach(r=>['in','out'].forEach(f=>{const o=r[f];if(!o||typeof o!=='object')return;for(const k of Object.keys(o)){const nk=mk(k);if(nk===k)continue;const v=o[k];delete o[k];o[nk]=typeof v==='function'||typeof o[nk]==='function'?v:(o[nk]|0)+v}}));
@@ -7420,7 +7421,6 @@ function openBoat(){
   if(boatReady())h+='<div class="wishc" style="background:#eef6ff;border-color:#bcd8f0"><div style="font-size:16px">⛵ 물결호가 부두에 있어요</div><div class="muted" style="font-size:12px;margin-top:4px">'+(VBOAT?esc(VBOAT.by)+' 님이 만들었어요 · ':'')+'먼바다 부두 끝에서 타면 안개 섬으로 가요.</div>'+
     (onIsle()?'<button class="btn mint sm" style="margin-top:8px" data-bt2="home">마을로 돌아가기</button>':'<button class="btn mint sm" style="margin-top:8px" data-bt2="go">안개 섬으로 출항!</button>')+'</div>';
   else{h+=boxHtml();if(ONLINE&&!BOX){Net.send({t:'don_list'})}}
-  h+='<div class="sec" style="margin-top:8px">⛵ 물결호 키우기</div>'+arkHtml();
   const L=lampLv();
   h+='<div class="sec" style="margin-top:8px">항해 장비 · 방수 등불</div><div class="gear"><h3>'+LAMP.names[L]+(L?' <span class="lv">'+'<i class="on"></i>'.repeat(L)+'<i></i>'.repeat(5-L)+'</span>':'')+'</h3><div class="muted" style="font-size:12px">'+(L?'섬에서 행운 +'+L*8+'% · 안개 물고기가 보여요':'등불이 있어야 안개 낀 날의 섬 물고기가 걸려요')+'</div>';
   if(L<5){const ms=LAMP.m[L],it=LAMP.it[L],g=gearGold(LAMP.g[L]);h+='<div class="mats">'+ms.map(x=>{const id=fid(x[0]),n=S.inv[id]|0;return'<span class="mat '+(n>=x[1]?'ok':'no')+'"><img src="'+fishURL(id)+'" alt="">'+esc(x[0])+' '+n+'/'+x[1]+'</span>'}).join('')+
@@ -10896,7 +10896,7 @@ const ARK_STORY=['',
  '🍯 <b>4장 · 물결 범선</b><br>섬 너머 더 먼 바다엔 며칠씩 걸려요. 꿀과 열매를 실어 긴 항해를 준비해요.',
  '🌈 <b>5장 · 물결 방주</b><br>"모두가 함께 탈 수 있는 배를 만들자." 판자 틈은 석청으로 메우고, 마을의 꽃과 열매, 무지개꿀까지 실은 방주가 완성되면… 물결마을의 새 이야기가 시작돼요.'];
 let ARKV={st:1,got:{},dn:[]};
-const arkSt=()=>ONLINE?(ARKV.st|0)||1:(S.arkL&&S.arkL.st)|0||1;
+const arkSt=()=>5;   /* 2026-11-24: 물결호 키우기는 없어지고 방주 효과는 모두에게 늘 (server arkSt 5) */
 function arkHtml(){const st=arkSt(),nx=ARK[st+1],got=ONLINE?ARKV.got||{}:(S.arkL&&S.arkL.got)||{};
   let h='<div class="wishc" style="background:#eef6ff;border-color:#bcd8f0"><div class="sec" style="margin:0 0 4px">⛵ 지금: <b>'+ARK[st].n+'</b> ('+st+'/5단계)</div><div style="font-size:12.5px;line-height:1.6">'+ARK_STORY[st]+'</div>'+
     (st>=2?'<div class="muted" style="font-size:12px;margin-top:4px">받는 효과: '+ARK.slice(2,st+1).map(a=>a.perk).join(' · ')+'</div>':'')+'</div>';
@@ -11316,7 +11316,7 @@ function hiveSprite(){const b=Buf(12,14);ell(b,6,8,5,6,[230,180,80]);for(let y=4
 /* 꽃밭 언덕 관리소 */
 let GD_TAB='bed';
 function openGarden(){Snd.sfx('ui');openSheet('🌷 꽃밭 언덕 관리소','');renderGarden()}
-function renderGarden(){const g=gdS(),bc=bloomCount(),tabs=[['ship','🌷 내 정원'],['bed','🌱 화단'],['deco','🪴 꾸미기'],['shop','🛒 가게'],['bug','🦋 곤충 도감'],['ark','⛵ 물결호']];if(GD_TAB==='bed'&&myShip()<0)GD_TAB='ship';
+function renderGarden(){const g=gdS(),bc=bloomCount(),tabs=[['ship','🌷 내 정원'],['bed','🌱 화단'],['deco','🪴 꾸미기'],['shop','🛒 가게'],['bug','🦋 곤충 도감']];if(GD_TAB==='bed'&&myShip()<0)GD_TAB='ship';
   let h='<div class="tabs scroll">'+tabs.map(t=>'<button class="tab'+(GD_TAB===t[0]?' on':'')+'" data-gdt="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
   if(GD_TAB==='ship')h+=shipHtml();
   else if(GD_TAB==='deco')h+=gdDecoHtml();
@@ -11529,7 +11529,7 @@ function gbHtml(k){const C=(t)=>'<div class="gbc">'+t+'</div>',H=t=>'<div class=
     H('📦 강화 상자')+C('큰 보상은 상자로 와요 · 열면 🎫 강화권 · 💠 정수 · ⭐ 별<br>소 12 · 2 · 3 / 중 40 · 8 · 12 / 대 120 · 25 · 40 / 특 300 · 60 · 120<br><span class="muted">접속해 있지 않을 땐 우편으로 와요</span>');
   if(k==='item')return H('🪱 상점 미끼 (물결 상점 → 💎 미끼)')+T(['미끼','효과','값'],BAIT_SHOP.map(b=>[ITEMS[b[0]].ic+' '+ITEMS[b[0]].n,ITEMS[b[0]].d,fmtShort(b[1])]))+
     H('⚒️ 장인 미끼 (공방 장인 · 덧미끼로 함께)')+G([['🪱 반죽','희귀 이상 1.3배'],['✨ 반짝 · 💫 명품','희귀 이상 1.8 · 2.3배'],['🌟 전설 · 🌠 명품','전설이 잘 걸려요'],['👯 쌍둥이','같은 물고기 한 마리 더'],['🖐️ 손맛','조절 바 1.5배 · 크기 +15%'],['🧿 행운 부적','상점에 좋은 값']])+
-    H('🧺 재료 · 먹거리')+G([['✨ 솜씨 재료 · 🍣 생선살','직업 일 · 공방 재료'],['🪵 통나무 → 🟫 판자','나무 베기 · 물결호'],['🍯 꿀 · 🪨 석청','정원 벌집 · 안개 섬 바위'],['🍎 과일 · 🌷 꽃 · ⛄ 눈','정원 · 화단 · 소복섬'],['🍲 수프 · 🥧 꿀파이','요리해서 팔면 좋은 값'],['🦴 간식 · 🧸 장난감','짝꿍 ♥ · 경험치']])+
+    H('🧺 재료 · 먹거리')+G([['✨ 솜씨 재료 · 🍣 생선살','직업 일 · 공방 재료'],['🪵 통나무 → 🟫 판자','나무 베기 · 공방'],['🍯 꿀 · 🪨 석청','정원 벌집 · 안개 섬 바위'],['🍎 과일 · 🌷 꽃 · ⛄ 눈','정원 · 화단 · 소복섬'],['🍲 수프 · 🥧 꿀파이','요리해서 팔면 좋은 값'],['🦴 간식 · 🧸 장난감','짝꿍 ♥ · 경험치']])+
     H('✨ 명품관 (메뉴 → 성장 · 치장 상점 위 버튼)')+C('테마 7개 '+TH_K.map(t=>TH[t].ic+' '+TH[t].n).join(' · ')+'<br>테마마다 '+TH_SLOT.length+'칸: '+TH_SLOT.map(s=>s[2]+' '+fmtShort(s[3])).join(' · ')+'<br>같은 테마를 <b>3칸</b> 끼면 걸을 때 오라 · <b>5칸</b>이면 더 화려하게 · <b>7칸</b> 넘게 끼면 칭호와 마을 소식<br>🏰 성 전시장: 테마 성 7 + 새 성 '+Object.keys(CSTX).map(t=>CSTX[t].ic+' '+CSTX[t].n).join(' · ')+'<br>🏰 성 양식: 깃발을 오래 지켜 성이 되면 그 테마 성으로 보여요 (성 크기는 지킨 날로만 자라요 · 21일 해자 · 28일 전설의 성)');
   if(k==='enh')return H('⚒️ 낚싯대 강화 (+'+ENH.MAX+'까지)')+C('<b>안전</b> 강화권 + 골드 · 실패해도 안 잃고, 몇 번 실패하면 다음은 확정 · 골드는 한 번에 최대 1억<br><b>도전</b> 강화권만 · 성공하면 별 3개 (대성공 6) · +5부터 실패하면 별 1개를 잃어요<br>+20부터는 💠 꿈의 정수도 1개씩')+H('👑 1위의 응원')+C('강화 1위보다 낮으면 1위 이름으로 응원이 붙어요 (성공 확률 · 별 배수 · 실패 보호) · 세기는 1위가 하루 한 번 정해요 (꺼짐 · 약하게 · 보통 · 크게)<br>응원으로 성공하면 1위에게 ⭐ 감사의 별 · 1위는 하루 한 번 1시간 「축복」을 내릴 수 있어요 (1위 빼고 모두 반짝 · 월척 ×1.3 · 행운 +20%)')+(E30?H('🚪 별의 대장간 (+31~+40)')+C('강화소 옆 문이 열렸어요 · 💠 정수 2~5개 · +34부터 🌠 <b>별의 조각</b>도 필요해요<br>🌠 별의 조각: 손으로 낚은 반짝 · 신화 · 전설 물고기, 하늘낚시 전설 이상, 구름 위 처음 낚은 물고기<br>단계마다 무엇이 생기는지는 문 앞에서 볼 수 있어요 · 🌀 +35 별빛 순간이동은 길 안내에서'):C('🚪 강화소 옆에 오래된 문이 있어요… <b>+30 그다음</b>은 누군가 처음 +30에 닿으면 열린대요'))+
     T(['단계','열리는 것'],ENH_MILE.filter(m=>[3,5,8,10,15,18,20,25,27,30].includes(m[0])).map(m=>['+'+m[0],m[2]+' '+m[1]]))+

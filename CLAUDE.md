@@ -170,3 +170,7 @@
 - 👑 1등의 응원 권한 (2026-11-19 · 조돌맹 · 업데이트 소식 · 안내서 씀): server V.cus {v 0~3, d} · cusOf · CUS_M [0,.35,.65,1] → enhCU 세기 (safe는 v≥2) · 'cus_set'(1위만 · 하루 한 번) · 응원으로 성공하면 champThank → V.cth (하루 CTH_DAY 120 · 「크게」 ×2 · 60초마다 1위 save에 별 enhApply) · 마을 소식 「👑 ○○ 님의 응원으로」 · 'cbl' 축복 V.cbl {n,k,u,d} 1시간 (shinyP ×1.3 · client cblOn → 행운 ×1.2 · 월척 ×1.3 · 1위 본인 제외) · 칭호 t_bking · 'cus' 메시지 cusPub (접속 때 · 바뀔 때) · client CUS · 강화소 .cusbox (1위에게만).
 - ⚒️ 안전 강화 1번 골드 최대 1억 (server ENH_GCAP · client ENH.cost Math.min 1e8).
 - 🙈 서로 안 보이기 (2026-11-24 · 조돌맹 · 잠수함): server HIDE_PAIRS [['리치맨','꼬북린']] (+V.hidep) · hideOf → 접속 때 'hide' · client HIDE → addOther 안 함 · 말풍선 · 얼음 동상도 안 보여요. 순위 · 기록은 그대로.
+
+## 🧹 2026-11-24 출시 전 다듬기 (조돌맹: 「처음부터 새로 · 단계마다 바로 · 알아서 과감하게」)
+- ⛵ 물결호 키우기(ARK) 없앰: client · server arkSt() = 5 (방주 효과 모두에게 늘) · 'ark_put'은 안내만 · 정원 「물결호」 칸 · 배 이야기 화면 칸 뺌 · 실었던 사람(s.arkd)은 접속 때 한 번 arkd × ARK_REF 50만 골드 + t_ark (s.cmp 'ark_ref'). 물결호(배) 자체 · 안개 섬 항해는 그대로.
+- 다음: 새 마을 10배 맵 (처음부터 새 배치) → 운영자 미리보기로 짓고 완성되면 한 번에 교체. 좌표가 index.html 곳곳(숫자*TS 200곳+)에 흩어져 있어서 먼저 이름 붙은 장소표로 모으는 게 순서.
