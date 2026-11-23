@@ -675,7 +675,7 @@ wss.on('connection', (ws) => {
         try { topCGive(ws, p); } catch (e) { }
         { const C = COMP[p.name], s0 = p.save; if (C && s0) { s0.cmp = Array.isArray(s0.cmp) ? s0.cmp : []; if (!s0.cmp.includes(C[0])) { s0.cmp.push(C[0]); queueSave(p.key, s0);
           setTimeout(() => { enhPack(p.key, C[1], C[3]); changeBag(p.key, { g: C[2] }, C[3] + ' · 골드 ' + C[2].toLocaleString()).catch(() => { }); }, 4000); } } }
-        if (V && V.plq) send(ws, { t: 'plq', l: Object.values(V.plq) }); send(ws, e30Pub()); send(ws, cusPub()); if (V && V.skyc && V.skyc.length) send(ws, { t: 'skyc', l: V.skyc });
+        if (V && V.plq) send(ws, { t: 'plq', l: Object.values(V.plq) }); send(ws, e30Pub()); send(ws, cusPub()); { const h = hideOf(p.name); if (h.length) send(ws, { t: 'hide', n: h }); } if (V && V.skyc && V.skyc.length) send(ws, { t: 'skyc', l: V.skyc });
         { const s0 = p.save; if (s0 && s0.lo && Date.now() - s0.lo > 7 * 864e5 && !p.admin) { const n = Math.max(3, Math.min(40, rosterCache.size - 1)); send(ws, { t: 'wb', n, d: Math.floor((Date.now() - s0.lo) / 864e5) }); broadcast({ t: 'news', text: '🌸 ' + p.name + ' 님이 오랜만에 마을에 돌아왔어요!' }, ws); } }
         send(ws, flagsMsg()); flagPay(ws, p); try { supBox(ws, p); } catch (e) { } send(ws, goPub()); if (V && V.shcl && V.shcl.length) send(ws, { t: 'shch', l: V.shcl, f: V.shcf || {} }); for (let i = 0; i < SW_N; i++) if (SW[i].s[0] || SW[i].s[1] || SW[i].A0) send(ws, swPub(i));   /* 🎉 그랜드 오픈 */   /* 🚩 낚시터 깃발 */
         if (p.save) curMigrate(p.save);
@@ -843,6 +843,9 @@ function topCPick() { if (!V || V.cmpTop || !rankCache.size) return; let b = nul
 function topCGive(ws, p) { topCPick(); const s0 = p.save; if (!s0 || !V || p.key !== V.cmpTop) return; s0.cmp = Array.isArray(s0.cmp) ? s0.cmp : []; if (s0.cmp.includes(TOPC.id)) return; s0.cmp.push(TOPC.id); queueSave(p.key, s0);
   setTimeout(() => { changeBag(p.key, { g: TOPC.g }, TOPC.txt + ' · 골드 ' + TOPC.g.toLocaleString()).catch(() => { }); enhPack(p.key, 'S', TOPC.txt, TOPC.pack).catch(() => { });
     const l = liveByKey(p.key); if (l) { const e = enhOf(l[1].save); e.tk = Math.min(ENH.TK_MAX, (e.tk | 0) + TOPC.tk); e.es = Math.min(ES_MAX, (e.es | 0) + TOPC.es); e.sf = (e.sf | 0) + TOPC.sf; queueSave(p.key, l[1].save); sendEnh(l[0], l[1], { note: ['🏆 감사 선물 · 🎫 강화권 +' + TOPC.tk + ' · 💠 꿈의 정수 +' + TOPC.es + ' · 🌠 별의 조각 +' + TOPC.sf] }); } }, 5000); }
+/* 🙈 서로 안 보이기 (2026-11-24 · 조돌맹): 두 사람은 마을에서 서로의 모습 · 말풍선 · 얼음 동상이 안 보여요 (순위 · 기록은 그대로) */
+const HIDE_PAIRS = [['리치맨', '꼬북린']];
+function hideOf(n) { const out = []; for (const [a, b] of HIDE_PAIRS.concat((V && V.hidep) || [])) { if (a === n) out.push(b); else if (b === n) out.push(a); } return out; }
 const COMP = { '치킨': ['c1118trap', 'A', 2e7, '🛠️ 통발이 안 걷히던 걸 고쳤어요 · 기다려 줘서 고마워요'], '꼬북린': ['c1118rq', 'A', 1e7, '🛠️ 의뢰 납품 버튼을 고쳤어요 · 기다려 줘서 고마워요'] };
 const CP_STG_S = [[1, '🍼 아기'], [10, '🐾 꼬마'], [20, '💛 단짝'], [35, '🛡️ 듬직이'], [50, '✨ 수호'], [70, '🌟 전설'], [90, '🌌 별빛']];
 const CP_RWS = [[10, 'C', 1e7], [20, 'C', 3e7], [30, 'B', 5e7], [40, 'B', 1e8], [50, 'A', 2e8], [60, 'B', 3e8], [70, 'A', 5e8], [80, 'A', 7e8], [90, 'A', 1e9], [99, 'S', 3e9]];   /* 🐾 반려동물 레벨 선물 */

@@ -11907,6 +11907,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='s')m.p.forEach(a=>{const o=others.get(a[0]);if(!o)return;o.tx=a[1];o.ty=a[2];o.d=a[3];o.m=a[4]&1;o.boat=(a[4]&2)>0;o.cel=(a[4]&4)>0;{const nb=a[5]|0;if(nb!==o.b&&nb>0){o.castAt=performance.now();o.landed=0;o._b=nb}o.b=nb;const nf=a[6]|0;if(nf!==o.fs){if(nf===4||(o.fs===3&&nf===0&&nb===0))o.yankAt=performance.now();if(nf===2)o.biteAt=performance.now();o.fs=nf}}if(!o.seen){o.x=o.tx;o.y=o.ty;o.seen=true}});
     /* 3단계: 친구의 외형 · 말 · 감정표현 */
     else if(m.t==='look'){const o=others.get(m.id);if(o){o.look=cleanLook(m.look,o.color);setTag(o,o.name,o.look.ti,o.look.e)}}
+    else if(m.t==='hide'){HIDE=new Set(m.n||[]);for(const [id,o] of [...others])if(HIDE.has(o.name)){if(o.tag)o.tag.remove();others.delete(id)}}
     else if(m.t==='say'){const o=others.get(m.id);if(o)showSay(o,cleanText(m.text))}
     else if(m.t==='emo'){const o=others.get(m.id);if(o&&SP.emo[m.k])o.emo={k:m.k,at:performance.now()}}
     /* 4단계: 교환 · 가방 동기화 */
@@ -12009,7 +12010,8 @@ function netBanner(){
   else if(Net.state==='retry'||Net.state==='connecting'&&Net.me)t=Net.me?'서버와 다시 연결하는 중…':'서버에 연결하는 중…';
   el.hidden=!t;if(t)el.innerHTML='<i></i>'+esc(t);
 }
-function addOther(m){
+let HIDE=new Set();   /* 🙈 서로 안 보이기 (서버 'hide') */
+function addOther(m){if(HIDE.has(m.name))return;
   if(Net.me&&m.id===Net.me.id)return;
   const old=others.get(m.id);if(old)old.tag.remove();
   const tag=document.createElement('div');tag.className='ntag';tag.hidden=true;$('tags').appendChild(tag);tag.addEventListener('pointerdown',e=>{e.stopPropagation();if(!uiOpen){const o=others.get(m.id);if(o)openProfile(o)}});
@@ -12314,7 +12316,7 @@ function iceMsg(m){if(m.t==='ice'){ICE.clear();(m.list||[]).forEach(e=>ICE.set(e
 function iceSprite(e){const k=e.n+'|'+e.d+'|'+e.t;if(ICESP[k])return ICESP[k];const lk=cleanLook(e.lk,0),sp=lookSprites(lk)[e.d||'down'][0],c=document.createElement('canvas');c.width=sp.width;c.height=sp.height;const g=c.getContext('2d');
   g.drawImage(sp,0,0);g.globalCompositeOperation='source-atop';g.fillStyle='rgba(150,205,255,.5)';g.fillRect(0,0,c.width,c.height);g.fillStyle='rgba(255,255,255,.22)';g.fillRect(0,0,c.width,Math.ceil(c.height*.35));ICESP[k]=c;return c}
 function drawIce(list,x0,x1,y0,y1){if(!ICE.size||HUNT.on||CEL.on)return;const now=Date.now();
-  ICE.forEach(e=>{const tx=e.x/TS,ty=e.y/TS;if(tx<x0-3||tx>x1+3||ty<y0-3||ty>y1+4)return;
+  ICE.forEach(e=>{if(HIDE.has(e.n))return;const tx=e.x/TS,ty=e.y/TS;if(tx<x0-3||tx>x1+3||ty<y0-3||ty>y1+4)return;
     {const cp=e.lk&&e.lk.cp?String(e.lk.cp).split('|'):null;if(cp&&(+cp[2]|0)>=99){const pa=e._pa||(e._pa={x:e.x+17,y:e.y+3,walk:0,face:-1,anim:0});list.push({y:pa.y,fn:()=>cpDraw(pa,cp[0].slice(0,3),+cp[0].slice(3)|0,99,cp[3]||'',cp[1]||'',e.n)})}}   /* 🐾 Lv99 친구는 얼음 곁을 지켜요 (숨김) */const age=Math.max(0,now-e.t),m=Math.min(1,age/ICE_MS),X=Math.round(e.x),Y=Math.round(e.y),R=RNG((e.t%100000)+7);
     const shards=[];for(let i=0;i<7;i++){const a=-2.9+i*.48+R()*.2;shards.push([Math.cos(a)*(9+R()*5),Math.sin(a)*3+2,5+R()*9,R()*.6-.3])}
     list.push({y:e.y+1,fn:()=>{const c=cx,melt=m,solid=1-Math.min(1,melt*1.25),pud=Math.min(1,melt*1.6);

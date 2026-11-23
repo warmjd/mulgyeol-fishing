@@ -169,3 +169,4 @@
 - 🌌 천상계 하늘 (2026-11-19 · 깜짝이라 업데이트 소식 안 씀): realmSky = 깊은 남색 바탕 + skyGalaxy() 캐시(2048×1000 · 은하수 띠 · 먼지 11만 점 · 성운 · 어두운 먼지 줄기 · 푸른 큰 별 빛살)를 'lighter'로 · 반짝이 70개 · 별똥별 · 구름 띠는 아주 옅게. 하루 첫 입장(S.rwd)은 realmWow: 온 화면 은하수 + 「천 상 계」 글자 + 별똥별 소나기 → 5초에 걸쳐 드러남 (body.rwow로 UI 숨김).
 - 👑 1등의 응원 권한 (2026-11-19 · 조돌맹 · 업데이트 소식 · 안내서 씀): server V.cus {v 0~3, d} · cusOf · CUS_M [0,.35,.65,1] → enhCU 세기 (safe는 v≥2) · 'cus_set'(1위만 · 하루 한 번) · 응원으로 성공하면 champThank → V.cth (하루 CTH_DAY 120 · 「크게」 ×2 · 60초마다 1위 save에 별 enhApply) · 마을 소식 「👑 ○○ 님의 응원으로」 · 'cbl' 축복 V.cbl {n,k,u,d} 1시간 (shinyP ×1.3 · client cblOn → 행운 ×1.2 · 월척 ×1.3 · 1위 본인 제외) · 칭호 t_bking · 'cus' 메시지 cusPub (접속 때 · 바뀔 때) · client CUS · 강화소 .cusbox (1위에게만).
 - ⚒️ 안전 강화 1번 골드 최대 1억 (server ENH_GCAP · client ENH.cost Math.min 1e8).
+- 🙈 서로 안 보이기 (2026-11-24 · 조돌맹 · 잠수함): server HIDE_PAIRS [['리치맨','꼬북린']] (+V.hidep) · hideOf → 접속 때 'hide' · client HIDE → addOther 안 함 · 말풍선 · 얼음 동상도 안 보여요. 순위 · 기록은 그대로.
