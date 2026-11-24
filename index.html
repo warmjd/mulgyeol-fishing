@@ -129,8 +129,8 @@ button:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
 .hbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(120,100,170,.18)}
 #region{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translateX(-50%) translateY(-8px);opacity:0;transition:.5s;background:rgba(74,61,107,.78);color:#fff;border-radius:999px;padding:6px 16px;font-size:14px;z-index:5;pointer-events:none}
 #region.on{opacity:1;transform:translateX(-50%)}
-#toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(8px);opacity:0;transition:.25s;background:rgba(74,61,107,.88);color:#fff;border-radius:14px;padding:8px 14px;z-index:30;pointer-events:none;max-width:80vw;text-align:center}
-#toast.on{opacity:1;transform:translateX(-50%)}
+#toast{position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translateX(-50%) translateY(-6px);opacity:0;transition:.25s;background:rgba(74,61,107,.82);color:#fff;border-radius:12px;padding:6px 12px;font-size:12.5px;z-index:30;pointer-events:none;max-width:78vw;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 #hint{position:fixed;left:50%;bottom:calc(210px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(255,250,242,.94);border:2px solid var(--line);border-radius:16px;padding:10px 16px;font-size:14px;text-align:center;line-height:1.5;z-index:5;pointer-events:none;width:max-content;max-width:84vw}
 #stick{position:fixed;left:max(18px,env(safe-area-inset-left,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));width:128px;height:128px;border-radius:50%;background:rgba(255,250,242,.55);border:2px solid rgba(255,255,255,.8);z-index:5;touch-action:none}
 #knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(255,250,242,.96);border:2px solid var(--line);box-shadow:0 3px 0 rgba(120,100,170,.2)}
@@ -5760,7 +5760,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1124g',UPD_LOG=[
+const UPD_VER='1124h',UPD_LOG=[
+ ['11/24 🧹 화면 정리','🧹',[['🌱 메뉴가 하나씩 열려요','처음 온 이웃이 헷갈리지 않게, 낚은 물고기 수에 따라 메뉴가 열려요 (🔒 표시 · 오래 한 사람은 그대로 다 열려 있어요)'],['💬 알림은 위쪽 작게','화면 가운데를 가리던 알림이 위쪽에 작게 떠요'],['📰 업데이트 소식','이제 저절로 열리지 않아요 · 메뉴의 빨간 점으로 알려요']]],
  ['11/24 🏦 마을 금고 · 🏆 마을 대항 · 🎆 지역 행사','🏆',[['🏦 마을 금고','우리 마을에 손님이 놀러 오면(☕ 카페가 있으면 2배) · 방명록 · 박물관 기증마다 금고가 쌓여요'],['🏛️ 마을 건물','금고와 마을 Lv로 🌸 꽃 아치(Lv2) · ☕ 카페(Lv3) · 🎪 무대(Lv4) · 🗿 기념비(Lv5)를 지어요 · 마을 Lv은 집 · 꾸밈 · 손님 · 박물관으로 올라요'],['🎉 마을 잔치','무대가 있으면 촌장이 하루 한 번 1시간 잔치 · 그 마을 땅에서 모두 낚시 행운 ↑'],['🏆 마을 대항','이번 주 점수(손님 · 방명록 · 기증 · 꾸밈 · 건물 · 잔치) 1등 마을은 월요일에 금빛 리본 + 금고 5천만'],['🎆 지역 행사','매일 저녁 8~9시, 새 땅 다섯 지역이 하루씩 돌아가며 축제 · 그 지역에서 낚시 행운 ↑']]],
  ['11/24 🌸 꽃 키우기 · 🐟 마을 박물관','🌸',[['🌱 꽃이 자라요','마을 땅에 심은 꽃은 새싹 → 꽃봉오리 → 활짝 (이틀) · 💧 물 한 번에 6시간 빨리 · 놀러 온 이웃도 물을 줄 수 있어요 (하루 20번 · 꽃마다 하루 한 번)'],['🌈 새 꽃','활짝 핀 꽃 옆에 다른 색 꽃이 있으면 물 줄 때 가끔 🌟 금빛꽃 · 🌈 무지개꽃이 피어요'],['🐟 마을 박물관','마을 팻말 → 박물관 · 가방의 물고기를 한 마리씩 기증해 마을 도감을 채워요 · 10종마다 마을 사람 모두 강화권']]],
  ['11/24 🏘️ 우리 마을 땅','🏘️',[['🏘️ 마을 땅','동쪽 새 땅 큰길 남쪽에 빈 마을 땅 14곳이 생겼어요 · 입구 팻말에서 내 이웃 마을 땅으로 정하면 내가 촌장!'],['🏠 집 짓기 · 🛠️ 꾸미기','마을 사람(이웃 마을 이름이 같은 사람)은 우리 마을 땅에서 「꾸미기」로 집 · 꽃 · 나무 · 길 · 벤치 · 가로등 · 우물 · 우체통을 바라보는 칸에 놓아요 (골드)'],['👣 놀러 가기 · ✏️ 방명록','다른 마을에 들어가면 방문 기록이 남고, 입구 팻말에서 방명록에 한 줄 남길 수 있어요 (마을마다 하루 한 번)'],['👑 촌장','촌장은 아무 꾸밈이나 치울 수 있고, 촌장 자리를 넘겨줄 수 있어요']]],
@@ -5837,7 +5838,7 @@ function openUpd(){Snd.sfx('page');S.updSeen=UPD_VER;saveState(true);const d=$('
   UPD_LOG.forEach(([dt,ic,L],k)=>{h+='<div style="margin:10px 0 4px;font-weight:800;font-size:13px;color:#8a6a40">'+ic+' '+dt+(k===0?' <span style="background:#ff4a5a;color:#fff;border-radius:6px;padding:0 5px;font-size:10px">NEW</span>':'')+'</div>';
     L.forEach(([t,x])=>{h+='<div style="background:#fffaf0;border:1.5px solid #f0e2c8;border-radius:10px;padding:7px 10px;margin:4px 0"><b style="font-size:13px">'+t+'</b><div style="font-size:11.5px;margin-top:1px;color:#8a7f70">'+x+'</div></div>'})});
   openSheet('📰 업데이트 소식',h)}
-setInterval(()=>{if(P&&!P.swing&&!HUNT.on&&S.updAuto!==UPD_VER&&S.upd1109o&&$('title')&&$('title').hidden&&$('sheetwrap').hidden&&(!ONLINE||Net.me)){S.updAuto=UPD_VER;S.upd1110p=1;openUpd()}},9000);
+setInterval(()=>{if(false&&P&&!P.swing&&!HUNT.on&&S.updAuto!==UPD_VER&&S.upd1109o&&$('title')&&$('title').hidden&&$('sheetwrap').hidden&&(!ONLINE||Net.me)){S.updAuto=UPD_VER;S.upd1110p=1;openUpd()}},9000);
 setInterval(()=>{const d=$('updDot');if(d)d.hidden=!P||S.updSeen===UPD_VER},2000);
 
 /* ===================== 🎣 꾹 눌러 멀리 던지기 + ✨ 물빛 포인트 (2026-11-10) =====================
@@ -11765,10 +11766,13 @@ function gbHtml(k){const C=(t)=>'<div class="gbc">'+t+'</div>',H=t=>'<div class=
   return''}
 function openGuideBook(k){if(k)GB_TAB=k;Snd.sfx('page');openSheet('📖 안내서','<div class="gbtabs">'+GB_TABS.map(t=>'<button class="'+(t[0]===GB_TAB?'on':'')+'" data-gbt="'+t[0]+'">'+t[1]+'</button>').join('')+'</div><div class="gbbody">'+gbHtml(GB_TAB)+'</div>');setTimeout(()=>{const o=document.querySelector('.gbtabs .on');if(o)o.scrollIntoView({inline:'center',block:'nearest'})},0)}
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-gbt]');if(!t)return;e.stopPropagation();GB_TAB=t.dataset.gbt;Snd.sfx('tap');const b=$('sheetbody');openGuideBook();if(b)b.scrollTop=0},true);
+/* 🌱 새내기 메뉴 (2026-11-24 정리): 낚은 물고기 수에 따라 메뉴가 하나씩 열려요 (오래 한 사람은 처음부터 다 열려 있어요) */
+const MENU_GATE={tree:30,craft:30,lux:300,pets:60,isl:100,cp:20,hunt:100,raid:300,ev:60,dayk:30,fest:60,skyd:150,auc:200,wh:30,kt:150};
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-mlock]');if(!t)return;e.stopPropagation();toast('🔒 물고기 '+t.dataset.mlock+'마리를 낚으면 열려요 (지금 '+((S.stats&&S.stats.catches)|0)+'마리)')},true);
 function openMenu(){
   /* 메뉴 (2026-11-12 정리): 아이콘 타일 4줄 · 성장 · 모험 · 추억 · 화면 — 이름은 짧게, 아이콘은 하나만 */
   Snd.sfx('ui');const mt=myTrap(),pt=partnerId(),j=jobId(),c=cpS(),nl=NLOG.some(n=>n.k!=='me'&&n.at>(+S.nlogSeen||0)),ml=(GIFTS||[]).length>0,nu=S.updSeen!==UPD_VER;
-  const T=(k,ic,bg,name,dot,soc,id)=>'<button class="mt" '+(soc?'data-soc':'data-mn')+'="'+k+'"><span class="mi" style="--b:'+bg+'">'+ic+'</span><b>'+name+'</b>'+(id?'<i class="mdot" id="'+id+'"'+(dot?'':' hidden')+'></i>':dot?'<i class="mdot"></i>':'')+'</button>';
+  const cc=(S.stats&&S.stats.catches)|0,T=(k,ic,bg,name,dot,soc,id)=>{const need=MENU_GATE[k]|0;if(need>cc)return'<button class="mt mlock" data-mlock="'+need+'"><span class="mi" style="--b:#eeeaf2;filter:grayscale(1);opacity:.5">'+ic+'</span><b style="opacity:.55">'+name+'</b><small style="font-size:10px;color:#9a8aa8;margin-top:-4px">🔒 '+need+'마리</small></button>';return T0(k,ic,bg,name,dot,soc,id)},T0=(k,ic,bg,name,dot,soc,id)=>'<button class="mt" '+(soc?'data-soc':'data-mn')+'="'+k+'"><span class="mi" style="--b:'+bg+'">'+ic+'</span><b>'+name+'</b>'+(id?'<i class="mdot" id="'+id+'"'+(dot?'':' hidden')+'></i>':dot?'<i class="mdot"></i>':'')+'</button>';
   let h='<div class="mhead"><button class="mme" data-mn="me"><span class="mav">'+esc((ONLINE&&Net.me?Net.me.name:'나').slice(0,1))+'</span><span><b>'+esc(ONLINE&&Net.me?Net.me.name:'내 정보')+'</b><small>내 정보 · 기록 보기</small></span></button>'+
     '<div class="mq">'+T('nlog','🔔','#fff1d6','소식함',nl,0,'nlogDot')+T('mail','🎁','#ffe6ef','우편함',ml,1,'mailDot')+T('set','⚙️','#eceaf4','설정')+'</div></div>';
   h+='<div class="msec">성장</div><div class="mgrid">'+T('tree','⭐','#e6edff',j?JOBS[j].name:'직업')+T('pets','🐾','#ffe9f2','동물 친구')+T('cp','🐶','#fff0e0',c?'반려동물':'분양센터')+T('isl','🏝️','#dff3ff','내 섬')+T('craft','🔨','#fff1df','공방')+T('lux','✨','#fff2c8','명품관')+T('today','📋','#e6f7e6','오늘 할 일')+'</div>';
