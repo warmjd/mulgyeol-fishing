@@ -178,3 +178,4 @@
 - 다음 단계: 새 땅에 가게 · 볼거리 · 이야기 · 새 물고기(맨 끝에 붙이기) · 산 반지 조각(mt) 자리.
 - 👤 실명 · 🏘️ 이웃 마을 (2026-11-24 · 조돌맹 「실명제 · 표면은 별명」): server s.rn (한 번만 · 운영자 op 'rn' {n,v}) · s.vg (8자 · 1시간 s.vgt) · 'prof_set' → 'prof_ok' · 'prof' 응답에 rn · vg · 보존 목록 rn · vg · vgt. client rnAsk (접속 때 실명 없으면 한 번 · skyHint 앞) · profileHtml에 👤 · 🏘️ · 내 정보 버튼 data-rnset/vgset · 운영자 시험 탭 「👤 실명 고치기」.
 - 📶 친구 위치 (2026-11-24): server 스냅샷을 받는 사람마다 · 가까운(NEAR_X 1100 · NEAR_Y 900px) 사람만 1초 10번 · 먼 사람은 2초(20틱)마다 · 청년부 100명 대비 (무료 5GB 안에서).
+- 🏡 새 땅 2단계 (2026-11-24): eastBuild(…, buildings) 안 bld() · 큰길 북쪽 (yb = road-2) · 새벽 들판 e_shop · e_forge · e_btq · e_trade · e_lib (t = 예전 가게 a.type 그대로 · doors에 t/lab) · 꾸밈 집 e_cabin · e_lodge · e_igloo(2) · e_candy1~3 · e_farm (t 없으면 doors에 안 넣음). 🔭 전망대 EAST.SCOPE → openWorldMap (꽃마차 창 data-wmap에서도) · ⛲ fountain (eastPropDraw). NPC 5명 bori · moss · dol · haru · lolly (NPCS · server npc_done N · 칭호 t_npc4~8). eastAir(dt): 숲 밤 반딧불 · 눈꽃 눈 · 사탕 별사탕. 가로등은 큰길 남쪽(road+2).
