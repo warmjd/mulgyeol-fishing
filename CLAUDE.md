@@ -185,3 +185,5 @@
 - 🧹 화면 정리 (2026-11-24 · 조돌맹 「정리해줘 · 처음부터 시작해도 돼」): MENU_GATE (낚은 수 S.stats.catches로 메뉴 열림 · 잠긴 타일 data-mlock) · 업데이트 창 자동 열기 끔(빨간 점만) · #toast 위쪽 작게.
 - 🌱 시즌 2 (2026-11-24 · 조돌맹 「시즌 2로 새 출발 · 준비되는 대로」): 운영자 시험 탭 「🌱 시즌 2 시작」 (두 번 확인) → server seasonGo: V.s1hof (sd · sh · gt · hl · e 1~3등) · V.season 2 · V.s2 [] · S2_RESET_V 마을 기록 지움 · rosterCache/rankCache 비움 · 모두 접속 끊기. 접속 때 예전 시즌 저장이면 seasonReset (rn · vg · vgt · cos · cosg · cmp · s1만 남김 · rev +100000) → login_ok reset:1 → client가 SAVE_KEY 지우고 새로고침. save 처리에서 m.data.season 도장. 부팅 20초 뒤 V.s2에 없는 명단은 정리. 시즌 2엔 cuTop 늘 true (따라잡기 없음) · mvpGift 꺼짐 · client cuX 1 (Net.season). 비석 창 「🪨 시즌 1 명예」('s1hof').
 - ⚠️ 운영자 op e30 · rn은 대상 이름(m.to) 찾는 줄 아래에 있어서 작동 안 했어요 → pk_set 바로 아래로 옮김. **새 운영자 op는 pk_set 근처(대상 찾기 전)에.**
+- 💰 화폐 정리 (2026-11-24): 지갑(walletTick)은 🎫 강화권 · 💠 정수만 (openCur 'es' 추가) · 안개 조각 · 도토리는 가방/오늘. 시즌 2(S2ON: server V.season · client var SEASON ← login_ok)면 ENH_SF 0 · 대신 ENH_ES에 SF×2 더함. MENU_GATE 올림 (hunt 200 · raid 500 · lux 400 · auc 300 · kt 300).
+- 남은 큰 일: 🗺️ 시즌 2 맵 새로 짓기 (예전 마을 + 동쪽 새 땅을 한 마을로 재배치 · 시즌 2는 위치 기록 0이라 가능) — 새 대화에서 genWorld부터 차근차근.

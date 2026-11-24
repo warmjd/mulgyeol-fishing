@@ -2527,7 +2527,8 @@ const ENH={
 ENH.K=ENH.P.map(p=>Math.max(2,Math.round(1.8/p)));
 /* 🚪 봉인된 문 (2026-11-18): 서버에서 누가 처음 +30에 닿으면 열리고 +40까지 · 💠 정수 · 🌠 별의 조각은 server.js ENH_ES · ENH_SF와 같아요 */
 let E30=null,E40F={};Object.defineProperty(ENH,'MAX',{get:()=>E30?40:30});
-const ENH_ES=L=>L<ENH.ESS_FROM?0:L<30?1:[2,2,2,3,3,3,4,4,5,5][L-30]||5,ENH_SF=L=>L<34?0:[1,1,2,2,3,3][L-34]||3;
+const ENH_SF0=L=>L<34?0:[1,1,2,2,3,3][L-34]||3,S2ON=()=>SEASON>=2;var SEASON=0;
+const ENH_ES=L=>(L<ENH.ESS_FROM?0:L<30?1:[2,2,2,3,3,3,4,4,5,5][L-30]||5)+(S2ON()?ENH_SF0(L)*2:0),ENH_SF=L=>S2ON()?0:ENH_SF0(L);
 const ENH_MILE2=[[31,'별을 품은 낚싯대 · 판매가 · 행운이 더 · 낚싯대 끝에 작은 별','⭐'],[32,'입질 더 빨리 · 던질 때 별똥별 꼬리','🌠'],[33,'통발 +5칸 · 통발이 별빛 우리로','🪤'],[34,'월척이 더 잘 · 물 위 발자국이 별자리처럼','✨'],[35,'🌀 순간이동 · 하루 3번 아무 곳으로 바로 (길 안내에서)','🌀'],
   [36,'반짝 확률 ×1.2 · 물가에서 물고기가 튀어 올라요','🐟'],[37,'하늘낚시 전설 · 신화가 더 잘 · 밤에 머리 위 「내 별」','🌟'],[38,'사냥 · 레이드 공격 +10% · 오로라 망토','🌈'],[39,'깃발 점수 ×1.5','🚩'],[40,'🌠 하늘을 낚은 자 · 발밑에 구름 · 서버 첫 달성자는 문 안 벽에 영원히','☁️']];
 const sureLeft=e=>Math.max(0,ENH.K[e.lv]-(e.fl|0));
@@ -5760,7 +5761,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1124i',UPD_LOG=[
+const UPD_VER='1124j',UPD_LOG=[
+ ['11/24 💰 화폐 정리','💰',[['💰 오른쪽 위는 두 가지만','🎫 강화권 · 💠 꿈의 정수만 보여요 · 예전 🔹 안개 조각 · 🌰 도토리는 가방과 「오늘」에서 볼 수 있어요'],['🌠 별의 조각 (시즌 2)','시즌 2부터 +34 이상 강화에 별의 조각 대신 꿈의 정수를 조금 더 써요'],['🌱 메뉴 열리는 수','사냥터 200마리 · 레이드 500마리 · 명품관 400마리 · 경매 300마리부터 (낚시가 먼저!)']]],
  ['🌱 시즌 2 준비','🌱',[['🌱 곧 시즌 2','시즌 2가 시작되면 모두 처음부터 다시 시작해요 · 이름 · 실명 · 이웃 마을 · 치장(옷 · 칭호)은 그대로'],['🪨 시즌 1 명예','시즌 1 손맛 · 반짝 · 월척 · 강화 · 용사 1~3등은 물결마을의 기억 비석에 영원히 남아요'],['⚖️ 숨은 배율 없음','시즌 2부터는 숨은 보너스 없이 모두 같은 규칙으로 시작해요']]],
  ['11/24 🧹 화면 정리','🧹',[['🌱 메뉴가 하나씩 열려요','처음 온 이웃이 헷갈리지 않게, 낚은 물고기 수에 따라 메뉴가 열려요 (🔒 표시 · 오래 한 사람은 그대로 다 열려 있어요)'],['💬 알림은 위쪽 작게','화면 가운데를 가리던 알림이 위쪽에 작게 떠요'],['📰 업데이트 소식','이제 저절로 열리지 않아요 · 메뉴의 빨간 점으로 알려요']]],
  ['11/24 🏦 마을 금고 · 🏆 마을 대항 · 🎆 지역 행사','🏆',[['🏦 마을 금고','우리 마을에 손님이 놀러 오면(☕ 카페가 있으면 2배) · 방명록 · 박물관 기증마다 금고가 쌓여요'],['🏛️ 마을 건물','금고와 마을 Lv로 🌸 꽃 아치(Lv2) · ☕ 카페(Lv3) · 🎪 무대(Lv4) · 🗿 기념비(Lv5)를 지어요 · 마을 Lv은 집 · 꾸밈 · 손님 · 박물관으로 올라요'],['🎉 마을 잔치','무대가 있으면 촌장이 하루 한 번 1시간 잔치 · 그 마을 땅에서 모두 낚시 행운 ↑'],['🏆 마을 대항','이번 주 점수(손님 · 방명록 · 기증 · 꾸밈 · 건물 · 잔치) 1등 마을은 월요일에 금빛 리본 + 금고 5천만'],['🎆 지역 행사','매일 저녁 8~9시, 새 땅 다섯 지역이 하루씩 돌아가며 축제 · 그 지역에서 낚시 행운 ↑']]],
@@ -9697,6 +9699,7 @@ const CUR={
  gold:{ic:'💰',n:'골드',c:'#f5b82e',one:'마을의 돈 · 거의 모든 걸 사요',have:()=>fmt(S.gold),
   get:[['🐟','물고기 팔기','가방 → 팔기'],['✋','손맛 보상','직접 낚으면 덤'],['📋','의뢰 · 부탁','해결하면 의뢰비'],['🏆','대회 상금','오늘 · 이번 주 1등']],
   use:[['👗','치장','옷 · 모자 · 낚싯대'],['🪱','미끼 · 도구','잡화점'],['⚒️','안전 강화','강화권과 함께'],['🏘️','마을 기부','마을이 자라요']]},
+ es:{ic:'💠',n:'꿈의 정수',c:'#6a8ae0',one:'+20부터 강화에 쓰는 정수',have:()=>fmt(S.enh.es|0),get:[['🎫','강화 상자','강화권 · 정수가 함께'],['🎰','은비칩','칩을 정수로 바꾸기'],['☁️','구름 상점','구름 방울로']],use:[['⚒️','강화소','+20부터 한 번에 1~5개']],tip:'안개 조각 · 도토리는 가방과 「오늘」에서 볼 수 있어요'},
  tk:{ic:'🎫',n:'강화권',c:'#ffb340',one:'낚싯대 강화 한 번에 1장',have:()=>fmt(S.enh.tk|0),
   get:[['📅','출석','매일 3장 (연속이면 더)'],['✋','손으로 낚기','손맛 보상 · 하루 80장'],['🎣','물고기 낚기','낚을수록 · 하루 40장'],['🏘️','오늘의 마을 일','3장'],['💤','꿈조각 20개','사냥터 · 제한 없음'],['⏰','켜 두기','40분마다 · 하루 15장']],
   use:[['⚒️','강화소','안전 = 강화권 + 골드 · 도전 = 강화권만']],tip:'1위보다 2단계 이상 낮으면 안전 강화 골드가 크게 싸져요 (따라잡기 할인)'},
@@ -11623,7 +11626,7 @@ function itemBagHtml(){const it=itS(),ks=Object.keys(it).filter(k=>it[k]>0&&ITEM
         (I.buff?'<div class="go"><button class="btn sm mint" data-buse="'+k+'">먹기</button></div>':I.bait?'<div class="go"><button class="btn sm '+(S.bait===k?'pink':'ghost')+'" data-buse="'+k+'">'+(S.bait===k?'끼움':'끼우기')+'</button></div>':'')+'</div>'}).join('')}).join('')+
     '<div class="muted" style="font-size:12px;margin-top:8px">만들기 · 잡화점은 메뉴 → 공방 · 아이템 · 꽃 · 열매 · 꿀은 꽃밭 언덕 관리소의 🌿 자연 제작에서 써요</div>'}
 function walletTick(){const el=$('wallet');if(!el)return;const show=!!P&&$('title')&&$('title').hidden;if(el.hidden===show)el.hidden=!show;if(!show)return;
-  const dot=(jdS().done[jkey()]||[]).length>=2&&vdayB()>0,t='<span data-wc="shard">🔹<b>'+fmt(itN('shard'))+'</b></span> · <span data-wc="med">🌰<b>'+fmt(MED.n|0)+'</b></span> · <span data-wc="tk">🎫<b>'+fmt(S.enh.tk|0)+'</b></span>'+(dot?'<i></i>':'');if(el.innerHTML!==t)el.innerHTML=t}
+  const dot=(jdS().done[jkey()]||[]).length>=2&&vdayB()>0,t='<span data-wc="tk">🎫<b>'+fmt(S.enh.tk|0)+'</b></span> · <span data-wc="es">💠<b>'+fmt(S.enh.es|0)+'</b></span>'+(dot?'<i></i>':'');if(el.innerHTML!==t)el.innerHTML=t}
 setInterval(walletTick,700);
 document.addEventListener('click',e=>{const w=e.target.closest&&e.target.closest('#wallet');if(w){e.stopPropagation();const c=e.target.closest('[data-wc]');if(c)openCur(c.dataset.wc);else openToday()}},true);
 
@@ -11770,7 +11773,7 @@ function gbHtml(k){const C=(t)=>'<div class="gbc">'+t+'</div>',H=t=>'<div class=
 function openGuideBook(k){if(k)GB_TAB=k;Snd.sfx('page');openSheet('📖 안내서','<div class="gbtabs">'+GB_TABS.map(t=>'<button class="'+(t[0]===GB_TAB?'on':'')+'" data-gbt="'+t[0]+'">'+t[1]+'</button>').join('')+'</div><div class="gbbody">'+gbHtml(GB_TAB)+'</div>');setTimeout(()=>{const o=document.querySelector('.gbtabs .on');if(o)o.scrollIntoView({inline:'center',block:'nearest'})},0)}
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-gbt]');if(!t)return;e.stopPropagation();GB_TAB=t.dataset.gbt;Snd.sfx('tap');const b=$('sheetbody');openGuideBook();if(b)b.scrollTop=0},true);
 /* 🌱 새내기 메뉴 (2026-11-24 정리): 낚은 물고기 수에 따라 메뉴가 하나씩 열려요 (오래 한 사람은 처음부터 다 열려 있어요) */
-const MENU_GATE={tree:30,craft:30,lux:300,pets:60,isl:100,cp:20,hunt:100,raid:300,ev:60,dayk:30,fest:60,skyd:150,auc:200,wh:30,kt:150};
+const MENU_GATE={tree:30,craft:30,lux:400,pets:60,isl:100,cp:20,hunt:200,raid:500,ev:60,dayk:30,fest:60,skyd:150,auc:300,wh:30,kt:300};
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-mlock]');if(!t)return;e.stopPropagation();toast('🔒 물고기 '+t.dataset.mlock+'마리를 낚으면 열려요 (지금 '+((S.stats&&S.stats.catches)|0)+'마리)')},true);
 function openMenu(){
   /* 메뉴 (2026-11-12 정리): 아이콘 타일 4줄 · 성장 · 모험 · 추억 · 화면 — 이름은 짧게, 아이콘은 하나만 */
@@ -12105,7 +12108,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
   posKey:'',
   onMsg(m){
     if(onEvMsg(m)||onEbMsg(m)||onVilMsg(m)||celOnMsg(m))return;
-    if(m.t==='login_ok'){const first=!this.me;if(m.reset&&!first){try{localStorage.removeItem(SAVE_KEY)}catch(e){}location.reload();return}setTimeout(()=>{if(Net.me){Net.send({t:'hs_get'});Net.send({t:'raid_get'});Net.send({t:'gd_q'});Net.send({t:'st_q'})}},1200);setTimeout(()=>{if(Net.me)Net.send({t:'gift_list'})},3500);setTimeout(trapMigrate,1800);this.me={id:m.id,name:m.name,color:m.color,admin:!!m.admin};this.season=m.season|0;setTimeout(()=>Net.send({t:'rec_list'}),1500);   // 마을 신기록 판정용
+    if(m.t==='login_ok'){const first=!this.me;if(m.reset&&!first){try{localStorage.removeItem(SAVE_KEY)}catch(e){}location.reload();return}setTimeout(()=>{if(Net.me){Net.send({t:'hs_get'});Net.send({t:'raid_get'});Net.send({t:'gd_q'});Net.send({t:'st_q'})}},1200);setTimeout(()=>{if(Net.me)Net.send({t:'gift_list'})},3500);setTimeout(trapMigrate,1800);this.me={id:m.id,name:m.name,color:m.color,admin:!!m.admin};this.season=m.season|0;SEASON=this.season;setTimeout(()=>Net.send({t:'rec_list'}),1500);   // 마을 신기록 판정용
       try{localStorage.setItem(LOGIN_KEY,JSON.stringify(this.creds))}catch(e){}
       this.lastPos='';netBanner();if(first&&this.onLogin)this.onLogin(m);else this.flushSave(true);
       if(typeof cpLookStr==='function')S.cos.look.cp=cpLookStr();this.send({t:'look',look:S.cos.look});refreshMe()}

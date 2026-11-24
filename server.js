@@ -336,7 +336,8 @@ const ENH = {
 ENH.K = ENH.P.map(p => Math.max(2, Math.round(1.8 / p)));
 Object.defineProperty(ENH, 'MAX', { get: () => V && V.e30 ? 40 : 30 });
 /* 💠 한 번에 드는 정수 · 🌠 별의 조각 (+31부터 · index.html과 같아요) */
-const ENH_ES = L => L < ENH.ESS_FROM ? 0 : L < 30 ? 1 : [2, 2, 2, 3, 3, 3, 4, 4, 5, 5][L - 30] || 5, ENH_SF = L => L < 34 ? 0 : [1, 1, 2, 2, 3, 3][L - 34] || 3;
+const ENH_SF0 = L => L < 34 ? 0 : [1, 1, 2, 2, 3, 3][L - 34] || 3, S2ON = () => typeof V !== 'undefined' && V && (V.season | 0) >= 2;
+const ENH_ES = L => (L < ENH.ESS_FROM ? 0 : L < 30 ? 1 : [2, 2, 2, 3, 3, 3, 4, 4, 5, 5][L - 30] || 5) + (S2ON() ? ENH_SF0(L) * 2 : 0), ENH_SF = L => S2ON() ? 0 : ENH_SF0(L);   /* 시즌 2: 🌠 별의 조각 없이 정수로 */
 /* 🚪 봉인된 문 · 최초 기록 (V.e30 = 처음 +30 · V.e40f[lv] = 그 단계 처음) */
 const e30Pub = () => ({ t: 'e30', o: V && V.e30 || null, f: V && V.e40f || {} });
 function enhFirst(me, from, to) { if (!V || me.admin || to <= from) return; let ch = 0;
