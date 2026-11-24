@@ -737,7 +737,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw', 'clv', 'gin', 'gpre', 'wsp', 'shc', 'shcx', 'fall', 'spc', 'lo', 'cpx', 'cpxd', 'cpst', 'cmp', 'cst', 'trs', 'dg', 'sfsk', 'rn', 'vg', 'vgt', 'vgb']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw', 'clv', 'gin', 'gpre', 'wsp', 'shc', 'shcx', 'fall', 'spc', 'lo', 'cpx', 'cpxd', 'cpst', 'cmp', 'cst', 'trs', 'dg', 'sfsk', 'rn', 'vg', 'vgt', 'vgb', 'vgw']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         for (const k of ['skyd', 'skyn']) if (me.save && me.save[k] != null) m.data[k] = me.save[k];   /* ☁️ 하늘 도감은 서버가 적어요 (서버에 아직 없으면 화면 것을 받아요) */
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
@@ -850,7 +850,7 @@ function hideOf(n) { const out = []; for (const [a, b] of HIDE_PAIRS.concat((V &
 /* 🏘️ 우리 마을 땅 (2026-11-24 · 조돌맹 「마을마다 들어와서 집 짓고 꾸미고 이름 남기고」)
    V.vgl = { 마을이름: { s: 땅 번호, ch: 촌장 key, chn: 촌장 이름, t, it: [[dx,dy,k,owner이름]...], gb: [[이름, 글, t]...], vis: {d, n:[이름...]}, vn: 누적 방문 } }
    땅은 client EAST.VPLOT[s] (가로 VPW · 세로 VPH) · 칸 좌표는 땅 안 상대값 · 꾸밈 물건 가격 VL_ITEMS (client 같은 표) */
-const VPN = 14, VPW = 22, VPH = 13, VL_MAX = 160;
+const VPN = 14, VPW = 22, VPH = 13, VL_MAX = 160, VG_FLW = ['fr', 'fy', 'fp', 'fb', 'fw', 'fg', 'fv'], VG_WDAY = 20, VG_MUS_STEP = 10;
 const VL_ITEMS = { fr: 5e4, fy: 5e4, fp: 5e4, fb: 5e4, fw: 5e4, bush: 2e5, tree: 5e5, bench: 3e5, lamp: 4e5, fence: 5e4, path: 2e4, house: 1e7, well: 8e5, mail: 2e5 };
 function vgL() { if (!V.vgl || typeof V.vgl !== 'object') V.vgl = {}; return V.vgl; }
 function vgPub() { const out = []; for (const [n, v] of Object.entries(vgL())) out.push({ n, s: v.s, chn: v.chn, it: v.it || [], vn: v.vn | 0, lv: vgLv(v) }); return { t: 'vls', v: out }; }
@@ -868,13 +868,24 @@ function vgMsg(ws, me, m) {
     if (k !== 'house' && occ(dx, dy)) return send(ws, { t: 'news', text: '그 자리엔 이미 뭔가 있어요' }); if ((v.it || []).length >= VL_MAX) return send(ws, { t: 'news', text: '🏘️ 마을 땅이 꽉 찼어요 (' + VL_MAX + '개)' });
     if (k === 'house') { if (v.it.some(q => q[2] === 'house' && q[3] === me.name)) return send(ws, { t: 'news', text: '🏠 집은 한 사람에 한 채예요 (예전 집을 치우면 다시 지을 수 있어요)' }); if (dx > VPW - 4 || dy < 3) return send(ws, { t: 'news', text: '집은 땅 가장자리에서 조금 안쪽에 지어요' }); for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) if (occ(dx + i, dy - j)) return send(ws, { t: 'news', text: '집 지을 자리(3×3칸)가 비어 있어야 해요' }); }
     if ((Number(s.gold) || 0) < cost) return send(ws, { t: 'news', text: '골드가 모자라요 (' + cost.toLocaleString() + ')' });
-    const q = [dx, dy, k, me.name]; if (k === 'house') q.push(Math.max(0, Math.min(7, m.c | 0))); v.it.push(q); vMark();
+    const q = [dx, dy, k, me.name]; if (k === 'house') q.push(Math.max(0, Math.min(7, m.c | 0))); if (VG_FLW.includes(k)) q.push(0, Date.now(), 0, ''); v.it.push(q); vMark();
     changeBag(me.key, { g: -cost }, null).catch(() => { }); broadcast({ t: 'vlu', v: n, put: q, lv: vgLv(v) }); return; }
   if (m.t === 'vl_visit') { if (s.vg === n) return; const d = kstDay(); if (!v.vis || v.vis.d !== d) v.vis = { d, n: [] }; if (v.vis.n.includes(me.name)) return; v.vis.n.push(me.name); v.vn = (v.vn | 0) + 1; v.gb = v.gb || []; v.gb.unshift([me.name, '', Date.now()]); v.gb.length = Math.min(v.gb.length, 40); vMark();
     for (const [w2, p2] of players) if (p2.save && p2.save.vg === n && w2 !== ws) send(w2, { t: 'news', text: '👣 ' + me.name + ' 님이 우리 마을 「' + n + '」에 놀러 왔어요' }); return; }
   if (m.t === 'vl_gb') { const txt = String(m.m || '').replace(/[<>]/g, '').trim().slice(0, 40); if (!txt) return; v.gb = v.gb || []; const d = kstDay(); s.vgb = s.vgb && s.vgb.d === d ? s.vgb : { d, n: [] }; if (s.vgb.n.includes(n)) return send(ws, { t: 'news', text: '✏️ 방명록은 마을마다 하루 한 번이에요' }); s.vgb.n.push(n); queueSave(me.key, s);
     v.gb.unshift([me.name, txt, Date.now()]); v.gb.length = Math.min(v.gb.length, 40); vMark(); send(ws, { t: 'vl_gbl', v: n, gb: v.gb, vis: v.vis ? v.vis.n.length : 0, vn: v.vn | 0, chn: v.chn, mu: v.mu || {} });
     for (const [w2, p2] of players) if (p2.save && p2.save.vg === n && w2 !== ws) send(w2, { t: 'news', text: '✏️ ' + me.name + ' 님이 「' + n + '」 방명록에 글을 남겼어요' }); return; }
+  if (m.t === 'vl_water') { const q = (v.it || []).find(q => q[0] === (m.x | 0) && q[1] === (m.y | 0) && VG_FLW.includes(q[2])); if (!q) return; const d = kstDay(); s.vgw = s.vgw && s.vgw.d === d ? s.vgw : { d, n: 0, f: [] }; if (s.vgw.n >= VG_WDAY) return send(ws, { t: 'news', text: '💧 오늘 물뿌리개가 비었어요 (하루 ' + VG_WDAY + '번)' });
+    const fk = n + ':' + q[0] + ',' + q[1]; if (s.vgw.f.includes(fk)) return send(ws, { t: 'news', text: '💧 이 꽃엔 오늘 이미 물을 줬어요' }); s.vgw.n++; s.vgw.f.push(fk); queueSave(me.key, s);
+    while (q.length < 8) q.push(0); q[5] = (q[5] || Date.now()) - 6 * 3600e3; q[6] = (q[6] | 0) + 1; q[7] = me.name; vMark(); broadcast({ t: 'vlu', v: n, upd: q });
+    if (Date.now() - q[5] > 48 * 3600e3 && Math.random() < .07) { const nb = [[1, 0], [-1, 0], [0, 1], [0, -1]]; const mate = nb.map(([a, b]) => v.it.find(z => z[0] === q[0] + a && z[1] === q[1] + b && VG_FLW.includes(z[2]) && z[2] !== q[2])).find(Boolean);
+      if (mate) { const occ = (x, y) => v.it.some(z => z[2] === 'house' ? (x >= z[0] && x <= z[0] + 2 && y >= z[1] - 2 && y <= z[1]) : (z[0] === x && z[1] === y)); const sp = nb.map(([a, b]) => [q[0] + a, q[1] + b]).filter(([x, y]) => x >= 1 && y >= 1 && x < VPW - 1 && y < VPH - 1 && !occ(x, y)); if (sp.length && v.it.length < VL_MAX) { const [x, y] = sp[(Math.random() * sp.length) | 0], nk = Math.random() < .3 ? 'fv' : 'fg', nq = [x, y, nk, me.name, 0, Date.now() - 48 * 3600e3, 0, '']; v.it.push(nq); vMark(); broadcast({ t: 'vlu', v: n, put: nq }); broadcast({ t: 'news', text: (nk === 'fv' ? '🌈 무지개꽃' : '🌟 금빛꽃') + '이 「' + n + '」 마을에 피었어요! (' + me.name + ' 님이 물을 줬어요)' }); } } }
+    return; }
+  if (m.t === 'vl_give') { if (s.vg !== n) return send(ws, { t: 'news', text: '우리 마을 박물관에만 기증할 수 있어요' }); const id = String(m.id | 0); if (!validFish(+id)) return; v.mu = v.mu || {}; if (v.mu[id]) return send(ws, { t: 'news', text: '🐟 이미 마을 박물관에 있는 물고기예요' }); if (!s.inv || (s.inv[id] | 0) < 1) return send(ws, { t: 'news', text: '가방에 그 물고기가 없어요' });
+    v.mu[id] = me.name; vMark(); changeBag(me.key, { [id]: -1 }, null).catch(() => { }); const c = Object.keys(v.mu).length;
+    send(ws, { t: 'vl_gbl', v: n, gb: v.gb || [], vis: v.vis && v.vis.d === kstDay() ? v.vis.n.length : 0, vn: v.vn | 0, chn: v.chn, mu: v.mu });
+    if (c % VG_MUS_STEP === 0) { broadcast({ t: 'news', text: '🐟 「' + n + '」 마을 박물관이 ' + c + '종이 됐어요! 마을 사람 모두에게 강화권 +' + (c / VG_MUS_STEP * 2) }); for (const [w2, p2] of players) if (p2.save && p2.save.vg === n) withLock(p2.key, async () => { const e = enhOf(p2.save); e.tk = Math.min(ENH.TK_MAX, (e.tk | 0) + c / VG_MUS_STEP * 2); queueSave(p2.key, p2.save); sendEnh(w2, p2, { note: ['🐟 마을 박물관 ' + c + '종 기념 · 강화권 +' + (c / VG_MUS_STEP * 2)] }); }).catch(() => { }); }
+    broadcast({ t: 'vlu', v: n, lv: vgLv(v) }); return; }
   if (m.t === 'vl_gb_get') return send(ws, { t: 'vl_gbl', v: n, gb: v.gb || [], vis: v.vis && v.vis.d === kstDay() ? v.vis.n.length : 0, vn: v.vn | 0, chn: v.chn, mu: v.mu || {} });
   if (m.t === 'vl_chief') { if (v.ch !== me.key) return; const to = String(m.to || ''), k2 = keyByName(to); if (!k2) return send(ws, { t: 'news', text: '그런 이름이 없어요' }); v.ch = k2; v.chn = to; vMark(); broadcast(vgPub()); broadcast({ t: 'news', text: '🏘️ 「' + n + '」 촌장이 ' + to + ' 님으로 바뀌었어요' }); return; }
 }
@@ -1176,7 +1187,7 @@ function onMsg(ws, me, m) {
       if (m.rn != null) { const v = cl(m.rn, 10); if (v.length < 2) return send(ws, { t: 'news', text: '실명은 두 글자 이상 적어 주세요' }); if (s.rn && !me.admin) return send(ws, { t: 'news', text: '실명은 한 번 정하면 운영자만 바꿀 수 있어요' }); s.rn = v; out.push('👤 실명을 「' + v + '」(으)로 정했어요'); }
       if (m.vg != null) { const v = cl(m.vg, 8); if (s.vgt && Date.now() - s.vgt < 3600e3 && !me.admin) return send(ws, { t: 'news', text: '🏘️ 이웃 마을은 1시간에 한 번 바꿀 수 있어요' }); s.vg = v; s.vgt = Date.now(); out.push(v ? '🏘️ 이웃 마을: ' + v : '🏘️ 이웃 마을을 비웠어요'); }
       s.rev = (s.rev | 0) + 1; queueSave(me.key, s); send(ws, { t: 'prof_ok', rn: s.rn || '', vg: s.vg || '', rev: s.rev, note: out }); break; }
-    case 'vl_claim': case 'vl_put': case 'vl_del': case 'vl_visit': case 'vl_gb': case 'vl_gb_get': case 'vl_chief': try { vgMsg(ws, me, m); } catch (e) { console.error('vl', e.message); } break;
+    case 'vl_claim': case 'vl_put': case 'vl_del': case 'vl_visit': case 'vl_gb': case 'vl_gb_get': case 'vl_chief': case 'vl_water': case 'vl_give': try { vgMsg(ws, me, m); } catch (e) { console.error('vl', e.message); } break;
     case 'cus_set': { if (!champ || champ.key !== me.key) return send(ws, { t: 'news', text: '👑 강화 1위만 정할 수 있어요' }); const v = m.v | 0; if (v < 0 || v > 3) return; const d = kstDay(); V.cus = V.cus || {}; if (V.cus.d === d && !me.admin) return send(ws, { t: 'news', text: '👑 응원 세기는 하루에 한 번 바꿀 수 있어요' });
       V.cus.v = v; V.cus.d = d; vMark(); broadcast(cusPub()); broadcast({ t: 'news', text: '👑 강화 1위 ' + me.name + ' 님이 응원 세기를 「' + CUS_NM[v] + '」(으)로 정했어요' }); break; }
     case 'cbl': { if (!champ || champ.key !== me.key) return send(ws, { t: 'news', text: '👑 강화 1위만 쓸 수 있어요' }); const d = kstDay(); if (V.cbl && V.cbl.d === d && !me.admin) return send(ws, { t: 'news', text: '👑 축복은 하루에 한 번이에요' });
