@@ -659,11 +659,13 @@ wss.on('connection', (ws) => {
         }
         if (pending.has(key)) { const p = pending.get(key); row.save = p.save; }
         if (row.save && row.save.mar && V && V.marEnd && V.marEnd[row.name] > (row.save.mar.d | 0)) { row.save.mar = null; delete V.marEnd[row.name]; vMark(); }   // 💔 상대가 헤어짐을 고른 경우
+        let sreset = false;   /* 🌱 시즌 2 새 출발: 예전 시즌 저장이면 이름 · 실명 · 이웃 마을 · 치장만 남기고 처음부터 */
+        if (V && (V.season | 0) >= 2) { if (row.save && (row.save.season | 0) !== V.season) { row.save = seasonReset(row.save); queueSave(key, row.save); sreset = true; } V.s2 = Array.isArray(V.s2) ? V.s2 : []; if (!V.s2.includes(key)) { V.s2.push(key); vMark(); } }
         const color = colorOf(key);
         const p = { id: nextId++, key, name: row.name, color, admin: ADMINS.has(key), x: 0, y: 0, d: 'down', m: 0, b: 0, here: false,
           save: row.save, look: cleanLook(row.save && row.save.cos && row.save.cos.look, row.save, color), tr: null, sayT: 0, emoT: 0 };
         players.set(ws, p);
-        send(ws, { t: 'login_ok', id: p.id, name: p.name, color: p.color, save: row.save, isNew, admin: p.admin });
+        send(ws, { t: 'login_ok', id: p.id, name: p.name, color: p.color, save: row.save, isNew, admin: p.admin, reset: sreset ? 1 : 0, season: V ? V.season | 0 : 0 });
         // 지금 있는 친구들 알려 주기 / 내가 왔다고 알리기 (외형 포함)
         for (const [ows, op] of players) if (ows !== ws) send(ws, { t: 'join', id: op.id, name: op.name, color: op.color, x: op.x, y: op.y, d: op.d, here: op.here, look: op.look });
         broadcast({ t: 'join', id: p.id, name: p.name, color: p.color, look: p.look }, ws);
@@ -738,6 +740,7 @@ wss.on('connection', (ws) => {
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
         for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw', 'clv', 'gin', 'gpre', 'wsp', 'shc', 'shcx', 'fall', 'spc', 'lo', 'cpx', 'cpxd', 'cpst', 'cmp', 'cst', 'trs', 'dg', 'sfsk', 'rn', 'vg', 'vgt', 'vgb', 'vgw']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        if (V && (V.season | 0) >= 2) { m.data.season = V.season; m.data.s1 = me.save && me.save.s1 || null; }   /* 🌱 시즌 2 도장 */
         for (const k of ['skyd', 'skyn']) if (me.save && me.save[k] != null) m.data[k] = me.save[k];   /* ☁️ 하늘 도감은 서버가 적어요 (서버에 아직 없으면 화면 것을 받아요) */
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
@@ -830,7 +833,7 @@ let T4_T = 0, T4 = new Set();
 function top4(key) { const now = Date.now(); if (now - T4_T > 30000) { T4_T = now; const L = [...rosterCache.entries()], sc = {}; for (const f of ['sd', 'sh', 'gt', 'hl']) { L.slice().sort((a, b) => (b[1][f] | 0) - (a[1][f] | 0)).forEach(([k], i) => { sc[k] = (sc[k] || 0) + i; }); }
   T4 = new Set(L.map(([k]) => k).sort((a, b) => sc[a] - sc[b]).slice(0, 4)); } return T4.has(key); }
 const MVP_DAY = { g: 3e8, tk: 150, es: 50, sf: 3 }, MVP_HOUR = { g: 5e7, tk: 10, es: 5 };
-function mvpGift(ws, p, kind) { const s = p && p.save; if (!s || p.admin || top4(p.key)) return; const now = Date.now(); if (s.lo && now - s.lo > 7 * 864e5 && kind === 'day') return;
+function mvpGift(ws, p, kind) { const s = p && p.save; if (V && (V.season | 0) >= 2) return; if (!s || p.admin || top4(p.key)) return; const now = Date.now(); if (s.lo && now - s.lo > 7 * 864e5 && kind === 'day') return;
   if (kind === 'day') { const d = kstDay(); if (s.dg === d) return; s.dg = d; queueSave(p.key, s);
     setTimeout(() => { changeBag(p.key, { g: MVP_DAY.g }, '🎁 오늘의 물결마을 선물 · 골드 ' + MVP_DAY.g.toLocaleString()).catch(() => { }); enhPack(p.key, 'B', '🎁 오늘의 선물 · 강화 상자').catch(() => { });
       const l = liveByKey(p.key); if (l) { const e = enhOf(l[1].save); e.tk = Math.min(ENH.TK_MAX, (e.tk | 0) + MVP_DAY.tk); e.es = Math.min(ES_MAX, (e.es | 0) + MVP_DAY.es); e.sf = (e.sf | 0) + MVP_DAY.sf; queueSave(p.key, l[1].save); sendEnh(l[0], l[1], { note: ['🎁 오늘의 선물 · 🎫 강화권 +' + MVP_DAY.tk + ' · 💠 꿈의 정수 +' + MVP_DAY.es + ' · 🌠 별의 조각 +' + MVP_DAY.sf] }); } }, 6000); return; }
@@ -898,6 +901,17 @@ function vgMsg(ws, me, m) {
   if (m.t === 'vl_gb_get') return send(ws, { t: 'vl_gbl', v: n, gb: v.gb || [], vis: v.vis && v.vis.d === kstDay() ? v.vis.n.length : 0, vn: v.vn | 0, chn: v.chn, mu: v.mu || {} });
   if (m.t === 'vl_chief') { if (v.ch !== me.key) return; const to = String(m.to || ''), k2 = keyByName(to); if (!k2) return send(ws, { t: 'news', text: '그런 이름이 없어요' }); v.ch = k2; v.chn = to; vMark(); broadcast(vgPub()); broadcast({ t: 'news', text: '🏘️ 「' + n + '」 촌장이 ' + to + ' 님으로 바뀌었어요' }); return; }
 }
+/* 🌱 시즌 2 (2026-11-24 · 조돌맹 「아예 처음부터 · 시즌 2로 새 출발」) */
+function seasonReset(s) { const n = { season: V.season, rev: (s.rev | 0) + 100000, rn: s.rn || '', vg: s.vg || '', vgt: s.vgt || 0, cos: s.cos || null, cosg: s.cosg || [], cmp: s.cmp || [],
+  s1: s.s1 || { sd: sdN(s), sh: shN(s), gt: gtN(s), e: s.enh ? s.enh.max | 0 : 0 } }; return n; }
+const S2_RESET_V = ['flag', 'fpend', 'fgpend', 'trc', 'plq', 'vgl', 'vgwin', 'vgwk', 'cus', 'cbl', 'cth', 'e30', 'e40f', 'gf', 'gr', 'gse', 'pk', 'skyc', 'shcf', 'shcl', 'shf', 'cmpTop', 'ice', 'hof'];
+function seasonGo(ws) { if (V.season >= 2) return send(ws, { t: 'news', text: '이미 시즌 ' + V.season + '이에요' });
+  const top = f => [...rosterCache.values()].sort((a, b) => (b[f] | 0) - (a[f] | 0)).slice(0, 3).map(r => [r.name, r[f] | 0]);
+  V.s1hof = { sd: top('sd'), sh: top('sh'), gt: top('gt'), hl: top('hl'), e: [...rankCache.values()].sort((a, b) => (b.max | 0) - (a.max | 0)).slice(0, 3).map(r => [r.name, r.max | 0]), hofOld: V.hof || null, t: Date.now() };
+  V.season = 2; V.s2 = []; for (const k of S2_RESET_V) delete V[k]; rosterCache.clear(); rankCache.clear(); champ = null; vMark();
+  broadcast({ t: 'champ', c: null }); broadcast({ t: 'big', text: '🌱 시즌 2가 시작됐어요! 모두 처음부터 · 시즌 1 기록은 명예의 비석에 영원히 남아요' });
+  setTimeout(() => { for (const w of [...players.keys()]) { try { w.close(); } catch (e) { } } }, 4000); }
+setTimeout(() => { try { if (V && (V.season | 0) >= 2) { const ok = new Set(V.s2 || []); for (const k of [...rosterCache.keys()]) if (!ok.has(k)) rosterCache.delete(k); for (const k of [...rankCache.keys()]) if (!ok.has(k)) rankCache.delete(k); champ = null; champCheck(); console.log('시즌', V.season, '명단 정리', rosterCache.size); } } catch (e) { } }, 20000);
 const COMP = { '치킨': ['c1118trap', 'A', 2e7, '🛠️ 통발이 안 걷히던 걸 고쳤어요 · 기다려 줘서 고마워요'], '꼬북린': ['c1118rq', 'A', 1e7, '🛠️ 의뢰 납품 버튼을 고쳤어요 · 기다려 줘서 고마워요'] };
 const CP_STG_S = [[1, '🍼 아기'], [10, '🐾 꼬마'], [20, '💛 단짝'], [35, '🛡️ 듬직이'], [50, '✨ 수호'], [70, '🌟 전설'], [90, '🌌 별빛']];
 const CP_RWS = [[10, 'C', 1e7], [20, 'C', 3e7], [30, 'B', 5e7], [40, 'B', 1e8], [50, 'A', 2e8], [60, 'B', 3e8], [70, 'A', 5e8], [80, 'A', 7e8], [90, 'A', 1e9], [99, 'S', 3e9]];   /* 🐾 반려동물 레벨 선물 */
@@ -1197,6 +1211,7 @@ function onMsg(ws, me, m) {
       if (m.vg != null) { const v = cl(m.vg, 8); if (s.vgt && Date.now() - s.vgt < 3600e3 && !me.admin) return send(ws, { t: 'news', text: '🏘️ 이웃 마을은 1시간에 한 번 바꿀 수 있어요' }); s.vg = v; s.vgt = Date.now(); out.push(v ? '🏘️ 이웃 마을: ' + v : '🏘️ 이웃 마을을 비웠어요'); }
       s.rev = (s.rev | 0) + 1; queueSave(me.key, s); send(ws, { t: 'prof_ok', rn: s.rn || '', vg: s.vg || '', rev: s.rev, note: out }); break; }
     case 'vl_claim': case 'vl_put': case 'vl_del': case 'vl_visit': case 'vl_gb': case 'vl_gb_get': case 'vl_chief': case 'vl_water': case 'vl_give': case 'vl_party': try { vgMsg(ws, me, m); } catch (e) { console.error('vl', e.message); } break;
+    case 's1hof': return send(ws, { t: 's1hof', h: V && V.s1hof || null });
     case 'cus_set': { if (!champ || champ.key !== me.key) return send(ws, { t: 'news', text: '👑 강화 1위만 정할 수 있어요' }); const v = m.v | 0; if (v < 0 || v > 3) return; const d = kstDay(); V.cus = V.cus || {}; if (V.cus.d === d && !me.admin) return send(ws, { t: 'news', text: '👑 응원 세기는 하루에 한 번 바꿀 수 있어요' });
       V.cus.v = v; V.cus.d = d; vMark(); broadcast(cusPub()); broadcast({ t: 'news', text: '👑 강화 1위 ' + me.name + ' 님이 응원 세기를 「' + CUS_NM[v] + '」(으)로 정했어요' }); break; }
     case 'cbl': { if (!champ || champ.key !== me.key) return send(ws, { t: 'news', text: '👑 강화 1위만 쓸 수 있어요' }); const d = kstDay(); if (V.cbl && V.cbl.d === d && !me.admin) return send(ws, { t: 'news', text: '👑 축복은 하루에 한 번이에요' });
@@ -1490,6 +1505,9 @@ function onMsg(ws, me, m) {
         if (v === 'now') V.go.at = Date.now(); else if (v === 'def') V.go.at = GO_AT0; else if (v === 'reset') { V.gf = {}; V.gr = {}; V.gse = 0; } else { const t = Date.parse(v); if (!t) return ok('날짜를 못 읽었어요'); V.go.at = t; }
         if (v !== 'reset') V.gann = goOpen() ? (v === 'now' ? 0 : 1) : 0; vMark(); broadcast(goPub()); return ok('☁️ 그랜드 오픈: ' + new Date(goAt()).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) + (v === 'reset' ? ' · 최초 기록 · 순위를 지웠어요' : '')); }
       if (m.op === 'pk_set') { const p = pkOf(); if (!p) return ok('마을 기록을 아직 못 읽었어요'); if (m.v === 'open') { p.l = p.d = PK_GOAL; p.op = 1; } else { V.pk = null; pkOf(); } vMark(); celCast({ t: 'pk', pk: pkPub() }); return ok(m.v === 'open' ? '⛰️ 가장 높은 곳 문을 열었어요 (이번 주)' : '⛰️ 이번 주 가장 높은 곳을 처음 상태로 돌렸어요'); }   // 🧪 2026-11-17 시험용
+      if (m.op === 'season_go') return seasonGo(ws);
+      if (m.op === 'rn') { const k = keyByName(String(m.n || '')); if (!k) return send(ws, { t: 'news', text: '그런 이름이 없어요' }); const v = String(m.v || '').replace(/[^\p{L}\p{N} ]/gu, '').trim().slice(0, 10); withLock(k, async () => { const sv = await loadSave(k); if (!sv) return; sv.rn = v; sv.rev = (sv.rev | 0) + 1; queueSave(k, sv); const l = liveByKey(k); if (l && l[1].save === sv) send(l[0], { t: 'prof_ok', rn: sv.rn, vg: sv.vg || '', rev: sv.rev, note: [] }); send(ws, { t: 'news', text: '👤 ' + m.n + ' 님 실명 → ' + (v || '(비움)') }); }).catch(() => { }); return; }
+      if (m.op === 'e30') { if (m.v === 'reset') { delete V.e30; delete V.e40f; } else V.e30 = V.e30 || { n: '운영자 시험', t: Date.now() }; vMark(); broadcast(e30Pub()); return send(ws, { t: 'news', text: '🚪 봉인된 문 ' + (V.e30 ? '열림' : '닫힘') }); }
       if (m.op === 'brag') { const d = kstDay(), r = V && V.dk && V.dk.d === d && V.dk.p[me.key]; const n = r ? r.n | 0 : 0; if (!n) return ok('오늘 직접 낚은 물고기가 아직 없어요'); if (me.bragD === d && (me.bragN | 0) >= 3) return ok('오늘 자랑은 세 번까지예요'); me.bragN = me.bragD === d ? (me.bragN | 0) + 1 : 1; me.bragD = d; broadcast({ t: 'big', g: 3, text: '🎣📣 운영자 ' + me.name + ' 님도 오늘 ' + n.toLocaleString() + '마리를 낚았어요!' }); return ok('자랑했어요 (오늘 ' + n + '마리)'); }   // 2026-11-16: 진짜 오늘 마릿수만 (지어낸 숫자는 안 돼요)
       if (m.op === 'notice') { const text = cleanText(m.text, 80); if (text) { broadcast({ t: 'news', text: '📢 운영자: ' + text }); ok('공지를 보냈어요'); } return; }
       /* ----- 갇힘 · 이동 도구 (2026-11-05) ----- */
@@ -1550,8 +1568,6 @@ function onMsg(ws, me, m) {
           console.log('운영자', me.name, '빼내기', nm); return ok(nm + ' 님을 마을로 빼냈어요' + (l ? '' : ' (다음 접속 때 광장에서 시작)'));
         }
         const s = await loadSave(key); if (!s) return ok(nm + ' 님 저장이 아직 없어요');
-        if (m.op === 'rn') { const k = keyByName(String(m.n || '')); if (!k) return send(ws, { t: 'news', text: '그런 이름이 없어요' }); const v = String(m.v || '').replace(/[^\p{L}\p{N} ]/gu, '').trim().slice(0, 10); withLock(k, async () => { const sv = await loadSave(k); if (!sv) return; sv.rn = v; sv.rev = (sv.rev | 0) + 1; queueSave(k, sv); const l = liveByKey(k); if (l && l[1].save === sv) send(l[0], { t: 'prof_ok', rn: sv.rn, vg: sv.vg || '', rev: sv.rev, note: [] }); send(ws, { t: 'news', text: '👤 ' + m.n + ' 님 실명 → ' + (v || '(비움)') }); }).catch(() => { }); return; }
-        if (m.op === 'e30') { if (m.v === 'reset') { delete V.e30; delete V.e40f; } else V.e30 = V.e30 || { n: '운영자 시험', t: Date.now() }; vMark(); broadcast(e30Pub()); return send(ws, { t: 'news', text: '🚪 봉인된 문 ' + (V.e30 ? '열림' : '닫힘') }); }
         if (m.op === 'setlv') { const e = enhOf(s), n = Math.max(0, Math.min(40, m.n | 0)); e.lv = n; e.max = Math.max(e.max | 0, n); e.star = 0; e.fl = 0; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; sendEnh(l[0], l[1], { note: ['🛠️ 운영자: 낚싯대 +' + n] }); } return ok(nm + ' 님 낚싯대를 +' + n + '(으)로 맞췄어요'); }
         if (m.op === 'al_set' && /^g\d$/.test(String(m.v))) { const a = alOf(s); a.sg = +String(m.v)[1]; a.gd = a.sg >= 1 ? 1 : 0; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], celPub(s, l[1])); } return ok(nm + ' 님 이야기 단계 → ' + a.sg); }
         if (m.op === 'al_set') {   // 🧪 2026-11-17: 나그네 이야기 단계 맞추기 (시험용)
@@ -1844,7 +1860,7 @@ async function enhPack(key, tier, why, n) { const P0 = PACK[tier]; if (!P0) retu
   return withLock(key, async () => { const s = await loadSave(key); if (!s) return; const up = enhApply(s, P.tk, P.es, P.st); s.rev = (s.rev | 0) + 1; queueSave(key, s); const txt = '📦 ' + why + ' · ' + packTxt(P, up);
     const l = liveByKey(key); if (l && l[1].save === s) sendEnh(l[0], l[1], { rev: s.rev, note: [txt] }); else addMail(key, txt); }).catch(e => console.error('pack', e.message)); }
 /* 🌊 따라잡기 (2026-11-18 · 잠수함 · 말 안 해요): 그 분야 1~3등이 아니면 반짝 ×3 · 강화권 ×2 · 구름 경험치 ×2 · 판매 골드 검사 ×2 (화면: 행운 · 판매가 · 월척 · 사냥 경험치 ×2) */
-let CU_T = 0, CU_S = {}; function cuTop(key, f) { const now = Date.now(); if (now - CU_T > 30000) { CU_T = now; CU_S = {}; for (const k of ['sd', 'sh', 'gt', 'hl']) CU_S[k] = new Set([...rosterCache.entries()].filter(([, r]) => (r[k] | 0) > 0).sort((a, b) => (b[1][k] | 0) - (a[1][k] | 0)).slice(0, 3).map(([q]) => q)); } return !!(CU_S[f] && CU_S[f].has(key)); }
+let CU_T = 0, CU_S = {}; function cuTop(key, f) { if (V && (V.season | 0) >= 2) return true;   /* 시즌 2: 숨은 따라잡기 배율 없음 */ const now = Date.now(); if (now - CU_T > 30000) { CU_T = now; CU_S = {}; for (const k of ['sd', 'sh', 'gt', 'hl']) CU_S[k] = new Set([...rosterCache.entries()].filter(([, r]) => (r[k] | 0) > 0).sort((a, b) => (b[1][k] | 0) - (a[1][k] | 0)).slice(0, 3).map(([q]) => q)); } return !!(CU_S[f] && CU_S[f].has(key)); }
 async function giveTk(key, n, note) {
   n = Math.round(n * TK_X * (cuTop(key, 'sd') ? 1 : 2)); const es = Math.max(1, Math.round(n / 5)); if (note) note = note.replace(/강화권 \+\d+/, '강화권 +' + n + ' · 💠 +' + es);
   const s = await loadSave(key); if (!s) return; const e = enhOf(s), out = []; enhDaily(e, out); e.tk = Math.min(ENH.TK_MAX, e.tk + n); e.es = Math.min(ES_MAX, (e.es | 0) + es); if (note) out.push(note); queueSave(key, s);
