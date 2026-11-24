@@ -3554,7 +3554,9 @@ const TS=16,OW=34,MW=900,OLDW=194,W1=50,MH=330;   /* 2026-11-24: 동쪽으로 �
 const EAST={x0:200,road:58,coast:x=>Math.round(100+3*Math.sin(x/23)+2*Math.sin(x/9.3)),
   R:[{n:'🌲 물안개 숲',x0:194,x1:335,t:'g',sea:11},{n:'⛰️ 물결 산',x0:335,x1:470,t:'g',sea:11},{n:'🏡 새벽 들판',x0:470,x1:620,t:'g',sea:15},{n:'❄️ 눈꽃 고원',x0:620,x1:760,t:'n',sea:19},{n:'🍭 사탕 마을',x0:760,x1:900,t:'c',sea:17}],
   LAKES:[[265,36,16,9,13],[402,22,11,6,10],[545,26,22,11,5],[505,82,7,4,1],[690,34,18,10,18],[830,36,16,9,16],[775,80,8,5,16]],
+  VPLOT:[206,230,300,336,360,404,472,496,570,594,622,646,786,832].map(x=>[x,63]),VPW:22,VPH:13,
   STOPS:[['v','🏘️ 물결마을',19,26],['f','🌷 꽃밭 언덕',58,26],['e1','🌲 물안개 숲',262,61],['e2','⛰️ 물결 산',402,61],['e3','🏡 새벽 들판',545,61],['e4','❄️ 눈꽃 고원',690,61],['e5','🍭 사탕 마을',830,61]]};
+const inPlot=(x,y)=>{for(let i=0;i<EAST.VPLOT.length;i++){const[a,b]=EAST.VPLOT[i];if(x>=a&&x<a+EAST.VPW&&y>=b&&y<b+EAST.VPH)return i}return -1};
 const eastReg=tx=>EAST.R.find(r=>tx>=r.x0&&tx<r.x1)||EAST.R[0];
 function eastRegion(tx,ty){if(ty>=EAST.coast(tx|0))return'🌊 '+(ZONES[eastReg(tx).sea-1]||{}).name;return eastReg(tx).n}
 function eastBuild(T,Z,SOL,prop,buildings){const rnd=RNG(2411),set=(x,y,t,z)=>{if(x<0||x>=MW||y<0||y>=VMH)return;T[y][x]=t;Z[y][x]=z|0;SOL[y][x]=false};
@@ -3576,13 +3578,15 @@ function eastBuild(T,Z,SOL,prop,buildings){const rnd=RNG(2411),set=(x,y,t,z)=>{i
   for(const x of[262,402,545,690,830])road(x,EAST.road+2,x,EAST.coast(x)-1);
   /* 가운데 마을 광장 (새벽 들판) */
   for(let y=EAST.road-6;y<=EAST.road+7;y++)for(let x=530;x<=560;x++)if(((x+.5-545.5)/15)**2+((y+.5-59)/7)**2<1&&T[y][x]!=='w')T[y][x]='p';
+  /* 🏘️ 마을 땅 (빈 땅 · 큰길에서 들어가는 짧은 길) */
+  EAST.VPLOT.forEach(([a,b])=>{const t=eastReg(a).t;for(let y=b-1;y<b+EAST.VPH+1;y++)for(let x=a-1;x<a+EAST.VPW+1;x++){if(!T[y])continue;T[y][x]=t;Z[y][x]=0;SOL[y][x]=false}for(let y=EAST.road+2;y<b;y++){T[y][a+11]='p';T[y][a+10]='p';SOL[y][a+11]=false;SOL[y][a+10]=false}});
   /* ⛰️ 바위 (산) */
-  for(let i=0;i<170;i++){const x=345+((rnd()*120)|0),y=2+((rnd()*90)|0);if(Math.abs(y-EAST.road)<4)continue;const n=1+((rnd()*3)|0);for(let j=0;j<n;j++){const X=x+((rnd()*3)|0),Y=y+((rnd()*2)|0);if(T[Y]&&T[Y][X]==='g'&&!SOL[Y][X]&&T[Y+1]&&T[Y+1][X]!=='p')prop('rock',X,Y)}}
+  for(let i=0;i<170;i++){const x=345+((rnd()*120)|0),y=2+((rnd()*90)|0);if(Math.abs(y-EAST.road)<4||inPlot(x,y)>=0||inPlot(x+3,y+2)>=0)continue;const n=1+((rnd()*3)|0);for(let j=0;j<n;j++){const X=x+((rnd()*3)|0),Y=y+((rnd()*2)|0);if(T[Y]&&T[Y][X]==='g'&&!SOL[Y][X]&&T[Y+1]&&T[Y+1][X]!=='p')prop('rock',X,Y)}}
   /* 🚏 꽃마차 정류장 */
   EAST.STOPS.forEach(([id,n,x,y],i)=>{let X=x,Y=y;for(let r=0;r<6;r++){let ok=false;for(let dy=-r;dy<=r&&!ok;dy++)for(let dx=-r;dx<=r&&!ok;dx++){const a=x+dx,b=y+dy;if(T[b]&&(T[b][a]==='g'||T[b][a]==='p'||T[b][a]==='c'||T[b][a]==='n')&&!SOL[b][a]){X=a;Y=b;ok=true}}if(ok)break}
     prop('stop',X,Y,false);EAST.STOPS[i].push(X,Y)});
   /* 가로등 · 벤치 */
-  for(let x=220;x<MW-10;x+=24){const y=EAST.road+2;if(T[y][x]!=='w'&&T[y][x]!=='k'&&!SOL[y][x])prop('lamp',x,y)}
+  for(let x=220;x<MW-10;x+=24){const y=EAST.road+2;if(inPlot(x,y+1)<0&&EAST.VPLOT.every(([a])=>Math.abs(x-a-10.5)>2)&&T[y][x]!=='w'&&T[y][x]!=='k'&&!SOL[y][x])prop('lamp',x,y)}
   for(const[cx]of[[262],[402],[545],[690],[830]]){const y=EAST.road+3;if(T[y][cx+3]&&!SOL[y][cx+3]&&T[y][cx+3]!=='w')prop('bench',cx+3,y,false)}
   /* 🏠 새 땅 건물 (2단계 · 2026-11-24): 큰길 북쪽 · 문 앞은 57줄 · t = 열리는 가게 (예전 마을 가게와 같은 창) */
   const yb=EAST.road-2,C={shop:[[252,240,222],[160,214,196],[124,184,168]],forge:[[255,244,230],[236,150,120],[206,116,92]],boutique:[[255,246,250],[244,186,214],[220,150,186]],trade:[[252,246,232],[246,196,140],[220,164,110]],lib:[[246,238,252],[196,176,236],[158,140,206]],
@@ -3598,7 +3602,7 @@ function eastBuild(T,Z,SOL,prop,buildings){const rnd=RNG(2411),set=(x,y,t,z)=>{i
 }
 function eastDecor(T,SOL,trees,deco,prop){const r=RNG(2412),near=(x,y,ch,d)=>{for(let j=-d;j<=d;j++)for(let i=-d;i<=d;i++){const q=T[y+j]&&T[y+j][x+i];if(q&&ch.indexOf(q)>=0)return true}return false};
   const tr=(x,y,k)=>{if(T[y]&&T[y][x]&&'gcn'.indexOf(T[y][x])>=0&&!SOL[y][x]&&!near(x,y,'pkwsK',1)&&!near(x,y+1,'p',0)){trees.push({x,y,kind:k,seed:x*131+y*7});SOL[y][x]=true;return true}return false};
-  for(let y=1;y<VMH;y++)for(let x=EAST.x0;x<MW;x++){const t=T[y][x];if('gcn'.indexOf(t)<0||SOL[y][x])continue;const rg=eastReg(x).n,v=r();
+  for(let y=1;y<VMH;y++)for(let x=EAST.x0;x<MW;x++){const t=T[y][x];if('gcn'.indexOf(t)<0||SOL[y][x]||inPlot(x,y)>=0||inPlot(x,y+1)>=0)continue;const rg=eastReg(x).n,v=r();
     if(rg.indexOf('숲')>=0){if(v<.32&&!(x%2&&y%2))tr(x,y,v<.12?'teal':v<.26?'green':'autumn')}
     else if(rg.indexOf('산')>=0){if(v<.05)tr(x,y,v<.03?'green':'teal')}
     else if(rg.indexOf('들판')>=0){if(v<.035)tr(x,y,v<.02?'sakura':'green');else if(v<.16&&!near(x,y,'p',0))deco.push({k:'flower',x,y,v:(r()*6)|0,c:r()<.5?0:1})}
@@ -3606,6 +3610,63 @@ function eastDecor(T,SOL,trees,deco,prop){const r=RNG(2412),near=(x,y,ch,d)=>{fo
     else if(rg.indexOf('사탕')>=0){if(v<.03)tr(x,y,v<.02?'sakura':'autumn');else if(v<.08)deco.push({k:'flower',x,y,v:(r()*6)|0,c:1})}
     if(t==='g'&&near(x,y,'w',1)&&r()<.35)deco.push({k:'reed',x,y,v:(r()*4)|0})}
   for(const[cx,cy,rx,ry,z]of EAST.LAKES)for(let y=cy-ry;y<=cy+ry;y++)for(let x=cx-rx;x<=cx+rx;x++)if(T[y][x]==='w'&&r()<.05)deco.push({k:'lily',x,y,v:(r()*5)|0})}
+/* 🏘️ 우리 마을 땅 (2026-11-24): 이웃 마을마다 새 땅 한 구역 · 집 짓기 · 꽃 · 나무 · 길 · 방명록 (server vgMsg · V.vgl) */
+const VG_IT={fr:['🌹','빨간 꽃',5e4],fy:['🌼','노란 꽃',5e4],fp:['🌸','분홍 꽃',5e4],fb:['💠','파란 꽃',5e4],fw:['🤍','하얀 꽃',5e4],path:['🟫','돌길',2e4],fence:['🪵','울타리',5e4,1],bush:['🌿','덤불',2e5,1],tree:['🌳','나무',5e5,1],bench:['🪑','벤치',3e5],lamp:['🏮','가로등',4e5,1],well:['⛲','우물',8e5,1],mail:['📮','우체통',2e5,1],house:['🏠','내 집',1e7,1]};
+const VG_HC=[[[255,244,232],[214,150,120],[184,120,96]],[[246,250,255],[120,170,230],[90,140,200]],[[255,246,250],[240,150,190],[210,120,160]],[[250,255,240],[130,200,140],[100,170,110]],[[255,250,230],[240,200,90],[210,170,60]],[[246,240,255],[170,140,220],[140,110,190]],[[240,240,236],[120,110,100],[90,80,74]],[[255,240,236],[220,90,80],[190,64,60]]];
+let VG={},VGI=-1;const VG_SLOT=()=>{const o={};for(const n in VG)o[VG[n].s]=n;return o};
+const vgRect=i=>{const[a,b]=EAST.VPLOT[i];return{a,b}};
+const vgOcc=(v,dx,dy)=>(v.it||[]).find(q=>q[2]==='house'?(dx>=q[0]&&dx<=q[0]+2&&dy>=q[1]-2&&dy<=q[1]):(q[0]===dx&&q[1]===dy));
+function vgSol(){EAST.VPLOT.forEach(([a,b])=>{for(let y=b;y<b+EAST.VPH;y++)for(let x=a;x<a+EAST.VPW;x++)if(W.T[y][x]!=='w')W.SOL[y][x]=false});for(const n in VG){const v=VG[n],{a,b}=vgRect(v.s);(v.it||[]).forEach(q=>{const it=VG_IT[q[2]];if(!it||!it[3])return;if(q[2]==='house'){for(let j=0;j<3;j++)for(let i=0;i<3;i++)W.SOL[b+q[1]-j][a+q[0]+i]=true}else W.SOL[b+q[1]][a+q[0]]=true})}}
+function vgOn(m){if(m.t==='vls'){VG={};(m.v||[]).forEach(v=>VG[v.n]=v);vgSol();return}
+  if(m.t==='vlu'){const v=VG[m.v];if(!v)return;v.it=v.it||[];if(m.put){v.it.push(m.put);if(m.lv)v.lv=m.lv}if(m.del){const i=v.it.findIndex(q=>q[0]===m.del[0]&&q[1]===m.del[1]);if(i>=0)v.it.splice(i,1)}vgSol();return}
+  if(m.t==='vl_gbl'&&vgSheet.cur===m.v)vgSheet.data=m,vgSheetRender()}
+function vgTick(){if(!P||!ONLINE)return;const tx=P.x/TS|0,ty=(P.y-2)/TS|0,i=inPlot(tx,ty);if(i===VGI)return;VGI=i;if(i<0)return;const n=VG_SLOT()[i];
+  if(!n){toast('🌱 빈 마을 땅이에요 · 입구 팻말에서 우리 마을 땅으로 정할 수 있어요');return}
+  if(n===S.vg){toast('🏡 우리 마을 「'+n+'」');return}toast('🏘️ 「'+n+'」 마을에 놀러 왔어요 👣');Net.send({t:'vl_visit',v:n})}
+function vgNear(tx,ty){if(!P||tx<EAST.x0)return null;for(let i=0;i<EAST.VPLOT.length;i++){const{a,b}=vgRect(i);if(Math.abs(tx-(a+10.5))<=1.5&&ty>=b-2&&ty<=b)return{type:'x',fn:()=>vgSheet(i),label:VG_SLOT()[i]?'🏘️ 마을<br>팻말':'🌱 빈 땅'}}return null}
+function vgFront(){const tx=P.x/TS|0,ty=(P.y-2)/TS|0,d={down:[0,1],up:[0,-1],left:[-1,0],right:[1,0]}[P.dir]||[0,1];return[tx+d[0],ty+d[1]]}
+function vgEditNear(tx,ty){if(!ONLINE||!S.vg||!VG[S.vg])return null;const v=VG[S.vg],i=inPlot(tx,ty);if(i!==v.s)return null;const[fx,fy]=vgFront(),{a,b}=vgRect(v.s),q=vgOcc(v,fx-a,fy-b);
+  if(q&&(q[3]===myName()||v.chn===myName()))return{type:'x',fn:()=>askConfirm(VG_IT[q[2]][0]+' '+VG_IT[q[2]][1]+' 치울까요?','골드는 돌려받지 않아요','치우기',()=>Net.send({t:'vl_del',v:S.vg,x:q[0],y:q[1]})),label:'🧹 치우기'};
+  if(q&&q[2]==='house')return{type:'x',fn:()=>openProfile([...others.values()].find(o=>o.name===q[3])||null),label:'🏠 '+esc(q[3])+'<br>님 집'};
+  return{type:'x',fn:vgEdit,label:'🛠️ 꾸미기'}}
+function vgEdit(){const v=VG[S.vg];if(!v)return;const[fx,fy]=vgFront(),{a,b}=vgRect(v.s),dx=fx-a,dy=fy-b;if(dx<1||dy<1||dx>=EAST.VPW-1||dy>=EAST.VPH-1){toast('마을 땅 안쪽을 바라보고 눌러 주세요');return}
+  const hasH=(v.it||[]).some(q=>q[2]==='house'&&q[3]===myName());
+  openSheet('🛠️ 꾸미기','<div class="muted" style="font-size:12px;margin-bottom:8px">내가 바라보는 칸에 놓아요 · 골드로 사요 · 내가 놓은 건 바라보고 「치우기」</div><div class="gmenu">'+Object.entries(VG_IT).map(([k,it])=>k==='house'&&hasH?'':'<button class="gbtn" data-vgput="'+k+'"><span>'+it[0]+'</span><b>'+it[1]+'</b><small>'+fmtK(it[2])+'</small></button>').join('')+'</div>'+(hasH?'':'<div class="sec">🏠 집 색</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+VG_HC.map((c,i)=>'<button data-vghc="'+i+'" style="width:34px;height:28px;border-radius:8px;border:2px solid '+(vgEdit.hc===i?'#7a5ad0':'#ddd')+';background:rgb('+c[1].join(',')+')"></button>').join('')+'</div><div class="muted" style="font-size:11px;margin-top:4px">집은 바라보는 칸에 문이 와요 · 3×3칸 · 한 사람 한 채</div>'))}
+vgEdit.hc=0;
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-vgput],[data-vghc],[data-vgclaim],[data-vggb],[data-vgchief]');if(!t)return;
+  if(t.dataset.vghc!=null){vgEdit.hc=+t.dataset.vghc;vgEdit();return}
+  if(t.dataset.vgput){const k=t.dataset.vgput,v=VG[S.vg],[fx,fy]=vgFront(),{a,b}=vgRect(v.s);let dx=fx-a,dy=fy-b;if(k==='house'){dx=Math.max(1,Math.min(EAST.VPW-4,dx-1))}
+    if((S.gold||0)<VG_IT[k][2]){toast('골드가 모자라요');return}closeSheet();saveState(true);setTimeout(()=>Net.send({t:'vl_put',v:S.vg,k,x:dx,y:dy,c:vgEdit.hc}),700);Snd.sfx('ui');return}
+  if(t.dataset.vgclaim!=null){askConfirm('🏘️ 이 땅을 「'+S.vg+'」 마을 땅으로 정할까요?','내가 촌장이 돼요 · 마을 사람(이웃 마을 이름이 같은 사람)이 함께 꾸며요','정하기',()=>{closeSheet();Net.send({t:'vl_claim',s:+t.dataset.vgclaim})});return}
+  if(t.dataset.vggb){const m=($('vgGbIn').value||'').trim();if(!m)return;Net.send({t:'vl_gb',v:vgSheet.cur,m});return}
+  if(t.dataset.vgchief){const to=($('vgChIn').value||'').trim();if(!to)return;askConfirm('👑 촌장을 '+to+' 님께 넘길까요?','','넘기기',()=>Net.send({t:'vl_chief',v:vgSheet.cur,to}));return}});
+function vgSheet(i){Snd.sfx('ui');const n=VG_SLOT()[i];vgSheet.cur=n;vgSheet.data=null;vgSheet.i=i;
+  if(!n){openSheet('🌱 빈 마을 땅','<div class="muted" style="font-size:12.5px;line-height:1.6;margin-bottom:10px">'+EAST.VPW+'×'+EAST.VPH+'칸 빈 땅이에요. 이웃 마을 하나가 이 땅을 가질 수 있어요.<br>마을 사람(내 정보의 「이웃 마을」 이름이 같은 사람)은 누구나 함께 집을 짓고 꾸밀 수 있어요.</div>'+
+    (!ONLINE?'':!S.vg?'<div class="muted">먼저 내 정보에서 🏘️ 이웃 마을 이름을 정해 주세요</div><button class="btn sm" data-vgset="1" style="margin-top:6px">🏘️ 이웃 마을 정하기</button>':VG[S.vg]?'<div class="muted">「'+esc(S.vg)+'」 마을은 이미 땅이 있어요</div>':'<button class="btn pink" style="width:100%" data-vgclaim="'+i+'">🏘️ 「'+esc(S.vg)+'」 마을 땅으로 정하기</button>'));return}
+  openSheet('🏘️ '+n,'<div class="muted" style="padding:20px;text-align:center">불러오는 중…</div>');Net.send({t:'vl_gb_get',v:n})}
+function vgSheetRender(){const d=vgSheet.data,n=vgSheet.cur,v=VG[n]||{},it=v.it||[],homes=it.filter(q=>q[2]==='house');if($('sheetwrap').hidden)return;
+  let h='<div style="text-align:center;margin-bottom:8px"><div style="font-size:20px;font-weight:800;color:#5a4a7a">🏘️ '+esc(n)+' <span style="font-size:13px;color:#e07a2c">Lv'+(v.lv||1)+'</span></div><div class="muted" style="font-size:12px">👑 촌장 '+esc(d.chn||v.chn||'')+' · 🏠 집 '+homes.length+'채 · 꾸밈 '+(it.length-homes.length)+'개 · 👣 모두 '+(d.vn|0)+'명 놀러 옴 (오늘 '+(d.vis|0)+')</div></div>';
+  if(homes.length)h+='<div class="sec">🏠 주민</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">'+homes.map(q=>'<span style="background:#f4eefa;border-radius:10px;padding:3px 9px;font-size:12px">'+esc(q[3])+'</span>').join('')+'</div>';
+  h+='<div class="sec">✏️ 방명록</div>';if(ONLINE&&S.vg!==n)h+='<div style="display:flex;gap:5px;margin-bottom:8px"><input id="vgGbIn" maxlength="40" placeholder="한 줄 남기기 (하루 한 번)" style="flex:1;padding:8px;border-radius:10px;border:1.5px solid #d8cfe8"><button class="btn sm pink" data-vggb="1">남기기</button></div>';
+  h+='<div class="vggb">'+((d.gb||[]).slice(0,30).map(g=>'<div style="padding:5px 2px;border-bottom:1px dashed #eee;font-size:12.5px"><b>'+esc(g[0])+'</b> '+(g[1]?esc(g[1]):'<span class="muted">👣 놀러 왔어요</span>')+' <span class="muted" style="font-size:10.5px">'+new Date(g[2]).toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'})+'</span></div>').join('')||'<div class="muted" style="font-size:12px">아직 아무도 다녀가지 않았어요</div>')+'</div>';
+  if(S.vg===n&&v.chn===myName())h+='<div class="sec">👑 촌장 넘기기</div><div style="display:flex;gap:5px"><input id="vgChIn" placeholder="마을 사람 별명" style="flex:1;padding:8px;border-radius:10px;border:1.5px solid #d8cfe8"><button class="btn sm" data-vgchief="1">넘기기</button></div>';
+  body().innerHTML=h}
+function vgDrawables(list){if(!P||P.x<EAST.x0*TS-VW)return;const x0=P.x-VW,x1=P.x+VW,y0=P.y-VH,y1=P.y+VH,S2=VG_SLOT();
+  EAST.VPLOT.forEach(([a,b],i)=>{const ax=(a+10.5)*TS,ay=b*TS;if(ax<x0-400||ax>x1+400||ay<y0-300||ay>y1+300)return;const n=S2[i];
+    list.push({y:ay-2,fn:()=>vgArch(ax,ay,n,i)});
+    if(!n)return;const v=VG[n];(v.it||[]).forEach(q=>{const X=(a+q[0])*TS,Y=(b+q[1])*TS;if(X<x0-60||X>x1+60||Y<y0-60||Y>y1+60)return;list.push({y:q[2]==='path'?Y-14:Y+15,fn:()=>vgItemDraw(q,X,Y)})})})}
+function vgArch(x,y,n,i){const c=cx;c.fillStyle='#8a5a3c';c.fillRect(x-26,y-30,4,30);c.fillRect(x+22,y-30,4,30);c.fillStyle=n?'#ffd6e8':'#e8e2d4';c.fillRect(x-30,y-38,60,11);c.fillStyle=n?'#e0507e':'#9a8a70';c.fillRect(x-30,y-28,60,2);
+  for(let k=0;k<6;k++){c.fillStyle=['#ff8fb8','#ffe27a','#9ae0ff','#b8f08a'][k%4];c.fillRect(x-26+k*10,y-41,3,3)}c.fillStyle='#5a3a2a';c.font='bold 7px sans-serif';c.textAlign='center';c.fillText(n?n:'빈 마을 땅',x,y-30);c.textAlign='left'}
+function vgItemDraw(q,X,Y){const k=q[2],c=cx;
+  if(k==='path'){c.fillStyle='#d8c8a4';c.fillRect(X,Y,16,16);c.fillStyle='#c4b28c';c.fillRect(X+1,Y+1,6,6);c.fillRect(X+9,Y+2,6,5);c.fillRect(X+2,Y+9,5,6);c.fillRect(X+9,Y+9,6,6);c.fillStyle='rgba(255,255,255,.25)';c.fillRect(X+1,Y+1,6,1);c.fillRect(X+9,Y+9,6,1);return}
+  if(k[0]==='f'&&k.length===2){const col={r:'#ff5d6c',y:'#ffd34d',p:'#ff9ac8',b:'#7ab8ff',w:'#ffffff'}[k[1]];c.fillStyle='#3a8a4a';c.fillRect(X+7,Y+8,2,6);c.fillRect(X+4,Y+10,2,4);c.fillRect(X+10,Y+11,2,3);[[7,5],[4,8],[10,8]].forEach(([ox,oy],j)=>{const s=Math.sin(wt*2+X+j)*.5;c.fillStyle=col;c.fillRect(X+ox-1,Y+oy-1+s,4,3);c.fillRect(X+ox,Y+oy-2+s,2,5);c.fillStyle='#ffe27a';c.fillRect(X+ox,Y+oy+s,2,1)});return}
+  if(k==='house'){const ci=q[4]|0,key='vgh'+ci;if(!SP.house[key]){const C=VG_HC[ci]||VG_HC[0];SP.house[key]=toCan(buildHouse({wall:C[0],roof:C[1],roofD:C[2],door:[170,120,90],kind:'home'}))}const hx=X,hy=Y+16-50;c.drawImage(SP.house[key],hx,hy);c.fillStyle='#fff8e8';c.fillRect(X+14,Y+3,20,7);c.fillStyle='#6a4a3a';c.font='bold 5px sans-serif';c.textAlign='center';c.fillText(q[3].slice(0,5),X+24,Y+8.5);c.textAlign='left';return}
+  if(k==='tree'){const s=treeSpr({kind:'green',seed:X*7+Y});c.drawImage(s,X+(16-s.width)/2,Y+16-s.height);return}
+  if(k==='bush'){c.fillStyle='rgba(0,0,0,.15)';c.fillRect(X+2,Y+13,12,3);c.fillStyle='#3f9a52';c.beginPath();c.arc(X+8,Y+9,6,0,6.3);c.fill();c.fillStyle='#5cc06a';c.beginPath();c.arc(X+6,Y+7,3,0,6.3);c.fill();return}
+  if(k==='fence'){if(SP.fenceH)c.drawImage(SP.fenceH,X,Y);return}
+  if(k==='lamp'||k==='bench'){const s=SP[k];if(s)c.drawImage(s,X+(16-s.width)/2,Y+16-s.height);return}
+  if(k==='well'){c.fillStyle='#9a9aa8';c.fillRect(X+1,Y+6,14,9);c.fillStyle='#5a8ad8';c.fillRect(X+3,Y+7,10,3);c.fillStyle='#8a5a3c';c.fillRect(X+1,Y-6,2,12);c.fillRect(X+13,Y-6,2,12);c.fillStyle='#c0503c';c.fillRect(X-1,Y-9,18,4);return}
+  if(k==='mail'){c.fillStyle='#8a5a3c';c.fillRect(X+7,Y+6,2,9);c.fillStyle='#e0503c';c.fillRect(X+3,Y,10,7);c.fillStyle='#ffe27a';c.fillRect(X+11,Y-3,2,4);return}}
 /* 🚏 꽃마차 정류장: 누르면 다른 정류장으로 바로 가요 (공짜 · 노가다 없게) */
 /* 🗺️ 온 마을 지도 (전망대 · 꽃마차에서) */
 function openWorldMap(){Snd.sfx('page');const H=110,c=document.createElement('canvas');c.width=MW;c.height=H;const x=c.getContext('2d'),im=x.createImageData(MW,H),CL={g:[126,196,112],p:[226,206,160],w:[84,156,224],k:[150,108,66],s:[242,228,176],K:[120,114,108],n:[238,244,252],c:[252,206,226],f:[150,120,80],F:[250,200,220]};
@@ -4122,6 +4183,7 @@ function nearAction0(){
   const tx=Math.floor(P.x/TS),ty=Math.floor((P.y-2)/TS);
   if(inRealm()){const r=realmNear();if(r)return r}
   {const st=stopNear(tx,ty);if(st)return st}
+  {const vg=vgNear(tx,ty);if(vg)return vg}
   if(EAST.SCOPE&&Math.abs(tx-EAST.SCOPE[0])<=1&&Math.abs(ty-EAST.SCOPE[1])<=1)return{type:'x',fn:openWorldMap,label:'🔭 전망대'};
   {const sw=swNear();if(sw)return sw}
   {const fl=flagNear();if(fl)return fl}{const hf=mmNear();if(hf)return hf}{const dn=doorNear();if(dn)return dn}
@@ -4170,6 +4232,7 @@ function nearAction0(){
   const pt=nearPet();if(pt)return{type:'pet',pet:pt,label:'쓰다듬기'};
   const tr=nearTree();if(tr&&!treeCut(tr))return{type:'tree',tree:tr,label:'흔들기'};
   {const b=nearBug();if(b)return{type:'nat_bug',b,label:'잡기'}}
+  {const ve=vgEditNear(tx,ty);if(ve)return ve}
   if(ONLINE&&Net.me){let best=null,bd=22;others.forEach(o=>{if(!o.seen)return;const d=Math.hypot(o.x-P.x,o.y-P.y);if(d<bd){bd=d;best=o}});if(best)return{type:'player',id:best.id,label:'교환<br>신청'}}
   return null;
 }
@@ -5665,7 +5728,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1124d',UPD_LOG=[
+const UPD_VER='1124e',UPD_LOG=[
+ ['11/24 🏘️ 우리 마을 땅','🏘️',[['🏘️ 마을 땅','동쪽 새 땅 큰길 남쪽에 빈 마을 땅 14곳이 생겼어요 · 입구 팻말에서 내 이웃 마을 땅으로 정하면 내가 촌장!'],['🏠 집 짓기 · 🛠️ 꾸미기','마을 사람(이웃 마을 이름이 같은 사람)은 우리 마을 땅에서 「꾸미기」로 집 · 꽃 · 나무 · 길 · 벤치 · 가로등 · 우물 · 우체통을 바라보는 칸에 놓아요 (골드)'],['👣 놀러 가기 · ✏️ 방명록','다른 마을에 들어가면 방문 기록이 남고, 입구 팻말에서 방명록에 한 줄 남길 수 있어요 (마을마다 하루 한 번)'],['👑 촌장','촌장은 아무 꾸밈이나 치울 수 있고, 촌장 자리를 넘겨줄 수 있어요']]],
  ['11/24 🏡 새 땅에 마을이 생겼어요','🏡',[['🏡 새벽 들판 마을','큰길 가운데 광장에 분수 · 상점 · 강화소 · 치장 상점 · 교환소 · 도감관이 생겼어요 (예전 마을 가게와 똑같이 써요)'],['💝 새 이웃 다섯','들판지기 보리 · 숲지기 이끼 · 산지기 돌쇠 · 눈꽃 아이 하루 · 사탕 장수 롤리 · 부탁마다 골드 · 끝까지 들어주면 숨은 선물'],['🔭 산 전망대 · 🗺️ 온 마을 지도','물결 산 전망대나 꽃마차 정류장에서 온 마을 지도를 볼 수 있어요'],['✨ 지역마다 공기','숲은 밤에 반딧불 · 눈꽃 고원은 눈 · 사탕 마을은 별사탕이 날려요 · 숲 오두막 · 산장 · 이글루 · 사탕 집']]],
  ['11/24 👤 실명 · 🏘️ 이웃 마을','👤',[['👤 실명','이름표에는 지금 별명 그대로 · 사람을 누르면 실명이 보여요 · 실명은 한 번 정하면 운영자만 바꿀 수 있어요 (내 정보에서 정하기)'],['🏘️ 이웃 마을','같이 노는 소그룹 이름을 직접 정해요 · 내 정보에서 1시간에 한 번 바꿀 수 있어요'],['📶 데이터 아끼기','멀리 있는 친구 위치는 2초마다 한 번씩만 와요 (가까운 친구는 그대로 부드럽게)']]],
  ['11/24 🗺️ 동쪽에 새 땅이 열렸어요','🗺️',[['🗺️ 마을이 훨씬 넓어졌어요','바닷가를 따라 동쪽으로 가면 새 땅이 이어져요 · 🌲 물안개 숲 · ⛰️ 물결 산 · 🏡 새벽 들판 · ❄️ 눈꽃 고원 · 🍭 사탕 마을 (지금보다 몇 배 넓어요)'],['🚏 꽃마차 정류장','마을 광장 · 꽃밭 언덕 · 새 땅 곳곳의 정류장을 누르면 다른 정류장으로 바로 가요 (공짜)'],['🎣 새 낚시 자리','새 땅의 호수 · 개울 · 바닷가는 예전 낚시터와 같은 물고기예요 · 그 낚시터를 연 사람만 낚을 수 있어요'],['🚧 계속 짓는 중','새 땅은 앞으로 가게 · 볼거리 · 이야기가 계속 들어와요']]],
@@ -8404,6 +8468,7 @@ function render(dt){
   W.trees.forEach(t=>{if(t.x>=x0-2&&t.x<=x1+2&&t.y>=y0-2&&t.y<=y1+3){if(treeCut(t)){drawables.push({y:t.y*TS+15,fn:()=>{cx.fillStyle='#7a5636';cx.fillRect(t.x*TS+4,t.y*TS+9,8,5);cx.fillStyle='#c89a6a';cx.beginPath();cx.ellipse(t.x*TS+8,t.y*TS+9,4,1.6,0,0,6.28);cx.fill()}});return}const s=treeSpr(t),wob=shaking&&shaking.t===t?Math.round(Math.sin(shaking.time*40)*1.5):0;drawables.push({y:t.y*TS+15,fn:()=>cx.drawImage(s,t.x*TS+8-(s.width>>1)+wob,t.y*TS+17-s.height)})}});
   drawFishBoat(drawables);realmFieldTick(dt);if(RLM){realmDraws(drawables,x0,x1,y0,y1);realmHoldDraw(drawables);realmFieldDraws(drawables)}
   W.buildings.forEach(b=>drawables.push({y:(b.y+1)*TS,fn:()=>{const hx=b.x*TS+(b.w*TS-48)/2,hy=(b.y+1)*TS-50;cx.drawImage(SP.house[b.id],hx,hy);houseLife(b,hx,hy)}}));
+  vgDrawables(drawables);
   W.props.forEach(p=>{if(p.kind==='scope'||p.kind==='fountain'){drawables.push({y:p.y*TS+15,fn:()=>eastPropDraw(p)});return}if(p.kind==='stop'){drawables.push({y:p.y*TS+15,fn:()=>stopDraw(p)});return}if(p.kind==='evb'){drawables.push({y:p.y*TS+15,fn:()=>evbDraw(p.x*TS,p.y*TS)});return}if(p.kind==='kst'){drawables.push({y:p.y*TS+15,fn:()=>kstDraw(p.x*TS,p.y*TS)});return}if(p.kind==='cst'){drawables.push({y:p.y*TS+15,fn:()=>cstDraw(p.x*TS,p.y*TS,p.ck)});return}const s=p.kind==='litter'?SP.litter[litterDirty()?1:0]:SP[p.kind];if(!s)return;drawables.push({y:p.y*TS+15,fn:()=>{cx.drawImage(s,p.x*TS+(TS-s.width)/2,p.y*TS+16-s.height);if(p.kind==='litter'&&litterDirty())litterFlies(p.x*TS+8,p.y*TS+6)}})});
   natDrawables(drawables,x0,x1,y0,y1);trapDrawables(drawables,x0,x1,y0,y1);smDrawables(drawables);npcDrawables(drawables);jejuDrawables(drawables);decoDrawables(drawables,x0,x1,y0,y1);critDrawables(drawables);drawables.push({y:20*TS+12,fn:drawPortal});wedDrawables(drawables);boatDrawables(drawables);painterDraw(drawables);npcZ(drawables);evDrawables(drawables,x0,x1,y0,y1);vfDrawables(drawables,x0,x1,y0,y1);
   drawables.push({y:P.y,fn:drawPlayer});try{hidDraw(drawables,dt,x0,x1,y0,y1)}catch(e){}
@@ -8791,7 +8856,7 @@ function update(dt){
   if(CEL.on){celUpdate(dt);saveT+=dt;if(saveT>8){saveT=0;saveState()}if(ONLINE)Net.tick(dt);return}
   riftTick(dt);
   if(HUNT.on){huUpdate(dt);saveT+=dt;if(saveT>8){saveT=0;saveState()}if(ONLINE)Net.tick(dt);return}
-  try{eastAir(dt)}catch(e){}wedTick(dt);discTick(dt);if(P&&inEden((P.x/TS)|0,(P.y/TS)|0))edAniTick(dt);try{edTick(dt)}catch(e){}touchTick(dt);surpTick(dt);npcRoutine(dt);
+  try{eastAir(dt);vgTick()}catch(e){}wedTick(dt);discTick(dt);if(P&&inEden((P.x/TS)|0,(P.y/TS)|0))edAniTick(dt);try{edTick(dt)}catch(e){}touchTick(dt);surpTick(dt);npcRoutine(dt);
   S.t=realPh()*DAY_LEN;
   {const k=kbVec(),mm=Math.hypot(k[0]||inp.x,k[1]||inp.y);
     if(F.afk&&mm>.4&&!uiOpen)stopAfk('자동 낚시를 멈췄어요');
@@ -11632,7 +11697,7 @@ const GB_TABS=[['start','⭐ 처음'],['fish','🎣 낚시'],['cur','💰 재화
 function gbHtml(k){const C=(t)=>'<div class="gbc">'+t+'</div>',H=t=>'<div class="sec">'+t+'</div>',G=a=>'<div class="gbg">'+a.map(x=>'<div class="gbi"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join('')+'</div>',
   T=(hd,rows)=>'<table class="gbt"><tr>'+hd.map(x=>'<th>'+x+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</table>';
   const ch=ONLINE&&CHAMP?esc(CHAMP.name):'○○',hu=HUTOPN?esc(HUTOPN):'○○';
-  if(k==='start')return C('🗺️ <b>성장 흐름</b><br>🎣 손으로 낚기 → 📖 손맛 도감 → ⚒️ 낚싯대 강화 → 🌀 꿈의 문 사냥 → ☁️ 천상계 → 🕳️ 꿈의 심연')+C('👤 <b>실명 · 이웃 마을</b><br>이름표는 별명 · 사람을 누르면 실명과 이웃 마을이 보여요 · 실명은 한 번만 정할 수 있어요 (바꾸려면 운영자에게) · 이웃 마을은 1시간에 한 번 바꿀 수 있어요')+C('🏡 <b>새벽 들판 마을</b><br>새 땅 가운데 광장에 상점 · 강화소 · 치장 상점 · 교환소 · 도감관이 있어요 · 🔭 물결 산 전망대에서 온 마을 지도')+C('🚏 <b>꽃마차 정류장</b><br>마을 광장 · 꽃밭 언덕에서 동쪽 새 땅(🌲 물안개 숲 · ⛰️ 물결 산 · 🏡 새벽 들판 · ❄️ 눈꽃 고원 · 🍭 사탕 마을)으로 바로 가요 · 공짜<br>새 땅의 물은 예전 낚시터와 같은 물고기 · 그 낚시터를 연 사람만 낚을 수 있어요')+
+  if(k==='start')return C('🗺️ <b>성장 흐름</b><br>🎣 손으로 낚기 → 📖 손맛 도감 → ⚒️ 낚싯대 강화 → 🌀 꿈의 문 사냥 → ☁️ 천상계 → 🕳️ 꿈의 심연')+C('👤 <b>실명 · 이웃 마을</b><br>이름표는 별명 · 사람을 누르면 실명과 이웃 마을이 보여요 · 실명은 한 번만 정할 수 있어요 (바꾸려면 운영자에게) · 이웃 마을은 1시간에 한 번 바꿀 수 있어요')+C('🏘️ <b>우리 마을 땅</b><br>내 정보에서 이웃 마을 이름을 정하고 → 새 땅 큰길 남쪽 빈 땅 입구 팻말에서 「우리 마을 땅으로 정하기」 · 마을 사람은 「🛠️ 꾸미기」로 바라보는 칸에 집 · 꽃 · 나무 · 길을 놓아요 · 다른 마을에 놀러 가면 방문 기록 · 방명록')+C('🏡 <b>새벽 들판 마을</b><br>새 땅 가운데 광장에 상점 · 강화소 · 치장 상점 · 교환소 · 도감관이 있어요 · 🔭 물결 산 전망대에서 온 마을 지도')+C('🚏 <b>꽃마차 정류장</b><br>마을 광장 · 꽃밭 언덕에서 동쪽 새 땅(🌲 물안개 숲 · ⛰️ 물결 산 · 🏡 새벽 들판 · ❄️ 눈꽃 고원 · 🍭 사탕 마을)으로 바로 가요 · 공짜<br>새 땅의 물은 예전 낚시터와 같은 물고기 · 그 낚시터를 연 사람만 낚을 수 있어요')+
     H('꼭 알아 둘 세 가지')+C('✋ <b>손으로 낚는 게 자동 낚시보다 훨씬 유리해요.</b> 손맛 보상 · 강화권 · 깃발 점수는 직접 낚을 때 크게 들어와요.')+C('👑 <b>손맛 도감 1등 = 손맛 왕(마을 주인).</b> 직접 낚은 물고기 종류 수가 이 게임의 진짜 순위예요.')+C('📅 <b>매일 조금씩이 제일 세요.</b> 출석 강화권 · 오늘의 마을 일 · 반려동물 기분 · 깃발처럼 꾸준히 들르는 사람이 앞서가요.')+
     H('어디서 볼까요')+G([['📋 오늘','메뉴 · 오른쪽 위 재화'],['📦 재화 동상','마을 남쪽 길가'],['📰 업데이트','메뉴 → 추억'],['🧭 길 안내','메뉴 → 모험']]);
   if(k==='fish')return H('✋ 손으로 vs 🤖 자동 (+8부터)')+T(['','✋ 손으로','🤖 자동'],[['손맛 도감','✅','❌'],['강화권','손맛 보상 · 낚시 점수','켜 두기 하루 15장'],['깃발 · 대회','✅','❌'],['물고기','모든 희귀도','주로 흔한 것']])+
@@ -12050,6 +12115,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='enh')onEnh(m);
     else if(m.t==='drop'){const k=m.src+':'+(m.id||''),p=dropSrc[k]||[P.x,P.y];delete dropSrc[k];spawnDrop(p[0],p[1],m.n|0||1,m.did)}
     else if(m.t==='prof')onProf(m);
+    else if(m.t==='vls'||m.t==='vlu'||m.t==='vl_gbl')vgOn(m);
     else if(m.t==='prof_ok'){S.rn=m.rn;S.vg=m.vg;if(m.rev)S.rev=m.rev;(m.note||[]).forEach(t=>toast(t));if(PF.mine&&!$('sheetwrap').hidden)body().innerHTML=profileHtml(myProfile(),true);else if(rnAsk.open){rnAsk.open=0;closeSheet()}}
     else if(m.t==='prof_x')onProfX(m);
     else if(m.t==='adm_users')openAdmUsers(m.list||[]);
