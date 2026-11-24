@@ -5622,7 +5622,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1124b',UPD_LOG=[
+const UPD_VER='1124c',UPD_LOG=[
+ ['11/24 👤 실명 · 🏘️ 이웃 마을','👤',[['👤 실명','이름표에는 지금 별명 그대로 · 사람을 누르면 실명이 보여요 · 실명은 한 번 정하면 운영자만 바꿀 수 있어요 (내 정보에서 정하기)'],['🏘️ 이웃 마을','같이 노는 소그룹 이름을 직접 정해요 · 내 정보에서 1시간에 한 번 바꿀 수 있어요'],['📶 데이터 아끼기','멀리 있는 친구 위치는 2초마다 한 번씩만 와요 (가까운 친구는 그대로 부드럽게)']]],
  ['11/24 🗺️ 동쪽에 새 땅이 열렸어요','🗺️',[['🗺️ 마을이 훨씬 넓어졌어요','바닷가를 따라 동쪽으로 가면 새 땅이 이어져요 · 🌲 물안개 숲 · ⛰️ 물결 산 · 🏡 새벽 들판 · ❄️ 눈꽃 고원 · 🍭 사탕 마을 (지금보다 몇 배 넓어요)'],['🚏 꽃마차 정류장','마을 광장 · 꽃밭 언덕 · 새 땅 곳곳의 정류장을 누르면 다른 정류장으로 바로 가요 (공짜)'],['🎣 새 낚시 자리','새 땅의 호수 · 개울 · 바닷가는 예전 낚시터와 같은 물고기예요 · 그 낚시터를 연 사람만 낚을 수 있어요'],['🚧 계속 짓는 중','새 땅은 앞으로 가게 · 볼거리 · 이야기가 계속 들어와요']]],
  ['11/24 ⛵ 물결호가 다 지어졌어요','⛵',[['⛵ 물결호 키우기는 끝','이제 재료를 싣지 않아도 돼요 · 정원과 배 이야기 화면의 「물결호」 칸은 없어졌어요'],['🎁 방주 효과는 모두에게 늘','안개 섬 행운 +5% · 안개 조각 하루 +20 · 배낚시 한 주 +4번 · 행운 · 판매가 +10%가 모두에게 늘 붙어요'],['💰 실었던 재료는 돌려드려요','물결호에 재료를 실었던 사람은 접속하면 실은 개수 × 50만 골드와 칭호 「방주를 지은 사람」을 받아요']]],
  ['11/19 👑 1등의 응원 권한','👑',[['👑 응원 세기는 1등이 정해요','낚싯대 강화 1위는 강화소에서 「1위의 지원」 세기를 꺼짐 · 약하게 · 보통 · 크게 중에 하루 한 번 고를 수 있어요 · 예전엔 늘 「크게」로 자동이었어요'],['⭐ 감사의 별','누가 1위의 응원으로 강화에 성공하면 1위에게 감사의 별이 쌓여요 (하루 120개까지 · 「크게」면 2배) · 마을 소식에도 1위 이름이 떠요'],['✨ 1등의 축복','1위는 하루 한 번 마을에 1시간 축복을 내릴 수 있어요 · 1위를 뺀 모두에게 반짝 ×1.3 · 월척 ×1.3 · 행운 +20% · 처음 내리면 칭호 「👑 베푼 왕」'],['⚒️ 안전 강화 골드','안전 강화 골드는 이제 한 번에 최대 1억이에요 (높은 단계가 너무 비쌌어요)']]],
@@ -9985,6 +9986,7 @@ function openAdmin(){
      h+='<div class="sec">🎁 나에게 바로</div><div class="warps"><button data-adm="gold" data-v="100000000">💰 1억 골드</button><button data-adm="tk" data-v="100">🎫 강화권 100</button><button data-adm="esme" data-v="50">💠 꿈의 정수 50</button><button data-adm="chipme" data-v="1000000">🎰 칩 100만</button><button data-adm="ccme" data-v="1000">💧 구름 방울 1000</button></div>';
      h+='<div class="sec">🎉 그랜드 오픈 <span class="cnt">'+goWhen()+' · '+goLeftTxt()+'</span></div><div style="display:flex;gap:6px;margin-bottom:6px"><input class="tin" id="admGo" type="datetime-local" style="flex:1;min-width:0"><button class="btn sm" data-adm="goset" data-v="at">날짜로</button></div><div class="warps"><button data-adm="goset" data-v="now">🎉 지금 열기</button><button data-adm="goset" data-v="def">↩️ 11/21(토) 21:00</button><button data-adm="goset" data-v="reset">🧹 최초 기록 · 순위 지우기</button></div>';
      h+='<div class="sec">⛰️ 가장 높은 곳 <span class="cnt">'+(CEL.pk?(CEL.pk.clr?'이번 주 끝':CEL.pk.op?'열림 · 수호자 '+Math.round(CEL.pk.hp/CEL.pk.mhp*100)+'%':'빛 '+CEL.pk.l+' · 그림자 '+CEL.pk.d+' / '+CEL.pk.g):'구름 위에 한 번 들어가면 보여요')+'</span></div><div class="warps"><button data-adm="pkset" data-v="open">🚪 이번 주 문 열기</button><button data-adm="pkset" data-v="reset">↩️ 이번 주 처음으로 (수호자 체력 · 저울)</button></div>'
+     h+='<div class="sec">👤 실명 고치기</div><div style="display:flex;gap:5px;margin-bottom:8px"><input id="admRnN" placeholder="별명" style="flex:1;padding:7px;border-radius:10px;border:1px solid #ccc"><input id="admRnV" placeholder="실명" style="flex:1;padding:7px;border-radius:10px;border:1px solid #ccc"><button data-adm="rnfix">바꾸기</button></div>';
      h+='<div class="sec">🚪 봉인된 문 (+31~+40) <span class="cnt">'+(E30?'열림 · '+E30.n:'닫힘')+'</span></div><div class="warps"><button data-adm="e30" data-v="open">🚪 문 열기</button><button data-adm="e30" data-v="reset">🔒 다시 닫기</button></div>'}}
   h+='<div class="sec">🧭 길잡이 미끼 (운영자 전용)</div><div class="muted" style="font-size:12px">끼우면 이 낚시터에서 아직 손맛을 못 본 물고기가 꼭 걸려요 · 운영자 모드에서만 효과 · 지금 '+itN('b_compass')+'개</div><div class="warps"><button data-adm="compass" data-v="10">🧭 10개 받기</button></div>';
   h+='<div class="sec">내 직업 바로 바꾸기</div><div class="warps">'+JOB_IDS.map(id=>'<button data-adm="job" data-v="'+id+'"'+(j.id===id?' disabled':'')+'>'+JOBS[id].ic+' '+JOBS[id].name+'</button>').join('')+'</div>';
@@ -10054,6 +10056,7 @@ function admClick(t){
   if(a==='ccme'){Net.send({t:'adm',op:'give',to:Net.me.name.toLowerCase(),k:'cc',n:+v});return true}
   if(a==='pkset'){Net.send({t:'adm',op:'pk_set',v});return true}
   if(a==='e30'){Net.send({t:'adm',op:'e30',v});return true}
+  if(a==='rnfix'){Net.send({t:'adm',op:'rn',n:($('admRnN').value||'').trim(),v:($('admRnV').value||'').trim()});return true}
   if(a==='goset'){const vv=v==='at'?($('admGo')&&$('admGo').value?$('admGo').value+':00+09:00':''):v;if(!vv)return toast('날짜를 골라요'),true;const go=()=>Net.send({t:'adm',op:'go_set',v:vv});if(v==='now'||v==='reset')askConfirm(v==='now'?'☁️ 지금 열까요?':'🧹 최초 기록 · 순위 지우기',v==='now'?'모두에게 바로 열려요':'명예의 구름판과 시즌 순위를 지워요','네',go);else go();return true}
   if(a==='chipme'){Net.send({t:'adm',op:'givechip',to:Net.me.name.toLowerCase(),n:+v});return true}
   if(a==='compass'){if(!admOn()){toast('운영자 모드를 먼저 켜 주세요');return true}itAdd('b_compass',+v||10);saveState(true);toast('🧭 길잡이 미끼 +'+(+v||10));return true}
@@ -11585,7 +11588,7 @@ const GB_TABS=[['start','⭐ 처음'],['fish','🎣 낚시'],['cur','💰 재화
 function gbHtml(k){const C=(t)=>'<div class="gbc">'+t+'</div>',H=t=>'<div class="sec">'+t+'</div>',G=a=>'<div class="gbg">'+a.map(x=>'<div class="gbi"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join('')+'</div>',
   T=(hd,rows)=>'<table class="gbt"><tr>'+hd.map(x=>'<th>'+x+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</table>';
   const ch=ONLINE&&CHAMP?esc(CHAMP.name):'○○',hu=HUTOPN?esc(HUTOPN):'○○';
-  if(k==='start')return C('🗺️ <b>성장 흐름</b><br>🎣 손으로 낚기 → 📖 손맛 도감 → ⚒️ 낚싯대 강화 → 🌀 꿈의 문 사냥 → ☁️ 천상계 → 🕳️ 꿈의 심연')+C('🚏 <b>꽃마차 정류장</b><br>마을 광장 · 꽃밭 언덕에서 동쪽 새 땅(🌲 물안개 숲 · ⛰️ 물결 산 · 🏡 새벽 들판 · ❄️ 눈꽃 고원 · 🍭 사탕 마을)으로 바로 가요 · 공짜<br>새 땅의 물은 예전 낚시터와 같은 물고기 · 그 낚시터를 연 사람만 낚을 수 있어요')+
+  if(k==='start')return C('🗺️ <b>성장 흐름</b><br>🎣 손으로 낚기 → 📖 손맛 도감 → ⚒️ 낚싯대 강화 → 🌀 꿈의 문 사냥 → ☁️ 천상계 → 🕳️ 꿈의 심연')+C('👤 <b>실명 · 이웃 마을</b><br>이름표는 별명 · 사람을 누르면 실명과 이웃 마을이 보여요 · 실명은 한 번만 정할 수 있어요 (바꾸려면 운영자에게) · 이웃 마을은 1시간에 한 번 바꿀 수 있어요')+C('🚏 <b>꽃마차 정류장</b><br>마을 광장 · 꽃밭 언덕에서 동쪽 새 땅(🌲 물안개 숲 · ⛰️ 물결 산 · 🏡 새벽 들판 · ❄️ 눈꽃 고원 · 🍭 사탕 마을)으로 바로 가요 · 공짜<br>새 땅의 물은 예전 낚시터와 같은 물고기 · 그 낚시터를 연 사람만 낚을 수 있어요')+
     H('꼭 알아 둘 세 가지')+C('✋ <b>손으로 낚는 게 자동 낚시보다 훨씬 유리해요.</b> 손맛 보상 · 강화권 · 깃발 점수는 직접 낚을 때 크게 들어와요.')+C('👑 <b>손맛 도감 1등 = 손맛 왕(마을 주인).</b> 직접 낚은 물고기 종류 수가 이 게임의 진짜 순위예요.')+C('📅 <b>매일 조금씩이 제일 세요.</b> 출석 강화권 · 오늘의 마을 일 · 반려동물 기분 · 깃발처럼 꾸준히 들르는 사람이 앞서가요.')+
     H('어디서 볼까요')+G([['📋 오늘','메뉴 · 오른쪽 위 재화'],['📦 재화 동상','마을 남쪽 길가'],['📰 업데이트','메뉴 → 추억'],['🧭 길 안내','메뉴 → 모험']]);
   if(k==='fish')return H('✋ 손으로 vs 🤖 자동 (+8부터)')+T(['','✋ 손으로','🤖 자동'],[['손맛 도감','✅','❌'],['강화권','손맛 보상 · 낚시 점수','켜 두기 하루 15장'],['깃발 · 대회','✅','❌'],['물고기','모든 희귀도','주로 흔한 것']])+
@@ -12003,6 +12006,7 @@ const Net={ws:null,me:null,state:'off',creds:null,retry:0,kicked:false,waking:fa
     else if(m.t==='enh')onEnh(m);
     else if(m.t==='drop'){const k=m.src+':'+(m.id||''),p=dropSrc[k]||[P.x,P.y];delete dropSrc[k];spawnDrop(p[0],p[1],m.n|0||1,m.did)}
     else if(m.t==='prof')onProf(m);
+    else if(m.t==='prof_ok'){S.rn=m.rn;S.vg=m.vg;if(m.rev)S.rev=m.rev;(m.note||[]).forEach(t=>toast(t));if(PF.mine&&!$('sheetwrap').hidden)body().innerHTML=profileHtml(myProfile(),true);else if(rnAsk.open){rnAsk.open=0;closeSheet()}}
     else if(m.t==='prof_x')onProfX(m);
     else if(m.t==='adm_users')openAdmUsers(m.list||[]);
     else if(m.t==='pop_ok'){if(PF.id===m.id&&PF.data){PF.data.pop=m.pop;body().innerHTML=profileHtml(PF.data,false)}toast(m.v>0?'하트를 줬어요 ♥':'인기도를 내렸어요');Snd.sfx(m.v>0?'coin':'tap')}
@@ -12746,7 +12750,7 @@ function petRows(p){const pt0=p&&p._&&p._.pt||'ruby';return PETS.map(pt=>{const 
   '<div class="muted" style="font-size:11px;margin-bottom:10px">★ 짝꿍 · 막대는 다음 레벨까지 · ♥는 오늘 호감도(매일 비워져요). Lv10이면 그 친구의 칭호</div>'}
 function profileHtml(d,mine){
   const t=COS_BY[d.ti],pop=d.pop||{n:0,up:0,dn:0};
-  let h='<div class="pf-top">'+(t?'<div class="ti">「'+esc(t.name)+'」</div>':'')+'<div class="nm">'+esc(d.name||'나')+(d.e>0?' <span style="color:#e07a2c">+'+d.e+'</span>':'')+'</div>'+
+  let h='<div class="pf-top">'+(t?'<div class="ti">「'+esc(t.name)+'」</div>':'')+'<div class="nm">'+esc(d.name||'나')+(d.e>0?' <span style="color:#e07a2c">+'+d.e+'</span>':'')+'</div>'+((d.rn||d.vg)?'<div style="font-size:12.5px;color:#6a5a8a;margin:2px 0 4px">'+(d.rn?'👤 '+esc(d.rn):'')+(d.rn&&d.vg?' · ':'')+(d.vg?'🏘️ '+esc(d.vg):'')+'</div>':'')+(mine&&ONLINE?'<div style="display:flex;gap:5px;justify-content:center;margin:4px 0 8px">'+(d.rn?'':'<button class="btn sm" data-rnset="1">👤 실명 정하기</button>')+'<button class="btn sm" data-vgset="1">🏘️ 이웃 마을 '+(d.vg?'바꾸기':'정하기')+'</button></div>':'')+
     '<div class="pop"><div><div class="muted" style="font-size:11px">받은 하트</div><b>♥'+(pop.up|0)+'</b></div>'+(mine||!ONLINE?'':'<button class="btn pink sm" data-pop="1" aria-label="하트 주기">♥ 하트 주기</button>')+'</div>'+
     '<div class="muted" style="font-size:11px">'+(mine?'친구들이 준 하트예요':'한 사람에게 하루 한 번 하트를 줄 수 있어요')+'</div></div>';
   if(d.job&&JOBS[d.job.id]){const J=JOBS[d.job.id],st=evStatus(d.name);
@@ -12785,7 +12789,7 @@ function fxGuideHtml(L,name,e,gs){const rows=[],row=(ic,src,what)=>rows.push('<d
   if(KINGS.don&&KINGS.don.name===name)row('💗','마을 기부 1위','젤리 하트 · 서 있으면 꽃이 피어나요');
   {const own=name===(ONLINE&&Net.me?Net.me.name:'');const hn=HON_SD.filter(h=>own?owns(h[1]):false).pop();if(hn)row('❦','손맛 명예 칭호 「'+hn[2]+'」','손맛 도감 '+hn[0]+'종 · 돈으로 못 사요')}
   return'<div class="sec" style="margin-top:10px">✨ 보이는 효과는 어디서?</div>'+(rows.length?rows.join(''):'<div class="muted" style="font-size:12px;padding:6px">아직 특별한 효과가 없어요</div>')}
-function myProfile(){const j=jobId();return{name:ONLINE&&Net.me?Net.me.name:'나',ti:S.cos.look.ti,e:S.enh.lv,max:S.enh.max,pop:S.pop,pets:S.pets,catches:S.stats.catches,dex:Object.keys(S.dex).filter(k=>S.dex[k].n>0).length,job:j?{id:j,r:jRank(j)}:null,help:S.help||{n:0},evn:S.evn|0}}
+function myProfile(){const j=jobId();return{rn:S.rn||'',vg:S.vg||'',name:ONLINE&&Net.me?Net.me.name:'나',ti:S.cos.look.ti,e:S.enh.lv,max:S.enh.max,pop:S.pop,pets:S.pets,catches:S.stats.catches,dex:Object.keys(S.dex).filter(k=>S.dex[k].n>0).length,job:j?{id:j,r:jRank(j)}:null,help:S.help||{n:0},evn:S.evn|0}}
 function openAdmUsers(L){const th=['이름','용사','전투력','강화','골드','칩','반짝','손맛','물고기','마지막'];
   openSheet('유저 현황','<div class="muted" style="font-size:12px;margin-bottom:6px">운영자에게만 보여요 · 용사 레벨 순 · 악몽 정화 / 이번 주 레이드는 이름 아래</div><div class="aut"><table><tr>'+th.map(x=>'<th>'+x+'</th>').join('')+'</tr>'+
     L.map(u=>'<tr'+(u.idle?' style="opacity:.45"':'')+'><td><b>'+(u.on?'🟢 ':'')+esc(u.n)+'</b><small>'+(u.job&&JOBS[u.job]?JOBS[u.job].name:'')+(u.nc?' · 악몽 '+u.nc+'/10':'')+(u.rw?' · 레이드 ✓':'')+'</small></td><td>Lv'+u.hl+'</td><td>'+fmt(u.cp)+'</td><td>+'+u.e+'<small>최고 +'+u.em+' · 권 '+u.tk+'</small></td><td>'+fmtK(u.g)+'</td><td>'+fmtK(u.c)+'</td><td>'+u.sh+'</td><td>'+u.sd+'</td><td>'+fmt(u.ct)+'</td><td><small>'+esc(u.ls||'-')+'</small></td></tr>').join('')+'</table></div>')}
@@ -13665,7 +13669,15 @@ document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest
   if(k==='go'){closeSheet();celAsk();return}
   if(k==='info'){goSheet();if(ONLINE&&Net.me)Net.send({t:'go_get'})}},true);
 /* 접속하면 한 번: 내 단계에 맞는 구름 문 이야기 (내 말풍선) · 천상계에 들어가 본 뒤엔 안 나와요 */
-function skyHint(){if(skyHint.done||!P||HUNT.on||inRealm()||S.gin)return;const I=CEL.info;if(!I)return;skyHint.done=1;const a=I.al||{},lv=huS().lv,op=goOpenC();
+/* 👤 실명 · 🏘️ 이웃 마을 (2026-11-24): 이름표는 별명 · 사람을 누르면 실명이 보여요 · 실명은 한 번 정하면 운영자만 바꿔요 · 이웃 마을은 1시간에 한 번 자유롭게 */
+function rnAsk(){if(!ONLINE||S.rn||rnAsk.done||!$('sheetwrap').hidden||F.mode!=='idle')return;rnAsk.done=1;rnAsk.open=1;
+  openSheet('👤 실명을 알려 주세요','<div class="muted" style="font-size:12.5px;line-height:1.6;margin-bottom:8px">물결마을은 아는 사람들끼리 노는 마을이에요. 이름표에는 지금 별명이 그대로 보이고, <b>나를 누른 사람에게만 실명</b>이 보여요.<br>실명은 한 번 정하면 운영자만 바꿀 수 있어요.</div><input id="rnIn" maxlength="10" placeholder="실명 (예: 홍길동)" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid #d8cfe8;font-size:15px;margin-bottom:8px"><input id="vgIn" maxlength="8" placeholder="이웃 마을 (선택 · 예: 원우마을)" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid #d8cfe8;font-size:15px;margin-bottom:10px"><button class="btn pink" style="width:100%" data-rnok="1">정하기</button><div class="muted" style="font-size:11.5px;text-align:center;margin-top:8px">나중에 내 정보에서 정할 수도 있어요</div>',()=>{rnAsk.open=0})}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-rnok],[data-rnset],[data-vgset]');if(!t)return;
+  if(t.dataset.rnok){const rn=($('rnIn').value||'').trim(),vg=($('vgIn').value||'').trim();if(rn.length<2){toast('실명을 두 글자 이상 적어 주세요');return}askConfirm('👤 실명을 「'+rn+'」(으)로 정할까요?','한 번 정하면 운영자만 바꿀 수 있어요','정하기',()=>Net.send({t:'prof_set',rn,vg:vg||undefined}));return}
+  if(t.dataset.rnset){closeSheet();rnAsk.done=0;rnAsk();return}
+  if(t.dataset.vgset){closeSheet();rnAsk.open=1;openSheet('🏘️ 이웃 마을','<div class="muted" style="font-size:12.5px;margin-bottom:8px">같이 노는 소그룹 이름을 직접 정해요 (8글자까지 · 비우면 없음 · 1시간에 한 번 바꿀 수 있어요)</div><input id="vgIn2" maxlength="8" value="'+esc(S.vg||'')+'" placeholder="예: 원우마을" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid #d8cfe8;font-size:15px;margin-bottom:10px"><button class="btn pink" style="width:100%" data-vgok="1">정하기</button>',()=>{rnAsk.open=0});return}});
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-vgok]');if(!t)return;Net.send({t:'prof_set',vg:($('vgIn2').value||'').trim()})});
+function skyHint(){rnAsk();if(skyHint.done||!P||HUNT.on||inRealm()||S.gin)return;const I=CEL.info;if(!I)return;skyHint.done=1;const a=I.al||{},lv=huS().lv,op=goOpenC();
   const line=lv<GO.lv?['광장에 구름 문이 내려앉았대… 용사 Lv'+GO.lv+'이 되면 지나갈 수 있대!','☁️ 마을 광장 「구름 문」을 눌러 보세요 · 천상계 가는 길을 알려 줘요']
     :!a.pick?['구름 문 옆에서 등불 냄새가 나… 별빛 광장 나그네를 찾아가 볼까?','🕯️ 마을 광장 「구름 문」을 누르면 나그네에게 길 안내를 해 줘요']
     :!op?['구름 문이 '+goWhen()+'에 열린대! 두근두근…','☁️ 준비 끝! 구름 문이 열리면 바로 들어갈 수 있어요']

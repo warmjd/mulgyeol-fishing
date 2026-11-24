@@ -176,3 +176,5 @@
 - 다음: 새 마을 10배 맵 (처음부터 새 배치) → 운영자 미리보기로 짓고 완성되면 한 번에 교체. 좌표가 index.html 곳곳(숫자*TS 200곳+)에 흩어져 있어서 먼저 이름 붙은 장소표로 모으는 게 순서.
 - 🗺️ 동쪽 새 땅 (2026-11-24 · 1단계): MW 194 → 900 (OLDW 194까지 예전 마을 · 좌표 그대로) · eastBuild/eastDecor (genWorld 안) · EAST {R 지역 5 · LAKES [x,y,rx,ry,zone] · STOPS · coast · road 58줄} · 지역: 숲 200~335 · 산 335~470 · 새벽 들판 470~620 · 눈꽃 고원 620~760 (타일 'n') · 사탕 마을 760~900 (타일 'c'). 물은 예전 zone 번호 재사용 → startCast에서 x≥OLDW면 hasZone 필요 · flagPos는 x<OLDW만. 🚏 꽃마차 정류장 prop 'stop' (stopNear · stopSheet · stopDraw · data-stop · 공짜 순간이동). onIsle · onWinter · crit/눈사람/plates · bugWhere · regionName(eastRegion)는 x<OLDW로 막았어요 (예전엔 y≥60이면 섬이었음).
 - 다음 단계: 새 땅에 가게 · 볼거리 · 이야기 · 새 물고기(맨 끝에 붙이기) · 산 반지 조각(mt) 자리.
+- 👤 실명 · 🏘️ 이웃 마을 (2026-11-24 · 조돌맹 「실명제 · 표면은 별명」): server s.rn (한 번만 · 운영자 op 'rn' {n,v}) · s.vg (8자 · 1시간 s.vgt) · 'prof_set' → 'prof_ok' · 'prof' 응답에 rn · vg · 보존 목록 rn · vg · vgt. client rnAsk (접속 때 실명 없으면 한 번 · skyHint 앞) · profileHtml에 👤 · 🏘️ · 내 정보 버튼 data-rnset/vgset · 운영자 시험 탭 「👤 실명 고치기」.
+- 📶 친구 위치 (2026-11-24): server 스냅샷을 받는 사람마다 · 가까운(NEAR_X 1100 · NEAR_Y 900px) 사람만 1초 10번 · 먼 사람은 2초(20틱)마다 · 청년부 100명 대비 (무료 5GB 안에서).

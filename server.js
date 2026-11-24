@@ -737,7 +737,7 @@ wss.on('connection', (ws) => {
         m.data.help = me.save && me.save.help ? me.save.help : null;   // 덕분에 받은 횟수
         m.data.eb = me.save && me.save.eb ? me.save.eb : null;   // 은비랜드 칩 (서버만)
         m.data.trust = 0;   // 신뢰는 도토리로 합쳤어요
-        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw', 'clv', 'gin', 'gpre', 'wsp', 'shc', 'shcx', 'fall', 'spc', 'lo', 'cpx', 'cpxd', 'cpst', 'cmp', 'cst', 'trs', 'dg', 'sfsk']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
+        for (const k of ['npcd', 'mar', 'rpg', 'wfc', 'hunt', 'acm', 'vday', 'blessT', 'med', 'evtk', 'wkc', 'medw', 'shiny', 'aq', 'aql', 'aqlg', 'lsd', 'mnt', 'sdtk', 'shtk', 'shb', 'stv', 'skc', 'aqx', 'aqd', 'aqon', 'cup', 'home', 'hml', 'hmlg', 'isl', 'isll', 'islg', 'islw', 'isf', 'hbd', 'cmp1112', 'dropx', 'huntx', 'fort', 'wh', 'esc', 'hexd', 'taxD', 'taxN', 'al', 'cel', 'celd', 'celc', 'cprw', 'clv', 'gin', 'gpre', 'wsp', 'shc', 'shcx', 'fall', 'spc', 'lo', 'cpx', 'cpxd', 'cpst', 'cmp', 'cst', 'trs', 'dg', 'sfsk', 'rn', 'vg', 'vgt']) m.data[k] = me.save && me.save[k] ? me.save[k] : null;   // 도토리 · 행사 강화권 · 주간 보상 받은 기록
         for (const k of ['skyd', 'skyn']) if (me.save && me.save[k] != null) m.data[k] = me.save[k];   /* ☁️ 하늘 도감은 서버가 적어요 (서버에 아직 없으면 화면 것을 받아요) */
         if (!m.data.lsd) m.data.lsd = kstDay();
         if (!me.save) m.data.stv = 1;   // 새 친구는 도장 정산이 필요 없어요   // 처음 저장한 날부터 '돌아온 친구 선물' 계산
@@ -1140,6 +1140,11 @@ function onMsg(ws, me, m) {
     }
     case 'tr_cancel': endTrade(me, me.name + ' 님이 교환을 그만뒀어요'); break;
     /* ----- 낚싯대 강화 룰렛 ----- */
+    case 'prof_set': { if (!me.save) return; const s = me.save, cl = (v, n) => String(v == null ? '' : v).replace(/[^\p{L}\p{N} ]/gu, '').replace(/\s+/g, ' ').trim().slice(0, n);   /* 👤 실명 · 🏘️ 이웃 마을 (2026-11-24) */
+      const out = [];
+      if (m.rn != null) { const v = cl(m.rn, 10); if (v.length < 2) return send(ws, { t: 'news', text: '실명은 두 글자 이상 적어 주세요' }); if (s.rn && !me.admin) return send(ws, { t: 'news', text: '실명은 한 번 정하면 운영자만 바꿀 수 있어요' }); s.rn = v; out.push('👤 실명을 「' + v + '」(으)로 정했어요'); }
+      if (m.vg != null) { const v = cl(m.vg, 8); if (s.vgt && Date.now() - s.vgt < 3600e3 && !me.admin) return send(ws, { t: 'news', text: '🏘️ 이웃 마을은 1시간에 한 번 바꿀 수 있어요' }); s.vg = v; s.vgt = Date.now(); out.push(v ? '🏘️ 이웃 마을: ' + v : '🏘️ 이웃 마을을 비웠어요'); }
+      s.rev = (s.rev | 0) + 1; queueSave(me.key, s); send(ws, { t: 'prof_ok', rn: s.rn || '', vg: s.vg || '', rev: s.rev, note: out }); break; }
     case 'cus_set': { if (!champ || champ.key !== me.key) return send(ws, { t: 'news', text: '👑 강화 1위만 정할 수 있어요' }); const v = m.v | 0; if (v < 0 || v > 3) return; const d = kstDay(); V.cus = V.cus || {}; if (V.cus.d === d && !me.admin) return send(ws, { t: 'news', text: '👑 응원 세기는 하루에 한 번 바꿀 수 있어요' });
       V.cus.v = v; V.cus.d = d; vMark(); broadcast(cusPub()); broadcast({ t: 'news', text: '👑 강화 1위 ' + me.name + ' 님이 응원 세기를 「' + CUS_NM[v] + '」(으)로 정했어요' }); break; }
     case 'cbl': { if (!champ || champ.key !== me.key) return send(ws, { t: 'news', text: '👑 강화 1위만 쓸 수 있어요' }); const d = kstDay(); if (V.cbl && V.cbl.d === d && !me.admin) return send(ws, { t: 'news', text: '👑 축복은 하루에 한 번이에요' });
@@ -1493,6 +1498,7 @@ function onMsg(ws, me, m) {
           console.log('운영자', me.name, '빼내기', nm); return ok(nm + ' 님을 마을로 빼냈어요' + (l ? '' : ' (다음 접속 때 광장에서 시작)'));
         }
         const s = await loadSave(key); if (!s) return ok(nm + ' 님 저장이 아직 없어요');
+        if (m.op === 'rn') { const k = keyByName(String(m.n || '')); if (!k) return send(ws, { t: 'news', text: '그런 이름이 없어요' }); const v = String(m.v || '').replace(/[^\p{L}\p{N} ]/gu, '').trim().slice(0, 10); withLock(k, async () => { const sv = await loadSave(k); if (!sv) return; sv.rn = v; sv.rev = (sv.rev | 0) + 1; queueSave(k, sv); const l = liveByKey(k); if (l && l[1].save === sv) send(l[0], { t: 'prof_ok', rn: sv.rn, vg: sv.vg || '', rev: sv.rev, note: [] }); send(ws, { t: 'news', text: '👤 ' + m.n + ' 님 실명 → ' + (v || '(비움)') }); }).catch(() => { }); return; }
         if (m.op === 'e30') { if (m.v === 'reset') { delete V.e30; delete V.e40f; } else V.e30 = V.e30 || { n: '운영자 시험', t: Date.now() }; vMark(); broadcast(e30Pub()); return send(ws, { t: 'news', text: '🚪 봉인된 문 ' + (V.e30 ? '열림' : '닫힘') }); }
         if (m.op === 'setlv') { const e = enhOf(s), n = Math.max(0, Math.min(40, m.n | 0)); e.lv = n; e.max = Math.max(e.max | 0, n); e.star = 0; e.fl = 0; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; sendEnh(l[0], l[1], { note: ['🛠️ 운영자: 낚싯대 +' + n] }); } return ok(nm + ' 님 낚싯대를 +' + n + '(으)로 맞췄어요'); }
         if (m.op === 'al_set' && /^g\d$/.test(String(m.v))) { const a = alOf(s); a.sg = +String(m.v)[1]; a.gd = a.sg >= 1 ? 1 : 0; queueSave(key, s); await flushSave(key); if (l) { l[1].save = s; send(l[0], celPub(s, l[1])); } return ok(nm + ' 님 이야기 단계 → ' + a.sg); }
@@ -1726,7 +1732,7 @@ function onMsg(ws, me, m) {
       send(ws, { t: 'prof', id: o.id, name: o.name, ti: o.look.ti, e: o.look.e, max: s.enh ? s.enh.max | 0 : 0,
         pop: popOf(s), pets, catches: s.stats ? s.stats.catches | 0 : 0, dex: Object.keys(dex).filter(k => dex[k] && dex[k].n > 0).length,
         job: jobOf(s) ? { id: jobOf(s), r: jrOf(s, jobOf(s)), cap: jobRank(s, jobOf(s), 'cap') > 0 } : null,
-        help: s.help ? { n: s.help.n | 0, t: s.help.d === kstDay() ? s.help.t | 0 : 0 } : { n: 0, t: 0 }, evn: s.evn | 0 });
+        help: s.help ? { n: s.help.n | 0, t: s.help.d === kstDay() ? s.help.t | 0 : 0 } : { n: 0, t: 0 }, evn: s.evn | 0, rn: s.rn || '', vg: s.vg || '' });
       break;
     }
     case 'pop': {
@@ -3621,10 +3627,18 @@ db.roster().then(rows => { for (const r of rows || []) { if (String(r.key).start
 db.ranks().then(rows => { for (const r of (rows || []).filter(r => !String(r.key).startsWith('__'))) rankSet(r.key, r.name, r.enh, cleanLook(r.look, { cos: { own: Array.isArray(r.own) ? r.own : [] }, enh: r.enh }, colorOf(r.key))); champBoot = true; console.log('강화 순위', rankCache.size, '명 · 동상', champ ? champ.name + ' +' + champ.lv : '없음'); }).catch(e => { champBoot = true; console.error('강화 순위를 읽지 못했어요', e.message); });
 
 // 친구 위치 묶어서 보내기
+/* 2026-11-24 데이터 아끼기: 가까운 사람(화면 근처)에게만 1초 10번 · 먼 사람은 2초마다 한 번 (지도 · 넓어진 맵) */
+const NEAR_X = 1100, NEAR_Y = 900; let snapN = 0;
 setInterval(() => {
-  const list = [];
-  for (const p of players.values()) if (p.here && p.dirty) { list.push([p.id, p.x, p.y, p.d, p.m, p.b, p.f | 0]); p.dirty = false; }
-  if (list.length) broadcast({ t: 's', p: list });
+  snapN++; const mv = [];
+  for (const p of players.values()) if (p.here && p.dirty) { mv.push(p); p.dirty = false; p.far = true; }
+  let far = null; if (snapN % 20 === 0) { far = []; for (const p of players.values()) if (p.far) { far.push(p); p.far = false; } }
+  if (!mv.length && !(far && far.length)) return;
+  const row = p => [p.id, p.x, p.y, p.d, p.m, p.b, p.f | 0];
+  for (const [ws, r] of players) { if (ws.readyState !== 1) continue; const out = [], seen = new Set();
+    for (const p of mv) if (p === r || (Math.abs(p.x - r.x) < NEAR_X && Math.abs(p.y - r.y) < NEAR_Y)) { out.push(row(p)); seen.add(p); }
+    if (far) for (const p of far) if (!seen.has(p) && p !== r) out.push(row(p));
+    if (out.length) send(ws, { t: 's', p: out }); }
 }, SNAP_MS);
 
 // 끊긴 연결 정리
