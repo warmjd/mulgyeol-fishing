@@ -913,6 +913,8 @@ function seasonGo(ws) { if (V.season >= 2) return send(ws, { t: 'news', text: '�
   V.season = 2; V.s2 = []; for (const k of S2_RESET_V) delete V[k]; rosterCache.clear(); rankCache.clear(); champ = null; vMark();
   broadcast({ t: 'champ', c: null }); broadcast({ t: 'big', text: '🎉 물결마을 정식 오픈! 모두 처음부터 시작해요 · 테스트에 함께한 이웃에겐 칭호 「테스트 개척 주민」' });
   setTimeout(() => { for (const w of [...players.keys()]) { try { w.close(); } catch (e) { } } }, 4000); }
+/* 🎉 2026-11-25 조돌맹 「버튼 누를 필요 없이 그냥 오픈」: 서버가 켜지고 V를 읽으면 저절로 한 번 정식 오픈 */
+setInterval(() => { try { if (V && (V.season | 0) < 2) { seasonGo(null); console.log('🎉 정식 오픈 (자동)'); } } catch (e) { console.log('정식 오픈 실패', e); } }, 5000);
 setTimeout(() => { try { if (V && (V.season | 0) >= 2) { const ok = new Set(V.s2 || []); for (const k of [...rosterCache.keys()]) if (!ok.has(k)) rosterCache.delete(k); for (const k of [...rankCache.keys()]) if (!ok.has(k)) rankCache.delete(k); champ = null; champCheck(); console.log('시즌', V.season, '명단 정리', rosterCache.size); } } catch (e) { } }, 20000);
 const COMP = { '치킨': ['c1118trap', 'A', 2e7, '🛠️ 통발이 안 걷히던 걸 고쳤어요 · 기다려 줘서 고마워요'], '꼬북린': ['c1118rq', 'A', 1e7, '🛠️ 의뢰 납품 버튼을 고쳤어요 · 기다려 줘서 고마워요'] };
 const CP_STG_S = [[1, '🍼 아기'], [10, '🐾 꼬마'], [20, '💛 단짝'], [35, '🛡️ 듬직이'], [50, '✨ 수호'], [70, '🌟 전설'], [90, '🌌 별빛']];
