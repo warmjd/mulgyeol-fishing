@@ -661,7 +661,8 @@ wss.on('connection', (ws) => {
         if (pending.has(key)) { const p = pending.get(key); row.save = p.save; }
         if (row.save && row.save.mar && V && V.marEnd && V.marEnd[row.name] > (row.save.mar.d | 0)) { row.save.mar = null; delete V.marEnd[row.name]; vMark(); }   // 💔 상대가 헤어짐을 고른 경우
         let sreset = false;   /* 🌱 시즌 2 새 출발: 예전 시즌 저장이면 이름 · 실명 · 이웃 마을 · 치장만 남기고 처음부터 */
-        if (V && (V.season | 0) >= 2) { if (row.save && (row.save.season | 0) !== V.season) { row.save = seasonReset(row.save); queueSave(key, row.save); sreset = true; } V.s2 = Array.isArray(V.s2) ? V.s2 : []; if (!V.s2.includes(key)) { V.s2.push(key); vMark(); } }
+        if (V && (V.season | 0) >= 2) { if (row.save && (row.save.season | 0) !== V.season) { row.save = seasonReset(row.save); queueSave(key, row.save); sreset = true; } V.s2 = Array.isArray(V.s2) ? V.s2 : []; if (!V.s2.includes(key)) { V.s2.push(key); vMark(); }
+          /* 🏷️ 테스트 개척 주민: 지명 명단(V.tsl)에 없는데 칭호가 있으면 빼요 (자동으로 받았던 것 정리) */ const tsl = Array.isArray(V.tsl) ? V.tsl : [], rs = row.save; if (rs && rs.cos && Array.isArray(rs.cos.own) && rs.cos.own.includes('t_tester') && !tsl.includes(key)) { rs.cos.own = rs.cos.own.filter(x => x !== 't_tester'); if (rs.cos.look && rs.cos.look.ti === 't_tester') rs.cos.look.ti = ''; rs.tst = 0; rs.rev = (rs.rev | 0) + 1; queueSave(key, rs); } }
         const color = colorOf(key);
         const p = { id: nextId++, key, name: row.name, color, admin: ADMINS.has(key), x: 0, y: 0, d: 'down', m: 0, b: 0, here: false,
           save: row.save, look: cleanLook(row.save && row.save.cos && row.save.cos.look, row.save, color), tr: null, sayT: 0, emoT: 0 };
@@ -905,7 +906,8 @@ function vgMsg(ws, me, m) {
 /* 🌱 시즌 2 (2026-11-24 · 조돌맹 「아예 처음부터 · 시즌 2로 새 출발」) */
 /* 🎉 정식 오픈 (2026-11-25 · 조돌맹 「시즌 2라고 할 필요 없이 · 시즌 1은 테스트 · 명예의 전당 필요 없고 테스트 참여 멤버만 기록」):
    치장까지 모두 처음부터 · 남는 건 이름 · 실명 · 이웃 마을 · 고장 보상 기록 · 머리/피부/옷 색 · 테스트에 한 번이라도 낚시한 사람은 칭호 「테스트 개척 주민」(tst) */
-function seasonReset(s) { const tst = s.tst || (s.stats && (s.stats.catches | 0) > 0) || sdN(s) > 0 ? 1 : 0, ol = s.cos && s.cos.look || {}, look = {};
+/* 2026-11-25 조돌맹: 칭호는 자동 말고 운영자가 대여섯 명 지명 (op 'tst' · V.tsl 명단 키) */
+function seasonReset(s) { const tst = 0, ol = s.cos && s.cos.look || {}, look = {};
   for (const k of ['h', 'k', 's']) if (Number.isInteger(ol[k])) look[k] = ol[k]; if (tst) look.ti = 't_tester';
   return { season: V.season, rev: (s.rev | 0) + 100000, rn: s.rn || '', vg: s.vg || '', vgt: s.vgt || 0, cmp: s.cmp || [], tst, cos: { own: tst ? ['t_tester'] : [], look } }; }
 const S2_RESET_V = ['flag', 'fpend', 'fgpend', 'trc', 'plq', 'vgl', 'vgwin', 'vgwk', 'cus', 'cbl', 'cth', 'e30', 'e40f', 'gf', 'gr', 'gse', 'pk', 'skyc', 'shcf', 'shcl', 'shf', 'cmpTop', 'ice', 'hof'];
@@ -1510,6 +1512,11 @@ function onMsg(ws, me, m) {
         if (v !== 'reset') V.gann = goOpen() ? (v === 'now' ? 0 : 1) : 0; vMark(); broadcast(goPub()); return ok('☁️ 그랜드 오픈: ' + new Date(goAt()).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) + (v === 'reset' ? ' · 최초 기록 · 순위를 지웠어요' : '')); }
       if (m.op === 'pk_set') { const p = pkOf(); if (!p) return ok('마을 기록을 아직 못 읽었어요'); if (m.v === 'open') { p.l = p.d = PK_GOAL; p.op = 1; } else { V.pk = null; pkOf(); } vMark(); celCast({ t: 'pk', pk: pkPub() }); return ok(m.v === 'open' ? '⛰️ 가장 높은 곳 문을 열었어요 (이번 주)' : '⛰️ 이번 주 가장 높은 곳을 처음 상태로 돌렸어요'); }   // 🧪 2026-11-17 시험용
       if (m.op === 'season_go') return seasonGo(ws);
+      if (m.op === 'tst') { if (!V) return ok('마을 기록을 아직 못 읽었어요'); V.tsl = Array.isArray(V.tsl) ? V.tsl : []; const nm = String(m.n || '').trim();
+        const names = () => V.tsl.map(k => (rosterCache.get(k) || {}).name || k).join(' · ') || '아직 없어요';
+        if (!nm) return ok('🏷️ 테스트 개척 주민: ' + names()); const k = keyByName(nm); if (!k) return send(ws, { t: 'news', text: '그런 이름이 없어요' });
+        if (m.on) { if (!V.tsl.includes(k)) V.tsl.push(k); vMark(); Promise.resolve(withLock(k, async () => { const sv = await loadSave(k); if (!sv) return; sv.tst = 1; giveCos(sv, ['t_tester']); queueSave(k, sv); const l = liveByKey(k); if (l) send(l[0], { t: 'cos_got', ids: ['t_tester'] }); })).catch(() => { }); return ok('🏷️ ' + nm + ' 님 지명 · 지금 명단: ' + names()); }
+        V.tsl = V.tsl.filter(x => x !== k); vMark(); Promise.resolve(withLock(k, async () => { const sv = await loadSave(k); if (!sv || !sv.cos) return; sv.tst = 0; sv.cos.own = (sv.cos.own || []).filter(x => x !== 't_tester'); if (sv.cos.look && sv.cos.look.ti === 't_tester') sv.cos.look.ti = ''; sv.rev = (sv.rev | 0) + 1; queueSave(k, sv); })).catch(() => { }); return ok('🏷️ ' + nm + ' 님 뺐어요 (다음 접속부터) · 지금 명단: ' + names()); }
       if (m.op === 'rn') { const k = keyByName(String(m.n || '')); if (!k) return send(ws, { t: 'news', text: '그런 이름이 없어요' }); const v = String(m.v || '').replace(/[^\p{L}\p{N} ]/gu, '').trim().slice(0, 10); withLock(k, async () => { const sv = await loadSave(k); if (!sv) return; sv.rn = v; sv.rev = (sv.rev | 0) + 1; queueSave(k, sv); const l = liveByKey(k); if (l && l[1].save === sv) send(l[0], { t: 'prof_ok', rn: sv.rn, vg: sv.vg || '', rev: sv.rev, note: [] }); send(ws, { t: 'news', text: '👤 ' + m.n + ' 님 실명 → ' + (v || '(비움)') }); }).catch(() => { }); return; }
       if (m.op === 'e30') { if (m.v === 'reset') { delete V.e30; delete V.e40f; } else V.e30 = V.e30 || { n: '운영자 시험', t: Date.now() }; vMark(); broadcast(e30Pub()); return send(ws, { t: 'news', text: '🚪 봉인된 문 ' + (V.e30 ? '열림' : '닫힘') }); }
       if (m.op === 'brag') { const d = kstDay(), r = V && V.dk && V.dk.d === d && V.dk.p[me.key]; const n = r ? r.n | 0 : 0; if (!n) return ok('오늘 직접 낚은 물고기가 아직 없어요'); if (me.bragD === d && (me.bragN | 0) >= 3) return ok('오늘 자랑은 세 번까지예요'); me.bragN = me.bragD === d ? (me.bragN | 0) + 1 : 1; me.bragD = d; broadcast({ t: 'big', g: 3, text: '🎣📣 운영자 ' + me.name + ' 님도 오늘 ' + n.toLocaleString() + '마리를 낚았어요!' }); return ok('자랑했어요 (오늘 ' + n + '마리)'); }   // 2026-11-16: 진짜 오늘 마릿수만 (지어낸 숫자는 안 돼요)
