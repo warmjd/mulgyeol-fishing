@@ -5761,9 +5761,9 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1124j',UPD_LOG=[
- ['11/24 💰 화폐 정리','💰',[['💰 오른쪽 위는 두 가지만','🎫 강화권 · 💠 꿈의 정수만 보여요 · 예전 🔹 안개 조각 · 🌰 도토리는 가방과 「오늘」에서 볼 수 있어요'],['🌠 별의 조각 (시즌 2)','시즌 2부터 +34 이상 강화에 별의 조각 대신 꿈의 정수를 조금 더 써요'],['🌱 메뉴 열리는 수','사냥터 200마리 · 레이드 500마리 · 명품관 400마리 · 경매 300마리부터 (낚시가 먼저!)']]],
- ['🌱 시즌 2 준비','🌱',[['🌱 곧 시즌 2','시즌 2가 시작되면 모두 처음부터 다시 시작해요 · 이름 · 실명 · 이웃 마을 · 치장(옷 · 칭호)은 그대로'],['🪨 시즌 1 명예','시즌 1 손맛 · 반짝 · 월척 · 강화 · 용사 1~3등은 물결마을의 기억 비석에 영원히 남아요'],['⚖️ 숨은 배율 없음','시즌 2부터는 숨은 보너스 없이 모두 같은 규칙으로 시작해요']]],
+const UPD_VER='1125a',UPD_LOG=[
+ ['11/24 💰 화폐 정리','💰',[['💰 오른쪽 위는 두 가지만','🎫 강화권 · 💠 꿈의 정수만 보여요 · 예전 🔹 안개 조각 · 🌰 도토리는 가방과 「오늘」에서 볼 수 있어요'],['🌠 별의 조각 (정식 오픈)','정식 오픈부터 +34 이상 강화에 별의 조각 대신 꿈의 정수를 조금 더 써요'],['🌱 메뉴 열리는 수','사냥터 200마리 · 레이드 500마리 · 명품관 400마리 · 경매 300마리부터 (낚시가 먼저!)']]],
+ ['🎉 곧 정식 오픈','🎉',[['🎉 테스트는 여기까지','지금까지는 테스트였어요 · 정식 오픈 때 모두 처음부터 다시 시작해요 (골드 · 가방 · 도감 · 장비 · 강화 · 치장 모두) · 이름 · 실명 · 이웃 마을 · 머리/피부/옷 색만 그대로'],['🏷️ 테스트 개척 주민','테스트 때 한 번이라도 낚시한 이웃은 칭호 「테스트 개척 주민」을 달고 시작해요'],['🔄 바뀐 계획','예전에 알린 「시즌 2 · 시즌 1 명예 비석」은 없어지고 정식 오픈 · 칭호로 바뀌었어요'],['⚖️ 숨은 배율 없음','정식 오픈부터는 숨은 보너스 없이 모두 같은 규칙으로 시작해요']]],
  ['11/24 🧹 화면 정리','🧹',[['🌱 메뉴가 하나씩 열려요','처음 온 이웃이 헷갈리지 않게, 낚은 물고기 수에 따라 메뉴가 열려요 (🔒 표시 · 오래 한 사람은 그대로 다 열려 있어요)'],['💬 알림은 위쪽 작게','화면 가운데를 가리던 알림이 위쪽에 작게 떠요'],['📰 업데이트 소식','이제 저절로 열리지 않아요 · 메뉴의 빨간 점으로 알려요']]],
  ['11/24 🏦 마을 금고 · 🏆 마을 대항 · 🎆 지역 행사','🏆',[['🏦 마을 금고','우리 마을에 손님이 놀러 오면(☕ 카페가 있으면 2배) · 방명록 · 박물관 기증마다 금고가 쌓여요'],['🏛️ 마을 건물','금고와 마을 Lv로 🌸 꽃 아치(Lv2) · ☕ 카페(Lv3) · 🎪 무대(Lv4) · 🗿 기념비(Lv5)를 지어요 · 마을 Lv은 집 · 꾸밈 · 손님 · 박물관으로 올라요'],['🎉 마을 잔치','무대가 있으면 촌장이 하루 한 번 1시간 잔치 · 그 마을 땅에서 모두 낚시 행운 ↑'],['🏆 마을 대항','이번 주 점수(손님 · 방명록 · 기증 · 꾸밈 · 건물 · 잔치) 1등 마을은 월요일에 금빛 리본 + 금고 5천만'],['🎆 지역 행사','매일 저녁 8~9시, 새 땅 다섯 지역이 하루씩 돌아가며 축제 · 그 지역에서 낚시 행운 ↑']]],
  ['11/24 🌸 꽃 키우기 · 🐟 마을 박물관','🌸',[['🌱 꽃이 자라요','마을 땅에 심은 꽃은 새싹 → 꽃봉오리 → 활짝 (이틀) · 💧 물 한 번에 6시간 빨리 · 놀러 온 이웃도 물을 줄 수 있어요 (하루 20번 · 꽃마다 하루 한 번)'],['🌈 새 꽃','활짝 핀 꽃 옆에 다른 색 꽃이 있으면 물 줄 때 가끔 🌟 금빛꽃 · 🌈 무지개꽃이 피어요'],['🐟 마을 박물관','마을 팻말 → 박물관 · 가방의 물고기를 한 마리씩 기증해 마을 도감을 채워요 · 10종마다 마을 사람 모두 강화권']]],
@@ -7340,7 +7340,8 @@ BOB3.b_bfly={rows:["y.y.y","yyyyy",".yky.","yyyyy","y...y"],pal:{y:'#ffe040',k:'
 [['t_bug1','title','곤충 친구'],['t_bug2','title','곤충 박사'],['b_bfly','bob','나비 찌'],['t_ark','title','방주를 지은 사람']].forEach(r=>COS.push({id:r[0],k:r[1],name:r[2],ev:r[0],tier:r[1]==='bob'?1:undefined,nw:NEW_DAY}));
 COS.push({id:'t_wed',k:'title',name:'💞 물결마을 부부'},{id:'t_wfchamp',k:'title',name:'🏅 주간 낚시 챔피언'});COS_BY.t_wed=COS[COS.length-2];COS_BY.t_wfchamp=COS[COS.length-1];
 COS.push({id:'t_fs1',k:'title',name:'첫눈을 기다린 사람'},{id:'t_fs2',k:'title',name:'복 많이 받는 사람'},{id:'t_fs3',k:'title',name:'달콤한 고백'},{id:'t_fs4',k:'title',name:'벚꽃 아래 낚시꾼'},{id:'t_fs5',k:'title',name:'바다의 친구'},{id:'t_npc1',k:'title',name:'바다 할멈의 손주',egg:1},{id:'t_npc2',k:'title',name:'슈가의 단골',egg:1},{id:'t_npc3',k:'title',name:'소복옹의 눈사람 친구',egg:1},{id:'t_npc4',k:'title',name:'들판 잔치의 손님',egg:1},{id:'t_npc5',k:'title',name:'숲지기의 친구',egg:1},{id:'t_npc6',k:'title',name:'산장의 단골',egg:1},{id:'t_npc7',k:'title',name:'눈꽃 아이의 영웅',egg:1},{id:'t_npc8',k:'title',name:'왕사탕 장인',egg:1});['t_fs1','t_fs2','t_fs3','t_fs4','t_fs5','t_npc1','t_npc2','t_npc3','t_npc4','t_npc5','t_npc6','t_npc7','t_npc8'].forEach(id=>COS_BY[id]=COS.find(c=>c.id===id));COS.push({id:'t_ruby30',k:'title',name:'루비의 영원한 산책 친구',price:undefined,egg:1},{id:'t_litter30',k:'title',name:'고양이 화장실의 수호자',price:undefined,egg:1});COS_BY.t_ruby30=COS[COS.length-2];COS_BY.t_litter30=COS[COS.length-1];
-Object.assign(EV_HOW,{t_bug1:'곤충 도감 8종',t_bug2:'곤충 도감 전부',b_bfly:'곤충 도감 전부',t_ark:'물결호를 함께 지은 사람 (지금은 받을 수 없어요)'});
+Object.assign(EV_HOW,{t_bug1:'곤충 도감 8종',t_bug2:'곤충 도감 전부',b_bfly:'곤충 도감 전부',t_ark:'물결호를 함께 지은 사람 (지금은 받을 수 없어요)',t_tester:'정식 오픈 전 테스트에 함께한 이웃 (지금은 받을 수 없어요)'});
+COS.push({id:'t_tester',k:'title',name:'테스트 개척 주민',ev:'t_tester'});COS_BY.t_tester=COS[COS.length-1];
 COS.forEach(c=>COS_BY[c.id]=c);
 /* 2026-11-05 재료 정리: 제작법의 옛 재료 이름을 솜씨 재료로 (같은 양을 더해요) */
 REC.forEach(r=>['in','out'].forEach(f=>{const o=r[f];if(!o||typeof o!=='object')return;for(const k of Object.keys(o)){const nk=mk(k);if(nk===k)continue;const v=o[k];delete o[k];o[nk]=typeof v==='function'||typeof o[nk]==='function'?v:(o[nk]|0)+v}}));
@@ -10135,7 +10136,7 @@ function openAdmin(){
      h+='<div class="sec">🎁 나에게 바로</div><div class="warps"><button data-adm="gold" data-v="100000000">💰 1억 골드</button><button data-adm="tk" data-v="100">🎫 강화권 100</button><button data-adm="esme" data-v="50">💠 꿈의 정수 50</button><button data-adm="chipme" data-v="1000000">🎰 칩 100만</button><button data-adm="ccme" data-v="1000">💧 구름 방울 1000</button></div>';
      h+='<div class="sec">🎉 그랜드 오픈 <span class="cnt">'+goWhen()+' · '+goLeftTxt()+'</span></div><div style="display:flex;gap:6px;margin-bottom:6px"><input class="tin" id="admGo" type="datetime-local" style="flex:1;min-width:0"><button class="btn sm" data-adm="goset" data-v="at">날짜로</button></div><div class="warps"><button data-adm="goset" data-v="now">🎉 지금 열기</button><button data-adm="goset" data-v="def">↩️ 11/21(토) 21:00</button><button data-adm="goset" data-v="reset">🧹 최초 기록 · 순위 지우기</button></div>';
      h+='<div class="sec">⛰️ 가장 높은 곳 <span class="cnt">'+(CEL.pk?(CEL.pk.clr?'이번 주 끝':CEL.pk.op?'열림 · 수호자 '+Math.round(CEL.pk.hp/CEL.pk.mhp*100)+'%':'빛 '+CEL.pk.l+' · 그림자 '+CEL.pk.d+' / '+CEL.pk.g):'구름 위에 한 번 들어가면 보여요')+'</span></div><div class="warps"><button data-adm="pkset" data-v="open">🚪 이번 주 문 열기</button><button data-adm="pkset" data-v="reset">↩️ 이번 주 처음으로 (수호자 체력 · 저울)</button></div>'
-     h+='<div class="sec">🌱 시즌</div><div class="warps"><button data-adm="season">🌱 시즌 2 시작 (모두 처음부터)</button></div>';
+     h+='<div class="sec">🎉 정식 오픈</div><div class="warps"><button data-adm="season">🎉 정식 오픈 (모두 처음부터)</button></div>';
      h+='<div class="sec">👤 실명 고치기</div><div style="display:flex;gap:5px;margin-bottom:8px"><input id="admRnN" placeholder="별명" style="flex:1;padding:7px;border-radius:10px;border:1px solid #ccc"><input id="admRnV" placeholder="실명" style="flex:1;padding:7px;border-radius:10px;border:1px solid #ccc"><button data-adm="rnfix">바꾸기</button></div>';
      h+='<div class="sec">🚪 봉인된 문 (+31~+40) <span class="cnt">'+(E30?'열림 · '+E30.n:'닫힘')+'</span></div><div class="warps"><button data-adm="e30" data-v="open">🚪 문 열기</button><button data-adm="e30" data-v="reset">🔒 다시 닫기</button></div>'}}
   h+='<div class="sec">🧭 길잡이 미끼 (운영자 전용)</div><div class="muted" style="font-size:12px">끼우면 이 낚시터에서 아직 손맛을 못 본 물고기가 꼭 걸려요 · 운영자 모드에서만 효과 · 지금 '+itN('b_compass')+'개</div><div class="warps"><button data-adm="compass" data-v="10">🧭 10개 받기</button></div>';
@@ -10206,7 +10207,7 @@ function admClick(t){
   if(a==='ccme'){Net.send({t:'adm',op:'give',to:Net.me.name.toLowerCase(),k:'cc',n:+v});return true}
   if(a==='pkset'){Net.send({t:'adm',op:'pk_set',v});return true}
   if(a==='e30'){Net.send({t:'adm',op:'e30',v});return true}
-  if(a==='season'){askConfirm('🌱 정말 시즌 2를 시작할까요?','모두의 진행이 처음부터 시작돼요 · 되돌릴 수 없어요 · Supabase 백업을 먼저 받아 두세요','시작',()=>askConfirm('🌱 마지막 확인','지금 바로 모두 다시 접속돼요','정말 시작',()=>Net.send({t:'adm',op:'season_go'})));return true}
+  if(a==='season'){askConfirm('🎉 정말 정식 오픈할까요?','모두의 진행이 처음부터 시작돼요 (치장 포함) · 테스트 참여자는 칭호 「테스트 개척 주민」 · 되돌릴 수 없어요 · Supabase 백업을 먼저 받아 두세요','오픈',()=>askConfirm('🎉 마지막 확인','지금 바로 모두 다시 접속돼요','정말 오픈',()=>Net.send({t:'adm',op:'season_go'})));return true}
   if(a==='rnfix'){Net.send({t:'adm',op:'rn',n:($('admRnN').value||'').trim(),v:($('admRnV').value||'').trim()});return true}
   if(a==='goset'){const vv=v==='at'?($('admGo')&&$('admGo').value?$('admGo').value+':00+09:00':''):v;if(!vv)return toast('날짜를 골라요'),true;const go=()=>Net.send({t:'adm',op:'go_set',v:vv});if(v==='now'||v==='reset')askConfirm(v==='now'?'☁️ 지금 열까요?':'🧹 최초 기록 · 순위 지우기',v==='now'?'모두에게 바로 열려요':'명예의 구름판과 시즌 순위를 지워요','네',go);else go();return true}
   if(a==='chipme'){Net.send({t:'adm',op:'givechip',to:Net.me.name.toLowerCase(),n:+v});return true}
@@ -12706,7 +12707,7 @@ function mmSheet(){const H=MMH||{f:[],wf:[]},row=(ic,L,fmtx)=>{if(!L.length)retu
   let h='<div class="muted" style="font-size:12px;margin-bottom:6px;text-align:center">오래된 돌에 이름이 하나씩 새겨져 있어요</div>';
   h+='<div class="sec">🚩 한 주 가장 많은 깃발</div>'+row('🚩',H.f||[],e=>String(e.w||'').slice(5).replace('-','/')+' 주 · 깃발 '+e.c+'개');
   h+='<div class="sec">🏅 주간 챔피언</div>'+row('🏅',H.wf||[],e=>(e.id!=null&&FISH[e.id]?esc(fishName(e.id))+' ':'')+(e.len|0)+'cm');
-  openSheet('🪨 물결마을의 기억',(Net.season>=2?'<button class="btn sm" style="width:100%;margin-bottom:8px" data-s1hof="1">🪨 시즌 1 명예 보기</button>':'')+h)}
+  openSheet('🪨 물결마을의 기억',h)}
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-s1hof]'))Net.send({t:'s1hof'})});
 function flagNear(){if(HUNT.on||CEL.on||inRealm()||!P)return null;const FP=flagPos();for(const z in FP){const[tx,ty]=FP[z];if(Math.hypot(tx*TS+8-P.x,ty*TS+12-P.y)<20)return{type:'x',fn:()=>{flagSheet(+z);if(ONLINE&&Net.me)Net.send({t:'flag_get'})},label:'🚩<br>깃발'}}return null}
 function flagSheet(z0){if(z0!=null)flagSheet.z=z0;const me=Net.me&&Net.me.name,FP=flagPos(),zs=Object.keys(FP).map(Number).sort((a,b)=>a-b),B=FLAG_B||{};let mine=0;zs.forEach(z=>{if(FLAGS[z]&&FLAGS[z]===me)mine++});
