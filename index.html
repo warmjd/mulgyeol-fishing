@@ -3547,16 +3547,18 @@ const plotAt=(x,y)=>{const s=myShip();if(s<0)return-1;const[ox,oy]=shipO(s),r=SH
 const treeRel=(o,i)=>o&&Number.isInteger(o.x)&&Number.isInteger(o.y)?[o.x,o.y]:(SHIP_ORCH[i]||[2,2]);
 const shipTreeXY=(s,o,i)=>{const[ox,oy]=shipO(s),r=treeRel(o,i);return[ox+r[0],oy+r[1]]};
 const myTreeXY=i=>{const s=myShip(),o=gdS().o[i];return s<0?ORCH[i]||[0,0]:shipTreeXY(s,o,+i)};
-const TS=16,OW=34,MW=900,OLDW=194,W1=50,MH=330;   /* 2026-11-24: 동쪽으로 새 땅 (OLDW 194칸까지가 예전 마을 · 그 동쪽은 eastBuild) */   // 2026-11-17: 130줄부터 ☁️ 구름 위 나라 (마을은 VMH 130줄 그대로)   // 72칸부터 꽃배 선단 바다   // 자연 1.0: 50칸부터 꽃밭 언덕 (예전 땅은 W1까지 그대로)   // OW: 예전 너비 (34칸) · 35칸부터 축제 광장 // 60~99줄 2부 안개 섬 · 100줄부터 배낚시 먼바다
+const TS=16,OW=34,MW=400,OLDW=194,W1=50,MH=330;   /* 2026-11-24: 동쪽으로 새 땅 (OLDW 194칸까지가 예전 마을 · 그 동쪽은 eastBuild) */   // 2026-11-17: 130줄부터 ☁️ 구름 위 나라 (마을은 VMH 130줄 그대로)   // 72칸부터 꽃배 선단 바다   // 자연 1.0: 50칸부터 꽃밭 언덕 (예전 땅은 W1까지 그대로)   // OW: 예전 너비 (34칸) · 35칸부터 축제 광장 // 60~99줄 2부 안개 섬 · 100줄부터 배낚시 먼바다
 /* 🗺️ 동쪽 새 땅 (2026-11-24 · 조돌맹 「맵 10배 · 출시처럼 다듬기」)
    OLDW(194)칸까지는 예전 마을 그대로 (깃발 · 동상 · 정원 위치가 서버 기록과 묶여 있어요) · 200칸부터 동쪽으로 900칸까지 새 대륙
    지역: 🌲 물안개 숲 200~335 · ⛰️ 물결 산 335~470 · 🏡 새벽 들판(가운데 마을) 470~620 · ❄️ 눈꽃 고원 620~760 · 🍭 사탕 마을 760~900
    물은 예전 낚시터 번호를 그대로 써요 (그 낚시터를 연 사람만 낚을 수 있어요) · 🚏 꽃마차 정류장으로 지역끼리 바로 가요 */
-const EAST={x0:200,road:58,coast:x=>Math.round(100+3*Math.sin(x/23)+2*Math.sin(x/9.3)),
-  R:[{n:'🌲 물안개 숲',x0:194,x1:335,t:'g',sea:11},{n:'⛰️ 물결 산',x0:335,x1:470,t:'g',sea:11},{n:'🏡 새벽 들판',x0:470,x1:620,t:'g',sea:15},{n:'❄️ 눈꽃 고원',x0:620,x1:760,t:'n',sea:19},{n:'🍭 사탕 마을',x0:760,x1:900,t:'c',sea:17}],
-  LAKES:[[265,36,16,9,13],[402,22,11,6,10],[545,26,22,11,5],[505,82,7,4,1],[690,34,18,10,18],[830,36,16,9,16],[775,80,8,5,16]],
-  VPLOT:[206,230,300,336,360,404,472,496,570,594,622,646,786,832].map(x=>[x,63]),VPW:22,VPH:13,
-  STOPS:[['v','🏘️ 물결마을',19,26],['f','🌷 꽃밭 언덕',58,26],['e1','🌲 물안개 숲',262,61],['e2','⛰️ 물결 산',402,61],['e3','🏡 새벽 들판',545,61],['e4','❄️ 눈꽃 고원',690,61],['e5','🍭 사탕 마을',830,61]]};
+/* 2026-11-26 정식 오픈 정리 (조돌맹 「작게 줄여 한 마을로」): 900칸 → 400칸 · 다섯 지역을 걸어서 몇 분 거리로 · 이웃 마을 땅 14곳은 큰길 남쪽 두 줄(사이 골목 76~77줄) */
+const EAST={x0:200,road:58,lane:76,coast:x=>Math.round(100+3*Math.sin(x/23)+2*Math.sin(x/9.3)),
+  R:[{n:'🌲 물안개 숲',x0:194,x1:232,t:'g',sea:11},{n:'⛰️ 물결 산',x0:232,x1:268,t:'g',sea:11},{n:'🏡 새벽 들판',x0:268,x1:322,t:'g',sea:15},{n:'❄️ 눈꽃 고원',x0:322,x1:361,t:'n',sea:19},{n:'🍭 사탕 마을',x0:361,x1:400,t:'c',sea:17}],
+  LAKES:[[213,34,8,8,13],[250,22,6,5,10],[295,26,11,9,5],[341,32,9,8,18],[380,34,8,7,16]],
+  VPLOT:[0,1,2,3,4,5,6].map(i=>[208+26*i,62]).concat([0,1,2,3,4,5,6].map(i=>[208+26*i,79])),VPW:22,VPH:13,
+  LINKS:[231,257,283,309,335,361],COASTR:[257,335],
+  STOPS:[['v','🏘️ 물결마을',19,26],['f','🌷 꽃밭 언덕',58,26],['e1','🌲 물안개 숲',206,57],['e2','⛰️ 물결 산',262,57],['e3','🏡 새벽 들판',295,61],['e4','❄️ 눈꽃 고원',326,57],['e5','🍭 사탕 마을',386,57]]};
 const inPlot=(x,y)=>{for(let i=0;i<EAST.VPLOT.length;i++){const[a,b]=EAST.VPLOT[i];if(x>=a&&x<a+EAST.VPW&&y>=b&&y<b+EAST.VPH)return i}return -1};
 const eastReg=tx=>EAST.R.find(r=>tx>=r.x0&&tx<r.x1)||EAST.R[0];
 function eastRegion(tx,ty){if(ty>=EAST.coast(tx|0))return'🌊 '+(ZONES[eastReg(tx).sea-1]||{}).name;return eastReg(tx).n}
@@ -3570,36 +3572,36 @@ function eastBuild(T,Z,SOL,prop,buildings){const rnd=RNG(2411),set=(x,y,t,z)=>{i
   for(const[cx,cy,rx,ry,z]of EAST.LAKES)for(let y=cy-ry-1;y<=cy+ry+1;y++)for(let x=cx-rx-1;x<=cx+rx+1;x++){const d=((x+.5-cx)/rx)**2+((y+.5-cy)/ry)**2+Math.sin(x*.7+y)*.04;if(d<1)set(x,y,'w',z);else if(d<1.35&&T[y]&&T[y][x]!=='w'&&EAST.R.some(r=>r.t===T[y][x]))T[y][x]=T[y][x]}
   /* 숲 개울: 북쪽에서 숲 호수로 · 호수에서 바다로 (반딧불 개울) */
   const creek=(pts,z)=>{for(let i=0;i<pts.length-1;i++){const[a,b]=pts[i],[c,d]=pts[i+1],n=Math.ceil(Math.hypot(c-a,d-b)*2);for(let k=0;k<=n;k++){const t=k/n,x=Math.round(a+(c-a)*t+Math.sin(t*6+i)*1.5),y=Math.round(b+(d-b)*t);if(T[y]&&T[y][x]!=='w'){set(x,y,'w',z);set(x+1,y,'w',z)}}}};
-  creek([[232,2],[240,14],[252,28]],14);creek([[272,44],[284,62],[290,80],[296,97]],14);
-  creek([[392,4],[398,16]],10);creek([[410,27],[430,50],[452,78],[460,98]],10);
+  creek([[205,2],[209,14],[211,26]],14);creek([[248,3],[250,16]],10);
   /* 큰길 (58줄) + 지역마다 북쪽 호숫가로 가는 길 · 물 위는 나무다리 */
   const road=(x0,y0,x1,y1)=>{const n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0));for(let k=0;k<=n;k++){const x=Math.round(x0+(x1-x0)*k/n),y=Math.round(y0+(y1-y0)*k/n);for(const[dx,dy]of[[0,0],[0,1]]){const X=x+dx,Y=y+dy;if(!T[Y]||X>=MW)continue;if(T[Y][X]==='w'){T[Y][X]='k';Z[Y][X]=0}else T[Y][X]='p';SOL[Y][X]=false}}};
   road(196,36,206,EAST.road);road(206,EAST.road,MW-4,EAST.road);
   for(const[cx,cy,rx,ry]of EAST.LAKES)if(cy<EAST.road)road(cx,EAST.road,cx,cy+ry+2);else road(cx,EAST.road,cx,cy-ry-2);
-  for(const x of[262,402,545,690,830])road(x,EAST.road+2,x,EAST.coast(x)-1);
+  for(const x of EAST.LINKS){road(x,EAST.road+2,x,EAST.lane);road(x+1,EAST.road+2,x+1,EAST.lane)}road(206,EAST.lane,394,EAST.lane);
+  for(const x of EAST.COASTR){road(x,EAST.lane,x,EAST.coast(x)-1);road(x+1,EAST.lane,x+1,EAST.coast(x)-1)}
   /* 가운데 마을 광장 (새벽 들판) */
-  for(let y=EAST.road-6;y<=EAST.road+7;y++)for(let x=530;x<=560;x++)if(((x+.5-545.5)/15)**2+((y+.5-59)/7)**2<1&&T[y][x]!=='w')T[y][x]='p';
+  for(let y=EAST.road-5;y<=EAST.road+2;y++)for(let x=287;x<=304;x++)if(((x+.5-295.5)/8.5)**2+((y+.5-58)/4)**2<1&&T[y][x]!=='w')T[y][x]='p';
   /* 🏘️ 마을 땅 (빈 땅 · 큰길에서 들어가는 짧은 길) */
-  EAST.VPLOT.forEach(([a,b])=>{const t=eastReg(a).t;for(let y=b-1;y<b+EAST.VPH+1;y++)for(let x=a-1;x<a+EAST.VPW+1;x++){if(!T[y])continue;T[y][x]=t;Z[y][x]=0;SOL[y][x]=false}for(let y=EAST.road+2;y<b;y++){T[y][a+11]='p';T[y][a+10]='p';SOL[y][a+11]=false;SOL[y][a+10]=false}});
+  EAST.VPLOT.forEach(([a,b])=>{const t=eastReg(a).t;for(let y=b-1;y<b+EAST.VPH+1;y++)for(let x=a-1;x<a+EAST.VPW+1;x++){if(!T[y])continue;T[y][x]=t;Z[y][x]=0;SOL[y][x]=false}for(let y=(b>EAST.lane?EAST.lane+1:EAST.road+2);y<b;y++){T[y][a+11]='p';T[y][a+10]='p';SOL[y][a+11]=false;SOL[y][a+10]=false}});
   /* ⛰️ 바위 (산) */
-  for(let i=0;i<170;i++){const x=345+((rnd()*120)|0),y=2+((rnd()*90)|0);if(Math.abs(y-EAST.road)<4||inPlot(x,y)>=0||inPlot(x+3,y+2)>=0)continue;const n=1+((rnd()*3)|0);for(let j=0;j<n;j++){const X=x+((rnd()*3)|0),Y=y+((rnd()*2)|0);if(T[Y]&&T[Y][X]==='g'&&!SOL[Y][X]&&T[Y+1]&&T[Y+1][X]!=='p')prop('rock',X,Y)}}
+  for(let i=0;i<60;i++){const x=234+((rnd()*32)|0),y=2+((rnd()*52)|0);if(Math.abs(y-EAST.road)<4||inPlot(x,y)>=0||inPlot(x+3,y+2)>=0)continue;const n=1+((rnd()*3)|0);for(let j=0;j<n;j++){const X=x+((rnd()*3)|0),Y=y+((rnd()*2)|0);if(T[Y]&&T[Y][X]==='g'&&!SOL[Y][X]&&T[Y+1]&&T[Y+1][X]!=='p')prop('rock',X,Y)}}
   /* 🚏 꽃마차 정류장 */
   EAST.STOPS.forEach(([id,n,x,y],i)=>{let X=x,Y=y;for(let r=0;r<6;r++){let ok=false;for(let dy=-r;dy<=r&&!ok;dy++)for(let dx=-r;dx<=r&&!ok;dx++){const a=x+dx,b=y+dy;if(T[b]&&(T[b][a]==='g'||T[b][a]==='p'||T[b][a]==='c'||T[b][a]==='n')&&!SOL[b][a]){X=a;Y=b;ok=true}}if(ok)break}
     prop('stop',X,Y,false);EAST.STOPS[i].push(X,Y)});
   /* 가로등 · 벤치 */
   for(let x=220;x<MW-10;x+=24){const y=EAST.road+2;if(inPlot(x,y+1)<0&&EAST.VPLOT.every(([a])=>Math.abs(x-a-10.5)>2)&&T[y][x]!=='w'&&T[y][x]!=='k'&&!SOL[y][x])prop('lamp',x,y)}
-  for(const[cx]of[[262],[402],[545],[690],[830]]){const y=EAST.road+3;if(T[y][cx+3]&&!SOL[y][cx+3]&&T[y][cx+3]!=='w')prop('bench',cx+3,y,false)}
+  for(const[cx]of[[209],[247],[284],[330],[370]]){const y=EAST.road-1;if(T[y][cx+3]&&!SOL[y][cx+3]&&T[y][cx+3]!=='w')prop('bench',cx+3,y,false)}
   /* 🏠 새 땅 건물 (2단계 · 2026-11-24): 큰길 북쪽 · 문 앞은 57줄 · t = 열리는 가게 (예전 마을 가게와 같은 창) */
   const yb=EAST.road-2,C={shop:[[252,240,222],[160,214,196],[124,184,168]],forge:[[255,244,230],[236,150,120],[206,116,92]],boutique:[[255,246,250],[244,186,214],[220,150,186]],trade:[[252,246,232],[246,196,140],[220,164,110]],lib:[[246,238,252],[196,176,236],[158,140,206]],
     cabin:[[214,180,140],[110,150,90],[80,120,66]],lodge:[[220,210,196],[130,120,150],[100,92,120]],igloo:[[246,250,255],[210,232,250],[176,206,236]],candy1:[[255,240,246],[255,150,190],[230,110,160]],candy2:[[250,255,240],[150,220,190],[110,190,160]],candy3:[[255,248,230],[250,200,110],[226,170,80]],farm:[[255,246,232],[230,170,120],[200,140,96]]};
   const bld=(id,x,t,k,lab)=>{const c=C[k];const b={id,x,y:yb,w:3,h:3,door:[x+1,yb],t,lab,opts:{wall:c[0],roof:c[1],roofD:c[2],door:[170,120,90],kind:['shop','forge','boutique','trade'].includes(k)?k:'e'}};
     for(let y=b.y-b.h+1;y<=b.y+1;y++)for(let xx=x-1;xx<=x+b.w;xx++)if(T[y]&&(T[y][xx]==='w'||T[y][xx]==='K')){T[y][xx]='g';Z[y][xx]=0}
     for(let y=b.y-b.h+1;y<=b.y;y++)for(let xx=x;xx<x+b.w;xx++)SOL[y][xx]=true;buildings.push(b)};
-  bld('e_shop',506,'shop','shop','새벽<br>상점');bld('e_forge',511,'forge','forge','새벽<br>강화소');bld('e_btq',516,'boutique','boutique','새벽<br>치장');bld('e_trade',572,'trade','trade','새벽<br>교환소');bld('e_lib',577,'lib','lib','새벽<br>도감관');bld('e_farm',582,'','farm','');
-  bld('e_cabin',248,'','cabin','');bld('e_lodge',388,'','lodge','');bld('e_igloo',676,'','igloo','');bld('e_igloo2',704,'','igloo','');
-  bld('e_candy1',812,'','candy1','');bld('e_candy2',818,'','candy2','');bld('e_candy3',846,'','candy3','');
+  bld('e_shop',271,'shop','shop','새벽<br>상점');bld('e_forge',276,'forge','forge','새벽<br>강화소');bld('e_btq',281,'boutique','boutique','새벽<br>치장');bld('e_trade',307,'trade','trade','새벽<br>교환소');bld('e_lib',312,'lib','lib','새벽<br>도감관');bld('e_farm',317,'','farm','');
+  bld('e_cabin',222,'','cabin','');bld('e_lodge',256,'','lodge','');bld('e_igloo',333,'','igloo','');bld('e_igloo2',350,'','igloo','');
+  bld('e_candy1',366,'','candy1','');bld('e_candy2',374,'','candy2','');bld('e_candy3',391,'','candy3','');
   /* 🔭 산 전망대 · ⛲ 들판 분수 */
-  EAST.SCOPE=[402,EAST.road-4];prop('scope',EAST.SCOPE[0],EAST.SCOPE[1]);prop('fountain',545,EAST.road-3)
+  EAST.SCOPE=[244,EAST.road-4];prop('scope',EAST.SCOPE[0],EAST.SCOPE[1]);prop('fountain',295,EAST.road-3)
 }
 function eastDecor(T,SOL,trees,deco,prop){const r=RNG(2412),near=(x,y,ch,d)=>{for(let j=-d;j<=d;j++)for(let i=-d;i<=d;i++){const q=T[y+j]&&T[y+j][x+i];if(q&&ch.indexOf(q)>=0)return true}return false};
   const tr=(x,y,k)=>{if(T[y]&&T[y][x]&&'gcn'.indexOf(T[y][x])>=0&&!SOL[y][x]&&!near(x,y,'pkwsK',1)&&!near(x,y+1,'p',0)){trees.push({x,y,kind:k,seed:x*131+y*7});SOL[y][x]=true;return true}return false};
@@ -4420,19 +4422,19 @@ const NPCS=[
  {id:'sugar',name:'디저트 요정 슈가',x:117,y:73,look:{h:4,k:0,s:1,hat:'ribbon',o:'tee'},work:['day','dusk'],
   talk:{dawn:'슈가: 쿨쿨… 아직 오븐이 안 데워졌어요… 오후에 와요…',night:'슈가: 밤엔 별사탕을 말려요. 아, 달빛 호수 한가운데… 아주 멀리 던지는 낚싯대가 있다면 비밀을 낚을 수 있대요. 쉿!'},
   q:[{t:'시럽 호수 물고기 5마리! 케이크에 올릴 거예요.',z:[16],r:0,n:5,g:5e6},{t:'반짝반짝한 희귀 물고기가 필요해요. 시럽 호수나 사탕 바다에서!',z:[16,17],r:2,n:1,g:1e7},{t:'사탕 바다의 전설로 세상에서 제일 큰 케이크를 만들 거예요!',z:[17],r:4,n:1,g:5e7,ti:'t_npc2'}]},
- {id:'bori',name:'들판지기 보리',x:545,y:EAST.road+4,look:{h:3,k:0,s:4,hat:'nohat',o:'tee'},work:['dawn','day','dusk'],
+ {id:'bori',name:'들판지기 보리',x:299,y:EAST.road+2,look:{h:3,k:0,s:4,hat:'nohat',o:'tee'},work:['dawn','day','dusk'],
   talk:{night:'보리: 들판은 밤에 별이 제일 잘 보여요. 산 전망대에 올라가 보셨어요?'},
   q:[{t:'달빛 호수 물고기 5마리만요! 들판 잔치에 쓸 거예요.',z:[5],r:0,n:5,g:5e6},{t:'고래 만에서 희귀한 녀석 하나! 바닷바람 냄새가 나는 걸로요.',z:[15],r:2,n:1,g:1.5e7},{t:'달빛 호수의 전설을 보고 싶어요. 평생 소원이에요.',z:[5],r:4,n:1,g:6e7}]},
- {id:'moss',name:'숲지기 이끼',x:249,y:EAST.road-1,look:{h:6,k:1,s:2,hat:'beanie',o:'tee'},work:['dawn','day','dusk','night'],
+ {id:'moss',name:'숲지기 이끼',x:216,y:EAST.road-1,look:{h:6,k:1,s:2,hat:'beanie',o:'tee'},work:['dawn','day','dusk','night'],
   talk:{night:'이끼: 쉿… 밤엔 반딧불이 개울을 따라 날아요. 조용히 걸어 보세요.'},
   q:[{t:'반딧불 개울 물고기 5마리. 숲 친구들 밥이에요.',z:[14],r:0,n:5,g:5e6},{t:'숲 호수의 희귀한 녀석을 보고 싶어요.',z:[13],r:2,n:1,g:1.5e7},{t:'숲 호수 깊은 곳의 전설… 한 번만 보여 주세요.',z:[13],r:4,n:1,g:6e7}]},
- {id:'dol',name:'산지기 돌쇠',x:389,y:EAST.road-1,look:{h:8,k:1,s:5,hat:'nohat',o:'tee'},work:['dawn','day','dusk'],
+ {id:'dol',name:'산지기 돌쇠',x:252,y:EAST.road-1,look:{h:8,k:1,s:5,hat:'nohat',o:'tee'},work:['dawn','day','dusk'],
   talk:{night:'돌쇠: 산은 밤에 위험해요. 전망대만 보고 내려가요!'},
   q:[{t:'안개 계곡 물고기 5마리 부탁해요. 산장 저녁거리예요.',z:[10],r:0,n:5,g:5e6},{t:'계곡의 희귀한 녀석 하나! 힘이 세다던데.',z:[10],r:2,n:1,g:1.5e7},{t:'산 계곡의 전설을 잡으면 산장에 걸어 둘게요.',z:[10],r:4,n:1,g:6e7}]},
- {id:'haru',name:'눈꽃 아이 하루',x:690,y:EAST.road-1,look:{h:2,k:0,s:3,hat:'beanie',o:'tee'},work:['day','dusk'],
+ {id:'haru',name:'눈꽃 아이 하루',x:341,y:EAST.road-1,look:{h:2,k:0,s:3,hat:'beanie',o:'tee'},work:['day','dusk'],
   talk:{dawn:'하루: 으… 추워서 아직 이글루에서 안 나갈래요…',night:'하루: 밤엔 눈꽃이 별처럼 반짝여요. 쿨쿨…'},
   q:[{t:'얼음 호수 물고기 5마리요! 눈사람 친구들한테 보여 줄래요.',z:[18],r:0,n:5,g:5e6},{t:'눈꽃 바다의 희귀한 물고기! 반짝반짝한 거요.',z:[19],r:2,n:1,g:1.5e7},{t:'얼음 호수의 전설을 꼭 보고 싶어요!',z:[18],r:4,n:1,g:6e7}]},
- {id:'lolly',name:'사탕 장수 롤리',x:830,y:EAST.road-1,look:{h:5,k:0,s:1,hat:'ribbon',o:'tee'},work:['day','dusk','night'],
+ {id:'lolly',name:'사탕 장수 롤리',x:380,y:EAST.road-1,look:{h:5,k:0,s:1,hat:'ribbon',o:'tee'},work:['day','dusk','night'],
   talk:{dawn:'롤리: 사탕 굽는 중이에요… 조금만 있다 와요!'},
   q:[{t:'시럽 호수 물고기 5마리! 사탕 속에 넣을 거예요.',z:[16],r:0,n:5,g:5e6},{t:'사탕 바다의 희귀한 물고기 하나요!',z:[17],r:2,n:1,g:1.5e7},{t:'사탕 바다의 전설로 왕사탕을 만들고 싶어요.',z:[17],r:4,n:1,g:6e7}]},
  {id:'sobok',name:'소복옹',x:166,y:73,look:{h:7,k:1,s:3,hat:'beanie',o:'tee'},work:['night','dawn'],
@@ -5769,7 +5771,8 @@ function xkFx(nm,x,y){if(!nm)return;const X=Math.round(x),Y=Math.round(y),PR=hon
     const jp=(wt%6)/6;if(jp<.22){const k=jp/.22;cx.save();cx.globalAlpha=Math.min(1,(1-k)*2.2);cx.font='bold 9px sans-serif';cx.textAlign='center';cx.lineWidth=2.5;cx.strokeStyle='#ffe27a';for(let i=0;i<3;i++){const tx=X+(i-1)*9*(.4+k*.6),ty=Y-26-k*12-(i===1?3:0);cx.strokeText('7',tx,ty);cx.fillStyle='#d8102a';cx.fillText('7',tx,ty)}cx.restore();
       if(jp<.012)for(let j=0;j<8;j++)parts.push({x:X+(Math.random()-.5)*14,y:Y-24,vx:(Math.random()-.5)*50,vy:-25-Math.random()*20,life:.9,t:0,c:j%3?'#ffd34d':'#ff4a5a',g:110,s:2})}}}
 /* 📰 업데이트 소식 (메뉴에서 언제든) · 새 항목이 생기면 UPD_VER를 올리면 메뉴에 빨간 점 */
-const UPD_VER='1125c',UPD_LOG=[
+const UPD_VER='1126a',UPD_LOG=[
+ ['11/26 🗺️ 지도 정리','🗺️',[['🗺️ 한 마을로','동쪽 새 땅을 걸어서 몇 분 거리로 줄였어요 (예전의 절반 아래) · 숲 · 산 · 새벽 들판 · 눈꽃 고원 · 사탕 마을이 큰길 하나로 이어져요'],['🏘️ 이웃 마을 땅','큰길 남쪽에 두 줄 (7곳 × 2) · 가운데 골목으로 들어가요'],['🚧 낚시터 울타리','시냇가 · 달빛 호수 · 노을 바닷가 · 먼바다는 문을 열어야 들어가요 (빈틈으로 들어가던 길을 막았어요) · 우리 집은 마을에서 바로 가요'],['📦 첫 화면','처음 접속할 때 예전 재화 안내 창이 저절로 뜨지 않아요']]],
  ['11/24 💰 화폐 정리','💰',[['💰 오른쪽 위는 두 가지만','🎫 강화권 · 💠 꿈의 정수만 보여요 · 예전 🔹 안개 조각 · 🌰 도토리는 가방과 「오늘」에서 볼 수 있어요'],['🌠 별의 조각 (정식 오픈)','정식 오픈부터 +34 이상 강화에 별의 조각 대신 꿈의 정수를 조금 더 써요'],['🌱 메뉴 열리는 수','사냥터 200마리 · 레이드 500마리 · 명품관 400마리 · 경매 300마리부터 (낚시가 먼저!)']]],
  ['11/25 🎉 정식 오픈','🎉',[['🎉 테스트는 여기까지','지금까지는 테스트였어요 · 정식 오픈과 함께 모두 처음부터 다시 시작해요 (골드 · 가방 · 도감 · 장비 · 강화 · 치장 모두) · 이름 · 실명 · 이웃 마을 · 머리/피부/옷 색만 그대로'],['🏷️ 테스트 개척 주민','테스트를 함께 다듬어 준 이웃 몇 명에게 칭호 「테스트 개척 주민」을 드려요'],['🔄 바뀐 계획','예전에 알린 「시즌 2 · 시즌 1 명예 비석」은 없어지고 정식 오픈 · 칭호로 바뀌었어요'],['⚖️ 숨은 배율 없음','정식 오픈부터는 숨은 보너스 없이 모두 같은 규칙으로 시작해요']]],
  ['11/24 🧹 화면 정리','🧹',[['🌱 메뉴가 하나씩 열려요','처음 온 이웃이 헷갈리지 않게, 낚은 물고기 수에 따라 메뉴가 열려요 (🔒 표시 · 오래 한 사람은 그대로 다 열려 있어요)'],['💬 알림은 위쪽 작게','화면 가운데를 가리던 알림이 위쪽에 작게 떠요'],['📰 업데이트 소식','이제 저절로 열리지 않아요 · 메뉴의 빨간 점으로 알려요']]],
@@ -11686,7 +11689,7 @@ const CUR_GUIDE='<div style="font-size:13px;line-height:1.7">'+
  '· 배낚시는 <b>한 주 12번</b>, 안개 조각은 <b>한 주 120개</b> (몰아서 해도 돼요)<br>· 벌목은 <b>기력</b> (하루 15씩 · 3일치까지), 석청 바위는 <b>20시간마다</b> 다시 차요<br>· 장소별 첫 낚시 선물은 마을 일 선물로 옮겼어요<br>'+
  '<div class="wishc" style="margin-top:8px">📋 <b>메뉴 → 오늘</b> (또는 오른쪽 위 🔹🌰🎫)에서 언제든 확인해요</div></div>';
 function openCurGuide(){Snd.sfx('page');openSheet('📦 재화 · 숙제 정리 안내',CUR_GUIDE)}
-setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.cur2)return;if(ONLINE&&!Net.me)return;S.cur2=1;S.upd1109=1;S.upd1109b=1;S.upd1109c=1;S.upd1109d=1;S.upd1109e=1;S.upd1109f=1;S.upd1109g=1;S.upd1109h=1;S.upd1109i=1;S.upd1109j=1;S.upd1109k=1;S.upd1109l=1;S.upd1109m=1;S.upd1109n=1;S.upd1109o=1;saveState(true);openCurGuide()},2500);
+setInterval(()=>{if(!P||!$('title')||!$('title').hidden||!$('sheetwrap').hidden||S.cur2)return;if(ONLINE&&!Net.me)return;S.cur2=1;S.upd1109=1;S.upd1109b=1;S.upd1109c=1;S.upd1109d=1;S.upd1109e=1;S.upd1109f=1;S.upd1109g=1;S.upd1109h=1;S.upd1109i=1;S.upd1109j=1;S.upd1109k=1;S.upd1109l=1;S.upd1109m=1;S.upd1109n=1;S.upd1109o=1;saveState(true)},2500);   /* 2026-11-26: 예전 재화 안내 창은 처음 접속 때 저절로 열지 않아요 (내용도 옛날 · 첫 화면을 가림) */
 /* 2026-11-09 업데이트 안내 (짧게) */
 const UPD1109='<div class="upd">'+
  '<div class="updh">🪤 통발이 바뀌었어요</div><ul><li>낚시터 물가에 직접 놓아요. 물가에서 오른쪽 아래 <b>바꾸기 → 통발 놓기</b></li><li>남의 통발도 다가가서 들여다보고 한마디 남길 수 있어요</li><li>새 <b>갯것 40종</b>은 통발로만 잡히고 <b>손맛 도감</b>에 들어가요</li><li>치장 상점 「통발」 탭에 통발 치장이 생겼어요</li><li>예전 통발에 모여 있던 물고기는 자동으로 받았어요</li></ul>'+
