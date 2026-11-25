@@ -3934,6 +3934,14 @@ function genWorld(){
    for(const[x,y]of E.trees){for(let j=-1;j<=0;j++)for(let i=-1;i<=1;i++)SOL[y+j][x+i]=true}
    SOL[E.cy][E.x0]=false;SOL[E.cy+1][E.x0]=false}
   eastDecor(T,SOL,trees,deco,prop);
+  /* 🚧 정식 오픈 울타리 (2026-11-26 · 조돌맹 「시냇가도 그냥 뚫려 있음」): 땅을 덧붙이며 생긴 빈틈을 막아요
+     시냇가(2)는 우리 집 쪽 · 무지개 다리 쪽 · 축제 광장 쪽을 막고 문(27,22)으로만 · 달빛 호수(5) · 노을 바닷가(3)는 34칸 줄로 동쪽과 나눠요 · 꽃배 부두 끝은 먼바다(4) 문 */
+  {const fk=(x,y,k)=>{if(!inb(x,y)||T[y][x]==='w'||gates.some(g=>g.x===x&&g.y===y))return;for(let i=trees.length-1;i>=0;i--)if(trees[i].x===x&&trees[i].y===y)trees.splice(i,1);for(let i=deco.length-1;i>=0;i--)if(deco[i].x===x&&deco[i].y===y)deco.splice(i,1);if(!fences.some(f=>f.x===x&&f.y===y))fences.push({x,y,k});SOL[y][x]=true;if(T[y][x]==='p')T[y][x]='g'};
+   const unf=(x,y)=>{for(let i=fences.length-1;i>=0;i--)if(fences[i].x===x&&fences[i].y===y)fences.splice(i,1);SOL[y][x]=false;T[y][x]='p'};
+   for(const x of[28,29,30]){fk(x,21,'h');fk(x,28,'h')}
+   unf(27,20);   /* 우리 집은 마을 쪽에서 바로 */
+   for(let y=0;y<=14;y++)fk(34,y,'v');for(let y=16;y<=28;y++)fk(34,y,'v');for(let y=32;y<=40;y++)fk(34,y,'v');
+   for(const x of[63,64]){gates.push({zone:4,x,y:48,k:'h'});T[48][x]='k'}}
   const doors={};buildings.forEach(b=>{if(b.id.indexOf('e_')===0&&!b.t)return;doors[b.id]={x0:b.x,x1:b.x+b.w-1,y:b.y+1,t:b.t,lab:b.lab}});
   return{T:T,Z:Z,SOL:SOL,MASK:MASK,fences:fences,gates:gates,buildings:buildings,props:props,deco:deco,trees:trees,doors:doors,inb:inb,
     spawn:{x:17*TS+8,y:23*TS+12}};
