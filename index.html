@@ -10047,6 +10047,7 @@ function openGate(zone){
     '<button class="btn pink big" id="gOpen"'+(okSd&&okG?'':' disabled')+'>'+(!okSd?'물고기를 더 직접 낚아 주세요':!okG?'골드가 부족해요':'문 열기')+'</button>'+
     '<p class="note">'+(need?'교환이나 선물로 받은 물고기는 세지 않아요. ':'')+'이곳의 물고기 40종이 도감에 더해져요. 문은 연 사람만 지나갈 수 있어요.</p></div>');
   $('gOpen').onclick=()=>{
+    if(hasZone(zone)){closeSheet();return}   /* 두 번 눌러도 한 번만 */
     if(!okSd||S.gold<z.gate){Snd.sfx('no');return}
     S.gold-=z.gate;S.zones.push(zone);Snd.sfx('gate');saveState(true);closeSheet();
     toast(z.name+'이(가) 열렸어요!');const g=W.gates.find(g=>g.zone===zone);sparkFx(g.x*TS+8,g.y*TS+4,30,['#ffe28a','#ffb3c8','#ffffff','#b9a6ee']);
