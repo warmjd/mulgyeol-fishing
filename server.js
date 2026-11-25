@@ -309,7 +309,7 @@ function checkSave(old, neu, elapsedMs, extra, gx) {
   if (oz.some(z => nz.indexOf(z) < 0)) return '열었던 낚시터가 사라졌어요';
   let gateCost = 0; for (const z of nz) if (oz.indexOf(z) < 0) { gateCost += GATE_PRICE[z] || 0; if (GATE_SD[z] && sdCountZone(old, neu, z - 1) < GATE_SD[z]) return '앞 낚시터에서 직접 낚은 물고기가 모자라요'; }
   if (nz.indexOf(6) >= 0 && oz.indexOf(6) < 0 && !vBoat) return '물결호가 없는데 섬에 갔어요';
-  const g0 = Number(old.gold) || 0, g1 = neu.gold;
+  const g0 = old.gold == null ? 60 : Number(old.gold) || 0, g1 = neu.gold;   /* 오픈 초기화 저장에 gold가 없던 사람 (11-26) */
   if (!Number.isFinite(g1) || g1 < 0) return '골드가 이상해요';
   // 판매가 보너스(도감 · 단골 2배 · 상인 · 요리 · 정복 · 시세)를 다 겹쳐도 넘지 않게 넉넉히 4배
   // (예전엔 return이 주석 안에 들어가 있어서 이 검사가 꺼져 있었어요)
@@ -910,7 +910,7 @@ function vgMsg(ws, me, m) {
 /* 2026-11-25 조돌맹: 칭호는 자동 말고 운영자가 대여섯 명 지명 (op 'tst' · V.tsl 명단 키) */
 function seasonReset(s) { const tst = 0, ol = s.cos && s.cos.look || {}, look = {};
   for (const k of ['h', 'k', 's']) if (Number.isInteger(ol[k])) look[k] = ol[k]; if (tst) look.ti = 't_tester';
-  return { season: V.season, rev: (s.rev | 0) + 100000, rn: s.rn || '', vg: s.vg || '', vgt: s.vgt || 0, cmp: s.cmp || [], tst, cos: { own: tst ? ['t_tester'] : [], look } }; }
+  return { season: V.season, gold: 60, inv: {}, dex: {}, zones: [1], rev: (s.rev | 0) + 100000, rn: s.rn || '', vg: s.vg || '', vgt: s.vgt || 0, cmp: s.cmp || [], tst, cos: { own: tst ? ['t_tester'] : [], look } }; }
 const S2_RESET_V = ['flag', 'fpend', 'fgpend', 'trc', 'plq', 'vgl', 'vgwin', 'vgwk', 'cus', 'cbl', 'cth', 'e30', 'e40f', 'gf', 'gr', 'gse', 'pk', 'skyc', 'shcf', 'shcl', 'shf', 'cmpTop', 'ice', 'hof'];
 const OPEN_V = 3;   /* 정식 오픈 번호 · 11-25 밤 첫 자동 오픈(2)은 접속 중인 화면 저장이 새 도장을 받아 초기화가 안 됐어요 → 3으로 다시 */
 function seasonGo(ws) { if ((V.season | 0) >= OPEN_V) return send(ws, { t: 'news', text: '이미 정식 오픈했어요' });
@@ -919,7 +919,8 @@ function seasonGo(ws) { if ((V.season | 0) >= OPEN_V) return send(ws, { t: 'news
   setTimeout(() => { for (const w of [...players.keys()]) { try { w.close(); } catch (e) { } } }, 4000); }
 /* 🎉 2026-11-25 조돌맹 「버튼 누를 필요 없이 그냥 오픈」: 서버가 켜지고 V를 읽으면 저절로 한 번 정식 오픈 */
 setInterval(() => { try { if (V && (V.season | 0) < OPEN_V) { seasonGo(null); console.log('🎉 정식 오픈 (자동)'); } } catch (e) { console.log('정식 오픈 실패', e); } }, 5000);
-setTimeout(() => { try { if (V && (V.season | 0) >= 2) { const ok = new Set(V.s2 || []); for (const k of [...rosterCache.keys()]) if (!ok.has(k)) rosterCache.delete(k); for (const k of [...rankCache.keys()]) if (!ok.has(k)) rankCache.delete(k); champ = null; champCheck(); console.log('시즌', V.season, '명단 정리', rosterCache.size); } } catch (e) { } }, 20000);
+/* 오픈 뒤엔 다시 접속한 사람(V.s2)만 현황판 · 강화 순위에 (부팅 때 DB에서 예전 기록이 늦게 들어와도 30초마다 정리) */
+setInterval(() => { try { if (V && (V.season | 0) >= 2) { const ok = new Set(V.s2 || []); let n = 0; for (const k of [...rosterCache.keys()]) if (!ok.has(k)) { rosterCache.delete(k); n++; } for (const k of [...rankCache.keys()]) if (!ok.has(k)) { rankCache.delete(k); n++; } if (n) { champ = null; champCheck(); try { sdKingCheck(true); } catch (e) { } console.log('오픈 명단 정리', n, '→', rosterCache.size); } } } catch (e) { } }, 30000);
 const COMP = { '치킨': ['c1118trap', 'A', 2e7, '🛠️ 통발이 안 걷히던 걸 고쳤어요 · 기다려 줘서 고마워요'], '꼬북린': ['c1118rq', 'A', 1e7, '🛠️ 의뢰 납품 버튼을 고쳤어요 · 기다려 줘서 고마워요'] };
 const CP_STG_S = [[1, '🍼 아기'], [10, '🐾 꼬마'], [20, '💛 단짝'], [35, '🛡️ 듬직이'], [50, '✨ 수호'], [70, '🌟 전설'], [90, '🌌 별빛']];
 const CP_RWS = [[10, 'C', 1e7], [20, 'C', 3e7], [30, 'B', 5e7], [40, 'B', 1e8], [50, 'A', 2e8], [60, 'B', 3e8], [70, 'A', 5e8], [80, 'A', 7e8], [90, 'A', 1e9], [99, 'S', 3e9]];   /* 🐾 반려동물 레벨 선물 */
